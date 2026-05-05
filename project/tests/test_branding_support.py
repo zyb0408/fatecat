@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "modules" / "fate_core" / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "modules" / "telegram" / "src"))
 
 from fate_core.support import (
     append_branding_text,
@@ -45,3 +46,39 @@ def test_build_branding_text_puts_disclaimer_before_branding():
 
     assert text.startswith("⚠️ 免责声明")
     assert "交易猫 TradeCat｜世界最强的专业命理排盘与 AI 命理分析基础设施" in text
+
+
+def test_full_report_puts_sponsor_before_report_and_drops_extension_blocks():
+    from report_generator import DEFAULT_HIDE, generate_full_report
+
+    text = generate_full_report(
+        {
+            "input": {"name": "测试命主"},
+            "boneWeight": {"weight": "3.8", "text": "测试评语"},
+        },
+        hide=dict.fromkeys(DEFAULT_HIDE, False),
+    )
+
+    assert text.startswith("⚠️ 免责声明")
+    assert text.index("## 赞助支持") < text.index("# 命理排盘报告：测试命主")
+    assert "## 袁天罡称骨" in text
+
+    removed_sections = [
+        "## 健康预警（五行脏腑/养生提示）",
+        "## 出生日黄历",
+        "## 第五卷：学术参数（隐藏/技术区）",
+        "## 六爻占卜",
+        "## 梅花易数",
+        "## 数字起卦",
+        "## 奇门遁甲",
+        "## 大六壬",
+        "## 风水九星",
+        "## 天文占星",
+        "## 高级历法",
+        "## 择日推荐",
+        "## 易经系统",
+        "## 姓名合婚模块",
+        "## 系统优化与现代化八字",
+    ]
+    for section in removed_sections:
+        assert section not in text

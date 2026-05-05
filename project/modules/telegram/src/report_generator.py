@@ -1303,12 +1303,17 @@ def generate_ziwei_horoscope_section(result: dict[str, Any]) -> str:
 
 
 def generate_full_report(result: dict[str, Any], hide: dict[str, bool] | None = None) -> str:
-    """生成完整报告（计算全量；呈现可按生产开关关闭部分模块）"""
+    """生成标准报告。
+
+    标准报告只保留当前已产品化的四卷内容。健康、黄历、占卜、风水、
+    天文、历法、择日、易经、姓名合婚与系统优化块暂不作为隐藏扩展输出；
+    这些能力后续按新功能重新设计输入契约和呈现结构。
+    """
     HIDE = dict(DEFAULT_HIDE)
     if hide:
         # 允许调用方覆写默认开关（仅影响呈现）
         HIDE.update({k: bool(v) for k, v in hide.items()})
-    # 呈现策略：禁止阉割/切片，默认全量输出（仅通过表格压缩呈现）
+    # 呈现策略：只输出已产品化的标准块，扩展能力后续作为新功能进入。
     RECENT_YEARS = None
     parts: list[str] = [
         generate_report(result, hide=HIDE),
@@ -1334,35 +1339,11 @@ def generate_full_report(result: dict[str, Any], hide: dict[str, bool] | None = 
         "## 第四卷：民俗与建议（生活应用）",
         "",
         generate_bone_section(result),
-        *([] if HIDE.get("health", False) else [generate_wuxing_health_section(result)]),
-        *([] if HIDE["huangli"] else [generate_huangli_section(result)]),
     ]
-
-    # 第五卷：学术参数（隐藏/技术区）——按需生成
-    tech_parts: list[str] = []
-    tech_parts.extend([] if HIDE["divination"] else [generate_divination_section(result)])
-    tech_parts.extend([] if HIDE["fengshui"] else [generate_fengshui_section(result)])
-    tech_parts.extend([] if HIDE["astro"] else [generate_astro_section(result)])
-    tech_parts.extend([] if HIDE["calendar"] else [generate_calendar_section(result)])
-    tech_parts.extend([] if HIDE["zeri"] else [generate_zeri_section(result)])
-    tech_parts.extend([] if HIDE.get("yijing", False) else [generate_yijing_section(result, hide=HIDE)])
-    tech_parts.extend([] if HIDE["name_marriage"] else [generate_name_marriage_section(result)])
-    tech_parts.extend([] if HIDE["system"] else [generate_system_section(result)])
-    # 用户要求：关闭生成“第五卷：学术参数（隐藏/技术区）”
-    # 只有当 tech_parts 非空才生成整卷；否则完全不输出（包含标题）。
-    tech_parts = [x for x in tech_parts if x and str(x).strip()]
-    if tech_parts:
-        parts.extend(["", "## 第五卷：学术参数（隐藏/技术区）", ""])
-        parts.extend(tech_parts)
 
     branding = load_branding()
     normalized = _normalize_present_text("\n".join(parts))
-    disclaimer_section = "\n".join(
-        [
-            build_disclaimer_text(),
-            "",
-        ]
-    )
+    disclaimer_section = f"{build_disclaimer_text()}\n\n"
     sponsor_section = "\n".join(
         [
             f"## {branding['reportFooterTitle']}",
@@ -1370,7 +1351,7 @@ def generate_full_report(result: dict[str, Any], hide: dict[str, bool] | None = 
             build_brand_footer_text(compact=False),
         ]
     )
-    return f"{disclaimer_section}{normalized}\n\n{sponsor_section}"
+    return f"{disclaimer_section}{sponsor_section}\n\n{normalized}"
 
 
 def generate_geju_section(result: dict[str, Any]) -> str:
