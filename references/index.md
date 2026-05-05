@@ -9,6 +9,7 @@
 - 运维与加固：`ops-pack.md`
 - 常用命令：`commands.md`
 - 输入输出契约：`io-contract.md`
+- 真实 Bot 验收：`live-bot-verification.md`
 - 迁移与导出：`migration-plan.md`
 - 故障排查：`troubleshooting.md`
 
@@ -20,8 +21,9 @@
 4. 要直接执行命令或发布验收时，看 `commands.md`
 5. 需要对接上层系统时，看 `io-contract.md`
 6. 要理解需求到退役的阶段链条时，看 `lifecycle.md`
-7. 要做独立 skill 分发时，看 `migration-plan.md`
-8. 遇到启动或依赖异常时，看 `troubleshooting.md`
+7. 要验证真实 Telegram token 与 Bot API 连通性时，看 `live-bot-verification.md`
+8. 要做独立 skill 分发时，看 `migration-plan.md`
+9. 遇到启动或依赖异常时，看 `troubleshooting.md`
 
 ## Scope Notes
 

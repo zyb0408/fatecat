@@ -84,6 +84,20 @@ bash scripts/serve-bot.sh
 
 说明：Bot smoke 走 dry-run，不依赖真实 Telegram 连接。
 
+### 真实 Bot 验收
+
+```bash
+FATE_BOT_TOKEN=<real-token> bash scripts/live-bot-smoke.sh
+```
+
+说明：真实验收会连接 Telegram Bot API；无真实 token 时不得宣称线上通过。
+
+### Vendor 快照健康检查
+
+```bash
+bash scripts/vendor-health.sh
+```
+
 ### 清理本地缓存
 
 ```bash

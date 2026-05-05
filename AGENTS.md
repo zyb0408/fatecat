@@ -11,6 +11,10 @@ fatecat/
 ├── AGENTS.md
 ├── README.md
 ├── SKILL.md
+├── .github/
+│   ├── AGENTS.md
+│   └── workflows/
+│       └── acceptance.yml
 ├── assets/
 │   ├── AGENTS.md
 │   └── lifecycle/
@@ -27,7 +31,9 @@ fatecat/
 │   ├── clean-runtime.sh
 │   ├── delivery-smoke.sh
 │   ├── export-runtime.sh
-│   └── preflight.sh
+│   ├── live-bot-smoke.sh
+│   ├── preflight.sh
+│   └── vendor-health.sh
 └── project/
     ├── AGENTS.md
     ├── pyproject.toml
@@ -41,14 +47,16 @@ fatecat/
 ## 职责边界
 
 - `SKILL.md`：标准 skill 入口说明。
+- `.github/`：GitHub Actions 远端验收配置；只调用仓库脚本，不保存业务代码或 secret。
 - `assets/`：生命周期模板、治理资产与可沉淀的 agent 运维材料。
 - `references/`：长文档、阶段门禁、输入输出契约、迁移与排障材料；其中 `execution-playbook.md` 是统一执行顺序真相源。
-- `scripts/`：skill 包装脚本、生命周期脚手架与导出脚本；其中 `preflight.sh` 是默认预检入口，`acceptance.sh` 是发布门禁入口，`delivery-smoke.sh` 负责可回收启动验证。
+- `scripts/`：skill 包装脚本、生命周期脚手架与导出脚本；其中 `preflight.sh` 是默认预检入口，`acceptance.sh` 是发布门禁入口，`delivery-smoke.sh` 负责可回收启动验证，`vendor-health.sh` 负责 vendor 快照健康检查，`live-bot-smoke.sh` 负责真实 Telegram token 验收。
 - `project/`：FateCat 项目的真实源码根、运行时骨架与项目文档真相源。
 
 ## 依赖方向
 
 - `README.md -> SKILL.md + assets/* + references/*`
+- `.github/workflows/* -> scripts/acceptance.sh`
 - `assets/* -> scripts/* + references/*`
 - `scripts/* -> project/*`
 - `SKILL.md -> scripts/preflight.sh + scripts/delivery-smoke.sh + references/execution-playbook.md`
