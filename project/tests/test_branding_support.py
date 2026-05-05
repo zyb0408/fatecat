@@ -92,8 +92,9 @@ def test_full_report_default_heading_contract_matches_standard_blocks():
     from datetime import datetime
 
     from bazi_calculator import BaziCalculator
-    from report_generator import DEFAULT_HIDE, generate_full_report
+    from report_generator import build_report_hide, generate_full_report
 
+    hide = build_report_hide("bazi")
     result = BaziCalculator(
         datetime(1990, 1, 1, 8, 0, 0),
         "male",
@@ -102,8 +103,8 @@ def test_full_report_default_heading_contract_matches_standard_blocks():
         name="测试样本",
         birth_place="北京",
         use_true_solar_time=True,
-    ).calculate(hide=DEFAULT_HIDE)
-    text = generate_full_report(result, hide=DEFAULT_HIDE)
+    ).calculate(hide=hide)
+    text = generate_full_report(result, hide=hide)
     headings = [line for line in text.splitlines() if line.startswith("#")]
 
     assert text.startswith("⚠️ 免责声明")
@@ -150,7 +151,7 @@ def test_full_report_other_systems_are_independent_outputs():
     from datetime import datetime
 
     from bazi_calculator import BaziCalculator
-    from report_generator import DEFAULT_HIDE, generate_full_report
+    from report_generator import build_report_hide, generate_full_report
 
     result = BaziCalculator(
         datetime(1990, 1, 1, 8, 0, 0),
@@ -160,22 +161,22 @@ def test_full_report_other_systems_are_independent_outputs():
         name="测试样本",
         birth_place="北京",
         use_true_solar_time=True,
-    ).calculate(hide=DEFAULT_HIDE)
+    ).calculate(hide=build_report_hide("ziwei"))
 
-    ziwei_text = generate_full_report(result, hide=DEFAULT_HIDE, report_system="ziwei")
+    ziwei_text = generate_full_report(result, hide=build_report_hide("ziwei"), report_system="ziwei")
     assert "# 紫微斗数报告：测试样本" in ziwei_text
     assert "## 紫微斗数" in ziwei_text
     assert "## 紫微运限四化（大限/流年/流月/流日/流时）" in ziwei_text
     assert "## 八字排盘详情" not in ziwei_text
     assert "## 袁天罡称骨" not in ziwei_text
 
-    jianchu_text = generate_full_report(result, hide=DEFAULT_HIDE, report_system="jianchu")
+    jianchu_text = generate_full_report(result, hide=build_report_hide("jianchu"), report_system="jianchu")
     assert "# 建除十二神报告：测试样本" in jianchu_text
     assert "## 建除十二神" in jianchu_text
     assert "## 八字排盘详情" not in jianchu_text
     assert "## 紫微斗数" not in jianchu_text
 
-    bone_text = generate_full_report(result, hide=DEFAULT_HIDE, report_system="bone")
+    bone_text = generate_full_report(result, hide=build_report_hide("bone"), report_system="bone")
     assert "# 袁天罡称骨报告：测试样本" in bone_text
     assert "## 袁天罡称骨" in bone_text
     assert "## 八字排盘详情" not in bone_text

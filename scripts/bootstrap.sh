@@ -36,11 +36,16 @@ if [[ -n "${rebuild_reason}" ]]; then
   python3 -m venv .venv
 fi
 
+constraints_args=()
+if [[ -f requirements.lock.txt ]]; then
+  constraints_args=(-c requirements.lock.txt)
+fi
+
 .venv/bin/python -m pip install -q --upgrade pip
 if [[ "${with_dev}" == "1" ]]; then
-  .venv/bin/python -m pip install -q -e '.[dev]'
+  .venv/bin/python -m pip install -q "${constraints_args[@]}" -e '.[dev]'
 else
-  .venv/bin/python -m pip install -q -e .
+  .venv/bin/python -m pip install -q "${constraints_args[@]}" -e .
 fi
 
 python_entrypoint_healthy "${runtime_root}" || die "bootstrap 后 python 入口仍不可用"

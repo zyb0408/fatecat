@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass
 from datetime import datetime
 from html import escape
@@ -15,10 +16,11 @@ from typing import Any
 from bazi_calculator import BaziCalculator
 from fastapi.responses import HTMLResponse
 from location import get as get_location
-from report_generator import DEFAULT_HIDE as REPORT_HIDE
-from report_generator import REPORT_SYSTEM_LABELS, generate_full_report
+from report_generator import REPORT_SYSTEM_LABELS, build_report_hide, generate_full_report, public_birth_place
 from tabulate import tabulate
 from utils.timezone import now_cn
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -91,8 +93,9 @@ def render_web_report_page(
             result = _build_report(form)
         except ValueError as exc:
             errors.append(str(exc))
-        except Exception as exc:
-            errors.append(f"生成报告失败: {exc}")
+        except Exception:
+            logger.exception("Web 报告生成失败")
+            errors.append("生成报告失败")
 
     html = _render_document(form=form, result=result, errors=errors)
     return HTMLResponse(content=html)
@@ -114,7 +117,13 @@ def _build_report(form: WebReportForm) -> WebReportResult:
     birth_dt, normalized_time = _parse_birth_datetime(form.birth_date, form.birth_time)
     gender = _normalize_gender(form.gender)
     report_system = _normalize_report_system(form.report_system)
-    longitude, latitude = get_location(form.birth_place)
+    try:
+        longitude, latitude = get_location(form.birth_place)
+    except ValueError as exc:
+        if str(exc).startswith("地点无法识别"):
+            raise ValueError("地点无法识别") from exc
+        raise
+    display_birth_place = public_birth_place(form.birth_place)
 
     calculator = BaziCalculator(
         birth_dt,
@@ -122,15 +131,16 @@ def _build_report(form: WebReportForm) -> WebReportResult:
         longitude,
         latitude=latitude,
         name=form.name or None,
-        birth_place=form.birth_place,
+        birth_place=display_birth_place,
         use_true_solar_time=True,
     )
-    calc_result = calculator.calculate(hide=REPORT_HIDE)
-    markdown = generate_full_report(calc_result, hide=REPORT_HIDE, report_system=report_system)
+    report_hide = build_report_hide(report_system)
+    calc_result = calculator.calculate(hide=report_hide)
+    markdown = generate_full_report(calc_result, hide=report_hide, report_system=report_system)
     payload = {
         "birthDate": form.birth_date,
         "birthTime": normalized_time,
-        "birthPlace": form.birth_place,
+        "birthPlace": display_birth_place,
         "gender": gender,
         "name": form.name,
         "reportSystem": report_system,
@@ -273,7 +283,7 @@ def _render_form(form: WebReportForm) -> str:
             '<label for="birthPlace">出生地区（必填）</label><br>',
             (
                 '<input id="birthPlace" name="birthPlace" type="text" '
-                f'value="{_attr(form.birth_place)}" '
+                f'value="{_attr(public_birth_place(form.birth_place))}" '
                 'placeholder="北京 或 116.4074,39.9042" required>'
             ),
             "</p>",
@@ -312,7 +322,7 @@ def _render_submitted_input(form: WebReportForm, result: WebReportResult | None)
     rows = [
         ["birthDate", form.birth_date, "query"],
         ["birthTime", form.birth_time, "query"],
-        ["birthPlace", form.birth_place, "query"],
+        ["birthPlace", public_birth_place(form.birth_place), "query"],
         ["gender", form.gender, "query"],
         ["reportSystem", form.report_system or "bazi", "query"],
         ["name", form.name, "query"],

@@ -17,6 +17,19 @@ REPORT_SYSTEM_LABELS: dict[str, str] = {
 }
 
 
+def public_birth_place(value: str | None) -> str:
+    """返回可展示的出生地区。
+
+    用户前端只允许展示北京类地区；其他真实地区名只参与经纬度解析和后端记录。
+    """
+    text = (value or "").strip()
+    if not text:
+        return ""
+    if "北京" in text:
+        return text
+    return "已填写（非北京地区已隐藏）"
+
+
 def _normalize_present_text(text: str) -> str:
     """统一清理“呈现层”文案中的提示词。
 
@@ -62,8 +75,9 @@ def _compact_inline_text(s: str) -> str:
     return " ".join(x.strip() for x in str(s).splitlines() if x.strip())
 
 
-# 标准报告只使用 jianchu；其余键用于传给遗留计算器关闭待新功能化的扩展能力。
+# 默认正宗八字不计算紫微/天文等扩展；独立体系按 report_system 打开所需计算。
 DEFAULT_HIDE: dict[str, bool] = {
+    "extensions": True,
     "jianchu": False,
     "huangli": True,
     "zeri": True,
@@ -1301,12 +1315,27 @@ def _normalize_report_system(report_system: str | None) -> str:
     return normalized
 
 
+def normalize_report_system(report_system: str | None) -> str:
+    """公开的报告体系归一化入口。"""
+    return _normalize_report_system(report_system)
+
+
+def build_report_hide(report_system: str | None = "bazi", hide: dict[str, bool] | None = None) -> dict[str, bool]:
+    """按报告体系构造计算/呈现开关。
+
+    默认八字、建除、称骨均不需要紫微扩展；只有 `ziwei` 独立体系开启扩展计算。
+    """
+    system = _normalize_report_system(report_system)
+    merged = dict(DEFAULT_HIDE)
+    if hide:
+        merged.update({k: bool(v) for k, v in hide.items()})
+    merged["extensions"] = system != "ziwei"
+    return merged
+
+
 def generate_bazi_standard_report(result: dict[str, Any], hide: dict[str, bool] | None = None) -> str:
     """生成正宗八字标准报告，不混入紫微、建除或称骨。"""
-    HIDE = dict(DEFAULT_HIDE)
-    if hide:
-        # 允许调用方覆写默认开关（仅影响呈现）
-        HIDE.update({k: bool(v) for k, v in hide.items()})
+    HIDE = build_report_hide("bazi", hide=hide)
     HIDE["jianchu"] = True
     HIDE["non_bazi_basic"] = True
 

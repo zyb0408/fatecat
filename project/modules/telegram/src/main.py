@@ -1,4 +1,6 @@
+import logging
 import os
+import secrets
 import sys
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -6,7 +8,7 @@ from zoneinfo import ZoneInfo
 from _paths import FATE_CORE_SRC_DIR, get_env_file
 from branding import attach_branding, get_branding_payload, get_disclaimer_payload
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -22,6 +24,7 @@ except FileNotFoundError:
 
 SERVICE_HOST = os.getenv("FATE_SERVICE_HOST", "127.0.0.1")
 SERVICE_PORT = int(os.getenv("FATE_SERVICE_PORT", "8001"))
+API_TOKEN = os.getenv("FATE_API_TOKEN", "").strip()
 
 import db_v2 as db  # noqa: E402
 from bazi_calculator import BaziCalculator  # noqa: E402
@@ -38,13 +41,46 @@ from models import (  # noqa: E402
     Meta,
     TimeInfo,
 )
-from report_generator import DEFAULT_HIDE as REPORT_HIDE  # noqa: E402
+from report_generator import (  # noqa: E402
+    build_report_hide,
+    generate_full_report,
+    normalize_report_system,
+    public_birth_place,
+)
 from web_ui import render_web_report_page  # noqa: E402
 
 db.ensure_db()
 
+logger = logging.getLogger(__name__)
+
+
+def _cors_allow_origins() -> list[str]:
+    raw = os.getenv("FATE_CORS_ALLOW_ORIGINS", "").strip()
+    if not raw:
+        return []
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
+
+def _extract_auth_token(x_api_key: str | None, authorization: str | None) -> str:
+    if x_api_key:
+        return x_api_key.strip()
+    if authorization:
+        scheme, _, value = authorization.strip().partition(" ")
+        if scheme.lower() == "bearer" and value:
+            return value.strip()
+    return ""
+
+
+def _require_record_access(x_api_key: str | None, authorization: str | None) -> None:
+    if not API_TOKEN:
+        raise HTTPException(status_code=403, detail="记录接口未启用")
+    supplied = _extract_auth_token(x_api_key, authorization)
+    if not supplied or not secrets.compare_digest(supplied, API_TOKEN):
+        raise HTTPException(status_code=403, detail="未授权")
+
+
 app = FastAPI(title="八字排盘服务", version="1.0.0")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(CORSMiddleware, allow_origins=_cors_allow_origins(), allow_methods=["*"], allow_headers=["*"])
 
 
 def _branding_model() -> BrandingInfo:
@@ -71,13 +107,13 @@ async def branded_http_exception_handler(_request, exc: HTTPException):
 
 @app.exception_handler(RequestValidationError)
 async def branded_validation_exception_handler(_request, exc: RequestValidationError):
+    logger.info("API 请求参数校验失败: %s", exc.errors())
     return JSONResponse(
         status_code=422,
         content=attach_branding(
             {
                 "success": False,
                 "error": "请求参数无效",
-                "details": exc.errors(),
                 "statusCode": 422,
             }
         ),
@@ -86,12 +122,13 @@ async def branded_validation_exception_handler(_request, exc: RequestValidationE
 
 @app.exception_handler(Exception)
 async def branded_exception_handler(_request, exc: Exception):
+    logger.exception("未处理 API 异常")
     return JSONResponse(
         status_code=500,
         content=attach_branding(
             {
                 "success": False,
-                "error": str(exc),
+                "error": "服务器内部错误",
                 "statusCode": 500,
             }
         ),
@@ -160,28 +197,35 @@ def _build_bazi_data(result: dict, *, birth_dt: datetime, true_solar_time: datet
     )
 
 
+def _calculate_bazi_raw(req: BaziRequest, *, report_system: str = "bazi") -> tuple[dict, BaziCalculator, datetime]:
+    birth_dt, longitude, latitude = _parse_bazi_request(req)
+    report_hide = build_report_hide(report_system)
+    display_birth_place = public_birth_place(req.birthPlace.name)
+    calculator = BaziCalculator(
+        birth_dt,
+        req.gender,
+        longitude,
+        latitude=latitude,
+        name=req.name,
+        birth_place=display_birth_place,
+        use_true_solar_time=req.options.useTrueSolarTime,
+    )
+    result = calculator.calculate(hide=report_hide)
+    return result, calculator, birth_dt
+
+
 @app.post("/api/v1/bazi/simple")
 def calculate_bazi_simple(req: BaziRequest):
     """简化八字计算 - 直接返回原始结果"""
     try:
-        birth_dt, longitude, latitude = _parse_bazi_request(req)
-
-        calculator = BaziCalculator(
-            birth_dt,
-            req.gender,
-            longitude,
-            latitude=latitude,
-            name=req.name,
-            birth_place=req.birthPlace.name,
-            use_true_solar_time=req.options.useTrueSolarTime,
-        )
-        result = calculator.calculate(hide=REPORT_HIDE)
+        result, _calculator, _birth_dt = _calculate_bazi_raw(req, report_system="bazi")
 
         return attach_branding({"success": True, "data": result})
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        logger.exception("简化八字计算失败")
+        raise HTTPException(status_code=500, detail="服务器内部错误") from e
 
 
 @app.post("/api/v1/bazi/pure-analysis")
@@ -212,25 +256,22 @@ def calculate_bazi_pure_analysis(req: BaziRequest):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        logger.exception("纯分析计算失败")
+        raise HTTPException(status_code=500, detail="服务器内部错误") from e
 
 
 @app.post("/api/v1/bazi/calculate", response_model=BaziResponse)
-def calculate_bazi(req: BaziRequest, user_id: str | None = None):
+def calculate_bazi(
+    req: BaziRequest,
+    user_id: str | None = None,
+    x_fatecat_api_key: str | None = Header(default=None, alias="X-FateCat-API-Key"),
+    authorization: str | None = Header(default=None),
+):
     """计算八字排盘"""
     try:
-        birth_dt, longitude, latitude = _parse_bazi_request(req)
-
-        calculator = BaziCalculator(
-            birth_dt,
-            req.gender,
-            longitude,
-            latitude=latitude,
-            name=req.name,
-            birth_place=req.birthPlace.name,
-            use_true_solar_time=req.options.useTrueSolarTime,
-        )
-        result = calculator.calculate(hide=REPORT_HIDE)
+        if user_id:
+            _require_record_access(x_fatecat_api_key, authorization)
+        result, calculator, birth_dt = _calculate_bazi_raw(req, report_system="bazi")
 
         ts_dt = calculator.true_solar_time if req.options.useTrueSolarTime else birth_dt
         data = _build_bazi_data(
@@ -252,8 +293,8 @@ def calculate_bazi(req: BaziRequest, user_id: str | None = None):
                 birth_date=req.birthDate,
                 birth_time=req.birthTime,
                 birth_place=req.birthPlace.name,
-                longitude=longitude,
-                latitude=latitude,
+                longitude=req.birthPlace.longitude,
+                latitude=req.birthPlace.latitude,
                 dst=0,
                 true_solar=1 if req.options.useTrueSolarTime else 0,
                 early_zi=1 if req.options.midnightMode == "early" else 0,
@@ -267,14 +308,42 @@ def calculate_bazi(req: BaziRequest, user_id: str | None = None):
             meta=Meta(calculatedAt=now_cn().isoformat(), recordId=record_id),
             branding=_branding_model(),
         )
-    except Exception as e:
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("八字 API 计算失败")
         return BaziResponse(
             disclaimer=_disclaimer_model(),
             success=False,
-            error=str(e),
+            error="八字计算失败",
             meta=Meta(calculatedAt=now_cn().isoformat()),
             branding=_branding_model(),
         )
+
+
+@app.post("/api/v1/report/markdown")
+def generate_markdown_report(req: BaziRequest):
+    """生成指定体系的 Markdown 报告。"""
+    try:
+        report_system = normalize_report_system(req.options.reportSystem)
+        result, _calculator, _birth_dt = _calculate_bazi_raw(req, report_system=report_system)
+        report_hide = build_report_hide(report_system)
+        markdown = generate_full_report(result, hide=report_hide, report_system=report_system)
+        return attach_branding(
+            {
+                "success": True,
+                "data": {
+                    "reportSystem": report_system,
+                    "markdown": markdown,
+                },
+                "meta": {"calculatedAt": now_cn().isoformat()},
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("Markdown 报告生成失败")
+        raise HTTPException(status_code=500, detail="服务器内部错误") from e
 
 
 @app.post("/api/v1/liuyao/factor", response_model=LiuyaoFactorResponse)
@@ -297,19 +366,25 @@ def calculate_liuyao_factor(req: LiuyaoFactorRequest):
             meta=Meta(calculatedAt=now_cn().isoformat(), algorithm="liuyao-divicast", version="1.0.0"),
             branding=_branding_model(),
         )
-    except Exception as e:
+    except Exception:
+        logger.exception("六爻因子计算失败")
         return LiuyaoFactorResponse(
             disclaimer=_disclaimer_model(),
             success=False,
-            error=str(e),
+            error="六爻因子计算失败",
             meta=Meta(calculatedAt=now_cn().isoformat(), algorithm="liuyao-divicast", version="1.0.0"),
             branding=_branding_model(),
         )
 
 
 @app.get("/api/v1/records/{record_id}")
-def get_record(record_id: int):
+def get_record(
+    record_id: int,
+    x_fatecat_api_key: str | None = Header(default=None, alias="X-FateCat-API-Key"),
+    authorization: str | None = Header(default=None),
+):
     """获取记录"""
+    _require_record_access(x_fatecat_api_key, authorization)
     record = db.get_record(record_id)
     if not record:
         raise HTTPException(status_code=404, detail="Not found")
@@ -317,15 +392,27 @@ def get_record(record_id: int):
 
 
 @app.get("/api/v1/user/{user_id}/records")
-def get_user_records(user_id: str, biz_type: str = None, limit: int = 10):
+def get_user_records(
+    user_id: str,
+    biz_type: str = None,
+    limit: int = 10,
+    x_fatecat_api_key: str | None = Header(default=None, alias="X-FateCat-API-Key"),
+    authorization: str | None = Header(default=None),
+):
     """获取用户记录"""
+    _require_record_access(x_fatecat_api_key, authorization)
     records = db.get_user_records(user_id, biz_type, limit)
     return attach_branding({"success": True, "data": records, "total": len(records)})
 
 
 @app.delete("/api/v1/records/{record_id}")
-def delete_record(record_id: int):
+def delete_record(
+    record_id: int,
+    x_fatecat_api_key: str | None = Header(default=None, alias="X-FateCat-API-Key"),
+    authorization: str | None = Header(default=None),
+):
     """删除记录"""
+    _require_record_access(x_fatecat_api_key, authorization)
     if db.delete_record(record_id):
         return attach_branding({"success": True})
     raise HTTPException(status_code=404, detail="Not found")

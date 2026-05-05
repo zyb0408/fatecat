@@ -205,11 +205,13 @@ http://127.0.0.1:8001/web
 | 输出体系 | 否 | `bazi` / `ziwei` / `jianchu` / `bone`；默认 `bazi`，每次只输出一个体系 |
 | 姓名 | 否 | 为空时报告标题使用“命主” |
 
+前端展示规则：非北京类出生地区只用于经纬度解析和真太阳时计算，Web/Bot/Markdown 展示层会统一显示为“已填写（非北京地区已隐藏）”。
+
 <a id="report-structure"></a>
 
 ## 标准 Markdown 报告结构
 
-默认 Markdown 只输出正宗八字体系。紫微、建除十二神和袁天罡称骨作为独立体系保留，但必须通过 Web HTML 的“输出体系”控件或 `report_system` 参数单独选择，不再和正宗八字一起输出。
+默认 Markdown 只输出正宗八字体系。紫微、建除十二神和袁天罡称骨作为独立体系保留，但必须通过 Web HTML 的“输出体系”控件、Telegram 确认页按钮，或 API `options.reportSystem` 单独选择，不再和正宗八字一起输出。
 
 可选体系：
 
@@ -219,6 +221,14 @@ http://127.0.0.1:8001/web
 | `ziwei` | 紫微斗数 | 否；独立输出紫微斗数、紫微基础、紫微运限四化 |
 | `jianchu` | 建除十二神 | 否；独立输出黄历/择日民俗辅助 |
 | `bone` | 袁天罡称骨 | 否；独立输出民俗称骨 |
+
+API 生成 Markdown 的入口：
+
+```text
+POST /api/v1/report/markdown
+```
+
+请求体沿用 `BaziRequest`，在 `options.reportSystem` 中传入 `bazi`、`ziwei`、`jianchu` 或 `bone`。
 
 默认 `bazi` 输出块顺序固定如下：
 
@@ -353,6 +363,13 @@ fatecat/
 - 不分发 `__pycache__`、`*.pyc`、`*.pyo`。
 - 不把 `project/modules/telegram/output/`、运行态 `.db` / `.sqlite` 或本地 `.env` 放进导出包。
 - 导出后必须运行 `scripts/check-export-hygiene.sh`。
+- 旧部署包 `project/assets/deploy/pack.sh` 也会清理 `.env`、私钥、证书、SQLite、日志和常见凭证 JSON，避免把本地运行态打进 tarball。
+
+API 安全开关：
+
+- `FATE_CORS_ALLOW_ORIGINS`：逗号分隔 CORS allowlist；默认空列表，不再默认 `*`。
+- `FATE_API_TOKEN`：启用记录读写接口的 API token；访问记录接口或通过 `user_id` 写记录时，需要 `X-FateCat-API-Key` 或 `Authorization: Bearer ...`。
+- 未配置 `FATE_API_TOKEN` 时，记录接口返回“记录接口未启用”，避免公网误暴露。
 
 清理本地运行态：
 

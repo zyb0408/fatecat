@@ -28,6 +28,19 @@ find "$OUT" -name "node_modules" -type d -exec rm -rf {} + 2>/dev/null || true
 find "$OUT" -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 find "$OUT" -name "*.pyc" -delete 2>/dev/null || true
 find "$OUT" -name "*.db" -delete 2>/dev/null || true
+find "$OUT" -name "*.sqlite" -delete 2>/dev/null || true
+find "$OUT" -name "*.sqlite3" -delete 2>/dev/null || true
+find "$OUT" -name "*.log" -delete 2>/dev/null || true
+find "$OUT" -name ".env" -delete 2>/dev/null || true
+find "$OUT" -name ".env.*" ! -name ".env.example" -delete 2>/dev/null || true
+find "$OUT" -name ".env.local" -delete 2>/dev/null || true
+find "$OUT" -name "*.local" -delete 2>/dev/null || true
+find "$OUT" \( -name "*.pem" -o -name "*.key" -o -name "*.crt" -o -name "*.p12" \) -delete 2>/dev/null || true
+find "$OUT" \( -iname "*credential*.json" -o -iname "*service-account*.json" -o -iname "*service_account*.json" \) -delete 2>/dev/null || true
+if find "$OUT" \( -name ".env" -o \( -name ".env.*" ! -name ".env.example" \) -o -name "*.pem" -o -name "*.key" -o -name "*.p12" -o -iname "*credential*.json" -o -iname "*service-account*.json" -o -iname "*service_account*.json" \) | grep -q .; then
+  echo "敏感配置残留，拒绝打包" >&2
+  exit 1
+fi
 
 echo "==> 生成部署脚本"
 cat > "$OUT/install.sh" << 'EOF'

@@ -7,7 +7,8 @@
 FateCat 八字排盘系统 API / Bot 接口规范，基于当前 skill 化后的标准报告契约与 `fate_core` / Telegram 交付层实现。
 
 ### 🎯 当前状态
-- **标准报告**: 默认只输出免责声明、赞助支持、标题、第一卷先天命格与第二卷后天运路；紫微斗数、建除十二神、袁天罡称骨通过 `report_system` / Web 控件独立输出，不与正宗八字混排。
+- **标准报告**: 默认只输出免责声明、赞助支持、标题、第一卷先天命格与第二卷后天运路；紫微斗数、建除十二神、袁天罡称骨通过 `report_system` / Web 控件 / API `options.reportSystem` / Bot 确认页按钮独立输出，不与正宗八字混排。
+- **前端地区展示**: 非北京类真实出生地区只参与经纬度解析和后端计算，Web/Bot/Markdown 展示层统一隐藏。
 - **未来功能**: 退出标准报告的扩展能力统一登记在 `assets/fate/future_features.json`，后续必须按独立输入契约、输出模板与测试重新进入生产。
 - **结构化输出**: API / pure-analysis 优先依赖字段 profile 和结构化 JSON，不要求 TXT 报告承载全部历史字段。
 - **产物**: 每次排盘落地 2 份 TXT（常规版 + `-ai分析版`），并推送到 Telegram。
@@ -29,12 +30,13 @@ FateCat 八字排盘系统 API / Bot 接口规范，基于当前 skill 化后的
 {
   "name": "张三",                          // 姓名 (可选)
   "gender": "male",                        // 性别: male/female
-  "birthDate": "1990-05-15",               // 出生日期 (公历)
-  "birthTime": "14:30",                    // 出生时间 (HH:MM)
-  "birthPlace": "深圳南山",                 // 地点名称 (支持省市区)
+  "birthDate": "1990-01-01",               // 出生日期 (公历)
+  "birthTime": "08:00",                    // 出生时间 (HH:MM)
+  "birthPlace": "北京市",                   // 地点名称 (支持省市区)
   "options": {
     "useTrueSolarTime": true,              // 真太阳时修正 (默认true)
-    "calendarType": "solar"                // 历法: solar(公历)
+    "calendarType": "solar",               // 历法: solar(公历)
+    "reportSystem": "bazi"                 // bazi/ziwei/jianchu/bone
   }
 }
 ```
@@ -297,14 +299,14 @@ result = calc.calculate()
 
 ### Bot 调用
 ```
-输入: 1990-05-15 14:30 深圳 张三
+输入: 1990-01-01 08:00 北京市 张三
 选择: ♂ 乾造(男)
-输出: 默认正宗八字报告与结构化 JSON；其他体系需单独选择
+输出: 默认正宗八字报告与结构化 JSON；其他体系在确认页单独选择
 ```
 
 ### API 调用
 ```bash
-curl -X POST "http://localhost:8001/api/v1/bazi/calculate" \
+curl -X POST "http://localhost:8001/api/v1/report/markdown" \
   -H "Content-Type: application/json" \
-  -d '{"name":"张三","gender":"male","birthDate":"1990-05-15","birthTime":"14:30","birthPlace":"深圳"}'
+  -d '{"name":"张三","gender":"male","birthDate":"1990-01-01","birthTime":"08:00:00","birthPlace":{"name":"北京市","longitude":116.4074,"latitude":39.9042,"timezone":"Asia/Shanghai"},"options":{"useTrueSolarTime":true,"calendarType":"solar","reportSystem":"bazi"}}'
 ```

@@ -273,6 +273,8 @@ FATE_ADMIN_USER_IDS=123456789
 FATE_BOT_PROXY_URL=http://127.0.0.1:7890
 FATE_SERVICE_HOST=0.0.0.0
 FATE_SERVICE_PORT=8001
+FATE_CORS_ALLOW_ORIGINS=https://your-domain.example
+FATE_API_TOKEN=change-me
 ```
 
 <details>
@@ -511,6 +513,8 @@ CLI 的两个关键约定：
 - 必需项：`FATE_BOT_TOKEN`
 - 可选项：`FATE_ADMIN_USER_IDS`、`FATE_BOT_PROXY_URL`
 - 日志目录：`modules/telegram/output/logs/`
+- 确认页可切换报告体系：正宗八字、紫微斗数、建除十二神、袁天罡称骨。
+- 用户可见报告不会回显非北京类真实出生地区；非北京地区只用于后端经纬度解析和计算。
 
 常见命令：
 
@@ -530,6 +534,7 @@ tail -f modules/telegram/output/logs/bot.log
 | `POST` | `/api/v1/bazi/pure-analysis` | 纯命理分析，适合 AI / Agent |
 | `POST` | `/api/v1/bazi/simple` | 返回简化原始结果 |
 | `POST` | `/api/v1/bazi/calculate` | 传统八字排盘响应（兼容 legacy 输出） |
+| `POST` | `/api/v1/report/markdown` | 按 `options.reportSystem` 生成独立体系 Markdown |
 | `POST` | `/api/v1/liuyao/factor` | 六爻量化因子统一输出 |
 
 启动命令：
@@ -552,17 +557,18 @@ curl -X POST "http://127.0.0.1:8001/api/v1/bazi/pure-analysis" \
   -d '{
     "name": "张三",
     "gender": "male",
-    "birthDate": "1990-05-15",
-    "birthTime": "14:30:00",
+    "birthDate": "1990-01-01",
+    "birthTime": "08:00:00",
     "birthPlace": {
-      "name": "深圳",
-      "longitude": 114.1,
-      "latitude": 22.5,
+      "name": "北京市",
+      "longitude": 116.4074,
+      "latitude": 39.9042,
       "timezone": "Asia/Shanghai"
     },
     "options": {
       "useTrueSolarTime": true,
-      "calendarType": "solar"
+      "calendarType": "solar",
+      "reportSystem": "bazi"
     }
   }'
 ```
@@ -573,6 +579,8 @@ curl -X POST "http://127.0.0.1:8001/api/v1/bazi/pure-analysis" \
 - JSON 响应统一附带 `branding`
 - Telegram 消息与报告正文也会附带免责声明与 TradeCat 广告位
 - 错误响应同样会带 branding，方便下游保留来源信息
+- 记录接口与带 `user_id` 的保存请求需要 `FATE_API_TOKEN`，支持 `X-FateCat-API-Key` 或 `Authorization: Bearer ...`
+- CORS 通过 `FATE_CORS_ALLOW_ORIGINS` 配置；默认空列表，不默认放开公网跨域
 
 ### 统一配置原则
 

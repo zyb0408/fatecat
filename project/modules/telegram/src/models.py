@@ -6,6 +6,8 @@ from pydantic import BaseModel, Field
 
 # ========== 请求模型 ==========
 
+ReportSystem = Literal["bazi", "ziwei", "jianchu", "bone"]
+
 
 class BirthPlace(BaseModel):
     name: str = Field(..., description="地点名称")
@@ -19,6 +21,7 @@ class BaziOptions(BaseModel):
     daylightSaving: Literal["auto", "on", "off"] = Field(default="auto", description="夏令时处理")
     midnightMode: Literal["early", "late"] = Field(default="early", description="早晚子时")
     calendarType: Literal["solar", "lunar"] = Field(default="solar", description="输入历法类型")
+    reportSystem: ReportSystem = Field(default="bazi", description="Markdown 报告输出体系")
 
 
 class BaziRequest(BaseModel):

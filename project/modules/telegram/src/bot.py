@@ -47,8 +47,12 @@ from bazi_calculator import BaziCalculator  # noqa: E402
 from location import get as get_location  # noqa: E402
 from location import get_coords  # noqa: E402
 from rate_limiter import acquire_slot, get_queue_status, release_slot  # noqa: E402
-from report_generator import DEFAULT_HIDE as REPORT_HIDE  # noqa: E402
-from report_generator import generate_full_report  # noqa: E402
+from report_generator import (  # noqa: E402
+    REPORT_SYSTEM_LABELS,
+    build_report_hide,
+    generate_full_report,
+    public_birth_place,
+)
 
 # 自动初始化数据库
 db.ensure_db()
@@ -135,14 +139,22 @@ def main_kb(gender="male"):
     )
 
 
-def confirm_kb():
+def confirm_kb(report_system: str = "bazi"):
     """确认键盘"""
+    selected = report_system if report_system in REPORT_SYSTEM_LABELS else "bazi"
+
+    def option(value: str) -> InlineKeyboardButton:
+        mark = "✅ " if selected == value else ""
+        return InlineKeyboardButton(f"{mark}{REPORT_SYSTEM_LABELS[value]}", callback_data=f"report_{value}")
+
     return InlineKeyboardMarkup(
         [
             [
                 InlineKeyboardButton("🚀 开始排盘", callback_data="calc"),
                 InlineKeyboardButton("✏️ 返回修改", callback_data="edit"),
             ],
+            [option("bazi"), option("ziwei")],
+            [option("jianchu"), option("bone")],
             _brand_button_row(),
         ]
     )
@@ -223,16 +235,20 @@ def build_main_msg(gender="male"):
 
 
 def build_confirm_msg(d):
+    report_system = d.get("report_system", "bazi")
+    report_label = REPORT_SYSTEM_LABELS.get(report_system, REPORT_SYSTEM_LABELS["bazi"])
+    display_birth_place = public_birth_place(d.get("birth_place", "北京"))
     return _with_branding_markdown(
         (
             "📋 *确认信息*\n"
             "```\n"
             f"📅 日期：{d['birth_date']}\n"
             f"⏰ 时间：{d['birth_time']}\n"
-            f"📍 地点：{d.get('birth_place', '北京')}\n"
+            f"📍 地点：{display_birth_place}\n"
             f"👤 姓名：{d.get('name') or '匿名'}\n"
+            f"📄 输出：{report_label}\n"
             "```\n"
-            "确认无误请点击开始排盘 ⏬"
+            "可切换输出体系，确认无误请点击开始排盘 ⏬"
         ),
         compact=True,
     )
@@ -362,7 +378,7 @@ def format_result(d, r, birth_dt):
 
     text = f"""🔮 *{d.get("name") or "匿名"}* {"乾造" if d["gender"] == "male" else "坤造"}
 
-📅 {d["birth_date"]} {d["birth_time"]}（{d.get("birth_place", "北京")}）
+📅 {d["birth_date"]} {d["birth_time"]}（{public_birth_place(d.get("birth_place", "北京"))}）
 农历: {bi.get("lunar", "")}
 真太阳时: {bi.get("trueSolarTime", "")}
 生肖: {bi.get("zodiac", "")} | 星座: {bi.get("constellation", "")} | 星宿: {bi.get("xingXiu", "")}
@@ -732,9 +748,12 @@ async def handle_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return INPUT
 
     context.user_data.update({"birth_date": date_str, "birth_time": time_str, "birth_place": place, "name": name})
+    context.user_data.setdefault("report_system", "bazi")
 
     await update.message.reply_text(
-        build_confirm_msg(context.user_data), parse_mode="Markdown", reply_markup=confirm_kb()
+        build_confirm_msg(context.user_data),
+        parse_mode="Markdown",
+        reply_markup=confirm_kb(context.user_data.get("report_system", "bazi")),
     )
     return CONFIRM
 
@@ -766,9 +785,21 @@ async def handle_confirm_callback(update: Update, context: ContextTypes.DEFAULT_
         await query.edit_message_text(build_main_msg(gender), parse_mode="Markdown", reply_markup=main_kb(gender))
         return INPUT
 
+    if query.data.startswith("report_"):
+        report_system = query.data.removeprefix("report_")
+        if report_system in REPORT_SYSTEM_LABELS:
+            context.user_data["report_system"] = report_system
+        await query.edit_message_text(
+            build_confirm_msg(context.user_data),
+            parse_mode="Markdown",
+            reply_markup=confirm_kb(context.user_data.get("report_system", "bazi")),
+        )
+        return CONFIRM
+
     if query.data == "calc":
         d = context.user_data
         d.setdefault("gender", "male")
+        d.setdefault("report_system", "bazi")
         user_id = update.effective_user.id
         is_admin = str(update.effective_chat.id) == str(ADMIN_CHAT_ID)
 
@@ -797,7 +828,10 @@ async def handle_confirm_callback(update: Update, context: ContextTypes.DEFAULT_
             await acquire_slot()
         # ========== 槽位获取结束 ==========
 
-        msg = await query.edit_message_text(_with_branding_text("⏳ 正在排盘，生成标准报告...", compact=True))
+        report_label = REPORT_SYSTEM_LABELS.get(d.get("report_system", "bazi"), REPORT_SYSTEM_LABELS["bazi"])
+        msg = await query.edit_message_text(
+            _with_branding_text(f"⏳ 正在排盘，生成{report_label}报告...", compact=True)
+        )
 
         try:
             out_path, filename, ai_path, ai_filename = await asyncio.to_thread(
@@ -891,21 +925,25 @@ def _calc_and_save_report(d: dict, lng: float, lat: float, user_id: str):
     birth_dt = datetime.strptime(f"{d['birth_date']} {d['birth_time']}", "%Y-%m-%d %H:%M")
 
     # 传递姓名与出生地，避免回退默认“命主/未知”
+    report_system = d.get("report_system", "bazi")
+    report_hide = build_report_hide(report_system)
+    display_birth_place = public_birth_place(d.get("birth_place"))
     result = BaziCalculator(
         birth_dt,
         d["gender"],
         lng,
         latitude=lat,
         name=d.get("name"),
-        birth_place=d.get("birth_place"),
-    ).calculate(hide=REPORT_HIDE)
+        birth_place=display_birth_place,
+    ).calculate(hide=report_hide)
     calc_ms = int((time.monotonic() - t0) * 1000)
 
-    report_txt = generate_full_report(result, hide=REPORT_HIDE)
+    report_txt = generate_full_report(result, hide=report_hide, report_system=report_system)
 
     TXT_DIR.mkdir(parents=True, exist_ok=True)
     gender_cn = "男" if d["gender"] == "male" else "女"
-    filename = f"{d['birth_date']}-{d['birth_time']}-{d.get('birth_place', '未知')}-{d.get('name') or '命主'}-{gender_cn}.txt".replace(
+    report_label = REPORT_SYSTEM_LABELS.get(report_system, REPORT_SYSTEM_LABELS["bazi"])
+    filename = f"{d['birth_date']}-{d['birth_time']}-{display_birth_place or '未知'}-{d.get('name') or '命主'}-{gender_cn}-{report_label}.txt".replace(
         " ", ""
     )
     out_path = TXT_DIR / filename
@@ -1047,7 +1085,7 @@ def main() -> int:
             CONFIRM: [
                 CommandHandler("start", start),
                 CommandHandler("paipan", start),
-                CallbackQueryHandler(handle_confirm_callback, pattern="^(calc|edit)$"),
+                CallbackQueryHandler(handle_confirm_callback, pattern="^(calc|edit|report_(bazi|ziwei|jianchu|bone))$"),
                 CallbackQueryHandler(handle_restart, pattern="^restart$"),
             ],
         },

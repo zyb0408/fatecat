@@ -63,19 +63,21 @@ def test_web_page_reports_missing_required_fields():
 
 
 def test_web_page_reports_unknown_birth_place():
+    hidden_place = "不存在的地区"
     response = TestClient(app).get(
         "/web",
         params={
             "birthDate": "1990-01-01",
             "birthTime": "08:00",
-            "birthPlace": "不存在的地区",
+            "birthPlace": hidden_place,
             "gender": "male",
         },
     )
 
     assert response.status_code == 200
     assert "地点无法识别" in response.text
-    assert "不存在的地区" in response.text
+    assert hidden_place not in response.text
+    assert "已填写（非北京地区已隐藏）" in response.text
 
 
 def test_web_page_generates_copyable_markdown_report():
@@ -155,3 +157,21 @@ def test_web_page_can_select_folk_reports_without_bazi_blocks():
     assert "## 袁天罡称骨" in bone_text
     assert "## 八字排盘详情" not in bone_text
     assert "## 紫微斗数" not in bone_text
+
+
+def test_web_page_hides_non_beijing_birth_place_in_frontend():
+    response = TestClient(app).get(
+        "/web",
+        params={
+            "birthDate": "1990-01-01",
+            "birthTime": "08:00",
+            "birthPlace": "上海",
+            "gender": "male",
+            "name": "测试样本",
+        },
+    )
+
+    assert response.status_code == 200
+    text = response.text
+    assert "上海" not in text
+    assert "已填写（非北京地区已隐藏）" in text
