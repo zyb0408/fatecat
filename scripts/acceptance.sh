@@ -150,6 +150,9 @@ else
   rm -rf "${export_parent}"
   bash "${script_dir}/export-runtime.sh" --output-parent "${export_parent}" --mode lite
 
+  echo "[acceptance] exported hygiene"
+  bash "${script_dir}/check-export-hygiene.sh" "${export_skill_root}"
+
   if [[ "${skip_strict}" != "1" && -x "${strict_validator}" ]]; then
     echo "[acceptance] strict skill validate exported bundle"
     "${strict_validator}" "${export_skill_root}" --strict
@@ -165,6 +168,15 @@ else
       --output-file "${output_dir}/export-preflight-pure.json" \
       --pretty
   )
+
+  echo "[acceptance] exported clean runtime after smoke"
+  (
+    cd "${export_skill_root}"
+    bash scripts/clean-runtime.sh --venv
+  )
+
+  echo "[acceptance] exported hygiene after smoke"
+  bash "${script_dir}/check-export-hygiene.sh" "${export_skill_root}"
 fi
 
 echo "[acceptance] done: ${output_dir}"

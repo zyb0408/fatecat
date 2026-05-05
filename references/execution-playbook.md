@@ -73,7 +73,7 @@ bash scripts/serve-bot.sh
 - 入口命令启动时不再卡在缺依赖或缺配置
 - API smoke 通过 `/health` 探测
 - Bot smoke 至少通过 dry-run 装配验证
-- 发布前总验收使用 `bash scripts/acceptance.sh --with-dev`，默认同时覆盖 API 与 Bot dry-run
+- 发布前总验收使用 `bash scripts/acceptance.sh --with-dev`，默认同时覆盖 API、Bot dry-run、导出包卫生检查与导出包 smoke
 
 ## 决策规则
 
@@ -133,6 +133,17 @@ bash scripts/preflight.sh --mode pure --bootstrap --pretty
 ```bash
 bash scripts/bootstrap.sh --with-dev
 bash scripts/acceptance.sh --with-dev
+```
+
+### 导出包混入缓存或运行态文件
+
+处理：
+
+```bash
+bash scripts/clean-runtime.sh
+rm -rf /tmp/fatecat-export
+bash scripts/export-runtime.sh --output-parent /tmp/fatecat-export --mode lite
+bash scripts/check-export-hygiene.sh /tmp/fatecat-export/fatecat
 ```
 
 ### 纯分析缺字段

@@ -25,7 +25,7 @@ bash scripts/preflight.sh \
 bash scripts/acceptance.sh --with-dev
 ```
 
-默认会执行 strict skill 校验、纯分析 smoke、全量 pytest、ruff、format、`fate_core` mypy、API 与 Bot dry-run delivery smoke，以及导出后的 lite skill 包独立 smoke。只在明确需要缩短本地循环时使用 `--delivery-target api|bot`、`--skip-delivery` 或 `--skip-export`。
+默认会执行 strict skill 校验、纯分析 smoke、vendor health、全量 pytest、ruff、format、`fate_core` mypy、API 与 Bot dry-run delivery smoke、导出包卫生检查，以及导出后的 lite skill 包独立 smoke。只在明确需要缩短本地循环时使用 `--delivery-target api|bot`、`--skip-delivery` 或 `--skip-export`。
 
 ### 初始化生命周期包
 
@@ -110,6 +110,13 @@ bash scripts/vendor-health.sh
 bash scripts/clean-runtime.sh
 ```
 
+### 导出包卫生检查
+
+```bash
+bash scripts/export-runtime.sh --output-parent /tmp/export-lite --mode lite
+bash scripts/check-export-hygiene.sh /tmp/export-lite/fatecat
+```
+
 ### 采集 agent 运维包
 
 ```bash
@@ -131,6 +138,7 @@ bash scripts/export-runtime.sh --output-parent /tmp/export-lite --mode lite
 导出后的目录再执行：
 
 ```bash
+bash scripts/check-export-hygiene.sh /tmp/export-lite/fatecat
 bash scripts/bootstrap.sh
 bash scripts/preflight.sh --mode pure --bootstrap --pretty
 /home/lenovo/.codex/skills/auto-skill/scripts/validate-skill.sh /tmp/export-lite/fatecat --strict

@@ -20,7 +20,7 @@ try:
 except FileNotFoundError:
     pass
 
-SERVICE_HOST = os.getenv("FATE_SERVICE_HOST", "0.0.0.0")
+SERVICE_HOST = os.getenv("FATE_SERVICE_HOST", "127.0.0.1")
 SERVICE_PORT = int(os.getenv("FATE_SERVICE_PORT", "8001"))
 
 import db_v2 as db  # noqa: E402

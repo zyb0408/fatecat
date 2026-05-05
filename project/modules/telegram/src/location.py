@@ -68,7 +68,7 @@ def _search_cr(query: str) -> list[tuple[str, float, float]]:
         except Exception:
             items = []
         for item in items:
-            # 组名如“山东省济南市历下区”
+            # 组名如“北京市”
             name = "".join([item.get("province", ""), item.get("city", ""), item.get("county", "")]) or q
             county = item.get("county", "")
             score = 0
@@ -190,5 +190,5 @@ def get(name: str) -> tuple[float, float]:
 if __name__ == "__main__":
     print(f"CSV 数据量: {len(_DATA)} china-region: {_CR_AVAILABLE}")
     print(f"北京: {get('北京')}")
-    print(f"历下区: {get('历下区')}")
-    print(f"搜索'济南市历下区': {search('济南市历下区')[:3]}")
+    print(f"北京市: {get('北京市')}")
+    print(f"搜索'北京': {search('北京')[:3]}")

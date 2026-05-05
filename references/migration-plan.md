@@ -15,7 +15,7 @@
   - `full`：保留根级 lifecycle packs
   - `lite`：排除根级 lifecycle packs，只保留模板与运行所需骨架
 - 若导出产物还要跑 strict skill 校验，导出目录 basename 必须保持为 `fatecat`
-- 排除 `.git/`、`.venv/`、真实 `.db`、真实 `.env`
+- 排除 `.git/`、`.venv/`、`node_modules/`、缓存、字节码、真实 `.db` / `.sqlite`、真实 `.env`
 - 根级生命周期模板与治理资产默认随 bundle 一起导出
 
 ## 后续优化
@@ -40,10 +40,17 @@
 - `.git/`
 - `.history/`
 - `.venv/`
+- `node_modules/`
 - `.pytest_cache/`
 - `.ruff_cache/`
+- `.mypy_cache/`
+- `__pycache__/`
+- `*.pyc`
+- `*.pyo`
 - `project/assets/config/.env`
-- `project/runtime/**/*.db`
+- `*.db`
+- `*.sqlite`
+- `*.sqlite3`
 - `assets/lifecycle/packs/` 在 `lite` 模式下也必须排除
 
 ## 风险

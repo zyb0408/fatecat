@@ -76,7 +76,7 @@ assets/config/branding.json
 ```env
 FATE_BOT_TOKEN=xxx
 FATE_ADMIN_USER_IDS=xxx
-FATE_SERVICE_HOST=0.0.0.0
+FATE_SERVICE_HOST=127.0.0.1
 FATE_SERVICE_PORT=8001
 ```
 

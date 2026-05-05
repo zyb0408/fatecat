@@ -40,6 +40,9 @@ done
 
 targets=(
   "${skill_root}/output"
+  "${skill_root}/.pytest_cache"
+  "${skill_root}/.ruff_cache"
+  "${skill_root}/.mypy_cache"
   "${project_root}/.pytest_cache"
   "${project_root}/.ruff_cache"
   "${project_root}/.mypy_cache"
@@ -47,7 +50,7 @@ targets=(
 )
 
 if [[ "${remove_venv}" == "1" ]]; then
-  targets+=("${project_root}/.venv")
+  targets+=("${skill_root}/.venv" "${skill_root}/venv" "${project_root}/.venv")
 fi
 
 for target in "${targets[@]}"; do
@@ -60,6 +63,39 @@ for target in "${targets[@]}"; do
     continue
   fi
 
+  chmod -R u+w "${target}" 2>/dev/null || true
   rm -rf "${target}"
   echo "[clean-runtime] removed ${target}"
 done
+
+python_cache_dirs_count="$(
+  find "${project_root}" \
+    -path "${project_root}/.venv" -prune -o \
+    -type d -name '__pycache__' -print 2>/dev/null | wc -l
+)"
+python_bytecode_count="$(
+  find "${project_root}" \
+    -path "${project_root}/.venv" -prune -o \
+    -type f \( -name '*.pyc' -o -name '*.pyo' \) -print 2>/dev/null | wc -l
+)"
+
+if [[ "${dry_run}" == "1" ]]; then
+  echo "[clean-runtime] would remove ${python_cache_dirs_count} __pycache__ dirs under ${project_root}"
+  echo "[clean-runtime] would remove ${python_bytecode_count} Python bytecode files under ${project_root}"
+  exit 0
+fi
+
+if [[ "${python_cache_dirs_count}" != "0" ]]; then
+  find "${project_root}" \
+    -path "${project_root}/.venv" -prune -o \
+    -type d -name '__pycache__' -exec rm -rf {} +
+fi
+
+if [[ "${python_bytecode_count}" != "0" ]]; then
+  find "${project_root}" \
+    -path "${project_root}/.venv" -prune -o \
+    -type f \( -name '*.pyc' -o -name '*.pyo' \) -exec rm -f {} +
+fi
+
+echo "[clean-runtime] removed ${python_cache_dirs_count} __pycache__ dirs"
+echo "[clean-runtime] removed ${python_bytecode_count} Python bytecode files"

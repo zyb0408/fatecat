@@ -16,6 +16,7 @@ fatecat/
 ├── references/              # 长文档
 ├── scripts/                 # 包装脚本、生命周期脚手架与导出脚本
 │   ├── *.sh                 # 直接调用 FateCat CLI 或治理入口
+│   ├── check-export-hygiene.sh # 导出包卫生门禁，拒绝缓存、运行态与 secret
 │   └── export-runtime.sh    # 物化独立 single-skill bundle，支持 full / lite 导出
 └── project/                 # FateCat 真实源码根
 ```

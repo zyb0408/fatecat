@@ -226,7 +226,7 @@ def _render_field_contract() -> str:
     rows = [
         ["birthDate", "出生日期", "是", "YYYY-MM-DD", "HTML date；例 1990-01-01"],
         ["birthTime", "出生时间", "是", "HH:MM 或 HH:MM:SS", "HTML time；例 08:00"],
-        ["birthPlace", "出生地区", "是", "中文地点或 lng,lat", "例 北京 / 济南市历下区 / 116.4074,39.9042"],
+        ["birthPlace", "出生地区", "是", "中文地点或 lng,lat", "例 北京 / 116.4074,39.9042"],
         ["gender", "性别", "是", "male/female", "计算必需；不能默认猜测"],
         ["name", "姓名", "否", "文本", "为空时报告标题使用命主"],
     ]

@@ -33,6 +33,17 @@ def test_web_page_renders_semantic_form():
     assert "<pre><code>+" in text
 
 
+def test_web_page_static_examples_do_not_show_non_beijing_regions():
+    response = TestClient(app).get("/web")
+
+    assert response.status_code == 200
+    text = response.text
+    assert "例 北京 / 116.4074,39.9042" in text
+    blocked_terms = ("".join(["济", "南"]), "".join(["历", "下区"]))
+    for term in blocked_terms:
+        assert term not in text
+
+
 def test_web_page_reports_missing_required_fields():
     response = TestClient(app).get("/web", params={"birthDate": "1990-01-01"})
 
