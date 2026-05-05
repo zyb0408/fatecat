@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from utils.timezone import now_cn
 
 if str(FATE_CORE_SRC_DIR) not in sys.path:
@@ -39,6 +39,7 @@ from models import (  # noqa: E402
     TimeInfo,
 )
 from report_generator import DEFAULT_HIDE as REPORT_HIDE  # noqa: E402
+from web_ui import render_web_report_page  # noqa: E402
 
 db.ensure_db()
 
@@ -100,6 +101,24 @@ async def branded_exception_handler(_request, exc: Exception):
 @app.get("/health")
 def health():
     return attach_branding({"status": "ok"})
+
+
+@app.get("/web", response_class=HTMLResponse)
+def web_report(
+    birthDate: str | None = None,
+    birthTime: str | None = None,
+    birthPlace: str | None = None,
+    gender: str | None = None,
+    name: str | None = None,
+):
+    """原生 HTML Web 版标准 Markdown 报告。"""
+    return render_web_report_page(
+        birth_date=birthDate,
+        birth_time=birthTime,
+        birth_place=birthPlace,
+        gender=gender,
+        name=name,
+    )
 
 
 def _parse_bazi_request(req: BaziRequest) -> tuple[datetime, float, float]:

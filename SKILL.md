@@ -113,6 +113,12 @@ bash scripts/delivery-smoke.sh --target api
 bash scripts/serve-api.sh
 ```
 
+API 启动后可打开原生 HTML Web 报告页：
+
+```text
+http://127.0.0.1:8001/web
+```
+
 如果当前仓库里还没有真实 `project/assets/config/.env`，`delivery-smoke.sh` 会自动注入一份临时 smoke 配置，脚本退出后自动删除。
 
 ### 8. 启动 Bot 前先做 delivery 检查

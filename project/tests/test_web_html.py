@@ -1,0 +1,83 @@
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from fastapi.testclient import TestClient
+
+ROOT = Path(__file__).resolve().parents[1]
+TELEGRAM_SRC = ROOT / "modules" / "telegram" / "src"
+FATE_CORE_SRC = ROOT / "modules" / "fate_core" / "src"
+
+if str(TELEGRAM_SRC) not in sys.path:
+    sys.path.insert(0, str(TELEGRAM_SRC))
+if str(FATE_CORE_SRC) not in sys.path:
+    sys.path.insert(0, str(FATE_CORE_SRC))
+
+from main import app  # noqa: E402
+
+
+def test_web_page_renders_semantic_form():
+    response = TestClient(app).get("/web")
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/html")
+    text = response.text
+    assert "<h1>FateCat Web Markdown 报告</h1>" in text
+    assert '<form method="get" action="/web">' in text
+    assert "出生日期（必填）" in text
+    assert "出生时间（必填）" in text
+    assert "出生地区（必填）" in text
+    assert "性别（必填）" in text
+    assert "姓名（非必填）" in text
+    assert "<pre><code>+" in text
+
+
+def test_web_page_reports_missing_required_fields():
+    response = TestClient(app).get("/web", params={"birthDate": "1990-01-01"})
+
+    assert response.status_code == 200
+    text = response.text
+    assert "<h2>错误</h2>" in text
+    assert "缺少必填字段" in text
+    assert "出生时间" in text
+    assert "出生地区" in text
+    assert "性别" in text
+
+
+def test_web_page_reports_unknown_birth_place():
+    response = TestClient(app).get(
+        "/web",
+        params={
+            "birthDate": "1990-01-01",
+            "birthTime": "08:00",
+            "birthPlace": "不存在的地区",
+            "gender": "male",
+        },
+    )
+
+    assert response.status_code == 200
+    assert "地点无法识别" in response.text
+    assert "不存在的地区" in response.text
+
+
+def test_web_page_generates_copyable_markdown_report():
+    response = TestClient(app).get(
+        "/web",
+        params={
+            "birthDate": "1990-01-01",
+            "birthTime": "08:00",
+            "birthPlace": "北京",
+            "gender": "male",
+            "name": "测试样本",
+        },
+    )
+
+    assert response.status_code == 200
+    text = response.text
+    assert '<button type="button" id="copy-report">复制 Markdown</button>' in text
+    assert '<pre><code id="report-markdown">' in text
+    assert "## 赞助支持" in text
+    assert "# 命理排盘报告：测试样本" in text
+    assert "机器可读输入" in text
+    assert '"birthPlace": "北京"' in text

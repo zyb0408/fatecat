@@ -104,6 +104,12 @@ bash scripts/acceptance.sh --with-dev
 bash scripts/delivery-smoke.sh --target api
 ```
 
+启动 API 后访问 Web HTML 报告页：
+
+```text
+http://127.0.0.1:8001/web
+```
+
 验证 Bot 启动链路：
 
 ```bash
@@ -125,6 +131,8 @@ bash scripts/preflight.sh --mode delivery --bootstrap --pretty
 bash scripts/pure-analysis.sh --input-file input.json --output-file output/result.json --pretty
 bash scripts/acceptance.sh --with-dev
 bash scripts/delivery-smoke.sh --target api
+bash scripts/serve-api.sh
+# open http://127.0.0.1:8001/web
 bash scripts/delivery-smoke.sh --target bot --startup-timeout 8
 bash scripts/clean-runtime.sh --dry-run
 bash scripts/collect-ops-bundle.sh --output /tmp/fatecat-ops-bundle

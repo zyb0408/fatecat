@@ -74,6 +74,12 @@ bash scripts/delivery-smoke.sh --target api
 bash scripts/serve-api.sh
 ```
 
+API 启动后可访问原生 HTML Web 报告页：
+
+```text
+http://127.0.0.1:8001/web
+```
+
 ### 启动 Bot
 
 ```bash

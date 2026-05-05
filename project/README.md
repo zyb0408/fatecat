@@ -526,6 +526,7 @@ tail -f modules/telegram/output/logs/bot.log
 | 方法 | 路径 | 用途 |
 |------|------|------|
 | `GET` | `/health` | 服务健康检查 |
+| `GET` | `/web` | 原生 HTML Web 报告页，输入表单后输出可复制 Markdown |
 | `POST` | `/api/v1/bazi/pure-analysis` | 纯命理分析，适合 AI / Agent |
 | `POST` | `/api/v1/bazi/simple` | 返回简化原始结果 |
 | `POST` | `/api/v1/bazi/calculate` | 传统八字排盘响应（兼容 legacy 输出） |
@@ -535,6 +536,12 @@ tail -f modules/telegram/output/logs/bot.log
 
 ```bash
 .venv/bin/fatecat serve api
+```
+
+启动后访问：
+
+```text
+http://127.0.0.1:8001/web
 ```
 
 ### API 请求示例

@@ -37,10 +37,12 @@ fatecat/
 ├── modules/
 │   ├── fate_core/                 # 纯分析内核
 │   └── telegram/
+│       ├── AGENTS.md              # 交付层架构说明
 │       ├── src/
 │       │   ├── _paths.py          # 统一路径真相源
 │       │   ├── bot.py             # Telegram Bot
 │       │   ├── main.py            # FastAPI 入口
+│       │   ├── web_ui.py          # 原生 HTML Web 报告页
 │       │   ├── db_v2.py           # 数据库访问层
 │       │   ├── bazi_calculator.py # 遗留总装配器
 │       │   └── *_integration.py   # 外部库胶水层
@@ -261,3 +263,8 @@ cat modules/telegram/output/logs/nohup.out
 - 新增 `skills/fatecat/`，用 skill 外壳包装 FateCat 能力
 - 新增 `skills/fatecat/scripts/fatecat_runtime/` 作为嵌入式运行时镜像
 - skill 包装脚本采用“双运行时”策略：未 bootstrap 镜像前先回退到源仓库，镜像就绪后优先使用嵌入式 runtime
+
+### 2026-05-06
+
+- 新增 `modules/telegram/src/web_ui.py`，提供遵循零美化语义规范的 `/web` HTML 报告页
+- 新增 `modules/telegram/AGENTS.md`，记录 Bot / API / Web / 报告交付层职责边界

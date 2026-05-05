@@ -54,6 +54,12 @@ bash scripts/delivery-smoke.sh --target api
 bash scripts/serve-api.sh
 ```
 
+API 启动后，原生 HTML Web 报告页位于：
+
+```text
+http://127.0.0.1:8001/web
+```
+
 或：
 
 ```bash
