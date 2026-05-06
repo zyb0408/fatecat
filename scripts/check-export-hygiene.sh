@@ -42,6 +42,8 @@ find "${bundle_root}" \
     -path "${bundle_root}/project/.ruff_cache" -o \
     -path "${bundle_root}/project/.mypy_cache" -o \
     -path "${bundle_root}/project/assets/config/.env" -o \
+    -path "${bundle_root}/project/assets/data/classics/raw" -o \
+    -path "${bundle_root}/project/assets/data/calendar/solar_terms/raw" -o \
     -path "${bundle_root}/project/modules/telegram/output" -o \
     -name '.env' -o \
     -name '.env.local' -o \

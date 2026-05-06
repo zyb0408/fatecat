@@ -105,6 +105,8 @@ rsync_args=(
   --exclude 'project/.ruff_cache/'
   --exclude 'project/.mypy_cache/'
   --exclude 'project/assets/config/.env'
+  --exclude 'project/assets/data/classics/raw/'
+  --exclude 'project/assets/data/calendar/solar_terms/raw/'
   --exclude 'project/assets/vendor/github/iztro-main/lib/'
   --exclude 'project/modules/telegram/output/'
   --exclude 'project/runtime/**/*.db'

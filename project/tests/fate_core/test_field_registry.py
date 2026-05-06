@@ -23,3 +23,4 @@ def test_pure_analysis_profile_excludes_extension_fields():
     assert "liuyaoHexagram" not in fields
     assert "nameAnalysis" not in fields
     assert "jianChu" not in fields
+    assert "huangLi" not in fields

@@ -25,7 +25,7 @@ bash scripts/preflight.sh \
 bash scripts/acceptance.sh --with-dev
 ```
 
-默认会执行 strict skill 校验、纯分析 smoke、vendor health、隐私示例门禁、全量 pytest、ruff、format、`fate_core` mypy、API 与 Bot dry-run delivery smoke、导出包卫生检查，以及导出后的 lite skill 包独立 smoke。只在明确需要缩短本地循环时使用 `--delivery-target api|bot`、`--skip-delivery` 或 `--skip-export`。
+默认会执行 strict skill 校验、纯分析 smoke、vendor health、源仓卫生门禁、隐私示例门禁、全量 pytest、ruff、format、`fate_core` mypy、API 与 Bot dry-run delivery smoke、导出包卫生检查，以及导出后的 lite skill 包独立 smoke。只在明确需要缩短本地循环时使用 `--delivery-target api|bot`、`--skip-delivery` 或 `--skip-export`。
 
 ### 初始化生命周期包
 
@@ -111,6 +111,14 @@ bash scripts/production-readiness.sh --api-url https://your-domain.example --req
 ```bash
 bash scripts/vendor-health.sh
 ```
+
+### 源仓卫生检查
+
+```bash
+bash scripts/check-source-hygiene.sh
+```
+
+说明：检查 raw 大资料、运行态、缓存、数据库、日志和本机个人绝对路径是否误入 Git。
 
 ### 清理本地缓存
 
