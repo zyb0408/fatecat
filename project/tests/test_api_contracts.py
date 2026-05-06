@@ -47,6 +47,16 @@ def test_pure_analysis_api_returns_success():
     assert body["success"] is True
     assert body["data"]["input"]["gender"] == "男"
     assert body["data"]["meta"]["genderCn"] == "乾造(男)"
+    assert "jianChu" not in body["data"]
+
+
+def test_simple_api_does_not_return_retired_jianchu_field():
+    response = TestClient(app).post("/api/v1/bazi/simple", json=_payload())
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["success"] is True
+    assert "jianChu" not in body["data"]
 
 
 def test_calculate_api_returns_success_with_record_id(monkeypatch):
@@ -176,3 +186,21 @@ def test_markdown_report_api_selects_ziwei_without_bazi_blocks():
     assert "# 紫微斗数报告：测试样本" in markdown
     assert "## 紫微斗数" in markdown
     assert "## 八字排盘详情" not in markdown
+
+
+def test_markdown_report_api_rejects_retired_jianchu_system():
+    payload = _payload()
+    payload["options"]["reportSystem"] = "jianchu"
+
+    response = TestClient(app).post("/api/v1/report/markdown", json=payload)
+
+    assert response.status_code == 422
+
+
+def test_markdown_report_api_rejects_retired_bone_system():
+    payload = _payload()
+    payload["options"]["reportSystem"] = "bone"
+
+    response = TestClient(app).post("/api/v1/report/markdown", json=payload)
+
+    assert response.status_code == 422

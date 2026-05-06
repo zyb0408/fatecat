@@ -63,7 +63,6 @@ INPUT, CONFIRM = range(2)
 PROGRESS_ITEMS = [
     "基础四柱",
     "五行能量 + 五行分数",
-    "建除十二神",
     "神煞系统（全量）",
     "干支合克与入库",
     "地支关系扩展",
@@ -72,7 +71,7 @@ PROGRESS_ITEMS = [
     "流月小运",
     "节气司令",
     "真太阳时",
-    "紫微斗数",
+    "报告体系装配",
     "温湿度与拱神",
     "袁天罡称骨",
 ]
@@ -154,7 +153,6 @@ def confirm_kb(report_system: str = "bazi"):
                 InlineKeyboardButton("✏️ 返回修改", callback_data="edit"),
             ],
             [option("bazi"), option("ziwei")],
-            [option("jianchu"), option("bone")],
             _brand_button_row(),
         ]
     )
@@ -1085,7 +1083,7 @@ def main() -> int:
             CONFIRM: [
                 CommandHandler("start", start),
                 CommandHandler("paipan", start),
-                CallbackQueryHandler(handle_confirm_callback, pattern="^(calc|edit|report_(bazi|ziwei|jianchu|bone))$"),
+                CallbackQueryHandler(handle_confirm_callback, pattern="^(calc|edit|report_(bazi|ziwei))$"),
                 CallbackQueryHandler(handle_restart, pattern="^restart$"),
             ],
         },

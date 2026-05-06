@@ -28,7 +28,6 @@ def build_classical_section(runtime: PureAnalysisRuntime) -> dict[str, Any]:
         "mingGua": ming_gua,
         "birthInfo": calculator._get_birth_info(),
         "jieqiDetail": jieqi_detail,
-        "jianChu": calculator._calc_jianchu(ec),
         "siling": calculator._calc_siling(ec.getMonthZhi(), days_from_jieqi),
         "geju": calculator._calc_geju(ec, four_pillars),
         "xiaoYun": calculator._calc_xiao_yun(runtime.yun, ec, yong_shen),

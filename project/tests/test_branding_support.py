@@ -4,6 +4,8 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "modules" / "fate_core" / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "modules" / "telegram" / "src"))
 
@@ -67,7 +69,6 @@ def test_full_report_puts_sponsor_before_report_and_drops_extension_blocks():
         "## 紫微斗数",
         "## 紫微基础",
         "## 紫微运限四化（大限/流年/流月/流日/流时）",
-        "## 袁天罡称骨",
         "## 健康预警（五行脏腑/养生提示）",
         "## 出生日黄历",
         "## 第五卷：学术参数（隐藏/技术区）",
@@ -86,6 +87,7 @@ def test_full_report_puts_sponsor_before_report_and_drops_extension_blocks():
     ]
     for section in removed_sections:
         assert section not in text
+    assert "## 袁天罡称骨" in text
 
 
 def test_full_report_default_heading_contract_matches_standard_blocks():
@@ -142,8 +144,10 @@ def test_full_report_default_heading_contract_matches_standard_blocks():
         "### 流年",
         "### 流月运势",
         "### 小运",
+        "## 第三卷：民俗与建议（生活应用）",
+        "## 袁天罡称骨",
     ]
-    for section in ["### 建除十二神", "## 紫微斗数", "## 紫微基础", "## 袁天罡称骨"]:
+    for section in ["### 建除十二神", "## 紫微斗数", "## 紫微基础"]:
         assert section not in headings
 
 
@@ -170,17 +174,8 @@ def test_full_report_other_systems_are_independent_outputs():
     assert "## 八字排盘详情" not in ziwei_text
     assert "## 袁天罡称骨" not in ziwei_text
 
-    jianchu_text = generate_full_report(result, hide=build_report_hide("jianchu"), report_system="jianchu")
-    assert "# 建除十二神报告：测试样本" in jianchu_text
-    assert "## 建除十二神" in jianchu_text
-    assert "## 八字排盘详情" not in jianchu_text
-    assert "## 紫微斗数" not in jianchu_text
-
-    bone_text = generate_full_report(result, hide=build_report_hide("bone"), report_system="bone")
-    assert "# 袁天罡称骨报告：测试样本" in bone_text
-    assert "## 袁天罡称骨" in bone_text
-    assert "## 八字排盘详情" not in bone_text
-    assert "## 紫微斗数" not in bone_text
+    with pytest.raises(ValueError, match="未知报告体系"):
+        generate_full_report(result, report_system="bone")
 
 
 def test_name_marriage_candidate_fields_do_not_emit_placeholders():

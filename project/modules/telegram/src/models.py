@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 # ========== 请求模型 ==========
 
-ReportSystem = Literal["bazi", "ziwei", "jianchu", "bone"]
+ReportSystem = Literal["bazi", "ziwei"]
 
 
 class BirthPlace(BaseModel):

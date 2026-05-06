@@ -8,9 +8,8 @@
       "赞助支持",
       "命理排盘报告",
       "第一卷：先天命格（静态分析）",
-      "第二卷：紫微映象（星盘辅助）",
-      "第三卷：后天运路（动态趋势）",
-      "第四卷：民俗与建议（生活应用）"
+      "第二卷：后天运路（动态趋势）",
+      "第三卷：民俗与建议（生活应用）"
     ]
   },
   "futureFeatures": [
@@ -25,6 +24,12 @@
       "title": "出生日黄历",
       "previousReportBlock": "## 出生日黄历",
       "requiredBeforeProduction": ["黄历字段契约", "与命盘主报告的边界说明", "回归样例"]
+    },
+    {
+      "id": "jianchu_almanac",
+      "title": "建除十二神",
+      "previousReportBlock": "## 建除十二神",
+      "requiredBeforeProduction": ["黄历/择日输入契约", "日期范围与用途语义", "不作为出生八字主报告块", "回归样例"]
     },
     {
       "id": "divination_suite",

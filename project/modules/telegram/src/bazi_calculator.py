@@ -450,9 +450,6 @@ class BaziCalculator:
         # 节气详情
         jieqi_detail = self._calc_jieqi_detail()
 
-        # 建除十二神
-        jianchu = self._calc_jianchu(ec)
-
         # 大运十神纳音
         major_with_shishen = self._add_fortune_shishen(major, ec.getDayGan())
 
@@ -825,7 +822,6 @@ class BaziCalculator:
             "mingGua": ming_gua,
             "birthInfo": self._get_birth_info(),
             "jieqiDetail": jieqi_detail,
-            "jianChu": jianchu,
             "siling": siling,
             "geju": geju,
             "xiaoYun": xiao_yun,

@@ -44,6 +44,7 @@ def test_calculate_pure_analysis_projects_profile(monkeypatch):
     def fake_build_classical(_runtime):
         return {
             "yongShen": {"note": "测试"},
+            "jianChu": {"should": "drop"},
             "ziweiChart": {"should": "drop"},
             "liuyaoHexagram": {"should": "drop"},
         }
@@ -69,5 +70,6 @@ def test_calculate_pure_analysis_projects_profile(monkeypatch):
     assert "fourPillars" in result
     assert "majorFortune" in result
     assert "yongShen" in result
+    assert "jianChu" not in result
     assert "ziweiChart" not in result
     assert "liuyaoHexagram" not in result

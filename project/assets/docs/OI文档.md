@@ -7,7 +7,7 @@
 FateCat 八字排盘系统 API / Bot 接口规范，基于当前 skill 化后的标准报告契约与 `fate_core` / Telegram 交付层实现。
 
 ### 🎯 当前状态
-- **标准报告**: 默认只输出免责声明、赞助支持、标题、第一卷先天命格与第二卷后天运路；紫微斗数、建除十二神、袁天罡称骨通过 `report_system` / Web 控件 / API `options.reportSystem` / Bot 确认页按钮独立输出，不与正宗八字混排。
+- **标准报告**: 默认输出免责声明、赞助支持、标题、第一卷先天命格、第二卷后天运路与第三卷民俗建议，第三卷包含袁天罡称骨。紫微斗数通过 `report_system` / Web 控件 / API `options.reportSystem` / Bot 确认页按钮独立输出，不与综合八字混排；建除十二神退役为后续黄历/择日功能。
 - **前端地区展示**: 非北京类真实出生地区只参与经纬度解析和后端计算，Web/Bot/Markdown 展示层统一隐藏。
 - **未来功能**: 退出标准报告的扩展能力统一登记在 `assets/fate/future_features.json`，后续必须按独立输入契约、输出模板与测试重新进入生产。
 - **结构化输出**: API / pure-analysis 优先依赖字段 profile 和结构化 JSON，不要求 TXT 报告承载全部历史字段。
@@ -36,7 +36,7 @@ FateCat 八字排盘系统 API / Bot 接口规范，基于当前 skill 化后的
   "options": {
     "useTrueSolarTime": true,              // 真太阳时修正 (默认true)
     "calendarType": "solar",               // 历法: solar(公历)
-    "reportSystem": "bazi"                 // bazi/ziwei/jianchu/bone
+    "reportSystem": "bazi"                 // bazi/ziwei
   }
 }
 ```
@@ -251,11 +251,11 @@ FateCat 八字排盘系统 API / Bot 接口规范，基于当前 skill 化后的
 ## 📊 当前实现状态
 
 ### ✅ 标准报告生产字段
-当前默认 `bazi` 标准报告覆盖基础资料、四柱、五行、日主、格局用神、节气司令、干支关系与八字岁运趋势。紫微斗数、建除十二神、袁天罡称骨通过 `report_system=ziwei/jianchu/bone` 独立输出。
+当前默认 `bazi` 综合八字报告覆盖基础资料、四柱、五行、日主、格局用神、节气司令、干支关系、八字岁运趋势与袁天罡称骨。紫微斗数通过 `report_system=ziwei` 独立输出；建除十二神退役为后续黄历/择日功能。
 
 ### 🟡 可优化
 - **五行力量评分**: 当前为简化算法，可提取 bazi-1-master 的精确量化
-- **扩展功能**: 健康、黄历、占卜、风水、天文、历法、择日、易经、姓名合婚与系统附录必须按 `assets/fate/future_features.json` 重新设计后再进入生产。
+- **扩展功能**: 健康、黄历、建除十二神、占卜、风水、天文、历法、择日、易经、姓名合婚与系统附录必须按 `assets/fate/future_features.json` 重新设计后再进入生产。
 
 ---
 
@@ -301,7 +301,7 @@ result = calc.calculate()
 ```
 输入: 1990-01-01 08:00 北京市 张三
 选择: ♂ 乾造(男)
-输出: 默认正宗八字报告与结构化 JSON；其他体系在确认页单独选择
+输出: 默认综合八字报告与结构化 JSON；紫微体系在确认页单独选择
 ```
 
 ### API 调用

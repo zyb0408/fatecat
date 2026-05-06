@@ -257,7 +257,7 @@ def _render_field_contract() -> str:
         ["birthTime", "出生时间", "是", "HH:MM 或 HH:MM:SS", "HTML time；例 08:00"],
         ["birthPlace", "出生地区", "是", "中文地点或 lng,lat", "例 北京 / 116.4074,39.9042"],
         ["gender", "性别", "是", "male/female", "计算必需；不能默认猜测"],
-        ["reportSystem", "输出体系", "否", "bazi/ziwei/jianchu/bone", "默认 bazi；每次只输出一个体系"],
+        ["reportSystem", "输出体系", "否", "bazi/ziwei", "默认 bazi；每次只输出一个体系"],
         ["name", "姓名", "否", "文本", "为空时报告标题使用命主"],
     ]
     table = tabulate(rows, headers=["参数", "字段", "必填", "格式", "说明"], tablefmt="psql", missingval="")

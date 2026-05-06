@@ -31,10 +31,10 @@ def test_web_page_renders_semantic_form():
     assert "性别（必填）" in text
     assert "输出体系" in text
     assert '<select id="reportSystem" name="reportSystem">' in text
-    assert "正宗八字 bazi" in text
+    assert "综合八字 bazi" in text
     assert "紫微斗数 ziwei" in text
-    assert "建除十二神 jianchu" in text
-    assert "袁天罡称骨 bone" in text
+    assert "建除十二神 jianchu" not in text
+    assert "袁天罡称骨 bone" not in text
     assert "姓名（非必填）" in text
     assert "<pre><code>+" in text
 
@@ -98,10 +98,11 @@ def test_web_page_generates_copyable_markdown_report():
     assert '<pre><code id="report-markdown">' in text
     assert "## 赞助支持" in text
     assert "# 命理排盘报告：测试样本" in text
-    assert "当前输出体系：正宗八字" in text
+    assert "当前输出体系：综合八字" in text
     assert "## 八字排盘详情" in text
     assert "## 紫微斗数" not in text
-    assert "## 袁天罡称骨" not in text
+    assert "## 第三卷：民俗与建议（生活应用）" in text
+    assert "## 袁天罡称骨" in text
     assert "机器可读输入" in text
     assert '"birthPlace": "北京"' in text
     assert '"reportSystem": "bazi"' in text
@@ -131,32 +132,38 @@ def test_web_page_can_select_ziwei_report_without_bazi_blocks():
     assert '"reportSystem": "ziwei"' in text
 
 
-def test_web_page_can_select_folk_reports_without_bazi_blocks():
-    base_params = {
-        "birthDate": "1990-01-01",
-        "birthTime": "08:00",
-        "birthPlace": "北京",
-        "gender": "male",
-        "name": "测试样本",
-    }
+def test_web_page_rejects_retired_report_systems():
+    response = TestClient(app).get(
+        "/web",
+        params={
+            "birthDate": "1990-01-01",
+            "birthTime": "08:00",
+            "birthPlace": "北京",
+            "gender": "male",
+            "name": "测试样本",
+            "reportSystem": "jianchu",
+        },
+    )
 
-    jianchu_response = TestClient(app).get("/web", params={**base_params, "reportSystem": "jianchu"})
-    assert jianchu_response.status_code == 200
-    jianchu_text = jianchu_response.text
-    assert "当前输出体系：建除十二神" in jianchu_text
-    assert "# 建除十二神报告：测试样本" in jianchu_text
-    assert "## 建除十二神" in jianchu_text
-    assert "## 八字排盘详情" not in jianchu_text
-    assert "## 紫微斗数" not in jianchu_text
+    assert response.status_code == 200
+    assert "<h2>错误</h2>" in response.text
+    assert "报告体系必须为: bazi、ziwei。" in response.text
+    assert "# 建除十二神报告" not in response.text
 
-    bone_response = TestClient(app).get("/web", params={**base_params, "reportSystem": "bone"})
+    bone_response = TestClient(app).get(
+        "/web",
+        params={
+            "birthDate": "1990-01-01",
+            "birthTime": "08:00",
+            "birthPlace": "北京",
+            "gender": "male",
+            "name": "测试样本",
+            "reportSystem": "bone",
+        },
+    )
     assert bone_response.status_code == 200
-    bone_text = bone_response.text
-    assert "当前输出体系：袁天罡称骨" in bone_text
-    assert "# 袁天罡称骨报告：测试样本" in bone_text
-    assert "## 袁天罡称骨" in bone_text
-    assert "## 八字排盘详情" not in bone_text
-    assert "## 紫微斗数" not in bone_text
+    assert "报告体系必须为: bazi、ziwei。" in bone_response.text
+    assert "# 袁天罡称骨报告" not in bone_response.text
 
 
 def test_web_page_hides_non_beijing_birth_place_in_frontend():

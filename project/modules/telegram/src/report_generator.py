@@ -10,10 +10,8 @@ from typing import Any
 from branding import build_brand_footer_text, build_disclaimer_text, load_branding
 
 REPORT_SYSTEM_LABELS: dict[str, str] = {
-    "bazi": "正宗八字",
+    "bazi": "综合八字",
     "ziwei": "紫微斗数",
-    "jianchu": "建除十二神",
-    "bone": "袁天罡称骨",
 }
 
 
@@ -75,10 +73,9 @@ def _compact_inline_text(s: str) -> str:
     return " ".join(x.strip() for x in str(s).splitlines() if x.strip())
 
 
-# 默认正宗八字不计算紫微/天文等扩展；独立体系按 report_system 打开所需计算。
+# 默认综合八字不计算紫微/天文等扩展；独立体系按 report_system 打开所需计算。
 DEFAULT_HIDE: dict[str, bool] = {
     "extensions": True,
-    "jianchu": False,
     "huangli": True,
     "zeri": True,
     "divination": True,
@@ -134,8 +131,6 @@ def generate_report(result: dict[str, Any], hide: dict[str, bool] | None = None)
     lng = inp.get("longitude", "")
     lat = inp.get("latitude", "")
     lnglat = f"{lng}° / {lat}°" if (lng or lat) else ""
-
-    jc = result.get("jianChu", {})
 
     vi = result.get("voidInfo", {})
     day_void = vi.get("day", {})
@@ -194,8 +189,6 @@ def generate_report(result: dict[str, Any], hide: dict[str, bool] | None = None)
         rows.append(
             ["后节气", f"{next_jq.get('name', '')} {next_jq.get('date', '')} 还有{next_jq.get('daysBefore', '')}天"]
         )
-    if (not hide.get("jianchu", False)) and jc and not jc.get("error"):
-        rows.append(["日值建除", f"{jc.get('name', '')}（序号{jc.get('index', '')}）"])
     if sl.get("current", ""):
         rows.append(["人元司令", f"{sl.get('current', '')}用事"])
     if void_str:
@@ -251,9 +244,6 @@ def generate_report(result: dict[str, Any], hide: dict[str, bool] | None = None)
                         if kong:
                             lines.append(f"  - 空亡：{kong}")
                 lines.append("")
-
-    if (not hide.get("jianchu", False)) and jc and not jc.get("error"):
-        lines.append(generate_jianchu_section(result, heading="### 建除十二神"))
 
     # 八字排盘详情
     lines.append("## 八字排盘详情")
@@ -1296,17 +1286,11 @@ def _normalize_report_system(report_system: str | None) -> str:
         "ba_zi": "bazi",
         "八字": "bazi",
         "正宗八字": "bazi",
+        "综合八字": "bazi",
         "ziweidoushu": "ziwei",
         "zi_wei": "ziwei",
         "紫微": "ziwei",
         "紫微斗数": "ziwei",
-        "jian_chu": "jianchu",
-        "建除": "jianchu",
-        "建除十二神": "jianchu",
-        "chenggu": "bone",
-        "bone_weight": "bone",
-        "称骨": "bone",
-        "袁天罡称骨": "bone",
     }
     normalized = aliases.get(normalized, normalized)
     if normalized not in REPORT_SYSTEM_LABELS:
@@ -1323,7 +1307,7 @@ def normalize_report_system(report_system: str | None) -> str:
 def build_report_hide(report_system: str | None = "bazi", hide: dict[str, bool] | None = None) -> dict[str, bool]:
     """按报告体系构造计算/呈现开关。
 
-    默认八字、建除、称骨均不需要紫微扩展；只有 `ziwei` 独立体系开启扩展计算。
+    默认综合八字不需要紫微扩展；只有 `ziwei` 独立体系开启扩展计算。
     """
     system = _normalize_report_system(report_system)
     merged = dict(DEFAULT_HIDE)
@@ -1334,9 +1318,8 @@ def build_report_hide(report_system: str | None = "bazi", hide: dict[str, bool] 
 
 
 def generate_bazi_standard_report(result: dict[str, Any], hide: dict[str, bool] | None = None) -> str:
-    """生成正宗八字标准报告，不混入紫微、建除或称骨。"""
+    """生成综合八字标准报告：八字主线 + 称骨民俗辅助，不混入紫微或建除。"""
     HIDE = build_report_hide("bazi", hide=hide)
-    HIDE["jianchu"] = True
     HIDE["non_bazi_basic"] = True
 
     RECENT_YEARS = None
@@ -1354,6 +1337,10 @@ def generate_bazi_standard_report(result: dict[str, Any], hide: dict[str, bool] 
         "",
         generate_fortune_section(result, recent_years=RECENT_YEARS),
         generate_monthly_section(result, recent_years=RECENT_YEARS),
+        "",
+        "## 第三卷：民俗与建议（生活应用）",
+        "",
+        generate_bone_section(result),
     ]
     return _wrap_report(parts)
 
@@ -1371,46 +1358,6 @@ def generate_ziwei_report(result: dict[str, Any]) -> str:
     return _wrap_report(parts)
 
 
-def generate_jianchu_section(result: dict[str, Any], *, heading: str = "## 建除十二神") -> str:
-    """生成建除十二神独立章节。"""
-    lines = []
-    jc = result.get("jianChu", {})
-    if jc and not jc.get("error"):
-        lines.append(heading)
-        lines.append("")
-        jrows = [
-            ["名称", jc.get("name", "")],
-            ["序号", jc.get("index", "")],
-            ["月支", jc.get("monthZhi", "")],
-            ["日支", jc.get("dayZhi", "")],
-            ["解读", jc.get("description", "")],
-        ]
-        lines.extend(_render_table(["项目", "内容"], jrows))
-    return "\n".join(lines)
-
-
-def generate_jianchu_report(result: dict[str, Any]) -> str:
-    """生成建除十二神独立报告。"""
-    name = _report_name(result)
-    parts = [
-        f"# 建除十二神报告：{name}",
-        "",
-        generate_jianchu_section(result),
-    ]
-    return _wrap_report(parts)
-
-
-def generate_bone_report(result: dict[str, Any]) -> str:
-    """生成袁天罡称骨独立报告。"""
-    name = _report_name(result)
-    parts = [
-        f"# 袁天罡称骨报告：{name}",
-        "",
-        generate_bone_section(result),
-    ]
-    return _wrap_report(parts)
-
-
 def generate_full_report(
     result: dict[str, Any],
     hide: dict[str, bool] | None = None,
@@ -1418,18 +1365,14 @@ def generate_full_report(
 ) -> str:
     """生成指定体系的标准报告。
 
-    默认只输出正宗八字体系。紫微、建除十二神和袁天罡称骨作为独立体系
-    通过 report_system 单独选择，不再与八字默认报告混排。
+    默认输出综合八字体系。紫微斗数作为独立体系通过 report_system 单独选择，
+    不再与综合八字默认报告混排。
     """
     system = _normalize_report_system(report_system)
     if system == "bazi":
         return generate_bazi_standard_report(result, hide=hide)
     if system == "ziwei":
         return generate_ziwei_report(result)
-    if system == "jianchu":
-        return generate_jianchu_report(result)
-    if system == "bone":
-        return generate_bone_report(result)
     raise AssertionError(f"未处理的报告体系: {system}")
 
 
