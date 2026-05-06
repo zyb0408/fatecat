@@ -14,8 +14,8 @@ def test():
     print("🔮 测试八字计算器\n" + "=" * 50)
 
     dt = datetime(1990, 5, 15, 14, 30)
-    lng, lat = get_loc("深圳")
-    calc = BaziCalculator(dt, "male", longitude=lng, latitude=lat, name="张三", birth_place="深圳")
+    lng, lat = get_loc("北京")
+    calc = BaziCalculator(dt, "male", longitude=lng, latitude=lat, name="测试用户", birth_place="北京")
     try:
         r = calc.calculate()
     except Exception as e:

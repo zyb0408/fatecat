@@ -16,6 +16,7 @@ from typing import Any
 from bazi_calculator import BaziCalculator
 from fastapi.responses import HTMLResponse
 from location import get as get_location
+from prediction_systems import PREDICTION_SYSTEMS, report_system_allowed_text
 from report_generator import REPORT_SYSTEM_LABELS, build_report_hide, generate_full_report, public_birth_place
 from tabulate import tabulate
 from utils.timezone import now_cn
@@ -184,7 +185,7 @@ def _normalize_report_system(value: str) -> str:
     normalized = value.strip().lower()
     if normalized in REPORT_SYSTEM_LABELS:
         return normalized
-    raise ValueError(f"报告体系必须为: {'、'.join(REPORT_SYSTEM_LABELS)}。")
+    raise ValueError(f"报告体系必须为: {report_system_allowed_text()}。未来体系需等独立功能实现后启用。")
 
 
 def _render_document(*, form: WebReportForm, result: WebReportResult | None, errors: list[str]) -> str:
@@ -257,7 +258,7 @@ def _render_field_contract() -> str:
         ["birthTime", "出生时间", "是", "HH:MM 或 HH:MM:SS", "HTML time；例 08:00"],
         ["birthPlace", "出生地区", "是", "中文地点或 lng,lat", "例 北京 / 116.4074,39.9042"],
         ["gender", "性别", "是", "male/female", "计算必需；不能默认猜测"],
-        ["reportSystem", "输出体系", "否", "bazi/ziwei", "默认 bazi；每次只输出一个体系"],
+        ["reportSystem", "输出体系", "否", report_system_allowed_text(), "默认 bazi；每次只输出一个已实现体系"],
         ["name", "姓名", "否", "文本", "为空时报告标题使用命主"],
     ]
     table = tabulate(rows, headers=["参数", "字段", "必填", "格式", "说明"], tablefmt="psql", missingval="")
@@ -392,10 +393,23 @@ def _selected(current: str, expected: str) -> str:
 
 def _render_report_system_options(current: str) -> list[str]:
     normalized = current if current in REPORT_SYSTEM_LABELS else "bazi"
-    return [
-        f'<option value="{_attr(value)}"{_selected(normalized, value)}>{_h(label)} {value}</option>'
-        for value, label in REPORT_SYSTEM_LABELS.items()
-    ]
+    lines: list[str] = []
+    current_group = ""
+    for system in PREDICTION_SYSTEMS:
+        if system.group != current_group:
+            if current_group:
+                lines.append("</optgroup>")
+            current_group = system.group
+            lines.append(f'<optgroup label="{_attr(current_group)}">')
+        selected = _selected(normalized, system.id) if system.enabled else ""
+        disabled = "" if system.enabled else " disabled"
+        suffix = "" if system.enabled else "（待实现）"
+        lines.append(
+            f'<option value="{_attr(system.id)}"{selected}{disabled}>{_h(system.label)} {system.id}{suffix}</option>'
+        )
+    if current_group:
+        lines.append("</optgroup>")
+    return lines
 
 
 def _time_value(value: str) -> str:

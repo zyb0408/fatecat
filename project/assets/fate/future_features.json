@@ -27,18 +27,21 @@
     },
     {
       "id": "jianchu_almanac",
+      "reportSystem": "huangli",
       "title": "建除十二神",
       "previousReportBlock": "## 建除十二神",
       "requiredBeforeProduction": ["黄历/择日输入契约", "日期范围与用途语义", "不作为出生八字主报告块", "回归样例"]
     },
     {
       "id": "divination_suite",
+      "reportSystems": ["liuyao", "meihua", "qimen", "liuren"],
       "title": "六爻/梅花/数字起卦/奇门遁甲/大六壬",
       "previousReportBlock": "## 第五卷：学术参数（隐藏/技术区）",
       "requiredBeforeProduction": ["事件型问题输入", "起卦时间语义", "各体系独立报告模板"]
     },
     {
       "id": "fengshui",
+      "reportSystem": "fengshui",
       "title": "风水九星",
       "previousReportBlock": "## 风水九星",
       "requiredBeforeProduction": ["方位/山向/门向输入契约", "地理参数校验", "独立报告模板"]
@@ -57,18 +60,21 @@
     },
     {
       "id": "date_selection",
+      "reportSystem": "huangli",
       "title": "择日推荐",
       "previousReportBlock": "## 择日推荐",
       "requiredBeforeProduction": ["用途输入", "日期范围输入", "评分口径测试"]
     },
     {
       "id": "yijing",
+      "reportSystem": "yijing",
       "title": "易经系统",
       "previousReportBlock": "## 易经系统",
       "requiredBeforeProduction": ["起卦方法契约", "卦辞数据来源", "独立报告模板"]
     },
     {
       "id": "name_marriage",
+      "reportSystem": "name_marriage",
       "title": "姓名合婚模块",
       "previousReportBlock": "## 姓名合婚模块",
       "requiredBeforeProduction": ["姓名输入", "配偶八字输入", "读音/笔画数据源", "字段级测试"]

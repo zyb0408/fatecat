@@ -106,6 +106,9 @@ bash "${script_dir}/preflight.sh" \
 echo "[acceptance] vendor health"
 bash "${script_dir}/vendor-health.sh"
 
+echo "[acceptance] privacy fixtures"
+bash "${script_dir}/check-privacy-fixtures.sh"
+
 echo "[acceptance] pytest"
 "${runtime_root}/.venv/bin/python" -m pytest -q \
   "${runtime_root}/tests" \

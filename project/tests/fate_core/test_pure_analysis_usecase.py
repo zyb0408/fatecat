@@ -61,7 +61,7 @@ def test_calculate_pure_analysis_projects_profile(monkeypatch):
             longitude=113.93,
             latitude=22.54,
             name="测试",
-            birth_place="深圳南山",
+            birth_place="北京市",
         )
     )
 

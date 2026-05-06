@@ -7,7 +7,7 @@
 FateCat 八字排盘系统 API / Bot 接口规范，基于当前 skill 化后的标准报告契约与 `fate_core` / Telegram 交付层实现。
 
 ### 🎯 当前状态
-- **标准报告**: 默认输出免责声明、赞助支持、标题、第一卷先天命格、第二卷后天运路与第三卷民俗建议，第三卷包含袁天罡称骨。紫微斗数通过 `report_system` / Web 控件 / API `options.reportSystem` / Bot 确认页按钮独立输出，不与综合八字混排；建除十二神退役为后续黄历/择日功能。
+- **标准报告**: 默认输出免责声明、赞助支持、标题、第一卷先天命格、第二卷后天运路与第三卷民俗建议，第三卷包含袁天罡称骨。紫微斗数通过 `report_system` / Web 控件 / API `options.reportSystem` / Bot 确认页按钮独立输出，不与综合八字混排；黄历/择日、六爻、梅花、奇门、大六壬、风水九星、姓名合婚等登记为独立待实现体系。
 - **前端地区展示**: 非北京类真实出生地区只参与经纬度解析和后端计算，Web/Bot/Markdown 展示层统一隐藏。
 - **未来功能**: 退出标准报告的扩展能力统一登记在 `assets/fate/future_features.json`，后续必须按独立输入契约、输出模板与测试重新进入生产。
 - **结构化输出**: API / pure-analysis 优先依赖字段 profile 和结构化 JSON，不要求 TXT 报告承载全部历史字段。
@@ -28,7 +28,7 @@ FateCat 八字排盘系统 API / Bot 接口规范，基于当前 skill 化后的
 ### API 输入格式
 ```json
 {
-  "name": "张三",                          // 姓名 (可选)
+  "name": "测试用户",                      // 姓名 (可选)
   "gender": "male",                        // 性别: male/female
   "birthDate": "1990-01-01",               // 出生日期 (公历)
   "birthTime": "08:00",                    // 出生时间 (HH:MM)
@@ -36,7 +36,7 @@ FateCat 八字排盘系统 API / Bot 接口规范，基于当前 skill 化后的
   "options": {
     "useTrueSolarTime": true,              // 真太阳时修正 (默认true)
     "calendarType": "solar",               // 历法: solar(公历)
-    "reportSystem": "bazi"                 // bazi/ziwei
+    "reportSystem": "bazi"                 // 当前可用: bazi/ziwei
   }
 }
 ```
@@ -251,7 +251,7 @@ FateCat 八字排盘系统 API / Bot 接口规范，基于当前 skill 化后的
 ## 📊 当前实现状态
 
 ### ✅ 标准报告生产字段
-当前默认 `bazi` 综合八字报告覆盖基础资料、四柱、五行、日主、格局用神、节气司令、干支关系、八字岁运趋势与袁天罡称骨。紫微斗数通过 `report_system=ziwei` 独立输出；建除十二神退役为后续黄历/择日功能。
+当前默认 `bazi` 综合八字报告覆盖基础资料、四柱、五行、日主、格局用神、节气司令、干支关系、八字岁运趋势与袁天罡称骨。紫微斗数通过 `report_system=ziwei` 独立输出；其他体系通过 `GET /api/v1/report/systems` 查询状态，未实现前不得混入综合八字。
 
 ### 🟡 可优化
 - **五行力量评分**: 当前为简化算法，可提取 bazi-1-master 的精确量化
@@ -272,12 +272,12 @@ FateCat 八字排盘系统 API / Bot 接口规范，基于当前 skill 化后的
 1990/5/15 14:30
 1990年5月15日 14点30分
 19900515 1430
-1990-05-15 14:30 深圳南山 张三
+1990-05-15 14:30 北京市 测试用户
 ```
 
 ### 地点支持
 - 省市区县级精确匹配
-- 模糊搜索: "深圳"、"南山"、"深圳南山"
+- 模糊搜索: "北京"、"北京市"
 - 自动经纬度获取
 
 ---
@@ -299,7 +299,7 @@ result = calc.calculate()
 
 ### Bot 调用
 ```
-输入: 1990-01-01 08:00 北京市 张三
+输入: 1990-01-01 08:00 北京市 测试用户
 选择: ♂ 乾造(男)
 输出: 默认综合八字报告与结构化 JSON；紫微体系在确认页单独选择
 ```
@@ -308,5 +308,5 @@ result = calc.calculate()
 ```bash
 curl -X POST "http://localhost:8001/api/v1/report/markdown" \
   -H "Content-Type: application/json" \
-  -d '{"name":"张三","gender":"male","birthDate":"1990-01-01","birthTime":"08:00:00","birthPlace":{"name":"北京市","longitude":116.4074,"latitude":39.9042,"timezone":"Asia/Shanghai"},"options":{"useTrueSolarTime":true,"calendarType":"solar","reportSystem":"bazi"}}'
+  -d '{"name":"测试用户","gender":"male","birthDate":"1990-01-01","birthTime":"08:00:00","birthPlace":{"name":"北京市","longitude":116.4074,"latitude":39.9042,"timezone":"Asia/Shanghai"},"options":{"useTrueSolarTime":true,"calendarType":"solar","reportSystem":"bazi"}}'
 ```

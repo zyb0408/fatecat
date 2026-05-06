@@ -515,7 +515,7 @@ CLI 的两个关键约定：
 - 必需项：`FATE_BOT_TOKEN`
 - 可选项：`FATE_ADMIN_USER_IDS`、`FATE_BOT_PROXY_URL`
 - 日志目录：`modules/telegram/output/logs/`
-- 确认页可切换报告体系：综合八字、紫微斗数；袁天罡称骨随综合八字输出，建除十二神已退役到后续黄历/择日功能。
+- 确认页可切换已实现报告体系：综合八字、紫微斗数；袁天罡称骨随综合八字输出。黄历/择日、六爻、梅花、奇门、大六壬、风水九星、姓名合婚等已进入预测体系注册表，但未实现前只作为独立待实现体系，不混入综合八字。
 - 用户可见报告不会回显非北京类真实出生地区；非北京地区只用于后端经纬度解析和计算。
 
 常见命令：
@@ -537,6 +537,7 @@ tail -f modules/telegram/output/logs/bot.log
 | `POST` | `/api/v1/bazi/simple` | 返回简化原始结果 |
 | `POST` | `/api/v1/bazi/calculate` | 传统八字排盘响应（兼容 legacy 输出） |
 | `POST` | `/api/v1/report/markdown` | 按 `options.reportSystem` 生成指定体系 Markdown |
+| `GET` | `/api/v1/report/systems` | 查看已实现与未来规划的独立输出体系 |
 | `POST` | `/api/v1/liuyao/factor` | 六爻量化因子统一输出 |
 
 启动命令：

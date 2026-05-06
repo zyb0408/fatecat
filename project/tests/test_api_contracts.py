@@ -204,3 +204,33 @@ def test_markdown_report_api_rejects_retired_bone_system():
     response = TestClient(app).post("/api/v1/report/markdown", json=payload)
 
     assert response.status_code == 422
+
+
+def test_report_systems_api_lists_enabled_and_planned_systems():
+    response = TestClient(app).get("/api/v1/report/systems")
+
+    assert response.status_code == 200
+    body = response.json()
+    systems = {item["id"]: item for item in body["data"]["systems"]}
+    assert systems["bazi"]["enabled"] is True
+    assert systems["ziwei"]["enabled"] is True
+    assert systems["huangli"]["enabled"] is False
+    assert systems["liuyao"]["status"] == "planned"
+    assert systems["fengshui"]["group"] == "未来功能"
+
+
+def test_markdown_report_hides_non_beijing_birth_place():
+    payload = _payload()
+    payload["birthPlace"] = {
+        "name": "上海市",
+        "longitude": 121.4737,
+        "latitude": 31.2304,
+        "timezone": "Asia/Shanghai",
+    }
+
+    response = TestClient(app).post("/api/v1/report/markdown", json=payload)
+
+    assert response.status_code == 200
+    markdown = response.json()["data"]["markdown"]
+    assert "上海" not in markdown
+    assert "已填写（非北京地区已隐藏）" in markdown

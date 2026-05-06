@@ -43,6 +43,7 @@ fatecat/
 │       │   ├── bot.py             # Telegram Bot
 │       │   ├── main.py            # FastAPI 入口
 │       │   ├── web_ui.py          # 原生 HTML Web 报告页
+│       │   ├── prediction_systems.py # 预测体系注册表
 │       │   ├── db_v2.py           # 数据库访问层
 │       │   ├── bazi_calculator.py # 遗留总装配器
 │       │   └── *_integration.py   # 外部库胶水层
@@ -273,3 +274,5 @@ cat modules/telegram/output/logs/nohup.out
 
 - `assets/docs/` 完成文档资产分区：架构、运维、参考、路线图、供应链研究与本地归档不再混放在同一层
 - 新增 `assets/docs/README.md` 与 `assets/docs/AGENTS.md` 作为文档资产索引与维护边界
+- 新增 `modules/telegram/src/prediction_systems.py` 作为独立预测体系注册表，未来体系只登记为 planned，不混入综合八字默认报告
+- 新增 `scripts/check-privacy-fixtures.sh`，把示例数据白名单、vendor web 隔离与非北京/真实感示例门禁纳入验收

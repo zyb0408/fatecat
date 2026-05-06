@@ -8,11 +8,7 @@ from datetime import datetime
 from typing import Any
 
 from branding import build_brand_footer_text, build_disclaimer_text, load_branding
-
-REPORT_SYSTEM_LABELS: dict[str, str] = {
-    "bazi": "综合八字",
-    "ziwei": "紫微斗数",
-}
+from prediction_systems import REPORT_SYSTEM_LABELS, report_system_allowed_text
 
 
 def public_birth_place(value: str | None) -> str:
@@ -1294,7 +1290,7 @@ def _normalize_report_system(report_system: str | None) -> str:
     }
     normalized = aliases.get(normalized, normalized)
     if normalized not in REPORT_SYSTEM_LABELS:
-        allowed = "、".join(REPORT_SYSTEM_LABELS)
+        allowed = report_system_allowed_text()
         raise ValueError(f"未知报告体系: {report_system}；允许值: {allowed}")
     return normalized
 

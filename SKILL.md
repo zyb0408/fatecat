@@ -83,7 +83,7 @@ bash scripts/health.sh --mode delivery --json --pretty
 bash scripts/acceptance.sh --with-dev
 ```
 
-完整验收会覆盖 shell 语法、strict skill 校验、纯分析 smoke、vendor health、全量 pytest、ruff、format、`fate_core` mypy、API 与 Bot dry-run 交付层 smoke、导出包卫生检查，以及导出后的 lite skill 包独立 smoke。
+完整验收会覆盖 shell 语法、strict skill 校验、纯分析 smoke、vendor health、隐私示例门禁、全量 pytest、ruff、format、`fate_core` mypy、API 与 Bot dry-run 交付层 smoke、导出包卫生检查，以及导出后的 lite skill 包独立 smoke。
 
 ### 5. 用 JSON 字符串直接执行排盘
 

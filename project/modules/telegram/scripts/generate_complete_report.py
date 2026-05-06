@@ -17,11 +17,11 @@ def generate_complete_report():
 
     # 标准OI文档输入
     input_data = {
-        "name": "张三",
+        "name": "测试用户",
         "gender": "male",
         "birthDate": "1990-05-15",
         "birthTime": "14:30",
-        "birthPlace": "深圳南山",
+        "birthPlace": "北京市",
         "options": {"useTrueSolarTime": True, "calendarType": "solar"},
     }
 
@@ -44,7 +44,7 @@ def generate_complete_report():
     print("- `gender`: male ✅")
     print("- `birthDate`: 1990-05-15 ✅")
     print("- `birthTime`: 14:30 ✅")
-    print("- `birthPlace`: 深圳南山 ✅")
+    print("- `birthPlace`: 北京市 ✅")
     print()
 
     # 3) 全量计算
@@ -52,14 +52,14 @@ def generate_complete_report():
     print()
 
     try:
-        lng, lat = get_loc("深圳")
+        lng, lat = get_loc("北京")
         calc = BaziCalculator(
             birth_dt=datetime(1990, 5, 15, 14, 30),
             gender="male",
             longitude=lng,
             latitude=lat,
-            name="张三",
-            birth_place="深圳",
+            name="测试用户",
+            birth_place="北京",
         )
         result = calc.calculate()
 

@@ -33,7 +33,9 @@ def test_web_page_renders_semantic_form():
     assert '<select id="reportSystem" name="reportSystem">' in text
     assert "综合八字 bazi" in text
     assert "紫微斗数 ziwei" in text
-    assert "建除十二神 jianchu" not in text
+    assert "黄历/择日 huangli（待实现）" in text
+    assert "六爻占卜 liuyao（待实现）" in text
+    assert "奇门遁甲 qimen（待实现）" in text
     assert "袁天罡称骨 bone" not in text
     assert "姓名（非必填）" in text
     assert "<pre><code>+" in text
@@ -147,7 +149,7 @@ def test_web_page_rejects_retired_report_systems():
 
     assert response.status_code == 200
     assert "<h2>错误</h2>" in response.text
-    assert "报告体系必须为: bazi、ziwei。" in response.text
+    assert "报告体系必须为: bazi、ziwei。未来体系需等独立功能实现后启用。" in response.text
     assert "# 建除十二神报告" not in response.text
 
     bone_response = TestClient(app).get(
@@ -162,7 +164,7 @@ def test_web_page_rejects_retired_report_systems():
         },
     )
     assert bone_response.status_code == 200
-    assert "报告体系必须为: bazi、ziwei。" in bone_response.text
+    assert "报告体系必须为: bazi、ziwei。未来体系需等独立功能实现后启用。" in bone_response.text
     assert "# 袁天罡称骨报告" not in bone_response.text
 
 

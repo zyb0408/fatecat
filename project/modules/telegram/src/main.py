@@ -42,6 +42,7 @@ from models import (  # noqa: E402
     Meta,
     TimeInfo,
 )
+from prediction_systems import prediction_systems_payload  # noqa: E402
 from report_generator import (  # noqa: E402
     build_report_hide,
     generate_full_report,
@@ -204,6 +205,12 @@ def web_report(
         name=name,
         report_system=reportSystem,
     )
+
+
+@app.get("/api/v1/report/systems")
+def list_report_systems():
+    """列出当前可用和未来规划的独立输出体系。"""
+    return attach_branding({"success": True, "data": {"systems": prediction_systems_payload()}})
 
 
 def _parse_bazi_request(req: BaziRequest) -> tuple[datetime, float, float]:

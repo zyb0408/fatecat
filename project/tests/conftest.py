@@ -40,6 +40,6 @@ def sample_birth_data():
 def sample_name():
     """Sample name for xingming analysis tests."""
     return {
-        "surname": "张",
-        "given_name": "三",
+        "surname": "测",
+        "given_name": "试",
     }

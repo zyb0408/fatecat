@@ -13,7 +13,7 @@ def demo_wuge_analysis():
     print("五格剖象法姓名分析演示")
     print("=" * 50)
 
-    test_names = [("王", "小明"), ("李", "华强"), ("张", "三丰"), ("刘", "德华"), ("陈", "美丽")]
+    test_names = [("王", "小明"), ("李", "华强"), ("赵", "安平"), ("刘", "明德"), ("陈", "美丽")]
 
     for xing, ming in test_names:
         print(f"\n【分析姓名】: {xing}{ming}")
@@ -41,7 +41,7 @@ def demo_name_suggestions():
     test_cases = [
         ("李", ["木", "火"], 80),
         ("王", ["土", "金"], 75),
-        ("张", ["火", "木"], 85),
+        ("赵", ["火", "木"], 85),
         ("陈", ["火", "土"], 70),
     ]
 
@@ -72,7 +72,7 @@ def demo_element_analysis():
     print("姓名五行分析演示")
     print("=" * 50)
 
-    test_names = ["张三丰", "李小龙", "王菲", "刘德华", "陈奕迅"]
+    test_names = ["测试用户", "北京样本", "王小明", "刘明德", "陈美丽"]
 
     for name in test_names:
         print(f"\n【分析姓名】: {name}")
