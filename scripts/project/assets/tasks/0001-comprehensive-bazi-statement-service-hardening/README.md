@@ -2,7 +2,7 @@
 - Task ID: `0001`
 - Slug: `comprehensive-bazi-statement-service-hardening`
 - Objective: `综合八字陈述服务加固：锁定节气边界、默认报告结构、证据化陈述、输入隐私、多端同源输出、典籍引用与质量门禁`
-- Status: `In Progress`
+- Status: `Done`
 
 ## In Scope
 - 只加固当前生产方向：综合八字默认报告与同源服务链路。

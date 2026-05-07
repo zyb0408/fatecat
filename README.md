@@ -173,6 +173,7 @@ bash scripts/acceptance.sh --with-dev
 ```
 
 完整验收覆盖 shell 语法、strict skill 校验、纯分析 smoke、vendor health、全量 pytest、ruff、format、`fate_core` mypy、API/Bot dry-run、导出包卫生检查与导出包 smoke。
+其中 pytest 已包含 1900-2030 节气 golden、月令/立春边界、起运样本、综合八字报告结构、隐私脱敏和 evidence 权重策略回归。
 
 <a id="web"></a>
 
@@ -212,6 +213,8 @@ http://127.0.0.1:8001/web
 ## 标准 Markdown 报告结构
 
 默认 Markdown 输出综合八字体系，包含八字主线和袁天罡称骨民俗辅助。紫微斗数作为独立体系保留，必须通过 Web HTML 的“输出体系”控件、Telegram 确认页按钮，或 API `options.reportSystem` 单独选择，不再和综合八字一起输出。黄历/择日、六爻、梅花、奇门、大六壬、风水九星、姓名合婚等已经进入预测体系注册表，但状态仍是未来功能；未实现前只展示为独立待实现体系，不允许混入综合八字默认报告。
+
+综合八字 JSON 结果包含默认隐藏的 `analysisEvidence`，用于审计日主、五行喜忌、格局、干支关系、神煞和袁天罡称骨的依据、来源、规则 ID 与权重。该字段不渲染到默认 Markdown 正文，避免用户报告变成技术附录。
 
 可选体系：
 
@@ -414,6 +417,7 @@ bash scripts/check-export-hygiene.sh /tmp/fatecat-export/fatecat
 - [references/ops-pack.md](references/ops-pack.md)：运维与加固。
 - [scripts/project/README.md](scripts/project/README.md)：项目级产品说明与业务背景。
 - [scripts/project/assets/docs/reference/功能状态.md](scripts/project/assets/docs/reference/功能状态.md)：标准报告与未来功能边界。
+- [scripts/project/assets/docs/reference/综合八字陈述服务加固.md](scripts/project/assets/docs/reference/综合八字陈述服务加固.md)：综合八字报告、节气 golden、evidence 与验收门禁。
 
 <a id="disclaimer"></a>
 

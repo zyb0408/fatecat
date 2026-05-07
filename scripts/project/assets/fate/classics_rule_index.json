@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "description": "综合八字证据层的典籍规则索引种子。这里只登记短规则和来源，不收录大段原文。",
+  "copyrightBoundary": "public_domain_or_local_research_index_only",
+  "rules": [
+    {
+      "id": "bazi.month_command_priority",
+      "system": "bazi",
+      "topic": "旺衰与格局",
+      "summary": "以月令作为判断旺衰、格局和季节气势的首要依据。",
+      "sources": ["子平真诠", "渊海子平", "三命通会"],
+      "appliesWhen": ["出生时间已完成节气边界换算", "月柱和月支可确定"],
+      "doesNotApplyWhen": ["节气边界未验证", "出生时间缺失"]
+    },
+    {
+      "id": "bazi.day_master_strength",
+      "system": "bazi",
+      "topic": "日主",
+      "summary": "日主强弱应综合月令、通根、透干、藏干和五行分数，不由单一神煞决定。",
+      "sources": ["子平真诠", "滴天髓", "项目五行评分规则"],
+      "appliesWhen": ["四柱、藏干、五行评分齐备"],
+      "doesNotApplyWhen": ["只存在简化生肖或神煞数据"]
+    },
+    {
+      "id": "bazi.regulating_climate",
+      "system": "bazi",
+      "topic": "调候",
+      "summary": "调候以季节寒暖燥湿为先，再结合五行偏枯与透藏状态。",
+      "sources": ["穷通宝鉴", "项目调候规则"],
+      "appliesWhen": ["月令、节气和五行分数齐备"],
+      "doesNotApplyWhen": ["只进行民俗附录输出"]
+    },
+    {
+      "id": "bazi.pattern_by_month_command",
+      "system": "bazi",
+      "topic": "格局",
+      "summary": "格局优先从月令取象，再看透干、藏干和成败条件。",
+      "sources": ["子平真诠", "三命通会"],
+      "appliesWhen": ["月令、天干透出和藏干信息齐备"],
+      "doesNotApplyWhen": ["月柱缺失或节气边界未通过"]
+    },
+    {
+      "id": "bazi.spirits_auxiliary_only",
+      "system": "bazi",
+      "topic": "神煞",
+      "summary": "神煞用于辅助解释，不提升为核心喜忌、旺衰或格局判定依据。",
+      "sources": ["项目权重策略"],
+      "appliesWhen": ["报告包含神煞列表"],
+      "doesNotApplyWhen": ["需要独立占事、择日或紫微体系判断"]
+    },
+    {
+      "id": "folk.bone_weight_appendix_only",
+      "system": "folk",
+      "topic": "称骨",
+      "summary": "袁天罡称骨作为民俗附录保留在综合八字报告，不参与核心八字判断。",
+      "sources": ["项目权重策略", "袁天罡称骨民俗表"],
+      "appliesWhen": ["出生年月日时齐备"],
+      "doesNotApplyWhen": ["需要计算核心喜忌、格局或旺衰"]
+    }
+  ]
+}

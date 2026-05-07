@@ -54,6 +54,18 @@ def calculate_pure_analysis(payload: PureAnalysisInput) -> dict[str, Any]:
     raw.update(build_base_chart_section(runtime))
     raw.update(build_fortune_section(runtime))
     raw.update(build_classical_section(runtime))
+    raw["analysisEvidence"] = runtime.calculator._calc_analysis_evidence(
+        four_pillars=runtime.four_pillars,
+        hidden_stems=runtime.hidden_stems,
+        day_master=raw.get("dayMaster", {}),
+        wuxing_scores=raw.get("wuxingScores", {}),
+        geju=raw.get("geju", {}),
+        yongshen=raw.get("yongShen", {}),
+        ganzhi_relations=raw.get("ganzhiRelations", {}),
+        branch_relations=raw.get("branchRelations", {}),
+        spirits=raw.get("spiritsFull", {}),
+        bone_weight=raw.get("boneWeight", {}),
+    )
     projected = project_by_profile(raw, "pure_analysis")
     translated = runtime.calculator._translate_to_chinese(projected)
     safe_result = runtime.calculator._json_safe(translated)

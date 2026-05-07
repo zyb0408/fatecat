@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "profile": "comprehensive_bazi",
+  "levels": [
+    {
+      "id": "core",
+      "label": "八字核心",
+      "rank": 10,
+      "includes": ["日主", "月令", "藏干", "透干", "五行", "调候", "格局", "干支关系"],
+      "mayAffect": ["旺衰", "喜忌", "格局", "用神"]
+    },
+    {
+      "id": "fortune",
+      "label": "八字动态运势",
+      "rank": 8,
+      "includes": ["大运", "流年", "流月", "小运"],
+      "mayAffect": ["动态趋势", "时间窗口"]
+    },
+    {
+      "id": "auxiliary",
+      "label": "八字辅助",
+      "rank": 4,
+      "includes": ["神煞", "干支取象"],
+      "mayAffect": ["辅助解释"],
+      "mustNotAffect": ["核心喜忌", "格局定性"]
+    },
+    {
+      "id": "folk",
+      "label": "民俗辅助",
+      "rank": 2,
+      "includes": ["袁天罡称骨"],
+      "mayAffect": ["附录说明"],
+      "mustNotAffect": ["核心喜忌", "格局定性", "旺衰判断"]
+    }
+  ]
+}

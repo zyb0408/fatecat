@@ -13,6 +13,7 @@ def test_pure_analysis_profile_contains_core_fields():
     assert "fourPillars" in fields
     assert "majorFortune" in fields
     assert "yongShen" in fields
+    assert "analysisEvidence" in fields
 
 
 def test_pure_analysis_profile_excludes_extension_fields():

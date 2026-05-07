@@ -356,14 +356,14 @@ make status
 
 ```json
 {
-  "name": "张三",
+  "name": "测试用户",
   "gender": "male",
   "birthDate": "1990-05-15",
   "birthTime": "14:30:00",
   "birthPlace": {
-    "name": "深圳",
-    "longitude": 114.1,
-    "latitude": 22.5,
+    "name": "北京市",
+    "longitude": 116.4074,
+    "latitude": 39.9042,
     "timezone": "Asia/Shanghai"
   },
   "options": {
@@ -558,7 +558,7 @@ http://127.0.0.1:8001/web
 curl -X POST "http://127.0.0.1:8001/api/v1/bazi/pure-analysis" \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "张三",
+    "name": "测试用户",
     "gender": "male",
     "birthDate": "1990-01-01",
     "birthTime": "08:00:00",
@@ -743,6 +743,7 @@ fatecat/
 | `assets/docs/architecture/序列图.md` | 链路时序说明 | 你要看请求流程 |
 | `assets/docs/reference/功能清单.md` | 字段能力与功能总览 | 你要评估当前覆盖面 |
 | `assets/docs/reference/功能状态.md` | 计算/呈现开关口径 | 你要调整报告显示范围 |
+| `assets/docs/reference/综合八字陈述服务加固.md` | 综合八字报告、节气 golden、evidence 与验收门禁 | 你要审计当前生产服务边界 |
 | `assets/vendor/README.md` | 外部成熟仓库依赖说明 | 你要核对底层依赖 |
 
 ## 故障排查

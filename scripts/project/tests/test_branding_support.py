@@ -149,6 +149,36 @@ def test_full_report_default_heading_contract_matches_standard_blocks():
     ]
     for section in ["### 建除十二神", "## 紫微斗数", "## 紫微基础"]:
         assert section not in headings
+    assert "analysisEvidence" not in text
+
+
+def test_comprehensive_bazi_result_contains_hidden_analysis_evidence():
+    from datetime import datetime
+
+    from bazi_calculator import BaziCalculator
+    from report_generator import build_report_hide
+
+    result = BaziCalculator(
+        datetime(1990, 1, 1, 8, 0, 0),
+        "male",
+        116.4074,
+        latitude=39.9042,
+        name="测试样本",
+        birth_place="北京",
+        use_true_solar_time=True,
+    ).calculate(hide=build_report_hide("bazi"))
+
+    evidence = result["analysisEvidence"]
+    assert evidence["schemaVersion"] == 1
+    assert evidence["profile"] == "comprehensive_bazi"
+    assert evidence["visibilityDefault"] == "hidden"
+    assert evidence["items"]["dayMaster"]["weight"] == "core"
+    assert "bazi.month_command_priority" in evidence["items"]["dayMaster"]["ruleIds"]
+    assert evidence["items"]["wuxingPreference"]["weight"] == "core"
+    assert evidence["items"]["pattern"]["weight"] == "core"
+    assert evidence["items"]["ganzhiRelations"]["weight"] == "core"
+    assert evidence["items"]["spirits"]["weight"] == "auxiliary"
+    assert evidence["items"]["boneWeight"]["weight"] == "folk"
 
 
 def test_full_report_other_systems_are_independent_outputs():

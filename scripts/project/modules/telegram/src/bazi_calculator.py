@@ -468,6 +468,25 @@ class BaziCalculator:
 
         # 用神分析（后续大运/流年/小运神煞与作用依赖）
         yongshen = self._calc_yongshen(ec.getDayGan(), ec.getMonthZhi(), four_pillars)
+        analysis_evidence = self._calc_analysis_evidence(
+            four_pillars=four_pillars,
+            hidden_stems=hidden,
+            day_master={
+                "stem": ec.getDayGan(),
+                "element": day_elem,
+                "elementCn": ELEM_CN[day_elem],
+                "yinYang": "阳" if LunarUtil.GAN.index(ec.getDayGan()) % 2 == 0 else "阴",
+                "strength": strength,
+                "selfSitting": self_sitting,
+            },
+            wuxing_scores=wx_scores,
+            geju=geju,
+            yongshen=yongshen,
+            ganzhi_relations=gz_relations,
+            branch_relations=zhi_rel,
+            spirits=spirits_full,
+            bone_weight=bone,
+        )
 
         # 小运（需用神信息）
         xiao_yun = self._calc_xiao_yun(yun, ec, yongshen)
@@ -828,6 +847,7 @@ class BaziCalculator:
             "jiaoYun": jiao_yun,
             "trueSolarTime": self.true_solar_time.strftime("%Y-%m-%d %H:%M:%S"),
             "yongShen": yongshen,
+            "analysisEvidence": analysis_evidence,
             "siziSummary": sizi_summary,
             "huangLi": huangli,
             # 专业扩展功能 (27个字段)
@@ -2292,6 +2312,138 @@ class BaziCalculator:
             "description": f"出生于{prev_jq.getName()}后{prev_days}天，{next_jq.getName()}前{next_days}天"
             if prev_jq and next_jq
             else "",
+        }
+
+    def _calc_analysis_evidence(
+        self,
+        *,
+        four_pillars: dict[str, Any],
+        hidden_stems: dict[str, Any],
+        day_master: dict[str, Any],
+        wuxing_scores: dict[str, Any],
+        geju: dict[str, Any],
+        yongshen: dict[str, Any],
+        ganzhi_relations: dict[str, Any],
+        branch_relations: dict[str, Any],
+        spirits: dict[str, Any],
+        bone_weight: dict[str, Any],
+    ) -> dict[str, Any]:
+        """生成综合八字结论的机器可读依据，不直接渲染到默认 Markdown。"""
+        month_pillar = four_pillars.get("month", {}) if isinstance(four_pillars, dict) else {}
+        day_pillar = four_pillars.get("day", {}) if isinstance(four_pillars, dict) else {}
+        month_branch = month_pillar.get("branch", "")
+        day_stem = day_master.get("stem", "")
+        yongshen_tiaohou = yongshen.get("tiaoHou", {}) if isinstance(yongshen, dict) else {}
+
+        def evidence_item(
+            *,
+            conclusion: object,
+            basis: list[str],
+            sources: list[str],
+            rule_ids: list[str],
+            weight: str,
+            visibility: str = "audit",
+        ) -> dict[str, Any]:
+            return {
+                "conclusion": conclusion,
+                "basis": [item for item in basis if str(item).strip()],
+                "sources": sources,
+                "ruleIds": rule_ids,
+                "weight": weight,
+                "visibility": visibility,
+            }
+
+        spirits_count = 0
+        if isinstance(spirits, dict):
+            by_pillar = spirits.get("byPillar", {})
+            if isinstance(by_pillar, dict):
+                spirits_count = sum(len(items) for items in by_pillar.values() if isinstance(items, list))
+
+        return {
+            "schemaVersion": 1,
+            "profile": "comprehensive_bazi",
+            "visibilityDefault": "hidden",
+            "weightPolicy": {
+                "core": "八字核心：月令、日主、藏干、透干、五行、调候、格局、干支关系。",
+                "fortune": "八字动态：大运、流年、流月、小运。",
+                "auxiliary": "八字辅助：神煞、干支取象。",
+                "folk": "民俗辅助：袁天罡称骨；只作附录，不参与核心喜忌和格局判断。",
+            },
+            "items": {
+                "dayMaster": evidence_item(
+                    conclusion={
+                        "stem": day_stem,
+                        "element": day_master.get("elementCn") or day_master.get("element", ""),
+                        "strength": day_master.get("strength", ""),
+                    },
+                    basis=[
+                        f"日柱={day_pillar.get('fullName', '')}",
+                        f"月令={month_branch}",
+                        f"五行强弱={wuxing_scores.get('weakStrong', '')}",
+                    ],
+                    sources=["lunar-python", "bazi-1"],
+                    rule_ids=["bazi.month_command_priority", "bazi.day_master_strength"],
+                    weight="core",
+                ),
+                "wuxingPreference": evidence_item(
+                    conclusion={
+                        "xi": yongshen_tiaohou.get("xi", []),
+                        "ji": yongshen_tiaohou.get("ji", []),
+                        "note": yongshen.get("note", "") if isinstance(yongshen, dict) else "",
+                    },
+                    basis=[
+                        f"月令={month_branch}",
+                        f"五行分数={wuxing_scores.get('fiveElementScore', {})}",
+                        f"天干分数={wuxing_scores.get('ganScore', {})}",
+                    ],
+                    sources=["bazi-1", "穷通宝鉴规则索引"],
+                    rule_ids=["bazi.regulating_climate", "bazi.balance_five_elements"],
+                    weight="core",
+                ),
+                "pattern": evidence_item(
+                    conclusion={
+                        "main": geju.get("main", "") if isinstance(geju, dict) else "",
+                        "patterns": geju.get("patterns", []) if isinstance(geju, dict) else [],
+                    },
+                    basis=[
+                        f"月令={month_branch}",
+                        f"月柱={month_pillar.get('fullName', '')}",
+                        f"藏干={hidden_stems}",
+                    ],
+                    sources=["lunar-python", "bazi-1", "子平真诠规则索引"],
+                    rule_ids=["bazi.pattern_by_month_command", "bazi.pattern_root_transparency"],
+                    weight="core",
+                ),
+                "ganzhiRelations": evidence_item(
+                    conclusion={
+                        "tianGan": ganzhi_relations.get("tianGan", {}) if isinstance(ganzhi_relations, dict) else {},
+                        "diZhi": branch_relations,
+                    },
+                    basis=[
+                        f"四柱={','.join(p.get('fullName', '') for p in four_pillars.values() if isinstance(p, dict))}",
+                    ],
+                    sources=["lunar-python", "项目干支关系规则"],
+                    rule_ids=["bazi.stem_branch_relations"],
+                    weight="core",
+                ),
+                "spirits": evidence_item(
+                    conclusion={"count": spirits_count},
+                    basis=["神煞按年/月/日/时柱合并去重；仅作辅助解释。"],
+                    sources=["bazi-1"],
+                    rule_ids=["bazi.spirits_auxiliary_only"],
+                    weight="auxiliary",
+                ),
+                "boneWeight": evidence_item(
+                    conclusion={
+                        "weight": bone_weight.get("weight", "") if isinstance(bone_weight, dict) else "",
+                        "textPresent": bool(bone_weight.get("text", "")) if isinstance(bone_weight, dict) else False,
+                    },
+                    basis=["称骨按年、月、日、时权重求和；不参与喜忌、格局、旺衰判断。"],
+                    sources=["袁天罡称骨民俗表"],
+                    rule_ids=["folk.bone_weight_appendix_only"],
+                    weight="folk",
+                ),
+            },
         }
 
     def _calc_jianchu(self, ec) -> dict:

@@ -26,6 +26,8 @@ def test_calculate_pure_analysis_projects_profile(monkeypatch):
 
         class Runtime:
             calculator = FakeCalculator()
+            four_pillars = {"day": {"fullName": "甲子"}, "month": {"branch": "子", "fullName": "丙子"}}
+            hidden_stems = {"day": ["癸"]}
 
         return Runtime()
 
@@ -44,6 +46,8 @@ def test_calculate_pure_analysis_projects_profile(monkeypatch):
     def fake_build_classical(_runtime):
         return {
             "yongShen": {"note": "测试"},
+            "geju": {"main": "测试格局"},
+            "boneWeight": {"weight": "3.8"},
             "huangLi": {"should": "drop"},
             "jianChu": {"should": "drop"},
             "ziweiChart": {"should": "drop"},
@@ -54,6 +58,17 @@ def test_calculate_pure_analysis_projects_profile(monkeypatch):
     monkeypatch.setattr(pure_analysis_module, "build_base_chart_section", fake_build_base)
     monkeypatch.setattr(pure_analysis_module, "build_fortune_section", fake_build_fortune)
     monkeypatch.setattr(pure_analysis_module, "build_classical_section", fake_build_classical)
+    monkeypatch.setattr(
+        FakeCalculator,
+        "_calc_analysis_evidence",
+        lambda self, **_kwargs: {
+            "schemaVersion": 1,
+            "profile": "comprehensive_bazi",
+            "visibilityDefault": "hidden",
+            "items": {"dayMaster": {"weight": "core"}},
+        },
+        raising=False,
+    )
 
     result = calculate_pure_analysis(
         PureAnalysisInput(
@@ -71,6 +86,7 @@ def test_calculate_pure_analysis_projects_profile(monkeypatch):
     assert "fourPillars" in result
     assert "majorFortune" in result
     assert "yongShen" in result
+    assert result["analysisEvidence"]["items"]["dayMaster"]["weight"] == "core"
     assert "huangLi" not in result
     assert "jianChu" not in result
     assert "ziweiChart" not in result

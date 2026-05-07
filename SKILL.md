@@ -198,6 +198,10 @@ bash scripts/production-readiness.sh --api-url https://your-domain.example --req
 - `references/architecture.md`: 根 skill、包装脚本与 `scripts/project/` 的职责边界。
 - `references/ops-pack.md`: 运维包、delivery smoke 与生产边界。
 - `references/live-bot-verification.md`: 真实 Telegram token 验证。
+- `scripts/project/assets/data/calendar/solar_terms/golden/`: 1900-2030 节气 golden 回归 fixture。
+- `scripts/project/assets/fate/evidence_schema.json`: 综合八字机器可读依据契约。
+- `scripts/project/assets/fate/weight_policy.json`: 综合八字核心、动态、辅助、民俗权重边界。
+- `scripts/project/assets/fate/classics_rule_index.json`: 典籍规则索引种子。
 - `references/stage-gates.md`: 从可运行到可生产的阶段门禁。
 - `references/troubleshooting.md`: 常见失败与修复路径。
 - `references/migration-plan.md`: 当前目录迁移与根卫生口径。

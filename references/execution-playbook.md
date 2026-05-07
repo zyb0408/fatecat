@@ -73,7 +73,7 @@ bash scripts/serve-bot.sh
 - 入口命令启动时不再卡在缺依赖或缺配置
 - API smoke 通过 `/health` 探测
 - Bot smoke 至少通过 dry-run 装配验证
-- 发布前总验收使用 `bash scripts/acceptance.sh --with-dev`，默认同时覆盖 API、Bot dry-run、导出包卫生检查与导出包 smoke
+- 发布前总验收使用 `bash scripts/acceptance.sh --with-dev`，默认同时覆盖节气 golden、报告结构、evidence 权重、隐私扫描、API、Bot dry-run、导出包卫生检查与导出包 smoke
 
 ## 决策规则
 

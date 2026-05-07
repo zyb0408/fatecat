@@ -9,7 +9,10 @@
 ```text
 assets/fate/
 ├── AGENTS.md
+├── classics_rule_index.json
+├── evidence_schema.json
 ├── future_features.json
+├── weight_policy.json
 └── profiles/
     └── pure_analysis.json
 ```
@@ -17,6 +20,9 @@ assets/fate/
 ## 职责边界
 
 - `future_features.json`：记录不再进入标准报告、后续需按新功能重新设计契约的候选能力。
+- `evidence_schema.json`：综合八字机器可读 evidence 字段契约；默认不渲染到 Markdown。
+- `weight_policy.json`：综合八字核心、动态、辅助、民俗权重边界。
+- `classics_rule_index.json`：典籍规则索引种子，只保存短规则与来源，不保存大段原文。
 - `profiles/`：定义某个输出 profile 允许返回哪些字段。
 - 这里不放算法代码，不依赖 Telegram / FastAPI / 数据库。
 - 新增字段时，先更新这里的 profile，再更新 `modules/fate_core/` 的 provider / usecase。

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "description": "综合八字陈述服务的机器可读依据结构；默认不进入 Markdown 正文。",
+  "requiredTopLevelFields": [
+    "schemaVersion",
+    "profile",
+    "visibilityDefault",
+    "weightPolicy",
+    "items"
+  ],
+  "itemFields": {
+    "conclusion": "本结论的结构化结果",
+    "basis": "本结论引用的盘面事实、分数或关系",
+    "sources": "计算库、项目规则或典籍索引来源",
+    "ruleIds": "可追溯规则 ID，对应 classics_rule_index.json 或项目内部规则",
+    "weight": "core / fortune / auxiliary / folk",
+    "visibility": "audit / user"
+  },
+  "visibilityPolicy": {
+    "default": "hidden",
+    "reason": "证据字段优先服务审计、测试和 API 消费；默认 Markdown 保持克制，不新增大段技术区。"
+  }
+}
