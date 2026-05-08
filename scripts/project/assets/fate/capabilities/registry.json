@@ -114,13 +114,13 @@
       "capabilityId": "meihua",
       "name": "梅花易数",
       "tradition": "chinese",
-      "status": "planned",
+      "status": "production",
       "defaultVisibility": "standalone",
-      "description": "时间、数字、字数等轻量起卦问事能力。",
-      "inputRequired": ["question", "castMethod", "castValue"],
-      "inputOptional": ["castTime", "place"],
+      "description": "时间或数字起卦的轻量问事能力；只输出盘面、体用和证据，不输出确定性断语。",
+      "inputRequired": ["question", "castMethod"],
+      "inputOptional": ["castValue", "castTime", "place"],
       "engine": {
-        "provider": "planned.meihua",
+        "provider": "fate_core.usecases.calculate_meihua",
         "deterministic": true
       },
       "report": {

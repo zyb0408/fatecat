@@ -140,6 +140,7 @@ def test_main_capabilities_lists_registry(capsys):
     assert next(item for item in result["capabilities"] if item["capabilityId"] == "bazi")["status"] == "production"
     assert next(item for item in result["capabilities"] if item["capabilityId"] == "almanac")["status"] == "production"
     assert next(item for item in result["capabilities"] if item["capabilityId"] == "ziwei")["status"] == "production"
+    assert next(item for item in result["capabilities"] if item["capabilityId"] == "meihua")["status"] == "production"
 
 
 def test_main_capability_rejects_planned_system(capsys):
@@ -238,3 +239,30 @@ def test_main_capability_executes_almanac(capsys):
     assert result["reportProfile"] == "almanac"
     assert result["data"]["dateRange"]["days"] == 1
     assert result["evidence"]["source"] == "lunar-python"
+
+
+def test_main_capability_executes_meihua(capsys):
+    exit_code = main(
+        [
+            "capability",
+            "meihua",
+            "--input-json",
+            json.dumps(
+                {
+                    "question": "测试问题能否推进",
+                    "castMethod": "number",
+                    "castValue": "3,8,6",
+                },
+                ensure_ascii=False,
+            ),
+        ]
+    )
+
+    captured = capsys.readouterr()
+    result = json.loads(captured.out)
+
+    assert exit_code == 0
+    assert result["success"] is True
+    assert result["capabilityId"] == "meihua"
+    assert result["reportProfile"] == "meihua"
+    assert result["data"]["hexagrams"]["movingLine"] == 5

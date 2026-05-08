@@ -19,7 +19,7 @@ scripts/
 ## 职责边界
 
 - `build_solar_terms_golden.py`：从本地交节 raw 表生成节气 golden fixture。
-- `run-mingli-bench.sh`：离线读取 MingLi-Bench 资产并输出统计；默认不调用外部模型 API。
+- `run-mingli-bench.sh`：离线读取 MingLi-Bench 资产，输出统计、prompt JSONL 与 predictions 评分；默认不调用外部模型 API。
 - `test_all.sh` / `build_all.sh`：项目历史批处理入口。
 
 ## 依赖方向

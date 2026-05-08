@@ -1,6 +1,7 @@
 """命理应用用例入口。"""
 
 from .calculate_almanac import AlmanacInput, build_almanac_input_from_payload, calculate_almanac, parse_date
+from .calculate_meihua import MeihuaInput, build_meihua_input_from_payload, calculate_meihua
 from .calculate_pure_analysis import (
     PureAnalysisInput,
     build_pure_analysis_input_from_payload,
@@ -13,10 +14,13 @@ from .calculate_ziwei import build_ziwei_input_from_payload, calculate_ziwei
 
 __all__ = [
     "AlmanacInput",
+    "MeihuaInput",
     "PureAnalysisInput",
     "build_almanac_input_from_payload",
+    "build_meihua_input_from_payload",
     "build_pure_analysis_input_from_payload",
     "calculate_almanac",
+    "calculate_meihua",
     "calculate_pure_analysis",
     "calculate_ziwei",
     "build_ziwei_input_from_payload",

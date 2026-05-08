@@ -515,7 +515,7 @@ CLI 的两个关键约定：
 - 必需项：`FATE_BOT_TOKEN`
 - 可选项：`FATE_ADMIN_USER_IDS`、`FATE_BOT_PROXY_URL`
 - 日志目录：`modules/telegram/output/logs/`
-- 确认页可切换已实现 Markdown 报告体系：综合八字、紫微斗数；袁天罡称骨随综合八字输出。紫微斗数同时已作为 `ziwei` 独立 capability 提供 CLI/API 调用；黄历/择日已作为 `almanac` 独立 capability 提供 CLI/API 调用，但不进入默认 Markdown；六爻、梅花、奇门、大六壬、风水九星、姓名合婚等仍为独立待实现 capability，不混入综合八字。
+- 确认页可切换已实现 Markdown 报告体系：综合八字、紫微斗数；袁天罡称骨随综合八字输出。紫微斗数同时已作为 `ziwei` 独立 capability 提供 CLI/API 调用；黄历/择日已作为 `almanac` 独立 capability 提供 CLI/API 调用，梅花易数已作为 `meihua` 独立 capability 提供轻量起卦盘面；这些 capability 不进入默认 Markdown；六爻、奇门、大六壬、风水九星、姓名合婚等仍为独立待实现 capability，不混入综合八字。
 - 用户可见报告不会回显非北京类真实出生地区；非北京地区只用于后端经纬度解析和计算。
 
 常见命令：

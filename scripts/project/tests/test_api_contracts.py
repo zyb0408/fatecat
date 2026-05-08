@@ -230,6 +230,8 @@ def test_capabilities_api_lists_almanac_as_standalone_production():
     assert capabilities["almanac"]["defaultVisibility"] == "standalone"
     assert capabilities["ziwei"]["status"] == "production"
     assert capabilities["ziwei"]["defaultVisibility"] == "standalone"
+    assert capabilities["meihua"]["status"] == "production"
+    assert capabilities["meihua"]["defaultVisibility"] == "standalone"
 
 
 def test_capability_api_executes_almanac_without_enabling_markdown_system():
@@ -250,7 +252,27 @@ def test_capability_api_executes_almanac_without_enabling_markdown_system():
     assert body["data"]["dateRange"]["days"] == 1
     assert body["data"]["days"][0]["timeSlots"]
     assert len(body["data"]["days"][0]["timeSlots"]) == 12
+    assert body["data"]["days"][0]["scoreBreakdown"]
     assert body["evidence"]["source"] == "lunar-python"
+
+
+def test_capability_api_executes_meihua_without_enabling_markdown_system():
+    response = TestClient(app).post(
+        "/api/v1/capabilities/meihua",
+        json={
+            "question": "测试问题能否推进",
+            "castMethod": "number",
+            "castValue": "3,8,6",
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["success"] is True
+    assert body["capabilityId"] == "meihua"
+    assert body["reportProfile"] == "meihua"
+    assert body["data"]["hexagrams"]["movingLine"] == 5
+    assert body["evidence"]["items"]["cast"]["ruleIds"] == ["meihua.number_cast"]
 
 
 def test_markdown_report_hides_non_beijing_birth_place():

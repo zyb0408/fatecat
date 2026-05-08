@@ -67,6 +67,60 @@
       "doesNotApplyWhen": ["只存在年柱或生肖数据"]
     },
     {
+      "id": "bazi.true_solar_time_pipeline",
+      "system": "bazi",
+      "topic": "时间管线",
+      "summary": "出生时间进入四柱前必须先明确是否启用真太阳时，并保留经度修正、均时差和最终入盘时间。",
+      "sources": ["paipan-master 真太阳时算法", "项目时间管线回归"],
+      "appliesWhen": ["出生时间、经纬度齐备", "启用或显式关闭真太阳时选项"],
+      "doesNotApplyWhen": ["缺少经纬度或出生时间"]
+    },
+    {
+      "id": "bazi.zi_time_boundary",
+      "system": "bazi",
+      "topic": "子时边界",
+      "summary": "子时边界需记录早晚子时口径，避免 23:00 附近日柱切换不透明。",
+      "sources": ["项目早晚子时规则", "lunar-python"],
+      "appliesWhen": ["真太阳时或输入时间位于子时相关边界", "四柱包含时柱"],
+      "doesNotApplyWhen": ["出生时辰缺失"]
+    },
+    {
+      "id": "bazi.solar_term_month_boundary",
+      "system": "bazi",
+      "topic": "节气月令",
+      "summary": "八字月柱以节气换月，报告必须保留上一节气、下一节气和月令证据。",
+      "sources": ["1900-2030 交节时间 golden fixture", "lunar-python"],
+      "appliesWhen": ["出生时间已换算到入盘时间", "节气表可查询"],
+      "doesNotApplyWhen": ["节气数据缺失"]
+    },
+    {
+      "id": "bazi.lichun_year_boundary",
+      "system": "bazi",
+      "topic": "立春年界",
+      "summary": "八字年柱按立春年界确认，靠近立春时必须可追溯边界判断。",
+      "sources": ["1900-2030 交节时间 golden fixture", "lunar-python"],
+      "appliesWhen": ["出生时间接近立春或需要确认八字年柱"],
+      "doesNotApplyWhen": ["只做生肖年展示"]
+    },
+    {
+      "id": "bazi.fortune_start_boundary",
+      "system": "bazi",
+      "topic": "起运边界",
+      "summary": "起运时间以性别、阴阳顺逆与节气距离为边界依据，必须保留起运日期和锚定节气。",
+      "sources": ["lunar-python EightChar.getYun", "项目起运边界回归"],
+      "appliesWhen": ["出生时间、性别和节气数据齐备"],
+      "doesNotApplyWhen": ["缺少性别或无法取得节气边界"]
+    },
+    {
+      "id": "bazi.pattern_use_god_trace",
+      "system": "bazi",
+      "topic": "格局用神证据链",
+      "summary": "格局、用神、调候结论需保留月柱、月支藏干、调候原始规则和来源，便于审计追溯。",
+      "sources": ["bazi-1", "子平真诠规则索引", "穷通宝鉴规则索引"],
+      "appliesWhen": ["月令、藏干、格局和用神字段齐备"],
+      "doesNotApplyWhen": ["只输出基础四柱"]
+    },
+    {
       "id": "bazi.spirits_auxiliary_only",
       "system": "bazi",
       "topic": "神煞",
@@ -112,6 +166,24 @@
       "doesNotApplyWhen": ["需要完整门派择日规则", "需要保证事件结果"]
     },
     {
+      "id": "almanac.zhi_xing_auxiliary",
+      "system": "almanac",
+      "topic": "建除值星",
+      "summary": "建除值星作为黄历择日的辅助分，不覆盖每日宜忌主判断。",
+      "sources": ["lunar-python 建除值星数据", "项目择日评分规则"],
+      "appliesWhen": ["lunar-python 可返回当日值星"],
+      "doesNotApplyWhen": ["需要完整门派择日权重"]
+    },
+    {
+      "id": "almanac.xiu_auxiliary",
+      "system": "almanac",
+      "topic": "二十八宿",
+      "summary": "二十八宿及宿吉凶作为择日辅助证据展示，不单独决定推荐或避忌。",
+      "sources": ["lunar-python 二十八宿数据", "项目择日评分规则"],
+      "appliesWhen": ["lunar-python 可返回当日宿与宿吉凶"],
+      "doesNotApplyWhen": ["需要完整宿曜派断法"]
+    },
+    {
       "id": "ziwei.iztro_chart",
       "system": "ziwei",
       "topic": "紫微命盘",
@@ -137,6 +209,42 @@
       "sources": ["iztro horoscope", "项目 capability 协议"],
       "appliesWhen": ["iztro horoscope 返回运限数据"],
       "doesNotApplyWhen": ["只需默认综合八字报告"]
+    },
+    {
+      "id": "meihua.time_cast",
+      "system": "meihua",
+      "topic": "时间起卦",
+      "summary": "梅花易数时间起卦以年月日时数取上下卦与动爻，当前仅用于结构化盘面，不作确定性断语。",
+      "sources": ["梅花易数通用起卦规则", "项目 capability 协议"],
+      "appliesWhen": ["输入 question、castMethod=time 且 castTime 可解析或使用当前时间"],
+      "doesNotApplyWhen": ["需要完整人工断卦"]
+    },
+    {
+      "id": "meihua.number_cast",
+      "system": "meihua",
+      "topic": "数字起卦",
+      "summary": "数字起卦以输入数字取上下卦与动爻，适合轻量问事盘面生成。",
+      "sources": ["梅花易数通用起卦规则", "项目 capability 协议"],
+      "appliesWhen": ["输入 question、castMethod=number 且 castValue 至少含两个数字"],
+      "doesNotApplyWhen": ["缺少数字或需要随机起卦"]
+    },
+    {
+      "id": "meihua.body_use",
+      "system": "meihua",
+      "topic": "体用",
+      "summary": "体用以动爻所在上下卦区分，用于呈现问事结构，不直接给出吉凶保证。",
+      "sources": ["梅花易数体用规则", "项目 capability 协议"],
+      "appliesWhen": ["本卦和动爻已确定"],
+      "doesNotApplyWhen": ["动爻缺失"]
+    },
+    {
+      "id": "meihua.hexagram_transform",
+      "system": "meihua",
+      "topic": "卦变",
+      "summary": "本卦、互卦、变卦为梅花易数盘面的基础结构，作为后续人工或模型解释的证据。",
+      "sources": ["梅花易数卦变规则", "项目 capability 协议"],
+      "appliesWhen": ["上下卦和动爻已确定"],
+      "doesNotApplyWhen": ["需要六爻纳甲、世应、六亲等六爻体系"]
     }
   ]
 }

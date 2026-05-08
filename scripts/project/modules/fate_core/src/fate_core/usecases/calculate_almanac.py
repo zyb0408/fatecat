@@ -39,6 +39,21 @@ EVENT_ALIASES: dict[str, tuple[str, ...]] = {
     "祈福": ("祈福",),
 }
 
+ZHIXING_SCORE: dict[str, int] = {
+    "建": 0,
+    "除": 1,
+    "满": 1,
+    "平": 0,
+    "定": 1,
+    "执": 0,
+    "破": -1,
+    "危": -1,
+    "成": 1,
+    "收": 1,
+    "开": 1,
+    "闭": -1,
+}
+
 
 @dataclass(frozen=True)
 class AlmanacInput:
@@ -193,6 +208,32 @@ def _time_slots(current: date, event_terms: list[str]) -> list[dict[str, Any]]:
     return slots
 
 
+def _score_breakdown(
+    *,
+    suitability: str,
+    zhi_xing: str,
+    matched_yi: list[str],
+    matched_ji: list[str],
+    slots: list[dict[str, Any]],
+) -> dict[str, Any]:
+    day_score = 2 if suitability == "recommended" else -2 if suitability == "avoid" else 0
+    zhi_xing_score = ZHIXING_SCORE.get(zhi_xing, 0)
+    recommended_slots = [item for item in slots if item["suitability"] == "recommended"]
+    avoid_slots = [item for item in slots if item["suitability"] == "avoid"]
+    time_score = min(2, len(recommended_slots)) - min(2, len(avoid_slots))
+    total = day_score + zhi_xing_score + time_score
+    return {
+        "dayYiJi": day_score,
+        "zhiXing": zhi_xing_score,
+        "timeSlots": time_score,
+        "total": total,
+        "matchedYi": matched_yi,
+        "matchedJi": matched_ji,
+        "recommendedSlotCount": len(recommended_slots),
+        "avoidSlotCount": len(avoid_slots),
+    }
+
+
 def _daily_almanac(current: date, event_terms: list[str]) -> tuple[dict[str, Any], dict[str, Any]]:
     lunar = build_lunar_day(current.year, current.month, current.day)
     yi = _safe_list(lunar.getDayYi())
@@ -213,41 +254,67 @@ def _daily_almanac(current: date, event_terms: list[str]) -> tuple[dict[str, Any
         score = 0
         reason = "黄历宜忌未直接命中该事件关键词"
 
+    zhi_xing = lunar.getZhiXing()
+    time_slots = _time_slots(current, event_terms)
+    score_breakdown = _score_breakdown(
+        suitability=suitability,
+        zhi_xing=zhi_xing,
+        matched_yi=matched_yi,
+        matched_ji=matched_ji,
+        slots=time_slots,
+    )
+
     day = {
         "date": current.isoformat(),
         "lunarLabel": _lunar_label(lunar),
-        "zhiXing": lunar.getZhiXing(),
+        "zhiXing": zhi_xing,
+        "xiu": lunar.getXiu(),
+        "xiuLuck": lunar.getXiuLuck(),
+        "xiuSong": lunar.getXiuSong(),
         "yi": yi,
         "ji": ji,
         "suitability": suitability,
-        "score": score,
+        "score": score + score_breakdown["zhiXing"] + score_breakdown["timeSlots"],
+        "scoreBreakdown": score_breakdown,
         "reason": reason,
         "chong": lunar.getChongDesc(),
         "sha": lunar.getSha(),
+        "dayChong": lunar.getDayChongDesc(),
+        "daySha": lunar.getDaySha(),
         "pengZu": f"{lunar.getPengZuGan()} {lunar.getPengZuZhi()}",
         "jiShen": _safe_list(lunar.getDayJiShen()),
         "xiongSha": _safe_list(lunar.getDayXiongSha()),
-        "timeSlots": _time_slots(current, event_terms),
+        "timeSlots": time_slots,
         "positions": {
             "xi": lunar.getPositionXiDesc(),
             "yangGui": lunar.getPositionYangGuiDesc(),
             "yinGui": lunar.getPositionYinGuiDesc(),
             "fu": lunar.getPositionFuDesc(),
             "cai": lunar.getPositionCaiDesc(),
+            "taiSui": lunar.getDayPositionTaiSuiDesc(),
         },
     }
     evidence = {
         "source": "lunar-python",
         "calendarDate": current.isoformat(),
-        "ruleIds": ["almanac.day_yi_ji", "almanac.event_alias_mapping", "almanac.time_yi_ji"],
+        "ruleIds": [
+            "almanac.day_yi_ji",
+            "almanac.event_alias_mapping",
+            "almanac.time_yi_ji",
+            "almanac.zhi_xing_auxiliary",
+            "almanac.xiu_auxiliary",
+        ],
         "basis": {
             "yi": yi,
             "ji": ji,
             "matchedYi": matched_yi,
             "matchedJi": matched_ji,
             "zhiXing": day["zhiXing"],
+            "xiu": day["xiu"],
+            "xiuLuck": day["xiuLuck"],
             "chong": day["chong"],
             "sha": day["sha"],
+            "scoreBreakdown": score_breakdown,
             "recommendedTimeSlots": [
                 {"hour": item["hour"], "zhi": item["zhi"], "reason": item["reason"]}
                 for item in day["timeSlots"]

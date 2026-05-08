@@ -15,6 +15,8 @@ def test_calculate_pure_analysis_projects_profile(monkeypatch):
     captured_payload = {}
 
     class FakeCalculator:
+        true_solar_time = datetime(1990, 5, 15, 14, 12, 0)
+
         def _translate_to_chinese(self, value):
             return value
 
@@ -23,11 +25,22 @@ def test_calculate_pure_analysis_projects_profile(monkeypatch):
 
     def fake_build_runtime(payload):
         captured_payload["gender"] = payload.gender
+        runtime_payload = payload
 
         class Runtime:
             calculator = FakeCalculator()
+            payload = runtime_payload
+            ec = type(
+                "FakeEightChar",
+                (),
+                {
+                    "getYear": lambda self: "庚午",
+                    "getMonth": lambda self: "辛巳",
+                    "getMonthZhi": lambda self: "巳",
+                },
+            )()
             four_pillars = {"day": {"fullName": "甲子"}, "month": {"branch": "子", "fullName": "丙子"}}
-            hidden_stems = {"day": ["癸"]}
+            hidden_stems = {"day": ["癸"], "month": ["丙", "戊", "庚"]}
 
         return Runtime()
 
@@ -48,6 +61,10 @@ def test_calculate_pure_analysis_projects_profile(monkeypatch):
             "yongShen": {"note": "测试"},
             "geju": {"main": "测试格局"},
             "boneWeight": {"weight": "3.8"},
+            "completeTrueSolarTime": {"totalOffsetMinutes": -18},
+            "ziTimeAnalysis": {"zwzShift": False},
+            "jieqiDetail": {"prevJieQi": {"name": "立夏"}, "nextJieQi": {"name": "芒种"}},
+            "jiaoYun": {"startDate": "1998-01-01 00:00:00", "description": "测试起运", "jiaoJieQi": "芒种"},
             "huangLi": {"should": "drop"},
             "jianChu": {"should": "drop"},
             "ziweiChart": {"should": "drop"},
@@ -86,7 +103,10 @@ def test_calculate_pure_analysis_projects_profile(monkeypatch):
     assert "fourPillars" in result
     assert "majorFortune" in result
     assert "yongShen" in result
+    assert result["accuracyGuards"]["solarTermBoundary"]["monthCommand"] == "巳"
     assert result["analysisEvidence"]["items"]["dayMaster"]["weight"] == "core"
+    assert "timePipeline" in result["analysisEvidence"]["items"]
+    assert "bazi.solar_term_month_boundary" in result["analysisEvidence"]["items"]["solarTermBoundary"]["ruleIds"]
     assert "huangLi" not in result
     assert "jianChu" not in result
     assert "ziweiChart" not in result

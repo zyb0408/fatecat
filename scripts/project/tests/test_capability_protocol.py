@@ -25,8 +25,10 @@ def test_capability_registry_keeps_bazi_as_only_default_production_entry():
     assert by_id["almanac"].default_visibility == "standalone"
     assert by_id["ziwei"].status == "production"
     assert by_id["ziwei"].default_visibility == "standalone"
+    assert by_id["meihua"].status == "production"
+    assert by_id["meihua"].default_visibility == "standalone"
     assert [item.capability_id for item in capabilities if item.default_visibility == "default"] == ["bazi"]
-    for capability_id in ["liuyao", "meihua", "qimen", "daliuren", "fengshui_nine_stars", "name_marriage"]:
+    for capability_id in ["liuyao", "qimen", "daliuren", "fengshui_nine_stars", "name_marriage"]:
         assert by_id[capability_id].status == "planned"
         assert by_id[capability_id].default_visibility == "standalone"
 
@@ -93,8 +95,11 @@ def test_almanac_capability_executes_as_standalone_production():
     assert result.data["days"][0]["timeSlots"]
     assert len(result.data["days"][0]["timeSlots"]) == 12
     assert [slot["zhi"] for slot in result.data["days"][0]["timeSlots"]].count("子") == 1
+    assert "scoreBreakdown" in result.data["days"][0]
+    assert "xiu" in result.data["days"][0]
     assert result.evidence["source"] == "lunar-python"
     assert "almanac.time_yi_ji" in result.evidence["items"]["2026-05-08"]["ruleIds"]
+    assert "almanac.zhi_xing_auxiliary" in result.evidence["items"]["2026-05-08"]["ruleIds"]
     assert set(result.evidence["items"]) == {"2026-05-08", "2026-05-09", "2026-05-10"}
     assert result.risk["disclaimerRequired"] is True
     assert get_capability("almanac").default_visibility == "standalone"
@@ -114,6 +119,29 @@ def test_almanac_capability_hides_non_beijing_place():
 
     assert result.data["place"] == "已填写（非北京地区已隐藏）"
     assert "上海" not in json.dumps(result.data, ensure_ascii=False)
+
+
+def test_meihua_capability_executes_number_cast_as_standalone_production():
+    result = CapabilityExecutor().execute(
+        CapabilityInput(
+            capability_id="meihua",
+            payload={
+                "question": "测试问题能否推进",
+                "castMethod": "number",
+                "castValue": "3,8,6",
+            },
+        )
+    )
+
+    assert result.capability_id == "meihua"
+    assert result.status == "production"
+    assert result.report_profile == "meihua"
+    assert result.data["capabilityId"] == "meihua"
+    assert result.data["castMethod"] == "数字起卦"
+    assert result.data["hexagrams"]["movingLine"] == 5
+    assert result.data["judgementBoundary"]
+    assert "meihua.number_cast" in result.evidence["items"]["cast"]["ruleIds"]
+    assert "meihua.body_use" in result.evidence["items"]["bodyUse"]["ruleIds"]
 
 
 def test_ziwei_capability_delegates_to_ziwei_usecase(monkeypatch):

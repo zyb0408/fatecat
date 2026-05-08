@@ -4,8 +4,9 @@ from typing import Any
 
 from fate_core.capabilities.contracts import Capability, CapabilityInput, CapabilityResult
 from fate_core.capabilities.registry import get_capability
-from fate_core.usecases import calculate_almanac, calculate_pure_analysis, calculate_ziwei
+from fate_core.usecases import calculate_almanac, calculate_meihua, calculate_pure_analysis, calculate_ziwei
 from fate_core.usecases.calculate_almanac import build_almanac_input_from_payload
+from fate_core.usecases.calculate_meihua import build_meihua_input_from_payload
 from fate_core.usecases.calculate_pure_analysis import build_pure_analysis_input_from_payload
 from fate_core.usecases.calculate_ziwei import build_ziwei_input_from_payload
 
@@ -42,6 +43,17 @@ class CapabilityExecutor:
             )
         if capability.capability_id == "ziwei":
             data = calculate_ziwei(build_ziwei_input_from_payload(request.payload))
+            evidence = data.get("analysisEvidence", {}) if isinstance(data.get("analysisEvidence"), dict) else {}
+            return CapabilityResult(
+                capability_id=capability.capability_id,
+                status=capability.status,
+                report_profile=capability.report_profile,
+                data=data,
+                evidence=evidence,
+                risk=self._risk_payload(capability),
+            )
+        if capability.capability_id == "meihua":
+            data = calculate_meihua(build_meihua_input_from_payload(request.payload))
             evidence = data.get("analysisEvidence", {}) if isinstance(data.get("analysisEvidence"), dict) else {}
             return CapabilityResult(
                 capability_id=capability.capability_id,

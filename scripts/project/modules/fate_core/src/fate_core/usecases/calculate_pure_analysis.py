@@ -153,6 +153,142 @@ def build_pure_analysis_input_from_payload(raw_payload: dict[str, Any]) -> PureA
     )
 
 
+def _evidence_item(
+    *,
+    conclusion: dict[str, Any],
+    basis: list[str],
+    sources: list[str],
+    rule_ids: list[str],
+    weight: str = "core",
+) -> dict[str, Any]:
+    return {
+        "conclusion": conclusion,
+        "basis": basis,
+        "sources": sources,
+        "ruleIds": rule_ids,
+        "weight": weight,
+        "visibility": "audit",
+    }
+
+
+def _build_accuracy_guards(runtime: Any, raw: dict[str, Any]) -> dict[str, Any]:
+    """装配综合八字准确性二期的关键边界证据。"""
+    calculator = runtime.calculator
+    ec = runtime.ec
+    true_solar_detail = raw.get("completeTrueSolarTime", {})
+    jieqi_detail = raw.get("jieqiDetail", {})
+    jiao_yun = raw.get("jiaoYun", {})
+    geju = raw.get("geju", {})
+    yong_shen = raw.get("yongShen", {})
+
+    return {
+        "schemaVersion": 1,
+        "timePipeline": {
+            "inputLocalTime": runtime.payload.birth_dt.strftime("%Y-%m-%d %H:%M:%S"),
+            "useTrueSolarTime": runtime.payload.use_true_solar_time,
+            "trueSolarTime": calculator.true_solar_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "longitude": runtime.payload.longitude,
+            "latitude": runtime.payload.latitude,
+            "longitudeOffsetMinutes": true_solar_detail.get("longitudeOffsetMinutes"),
+            "astronomicalOffsetMinutes": true_solar_detail.get("astronomicalOffsetMinutes"),
+            "totalOffsetMinutes": true_solar_detail.get("totalOffsetMinutes"),
+            "ziTimeAnalysis": raw.get("ziTimeAnalysis", {}),
+        },
+        "solarTermBoundary": {
+            "yearPillar": ec.getYear(),
+            "monthPillar": ec.getMonth(),
+            "monthCommand": ec.getMonthZhi(),
+            "previousTerm": jieqi_detail.get("prevJieQi", {}),
+            "nextTerm": jieqi_detail.get("nextJieQi", {}),
+            "description": jieqi_detail.get("description", ""),
+        },
+        "fortuneStartBoundary": {
+            "gender": runtime.payload.gender,
+            "startDate": jiao_yun.get("startDate"),
+            "description": jiao_yun.get("description", ""),
+            "anchorTerm": jiao_yun.get("jiaoJieQi", ""),
+        },
+        "patternUseGodTrace": {
+            "mainPattern": geju.get("main", "") if isinstance(geju, dict) else "",
+            "patterns": geju.get("patterns", []) if isinstance(geju, dict) else [],
+            "monthPillar": ec.getMonth(),
+            "monthHiddenStems": runtime.hidden_stems.get("month", []),
+            "yongShenBasis": yong_shen.get("basis", "") if isinstance(yong_shen, dict) else "",
+            "yongShenBasisSource": yong_shen.get("basisSource", "") if isinstance(yong_shen, dict) else "",
+            "tiaohouRaw": yong_shen.get("tiaohouRaw", "") if isinstance(yong_shen, dict) else "",
+        },
+    }
+
+
+def _append_accuracy_evidence(runtime: Any, raw: dict[str, Any]) -> None:
+    evidence = raw.get("analysisEvidence")
+    if not isinstance(evidence, dict):
+        return
+    items = evidence.setdefault("items", {})
+    if not isinstance(items, dict):
+        return
+
+    guards = raw.get("accuracyGuards", {})
+    time_pipeline = guards.get("timePipeline", {}) if isinstance(guards, dict) else {}
+    solar_term = guards.get("solarTermBoundary", {}) if isinstance(guards, dict) else {}
+    fortune_start = guards.get("fortuneStartBoundary", {}) if isinstance(guards, dict) else {}
+    pattern_trace = guards.get("patternUseGodTrace", {}) if isinstance(guards, dict) else {}
+
+    zi_time_analysis = time_pipeline.get("ziTimeAnalysis", {})
+    items["timePipeline"] = _evidence_item(
+        conclusion={
+            "trueSolarTime": time_pipeline.get("trueSolarTime"),
+            "totalOffsetMinutes": time_pipeline.get("totalOffsetMinutes"),
+            "ziTimeShift": zi_time_analysis.get("zwzShift") if isinstance(zi_time_analysis, dict) else None,
+        },
+        basis=[
+            f"输入时间={time_pipeline.get('inputLocalTime', '')}",
+            f"经度={runtime.payload.longitude}",
+            f"纬度={runtime.payload.latitude}",
+            f"真太阳时={time_pipeline.get('trueSolarTime', '')}",
+        ],
+        sources=["paipan-master 真太阳时算法", "lunar-python"],
+        rule_ids=["bazi.true_solar_time_pipeline", "bazi.zi_time_boundary"],
+    )
+    items["solarTermBoundary"] = _evidence_item(
+        conclusion={
+            "yearPillar": solar_term.get("yearPillar"),
+            "monthPillar": solar_term.get("monthPillar"),
+            "monthCommand": solar_term.get("monthCommand"),
+        },
+        basis=[
+            f"上一节气={solar_term.get('previousTerm', {})}",
+            f"下一节气={solar_term.get('nextTerm', {})}",
+            f"说明={solar_term.get('description', '')}",
+        ],
+        sources=["lunar-python", "1900-2030 交节时间 golden fixture"],
+        rule_ids=["bazi.solar_term_month_boundary", "bazi.lichun_year_boundary"],
+    )
+    items["fortuneStartBoundary"] = _evidence_item(
+        conclusion={
+            "startDate": fortune_start.get("startDate"),
+            "anchorTerm": fortune_start.get("anchorTerm"),
+        },
+        basis=[f"性别={runtime.payload.gender}", f"起运说明={fortune_start.get('description', '')}"],
+        sources=["lunar-python EightChar.getYun", "项目起运边界回归"],
+        rule_ids=["bazi.fortune_start_boundary"],
+        weight="fortune",
+    )
+    items["patternUseGodTrace"] = _evidence_item(
+        conclusion={
+            "mainPattern": pattern_trace.get("mainPattern"),
+            "yongShenBasisSource": pattern_trace.get("yongShenBasisSource"),
+        },
+        basis=[
+            f"月柱={pattern_trace.get('monthPillar', '')}",
+            f"月支藏干={pattern_trace.get('monthHiddenStems', [])}",
+            f"调候原始={pattern_trace.get('tiaohouRaw', '')}",
+        ],
+        sources=["bazi-1", "项目格局/调候规则索引"],
+        rule_ids=["bazi.pattern_use_god_trace"],
+    )
+
+
 def calculate_pure_analysis(payload: PureAnalysisInput) -> dict[str, Any]:
     """计算纯命理分析字段集合。"""
     runtime = build_pure_analysis_runtime(
@@ -182,6 +318,8 @@ def calculate_pure_analysis(payload: PureAnalysisInput) -> dict[str, Any]:
         spirits=raw.get("spiritsFull", {}),
         bone_weight=raw.get("boneWeight", {}),
     )
+    raw["accuracyGuards"] = _build_accuracy_guards(runtime, raw)
+    _append_accuracy_evidence(runtime, raw)
     projected = project_by_profile(raw, "pure_analysis")
     translated = runtime.calculator._translate_to_chinese(projected)
     safe_result = runtime.calculator._json_safe(translated)

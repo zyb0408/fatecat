@@ -34,7 +34,7 @@
 
 ## 后续建议
 
-- 将 MingLi-Bench 包装成 FateCat 的离线 benchmark runner，先做本地 dry-run 和 prompt 生成测试，再接真实 API。
+- MingLi-Bench 已包装为 FateCat 离线 runner：支持 stats、prompt JSONL 生成和 predictions 离线评分；真实模型生成答案仍需外部显式提供 API key，不在 acceptance 中联网。
 - 对 Drive zip 的 `core/` 方法论笔记进行人工复核后，提炼为小型结构化规则，不直接复制大段文本进入生产输出。
 - 对 `books/` 与 `lightrag/merged.json` 建立版权状态表，只有通过复核的条目才能进入可发布检索资产。
 - 所有示例输入继续遵守前端隐私规则，不在用户界面展示非北京真实地区。

@@ -121,6 +121,22 @@ bash "${script_dir}/check-privacy-fixtures.sh"
 if [[ "${with_mingli_bench}" == "1" ]]; then
   echo "[acceptance] MingLi-Bench stats"
   bash "${runtime_root}/scripts/run-mingli-bench.sh" --stats
+  echo "[acceptance] MingLi-Bench prompt/evaluation smoke"
+  mingli_dir="${output_dir}/mingli-bench"
+  mkdir -p "${mingli_dir}"
+  bash "${runtime_root}/scripts/run-mingli-bench.sh" \
+    --year 2025 \
+    --sample 2 \
+    --prompt-out "${mingli_dir}/prompts.jsonl"
+  cat > "${mingli_dir}/predictions.jsonl" <<'EOF'
+{"question_id":"ftb_0121","predicted_answer":"A"}
+{"question_id":"ftb_0122","response":"答案：B"}
+EOF
+  bash "${runtime_root}/scripts/run-mingli-bench.sh" \
+    --year 2025 \
+    --sample 2 \
+    --predictions-file "${mingli_dir}/predictions.jsonl" \
+    --output-json "${mingli_dir}/evaluation.json"
 fi
 
 echo "[acceptance] pytest"
