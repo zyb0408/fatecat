@@ -124,3 +124,87 @@ def test_main_pure_analysis_reads_inline_json(monkeypatch, capsys):
     assert result["profile"] == "pure_analysis"
     assert result["data"] == expected_result
     assert result["branding"] == get_branding_payload()
+
+
+def test_main_capabilities_lists_registry(capsys):
+    exit_code = main(["capabilities"])
+
+    captured = capsys.readouterr()
+    result = json.loads(captured.out)
+
+    assert exit_code == 0
+    assert result["success"] is True
+    capability_ids = {item["capabilityId"] for item in result["capabilities"]}
+    assert "bazi" in capability_ids
+    assert "liuyao" in capability_ids
+    assert next(item for item in result["capabilities"] if item["capabilityId"] == "bazi")["status"] == "production"
+
+
+def test_main_capability_rejects_planned_system(capsys):
+    exit_code = main(
+        [
+            "capability",
+            "liuyao",
+            "--input-json",
+            json.dumps(
+                {
+                    "question": "测试问题",
+                    "castMethod": "time",
+                    "castTime": "2026-05-08 08:00:00",
+                },
+                ensure_ascii=False,
+            ),
+        ]
+    )
+
+    captured = capsys.readouterr()
+    result = json.loads(captured.out)
+
+    assert exit_code == 1
+    assert result["success"] is False
+    assert "尚未生产化" in result["error"]
+
+
+def test_main_capability_executes_bazi_via_executor(monkeypatch, capsys):
+    class FakeExecutor:
+        def execute(self, request):
+            return type(
+                "Result",
+                (),
+                {
+                    "capability_id": request.capability_id,
+                    "status": "production",
+                    "report_profile": "bazi",
+                    "data": {"ok": True},
+                    "evidence": {"items": {}},
+                    "risk": {"disclaimerRequired": True},
+                },
+            )()
+
+    monkeypatch.setattr("fate_core.cli.CapabilityExecutor", FakeExecutor)
+    exit_code = main(
+        [
+            "capability",
+            "bazi",
+            "--input-json",
+            json.dumps(
+                {
+                    "birthDateTime": "1990-01-01 08:00:00",
+                    "gender": "男",
+                    "longitude": 116.4074,
+                    "latitude": 39.9042,
+                    "birthPlace": "北京",
+                },
+                ensure_ascii=False,
+            ),
+        ]
+    )
+
+    captured = capsys.readouterr()
+    result = json.loads(captured.out)
+
+    assert exit_code == 0
+    assert result["success"] is True
+    assert result["capabilityId"] == "bazi"
+    assert result["reportProfile"] == "bazi"
+    assert result["data"] == {"ok": True}

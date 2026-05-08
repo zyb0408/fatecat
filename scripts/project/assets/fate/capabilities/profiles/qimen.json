@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "capabilityId": "qimen",
+  "title": "奇门遁甲报告",
+  "visibility": "standalone",
+  "sections": ["question", "chart", "palaces", "judgement", "evidence"],
+  "markdownDefault": false
+}

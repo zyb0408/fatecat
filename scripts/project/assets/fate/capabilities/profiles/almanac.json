@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "capabilityId": "almanac",
+  "title": "黄历择日报告",
+  "visibility": "standalone",
+  "sections": ["dateRange", "eventType", "recommendations", "avoidance", "evidence"],
+  "markdownDefault": false
+}

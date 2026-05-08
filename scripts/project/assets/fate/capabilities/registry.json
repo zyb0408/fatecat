@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 1,
+  "description": "FateCat 统一预测能力注册表。默认报告只允许 bazi，其余体系必须独立 capability 化。",
+  "capabilities": [
+    {
+      "capabilityId": "bazi",
+      "name": "综合八字",
+      "tradition": "chinese",
+      "status": "production",
+      "defaultVisibility": "default",
+      "description": "当前生产默认能力：综合八字主线、动态运势、辅助解释与称骨民俗附录。",
+      "inputRequired": ["birthDateTime", "gender", "longitude", "latitude"],
+      "inputOptional": ["name", "birthPlace", "useTrueSolarTime"],
+      "engine": {
+        "provider": "fate_core.usecases.calculate_pure_analysis",
+        "deterministic": true
+      },
+      "report": {
+        "profile": "bazi",
+        "markdownDefault": true
+      },
+      "evidence": {
+        "required": true,
+        "fields": ["source", "basis", "ruleIds", "weight", "risk"]
+      },
+      "riskPolicy": {
+        "riskLevel": "folk_reference",
+        "disclaimerRequired": true,
+        "forbiddenClaims": ["必死", "必破产", "必离婚", "替代医疗法律金融判断"]
+      }
+    },
+    {
+      "capabilityId": "almanac",
+      "name": "黄历择日",
+      "tradition": "chinese",
+      "status": "planned",
+      "defaultVisibility": "standalone",
+      "description": "黄历、宜忌、择日与事件类型推荐；不得混入默认综合八字报告。",
+      "inputRequired": ["dateRange", "eventType", "place"],
+      "inputOptional": ["birthDateTime", "gender"],
+      "engine": {
+        "provider": "planned.almanac",
+        "deterministic": true
+      },
+      "report": {
+        "profile": "almanac",
+        "markdownDefault": false
+      },
+      "evidence": {
+        "required": true,
+        "fields": ["calendarDate", "ruleIds", "avoidReason", "recommendReason"]
+      },
+      "riskPolicy": {
+        "riskLevel": "folk_reference",
+        "disclaimerRequired": true,
+        "forbiddenClaims": ["保证成功", "替代法律金融判断"]
+      }
+    },
+    {
+      "capabilityId": "liuyao",
+      "name": "六爻占卜",
+      "tradition": "chinese",
+      "status": "planned",
+      "defaultVisibility": "standalone",
+      "description": "针对具体问题的六爻占事能力。",
+      "inputRequired": ["question", "castMethod", "castTime"],
+      "inputOptional": ["coins", "numbers", "place"],
+      "engine": {
+        "provider": "planned.liuyao",
+        "deterministic": true
+      },
+      "report": {
+        "profile": "liuyao",
+        "markdownDefault": false
+      },
+      "evidence": {
+        "required": true,
+        "fields": ["hexagram", "changingLines", "sixRelatives", "sixSpirits", "ruleIds"]
+      },
+      "riskPolicy": {
+        "riskLevel": "entertainment",
+        "disclaimerRequired": true,
+        "forbiddenClaims": ["确定未来", "替代医疗法律金融判断"]
+      }
+    },
+    {
+      "capabilityId": "meihua",
+      "name": "梅花易数",
+      "tradition": "chinese",
+      "status": "planned",
+      "defaultVisibility": "standalone",
+      "description": "时间、数字、字数等轻量起卦问事能力。",
+      "inputRequired": ["question", "castMethod", "castValue"],
+      "inputOptional": ["castTime", "place"],
+      "engine": {
+        "provider": "planned.meihua",
+        "deterministic": true
+      },
+      "report": {
+        "profile": "meihua",
+        "markdownDefault": false
+      },
+      "evidence": {
+        "required": true,
+        "fields": ["bodyUse", "hexagram", "mutualHexagram", "changedHexagram", "ruleIds"]
+      },
+      "riskPolicy": {
+        "riskLevel": "entertainment",
+        "disclaimerRequired": true,
+        "forbiddenClaims": ["确定未来", "恐吓式断语"]
+      }
+    },
+    {
+      "capabilityId": "qimen",
+      "name": "奇门遁甲",
+      "tradition": "chinese",
+      "status": "planned",
+      "defaultVisibility": "standalone",
+      "description": "奇门问事与择时能力。",
+      "inputRequired": ["question", "castTime", "place"],
+      "inputOptional": ["method"],
+      "engine": {
+        "provider": "planned.qimen",
+        "deterministic": true
+      },
+      "report": {
+        "profile": "qimen",
+        "markdownDefault": false
+      },
+      "evidence": {
+        "required": true,
+        "fields": ["doors", "stars", "gods", "stems", "palaces", "ruleIds"]
+      },
+      "riskPolicy": {
+        "riskLevel": "entertainment",
+        "disclaimerRequired": true,
+        "forbiddenClaims": ["军事行动建议", "违法规避建议", "确定未来"]
+      }
+    },
+    {
+      "capabilityId": "daliuren",
+      "name": "大六壬",
+      "tradition": "chinese",
+      "status": "planned",
+      "defaultVisibility": "standalone",
+      "description": "四课三传、天将、月将等大六壬占事能力。",
+      "inputRequired": ["question", "castTime", "place"],
+      "inputOptional": ["method"],
+      "engine": {
+        "provider": "planned.daliuren",
+        "deterministic": true
+      },
+      "report": {
+        "profile": "daliuren",
+        "markdownDefault": false
+      },
+      "evidence": {
+        "required": true,
+        "fields": ["fourLessons", "threeTransmissions", "heavenlyGenerals", "ruleIds"]
+      },
+      "riskPolicy": {
+        "riskLevel": "entertainment",
+        "disclaimerRequired": true,
+        "forbiddenClaims": ["确定未来", "恐吓式断语"]
+      }
+    },
+    {
+      "capabilityId": "fengshui_nine_stars",
+      "name": "风水九星",
+      "tradition": "chinese",
+      "status": "planned",
+      "defaultVisibility": "standalone",
+      "description": "三元九运、流年飞星与空间建议能力。",
+      "inputRequired": ["place", "direction", "targetYear"],
+      "inputOptional": ["floorPlan", "birthDateTime"],
+      "engine": {
+        "provider": "planned.fengshui_nine_stars",
+        "deterministic": true
+      },
+      "report": {
+        "profile": "fengshui_nine_stars",
+        "markdownDefault": false
+      },
+      "evidence": {
+        "required": true,
+        "fields": ["period", "annualStars", "palaces", "ruleIds"]
+      },
+      "riskPolicy": {
+        "riskLevel": "folk_reference",
+        "disclaimerRequired": true,
+        "forbiddenClaims": ["建筑安全替代建议", "强制搬迁结论"]
+      }
+    },
+    {
+      "capabilityId": "name_marriage",
+      "name": "姓名合婚",
+      "tradition": "chinese",
+      "status": "planned",
+      "defaultVisibility": "standalone",
+      "description": "姓名、八字合参、关系匹配与合婚建议能力。",
+      "inputRequired": ["personA", "personB"],
+      "inputOptional": ["relationshipGoal", "calendarPreference"],
+      "engine": {
+        "provider": "planned.name_marriage",
+        "deterministic": true
+      },
+      "report": {
+        "profile": "name_marriage",
+        "markdownDefault": false
+      },
+      "evidence": {
+        "required": true,
+        "fields": ["personA", "personB", "compatibilityFactors", "ruleIds"]
+      },
+      "riskPolicy": {
+        "riskLevel": "folk_reference",
+        "disclaimerRequired": true,
+        "forbiddenClaims": ["必离婚", "替代心理或法律建议", "歧视性评价"]
+      }
+    }
+  ]
+}

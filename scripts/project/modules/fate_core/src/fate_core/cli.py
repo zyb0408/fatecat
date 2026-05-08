@@ -9,9 +9,16 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, NoReturn, cast
 
+from fate_core.capabilities import CapabilityExecutor, CapabilityInput, list_capabilities
 from fate_core.support import attach_branding, build_branding_text
 from fate_core.support.paths import FATE_PROFILE_DIR, FATE_REPO_ROOT
-from fate_core.usecases import PureAnalysisInput, calculate_pure_analysis, normalize_gender
+from fate_core.usecases import (
+    PureAnalysisInput,
+    build_pure_analysis_input_from_payload,
+    calculate_pure_analysis,
+    normalize_pure_analysis_payload,
+    parse_datetime,
+)
 
 
 class BrandingArgumentParser(argparse.ArgumentParser):
@@ -26,26 +33,7 @@ class BrandingArgumentParser(argparse.ArgumentParser):
 
 
 def _parse_datetime(value: str) -> datetime:
-    normalized = value.strip()
-    if not normalized:
-        raise ValueError("birthDateTime 不能为空")
-
-    if normalized.endswith("Z"):
-        normalized = normalized[:-1] + "+00:00"
-
-    try:
-        parsed = datetime.fromisoformat(normalized)
-        return parsed.replace(tzinfo=None) if parsed.tzinfo else parsed
-    except ValueError:
-        pass
-
-    for time_format in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y/%m/%d %H:%M:%S", "%Y/%m/%d %H:%M"):
-        try:
-            return datetime.strptime(normalized, time_format)
-        except ValueError:
-            continue
-
-    raise ValueError(f"无法解析出生时间: {value}")
+    return parse_datetime(value)
 
 
 def _parse_bool(value: Any, default: bool = True) -> bool:
@@ -101,77 +89,11 @@ def _load_json_payload(args: argparse.Namespace) -> dict[str, Any]:
 
 
 def _normalize_payload(raw_payload: dict[str, Any]) -> dict[str, Any]:
-    birth_place_value = raw_payload.get("birthPlace")
-    birth_place_object: dict[str, Any] = birth_place_value if isinstance(birth_place_value, dict) else {}
-    raw_options = raw_payload.get("options")
-    options: dict[str, Any] = raw_options if isinstance(raw_options, dict) else {}
-
-    birth_datetime = _first_non_empty(
-        raw_payload.get("birthDateTime"),
-        raw_payload.get("birth_datetime"),
-        raw_payload.get("birth_dt"),
-        raw_payload.get("datetime"),
-    )
-    if not birth_datetime and raw_payload.get("birthDate") and raw_payload.get("birthTime"):
-        birth_datetime = f"{raw_payload['birthDate']} {raw_payload['birthTime']}"
-
-    longitude = _first_non_empty(
-        raw_payload.get("longitude"),
-        raw_payload.get("lng"),
-        birth_place_object.get("longitude"),
-        birth_place_object.get("lng"),
-    )
-    latitude = _first_non_empty(
-        raw_payload.get("latitude"),
-        raw_payload.get("lat"),
-        birth_place_object.get("latitude"),
-        birth_place_object.get("lat"),
-    )
-    birth_place_name = _first_non_empty(
-        raw_payload.get("birth_place"),
-        raw_payload.get("birthPlaceName"),
-        birth_place_value if isinstance(birth_place_value, str) else None,
-        birth_place_object.get("name"),
-    )
-    use_true_solar_time = _first_non_empty(
-        raw_payload.get("useTrueSolarTime"),
-        raw_payload.get("use_true_solar_time"),
-        options.get("useTrueSolarTime"),
-    )
-
-    normalized = {
-        "birthDateTime": birth_datetime,
-        "gender": _first_non_empty(raw_payload.get("gender"), raw_payload.get("sex")),
-        "longitude": longitude,
-        "latitude": latitude,
-        "name": raw_payload.get("name"),
-        "birthPlace": birth_place_name or "",
-        "useTrueSolarTime": _parse_bool(use_true_solar_time, default=True),
-    }
-
-    missing = [
-        field for field in ("birthDateTime", "gender", "longitude", "latitude") if normalized[field] in (None, "")
-    ]
-    if missing:
-        raise ValueError(f"缺少必填字段: {', '.join(missing)}")
-
-    normalized["longitude"] = float(normalized["longitude"])
-    normalized["latitude"] = float(normalized["latitude"])
-    normalized["gender"] = normalize_gender(str(normalized["gender"]))
-    return normalized
+    return normalize_pure_analysis_payload(raw_payload)
 
 
 def _build_pure_analysis_input(payload: dict[str, Any]) -> PureAnalysisInput:
-    normalized = _normalize_payload(payload)
-    return PureAnalysisInput(
-        birth_dt=_parse_datetime(str(normalized["birthDateTime"])),
-        gender=str(normalized["gender"]),
-        longitude=normalized["longitude"],
-        latitude=normalized["latitude"],
-        name=normalized["name"],
-        birth_place=str(normalized["birthPlace"]),
-        use_true_solar_time=normalized["useTrueSolarTime"],
-    )
+    return build_pure_analysis_input_from_payload(payload)
 
 
 def _write_json_payload(payload: dict[str, Any], *, pretty: bool, output_file: str | None = None) -> None:
@@ -278,6 +200,44 @@ def _run_health(args: argparse.Namespace) -> int:
     return 0 if report["success"] else 1
 
 
+def _run_capabilities(args: argparse.Namespace) -> int:
+    capabilities = [
+        {
+            "capabilityId": item.capability_id,
+            "name": item.name,
+            "tradition": item.tradition,
+            "status": item.status,
+            "defaultVisibility": item.default_visibility,
+            "reportProfile": item.report_profile,
+            "riskLevel": item.risk_level,
+        }
+        for item in list_capabilities()
+    ]
+    _write_json_payload(attach_branding({"success": True, "capabilities": capabilities}), pretty=args.pretty)
+    return 0
+
+
+def _run_capability_execute(args: argparse.Namespace) -> int:
+    payload = _load_json_payload(args)
+    result = CapabilityExecutor().execute(CapabilityInput(capability_id=args.capability_id, payload=payload))
+    _write_json_payload(
+        attach_branding(
+            {
+                "success": True,
+                "capabilityId": result.capability_id,
+                "status": result.status,
+                "reportProfile": result.report_profile,
+                "data": result.data,
+                "evidence": result.evidence,
+                "risk": result.risk,
+            }
+        ),
+        pretty=args.pretty,
+        output_file=args.output_file,
+    )
+    return 0
+
+
 def _run_serve(args: argparse.Namespace) -> int:
     start_script = FATE_REPO_ROOT / "modules" / "telegram" / "start.py"
     command = [sys.executable, str(start_script), args.mode]
@@ -316,6 +276,25 @@ def build_parser() -> argparse.ArgumentParser:
     health_parser.add_argument("--pretty", action="store_true", help="格式化输出 JSON")
     health_parser.add_argument("--output-file", help="将结果写入指定文件")
     health_parser.set_defaults(handler=_run_health)
+
+    capabilities_parser = subparsers.add_parser("capabilities", help="列出统一预测能力注册表")
+    capabilities_parser.add_argument("--pretty", action="store_true", help="格式化输出 JSON")
+    capabilities_parser.set_defaults(handler=_run_capabilities)
+
+    capability_parser = subparsers.add_parser("capability", help="执行指定生产化预测能力")
+    capability_parser.add_argument("capability_id", help="能力 ID，例如 bazi")
+    capability_parser.add_argument("--input-json", help="直接传入 JSON 字符串")
+    capability_parser.add_argument("--input-file", help="从 JSON 文件读取输入")
+    capability_parser.add_argument("--birth-datetime", help="出生时间，支持 1990-01-01 08:00:00 或 ISO8601")
+    capability_parser.add_argument("--gender", help="性别，如 男 / 女")
+    capability_parser.add_argument("--longitude", type=float, help="出生地经度")
+    capability_parser.add_argument("--latitude", type=float, help="出生地纬度")
+    capability_parser.add_argument("--name", help="姓名")
+    capability_parser.add_argument("--birth-place", help="出生地名称")
+    capability_parser.add_argument("--use-true-solar-time", default=True, type=_parse_bool, help="是否启用真太阳时")
+    capability_parser.add_argument("--output-file", help="将结果写入指定文件")
+    capability_parser.add_argument("--pretty", action="store_true", help="格式化输出 JSON")
+    capability_parser.set_defaults(handler=_run_capability_execute)
 
     serve_parser = subparsers.add_parser("serve", help="启动 Telegram 交付层")
     serve_parser.add_argument("mode", choices=("bot", "api", "both"), help="启动模式")

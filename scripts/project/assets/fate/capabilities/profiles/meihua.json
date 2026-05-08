@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "capabilityId": "meihua",
+  "title": "梅花易数报告",
+  "visibility": "standalone",
+  "sections": ["question", "bodyUse", "hexagrams", "judgement", "evidence"],
+  "markdownDefault": false
+}

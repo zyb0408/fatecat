@@ -9,6 +9,10 @@
 ```text
 assets/fate/
 ├── AGENTS.md
+├── capabilities/
+│   ├── registry.json
+│   ├── schemas/
+│   └── profiles/
 ├── classics_rule_index.json
 ├── evidence_schema.json
 ├── future_features.json
@@ -19,6 +23,7 @@ assets/fate/
 
 ## 职责边界
 
+- `capabilities/`：统一预测能力协议与注册表；默认能力只能是 `bazi`，其他体系必须独立输出或保持 planned。
 - `future_features.json`：记录不再进入标准报告、后续需按新功能重新设计契约的候选能力。
 - `evidence_schema.json`：综合八字机器可读 evidence 字段契约；默认不渲染到 Markdown。
 - `weight_policy.json`：综合八字核心、动态、辅助、民俗权重边界。

@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "capabilityId": "name_marriage",
+  "title": "姓名合婚报告",
+  "visibility": "standalone",
+  "sections": ["personA", "personB", "compatibility", "suggestions", "evidence"],
+  "markdownDefault": false
+}

@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "capabilityId": "fengshui_nine_stars",
+  "title": "风水九星报告",
+  "visibility": "standalone",
+  "sections": ["place", "direction", "period", "annualStars", "suggestions", "evidence"],
+  "markdownDefault": false
+}

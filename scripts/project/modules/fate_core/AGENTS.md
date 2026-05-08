@@ -13,6 +13,7 @@ modules/fate_core/
     ├── cli.py
     ├── __main__.py
     ├── adapters/
+    ├── capabilities/
     ├── contracts/
     ├── kernel/
     ├── providers/
@@ -25,6 +26,7 @@ modules/fate_core/
 - `cli.py` / `__main__.py`：命令行入口；负责 Agent / OpenClaw / Harness 的标准化调用面，不下沉到底层算法。
 - `support/branding.py`：统一品牌真相源读取与广告拼装；CLI / API / Telegram 只消费，不各自硬编码。
 - `contracts/`：字段契约与 profile 加载；禁止依赖 Telegram / FastAPI。
+- `capabilities/`：统一预测能力协议运行层；负责 registry 加载、planned/production 状态约束与执行路由。
 - `adapters/`：唯一允许接触外部成熟 repo 或遗留 calculator 的地方；对内导出稳定适配符号。
 - `providers/`：按字段组装配纯命理输出；只能通过 `adapters/` 调用遗留 calculator / helper，不直接导入 `bazi_calculator`。
 - `kernel/`：结果投影与管线拼装；不实现底层算法。
@@ -32,6 +34,7 @@ modules/fate_core/
 
 ## 依赖方向
 
+- `capabilities -> usecases/support`
 - `usecases -> providers/kernel/contracts/adapters`
 - `providers -> contracts/adapters`
 - `kernel -> contracts`

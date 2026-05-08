@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "capabilityId": "bazi",
+  "title": "综合八字报告",
+  "visibility": "default",
+  "sections": ["baseChart", "classicalAnalysis", "fortune", "folkAppendix"],
+  "markdownDefault": true
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "description": "统一预测能力 evidence 契约说明。",
+  "requiredFields": ["required", "fields"],
+  "commonEvidenceFields": [
+    "source",
+    "basis",
+    "ruleIds",
+    "weight",
+    "risk",
+    "confidence",
+    "inputFacts",
+    "calculationTrace"
+  ],
+  "boundary": "evidence 是审计追溯字段，不得包装成科学确定性或替代专业建议。"
+}

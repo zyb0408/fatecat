@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "description": "统一预测能力输入契约说明。具体字段以 registry.json 的 inputRequired / inputOptional 为准。",
+  "commonFields": {
+    "birthDateTime": "出生时间，支持 ISO8601 或 YYYY-MM-DD HH:MM:SS",
+    "gender": "性别，支持 male/female/男/女等归一化输入",
+    "longitude": "经度，用于真太阳时、地理类能力和本命盘类能力",
+    "latitude": "纬度，用于真太阳时、地理类能力和本命盘类能力",
+    "name": "姓名，可选",
+    "birthPlace": "出生地展示名，可选且前端需按隐私策略脱敏",
+    "question": "占事类问题",
+    "castTime": "起卦或起局时间",
+    "place": "事件地点或空间地点"
+  }
+}

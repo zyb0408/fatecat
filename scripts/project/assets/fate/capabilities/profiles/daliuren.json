@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "capabilityId": "daliuren",
+  "title": "大六壬报告",
+  "visibility": "standalone",
+  "sections": ["question", "fourLessons", "threeTransmissions", "judgement", "evidence"],
+  "markdownDefault": false
+}

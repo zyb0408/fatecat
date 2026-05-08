@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "capabilityId": "liuyao",
+  "title": "六爻占卜报告",
+  "visibility": "standalone",
+  "sections": ["question", "hexagram", "changingLines", "judgement", "evidence"],
+  "markdownDefault": false
+}
