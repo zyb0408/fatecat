@@ -200,6 +200,16 @@ class FortelZiweiCalculator:
             mutagen: Array.isArray(scope.mutagen) ? scope.mutagen : [],
             stars: Array.isArray(scope.stars) ? scope.stars.map(block => normalizeStars(block)) : []
         }}) : {{}};
+        const normalizeSurrounded = (s) => s ? ({{
+            target: normalizePalace(s.target),
+            opposite: normalizePalace(s.opposite),
+            wealth: normalizePalace(s.wealth),
+            career: normalizePalace(s.career),
+            hasLu: s.haveMutagen ? s.haveMutagen('禄') : false,
+            hasQuan: s.haveMutagen ? s.haveMutagen('权') : false,
+            hasKe: s.haveMutagen ? s.haveMutagen('科') : false,
+            hasJi: s.haveMutagen ? s.haveMutagen('忌') : false
+        }}) : null;
         try {{
             const result = astro.bySolar(
                 '{self.birth_dt.year}-{self.birth_dt.month:02d}-{self.birth_dt.day:02d}',
@@ -208,6 +218,8 @@ class FortelZiweiCalculator:
                 true,
                 'zh-CN'
             );
+            const lifeSurrounded = normalizeSurrounded(result.surroundedPalaces('命宫'));
+            const bodySurrounded = normalizeSurrounded(result.surroundedPalaces('身宫'));
             const asOf = new Date({as_of.year}, {as_of.month - 1}, {as_of.day}, {as_of.hour}, {as_of.minute}, {as_of.second});
             const hz = result.horoscope(asOf, {as_of_shichen});
             const hzOut = {{
@@ -237,6 +249,10 @@ class FortelZiweiCalculator:
                 earthlyBranchOfSoulPalace: result.earthlyBranchOfSoulPalace || "",
                 earthlyBranchOfBodyPalace: result.earthlyBranchOfBodyPalace || "",
                 palaces: result.palaces ? result.palaces.map(normalizePalace) : [],
+                surroundedPalaces: {{
+                    life: lifeSurrounded,
+                    body: bodySurrounded
+                }},
                 horoscope: hzOut,
                 status: "success"
             }}));

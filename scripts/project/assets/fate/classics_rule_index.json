@@ -229,6 +229,51 @@
       "doesNotApplyWhen": ["未计算运限 horoscope"]
     },
     {
+      "id": "ziwei.main_star_combination",
+      "system": "ziwei",
+      "topic": "主星组合",
+      "summary": "主星组合解释层只读取各宫 majorStars，并保留辅星、杂曜作为辅助上下文；不得脱离宫位与作用域作确定性断语。",
+      "sources": ["iztro palaces.majorStars", "项目紫微解释边界"],
+      "appliesWhen": ["十二宫 majorStars 字段完整"],
+      "doesNotApplyWhen": ["只存在星名文本或缺少宫位归属"]
+    },
+    {
+      "id": "ziwei.life_body_palaces",
+      "system": "ziwei",
+      "topic": "命宫身宫",
+      "summary": "命宫与身宫解释必须由 isOriginalPalace、isBodyPalace、宫干支、主星和大限字段共同支撑。",
+      "sources": ["iztro palace flags", "项目紫微解释边界"],
+      "appliesWhen": ["十二宫存在命宫/身宫标记"],
+      "doesNotApplyWhen": ["仅有项目遗留 ZiweiCalculator 简化命宫"]
+    },
+    {
+      "id": "ziwei.surrounded_palaces",
+      "system": "ziwei",
+      "topic": "三方四正",
+      "summary": "三方四正以 iztro surroundedPalaces 返回的本宫、对宫、财帛位和官禄位为准，项目层只做结构化摘要。",
+      "sources": ["iztro surroundedPalaces", "项目 capability 协议"],
+      "appliesWhen": ["iztro 可返回命宫或身宫三方四正"],
+      "doesNotApplyWhen": ["缺少原生命盘或宫位索引异常"]
+    },
+    {
+      "id": "ziwei.mutagen_placement",
+      "system": "ziwei",
+      "topic": "四化落宫",
+      "summary": "四化落宫解释必须保留四化名、星名、宫位和 scope，避免把本命四化与运限四化混读。",
+      "sources": ["iztro star.mutagen", "项目紫微解释边界"],
+      "appliesWhen": ["星曜字段包含 mutagen"],
+      "doesNotApplyWhen": ["只输出 horoscope mutagen 数组但无落宫星曜"]
+    },
+    {
+      "id": "ziwei.fortune_linkage",
+      "system": "ziwei",
+      "topic": "运限联动",
+      "summary": "大限、流年、流月、流日、流时联动解释必须引用各层 horoscope 的干支、四化与宫位顺序。",
+      "sources": ["iztro horoscope", "项目紫微解释边界"],
+      "appliesWhen": ["horoscope 返回 decadal/yearly/monthly/daily/hourly"],
+      "doesNotApplyWhen": ["未计算运限数据"]
+    },
+    {
       "id": "ziwei.basic_palaces",
       "system": "ziwei",
       "topic": "紫微基础",

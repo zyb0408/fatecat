@@ -202,6 +202,11 @@ def test_full_report_other_systems_are_independent_outputs():
     assert "## 紫微斗数" in ziwei_text
     assert "### 入盘依据" in ziwei_text
     assert "### 命宫与身宫" in ziwei_text
+    assert "## 紫微结构解读（依据版）" in ziwei_text
+    assert "### 主星组合" in ziwei_text
+    assert "### 三方四正" in ziwei_text
+    assert "### 四化落宫" in ziwei_text
+    assert "### 大限/流年联动" in ziwei_text
     assert "## 紫微运限四化（大限/流年/流月/流日/流时）" in ziwei_text
     assert "## 紫微基础" not in ziwei_text
     assert "## 八字排盘详情" not in ziwei_text

@@ -1348,6 +1348,7 @@ def generate_ziwei_report(result: dict[str, Any]) -> str:
         f"# 紫微斗数报告：{name}",
         "",
         generate_ziwei_section(result),
+        generate_ziwei_interpretation_section(result),
         generate_ziwei_horoscope_section(result),
     ]
     return _wrap_report(parts)
@@ -1588,6 +1589,108 @@ def _ziwei_focus_palaces(palaces: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return focus
 
 
+def _join_ziwei_values(value: object) -> str:
+    if not isinstance(value, list):
+        return "" if value is None else str(value)
+    return "、".join([str(item) for item in value if str(item).strip()])
+
+
+def _derive_ziwei_interpretation_for_report(result: dict[str, Any]) -> dict[str, Any]:
+    """从旧版结果派生结构化解释层，兼容 Bot/历史调用路径。"""
+    palaces_raw = result.get("palaceAnalysis", [])
+    palaces = [item for item in palaces_raw if isinstance(item, dict)] if isinstance(palaces_raw, list) else []
+    chart = result.get("ziweiChart", {})
+    chart = chart if isinstance(chart, dict) else {}
+    horoscope = result.get("ziweiHoroscope", {})
+    horoscope = horoscope if isinstance(horoscope, dict) else {}
+
+    def _names(stars: object) -> list[str]:
+        if not isinstance(stars, list):
+            return []
+        out = []
+        for star in stars:
+            if not isinstance(star, dict):
+                continue
+            name = str(star.get("name", "")).strip()
+            if name:
+                out.append(name)
+        return out
+
+    main_combos = []
+    life_body = []
+    mutagens = []
+    for palace in palaces:
+        major = _names(palace.get("majorStars"))
+        if major:
+            main_combos.append(
+                {
+                    "palace": palace.get("name", ""),
+                    "combination": "、".join(major),
+                    "minorStars": _names(palace.get("minorStars")),
+                    "adjectiveStars": _names(palace.get("adjectiveStars")),
+                }
+            )
+        markers = []
+        if palace.get("isOriginalPalace"):
+            markers.append("命宫")
+        if palace.get("isBodyPalace"):
+            markers.append("身宫")
+        if markers:
+            marker_text = "、".join(markers)
+            life_body.append(
+                {
+                    "marker": marker_text,
+                    "palace": palace.get("name", ""),
+                    "heavenlyStem": palace.get("heavenlyStem", ""),
+                    "earthlyBranch": palace.get("earthlyBranch", ""),
+                    "majorStars": major,
+                    "statement": f"{marker_text}落{palace.get('name', '')}，主星为{'、'.join(major) if major else '空宫'}；此处只作盘面结构说明。",
+                }
+            )
+        for key in ("majorStars", "minorStars", "adjectiveStars"):
+            stars = palace.get(key)
+            if not isinstance(stars, list):
+                continue
+            for star in [item for item in stars if isinstance(item, dict)]:
+                if star.get("mutagen"):
+                    mutagens.append(
+                        {
+                            "mutagen": star.get("mutagen", ""),
+                            "star": star.get("name", ""),
+                            "palace": palace.get("name", ""),
+                            "scope": star.get("scope", ""),
+                        }
+                    )
+
+    links = []
+    for scope_key, scope_name in [
+        ("decadal", "大限"),
+        ("yearly", "流年"),
+        ("monthly", "流月"),
+        ("daily", "流日"),
+        ("hourly", "流时"),
+    ]:
+        scope = horoscope.get(scope_key)
+        if isinstance(scope, dict) and scope:
+            links.append(
+                {
+                    "scope": scope_name,
+                    "ganZhi": f"{scope.get('heavenlyStem', '')}{scope.get('earthlyBranch', '')}",
+                    "mutagen": scope.get("mutagen", []),
+                    "palaceNames": scope.get("palaceNames", []),
+                }
+            )
+
+    return {
+        "interpretationBoundary": "结构化解释层，只解释盘面证据与作用域，不输出确定性断语。",
+        "mainStarCombinations": main_combos,
+        "lifeBody": life_body,
+        "surroundedPalaces": chart.get("surroundedPalaces", {}),
+        "mutagenPlacements": mutagens,
+        "fortuneLinks": links,
+    }
+
+
 def generate_ziwei_section(result: dict[str, Any]) -> str:
     """生成紫微斗数部分。"""
     lines = []
@@ -1705,6 +1808,108 @@ def generate_ziwei_section(result: dict[str, Any]) -> str:
                 )
             )
         lines.append("")
+
+    return "\n".join(lines)
+
+
+def generate_ziwei_interpretation_section(result: dict[str, Any]) -> str:
+    """生成紫微斗数结构化解释层。"""
+    interpretation = result.get("ziweiInterpretation", {})
+    if not isinstance(interpretation, dict) or not interpretation:
+        interpretation = _derive_ziwei_interpretation_for_report(result)
+
+    lines: list[str] = ["## 紫微结构解读（依据版）", ""]
+    boundary = interpretation.get("interpretationBoundary", "")
+    if boundary:
+        lines.append(f"* 边界：{boundary}")
+        lines.append("")
+
+    life_body = interpretation.get("lifeBody", [])
+    if isinstance(life_body, list) and life_body:
+        lines.append("### 命宫/身宫断语")
+        lines.append("")
+        rows = []
+        for item in [x for x in life_body if isinstance(x, dict)]:
+            rows.append(
+                [
+                    item.get("marker", ""),
+                    item.get("palace", ""),
+                    f"{item.get('heavenlyStem', '')}{item.get('earthlyBranch', '')}",
+                    _join_ziwei_values(item.get("majorStars")),
+                    item.get("statement", ""),
+                ]
+            )
+        lines.extend(_render_table(["标记", "宫位", "宫干支", "主星", "结构说明"], rows))
+
+    main_combos = interpretation.get("mainStarCombinations", [])
+    if isinstance(main_combos, list) and main_combos:
+        lines.append("### 主星组合")
+        lines.append("")
+        rows = []
+        for item in [x for x in main_combos if isinstance(x, dict)]:
+            rows.append(
+                [
+                    item.get("palace", ""),
+                    item.get("combination", ""),
+                    _join_ziwei_values(item.get("minorStars")),
+                    _join_ziwei_values(item.get("adjectiveStars")),
+                ]
+            )
+        lines.extend(_render_table(["宫位", "主星组合", "辅星", "杂曜"], rows))
+
+    surrounded = interpretation.get("surroundedPalaces", {})
+    if isinstance(surrounded, dict) and surrounded:
+        lines.append("### 三方四正")
+        lines.append("")
+        rows = []
+        for scope_key, scope_name in [("life", "命宫"), ("body", "身宫")]:
+            block = surrounded.get(scope_key)
+            if not isinstance(block, dict) or not block:
+                continue
+            flags = block.get("mutagenFlags", {}) if isinstance(block.get("mutagenFlags"), dict) else {}
+            flag_text = "、".join([k for k, v in flags.items() if v]) or "-"
+            for palace_key in ["target", "opposite", "wealth", "career"]:
+                palace = block.get(palace_key)
+                if not isinstance(palace, dict) or not palace:
+                    continue
+                rows.append(
+                    [
+                        scope_name,
+                        palace.get("role", ""),
+                        palace.get("palace", ""),
+                        palace.get("earthlyBranch", ""),
+                        _join_ziwei_values(palace.get("majorStars")),
+                        flag_text,
+                    ]
+                )
+        lines.extend(_render_table(["对象", "位置", "宫位", "地支", "主星", "四化命中"], rows))
+
+    mutagens = interpretation.get("mutagenPlacements", [])
+    if isinstance(mutagens, list) and mutagens:
+        lines.append("### 四化落宫")
+        lines.append("")
+        rows = [
+            [item.get("mutagen", ""), item.get("star", ""), item.get("palace", ""), item.get("scope", "")]
+            for item in mutagens
+            if isinstance(item, dict)
+        ]
+        lines.extend(_render_table(["四化", "星曜", "宫位", "作用域"], rows))
+
+    links = interpretation.get("fortuneLinks", [])
+    if isinstance(links, list) and links:
+        lines.append("### 大限/流年联动")
+        lines.append("")
+        rows = []
+        for item in [x for x in links if isinstance(x, dict)]:
+            rows.append(
+                [
+                    item.get("scope", ""),
+                    item.get("ganZhi", ""),
+                    _join_ziwei_values(item.get("mutagen")),
+                    _join_ziwei_values(item.get("palaceNames")),
+                ]
+            )
+        lines.extend(_render_table(["层级", "干支", "四化", "宫位顺序"], rows))
 
     return "\n".join(lines)
 

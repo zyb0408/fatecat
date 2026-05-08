@@ -11,6 +11,8 @@ data/
 ├── AGENTS.md
 ├── README.md
 ├── china_coordinates.csv
+├── bazi/
+│   └── golden/                  # 综合八字陈述服务轻量命例 golden fixture
 ├── calendar/
 │   └── solar_terms/
 │       ├── README.md
@@ -28,6 +30,7 @@ data/
 ## 职责边界
 
 - `china_coordinates.csv`：地点解析与经纬度静态数据源。
+- `bazi/golden/`：综合八字陈述服务命例回归 fixture，只锁定结构化盘面、边界、格局、调候、强弱、干支关系和起运字段。
 - `classics/*.txt`：已经整理到轻量文本层的古籍语料，可作为检索、切片与规则提炼输入。
 - `classics/raw/`：PDF、原始 TXT、讲义、未清洗 OCR 资料和外部分发包，只做本地私有来源与人工复核，不作为默认运行依赖。
 - `classics/copyright_review.tsv`：标记典籍、外部分发包、案例和知识图谱的版权/隐私/发布可用性。

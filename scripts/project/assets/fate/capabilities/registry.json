@@ -62,7 +62,7 @@
       "tradition": "chinese",
       "status": "production",
       "defaultVisibility": "standalone",
-      "description": "紫微斗数命盘、十二宫、基础命宫与运限四化；不得混入默认综合八字报告。",
+      "description": "紫微斗数命盘、十二宫、命身宫、三方四正、四化落宫与运限四化；不得混入默认综合八字报告。",
       "inputRequired": ["birthDateTime", "gender", "longitude", "latitude"],
       "inputOptional": ["name", "birthPlace", "useTrueSolarTime"],
       "engine": {

@@ -196,6 +196,13 @@ def test_ziwei_capability_preserves_complete_iztro_palace_schema():
     assert data["inputTrace"]["fixLeap"] is True
     assert data["fiveElementsClass"]
     assert data["starInfluence"] == data["fiveElementsClass"]
+    interpretation = data["ziweiInterpretation"]
+    assert interpretation["interpretationBoundary"]
+    assert interpretation["mainStarCombinations"]
+    assert interpretation["lifeBody"]
+    assert interpretation["surroundedPalaces"]["life"]
+    assert interpretation["mutagenPlacements"]
+    assert len(interpretation["fortuneLinks"]) == 5
 
     palaces = data["palaceAnalysis"]
     assert len(palaces) == 12
@@ -221,8 +228,10 @@ def test_ziwei_capability_preserves_complete_iztro_palace_schema():
 
     assert len(data["starPositions"]) == 12
     assert result.evidence["coverage"]["palaceCount"] == 12
+    assert result.evidence["coverage"]["hasInterpretation"] is True
     assert "ziwei.palace_metadata" in result.evidence["items"]["ziweiChart"]["ruleIds"]
     assert "ziwei.time_index" in result.evidence["items"]["timePipeline"]["ruleIds"]
+    assert "ziwei.surrounded_palaces" in result.evidence["items"]["interpretation"]["ruleIds"]
 
 
 def test_bazi_capability_delegates_to_pure_analysis(monkeypatch):

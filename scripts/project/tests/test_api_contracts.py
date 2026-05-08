@@ -187,6 +187,11 @@ def test_markdown_report_api_selects_ziwei_without_bazi_blocks():
     assert "## 紫微斗数" in markdown
     assert "### 入盘依据" in markdown
     assert "### 命宫与身宫" in markdown
+    assert "## 紫微结构解读（依据版）" in markdown
+    assert "### 主星组合" in markdown
+    assert "### 三方四正" in markdown
+    assert "### 四化落宫" in markdown
+    assert "### 大限/流年联动" in markdown
     assert "## 紫微基础" not in markdown
     assert "## 八字排盘详情" not in markdown
 
@@ -218,6 +223,8 @@ def test_report_systems_api_lists_enabled_and_planned_systems():
     assert systems["bazi"]["enabled"] is True
     assert systems["ziwei"]["enabled"] is True
     assert systems["huangli"]["enabled"] is False
+    assert systems["meihua"]["status"] == "production"
+    assert systems["meihua"]["enabled"] is False
     assert systems["liuyao"]["status"] == "planned"
     assert systems["fengshui"]["group"] == "未来功能"
 

@@ -424,7 +424,9 @@ def _render_report_system_options(current: str) -> list[str]:
             lines.append(f'<optgroup label="{_attr(current_group)}">')
         selected = _selected(normalized, system.id) if system.enabled else ""
         disabled = "" if system.enabled else " disabled"
-        suffix = "" if system.enabled else "（待实现）"
+        suffix = (
+            "" if system.enabled else "（结构化 capability 已可用）" if system.status == "production" else "（待实现）"
+        )
         lines.append(
             f'<option value="{_attr(system.id)}"{selected}{disabled}>{_h(system.label)} {system.id}{suffix}</option>'
         )

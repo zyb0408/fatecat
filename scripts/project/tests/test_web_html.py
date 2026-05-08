@@ -35,6 +35,7 @@ def test_web_page_renders_semantic_form():
     assert "紫微斗数 ziwei" in text
     assert "黄历/择日 huangli（待实现）" in text
     assert "六爻占卜 liuyao（待实现）" in text
+    assert "梅花易数 meihua（结构化 capability 已可用）" in text
     assert "奇门遁甲 qimen（待实现）" in text
     assert "袁天罡称骨 bone" not in text
     assert "姓名（非必填）" in text
@@ -130,6 +131,11 @@ def test_web_page_can_select_ziwei_report_without_bazi_blocks():
     assert "## 紫微斗数" in text
     assert "### 入盘依据" in text
     assert "### 命宫与身宫" in text
+    assert "## 紫微结构解读（依据版）" in text
+    assert "### 主星组合" in text
+    assert "### 三方四正" in text
+    assert "### 四化落宫" in text
+    assert "### 大限/流年联动" in text
     assert "## 紫微运限四化（大限/流年/流月/流日/流时）" in text
     assert "## 紫微基础" not in text
     assert "## 八字排盘详情" not in text

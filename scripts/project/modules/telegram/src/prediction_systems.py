@@ -28,7 +28,13 @@ PREDICTION_SYSTEMS: tuple[PredictionSystem, ...] = (
         "huangli", "黄历/择日", "planned", "未来功能", "Markdown 报告体系待实现；结构化 almanac capability 已可用。"
     ),
     PredictionSystem("liuyao", "六爻占卜", "planned", "未来功能", "事件型起卦体系，需独立问题与起卦时间。"),
-    PredictionSystem("meihua", "梅花易数", "planned", "未来功能", "时间、数字或象意起卦体系。"),
+    PredictionSystem(
+        "meihua",
+        "梅花易数",
+        "production",
+        "独立结构化能力",
+        "结构化梅花易数 capability 已可用；Markdown 报告体系暂未接入 Web 输出。",
+    ),
     PredictionSystem("qimen", "奇门遁甲", "planned", "未来功能", "奇门排盘独立体系。"),
     PredictionSystem("liuren", "大六壬", "planned", "未来功能", "大六壬排盘独立体系。"),
     PredictionSystem("fengshui", "风水九星", "planned", "未来功能", "方位、山向、门向等风水体系。"),
