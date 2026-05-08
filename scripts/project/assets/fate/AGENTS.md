@@ -16,6 +16,7 @@ assets/fate/
 ├── classics_rule_index.json
 ├── evidence_schema.json
 ├── future_features.json
+├── rule_depth_registry.json
 ├── weight_policy.json
 └── profiles/
     └── pure_analysis.json
@@ -28,6 +29,7 @@ assets/fate/
 - `evidence_schema.json`：综合八字机器可读 evidence 字段契约；默认不渲染到 Markdown。
 - `weight_policy.json`：综合八字核心、动态、辅助、民俗权重边界。
 - `classics_rule_index.json`：典籍规则索引种子，只保存短规则与来源，不保存大段原文。
+- `rule_depth_registry.json`：八字/紫微规则深度配置，只保存规则条件、证据字段、冲突策略与风险边界。
 - `profiles/`：定义某个输出 profile 允许返回哪些字段。
 - 这里不放算法代码，不依赖 Telegram / FastAPI / 数据库。
 - 新增字段时，先更新这里的 profile，再更新 `modules/fate_core/` 的 provider / usecase。

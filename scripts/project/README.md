@@ -746,6 +746,7 @@ fatecat/
 | `assets/docs/reference/功能清单.md` | 字段能力与功能总览 | 你要评估当前覆盖面 |
 | `assets/docs/reference/功能状态.md` | 计算/呈现开关口径 | 你要调整报告显示范围 |
 | `assets/docs/reference/八字紫微能力基线与缺口矩阵.md` | 八字与紫微当前生产基线、缺口和任务映射 | 你要核对 0002 加固范围 |
+| `assets/docs/reference/八字紫微规则深度扩展.md` | 八字与紫微规则深度 registry、证据链和输出字段说明 | 你要核对 0003 规则深度范围 |
 | `assets/docs/reference/综合八字陈述服务加固.md` | 综合八字报告、节气 golden、evidence 与验收门禁 | 你要审计当前生产服务边界 |
 | `assets/docs/roadmap/八字紫微标杆对标路线图.md` | 八字与紫微对标市面强排盘系统的缺口矩阵和执行路线 | 你要继续打磨两个主体系 |
 | `assets/docs/vendor/八字紫微标杆来源登记.md` | 八字与紫微公开标杆来源、可复核点和版权边界 | 你要复核对标资料来源 |

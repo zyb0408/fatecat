@@ -46,6 +46,7 @@
     "analysisEvidence",
     "accuracyGuards",
     "baziBenchmark",
+    "baziRuleDepth",
     "siziSummary",
     "completeTrueSolarTime",
     "ziTimeAnalysis"

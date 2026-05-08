@@ -13,7 +13,6 @@ from datetime import datetime
 from html import escape
 from typing import Any
 
-from bazi_calculator import BaziCalculator
 from fastapi.responses import HTMLResponse
 from fate_core.capabilities import CapabilityExecutor, CapabilityInput
 from location import get as get_location
@@ -129,36 +128,25 @@ def _build_report(form: WebReportForm) -> WebReportResult:
     display_birth_place = public_birth_place(form.birth_place)
 
     report_hide = build_report_hide(report_system)
-    if report_system == "ziwei":
-        calc_result = (
-            CapabilityExecutor()
-            .execute(
-                CapabilityInput(
-                    capability_id="ziwei",
-                    payload={
-                        "birthDateTime": birth_dt.strftime("%Y-%m-%d %H:%M:%S"),
-                        "gender": gender,
-                        "longitude": longitude,
-                        "latitude": latitude,
-                        "birthPlace": form.birth_place,
-                        "name": form.name,
-                        "useTrueSolarTime": True,
-                    },
-                )
+    capability_id = report_system
+    calc_result = (
+        CapabilityExecutor()
+        .execute(
+            CapabilityInput(
+                capability_id=capability_id,
+                payload={
+                    "birthDateTime": birth_dt.strftime("%Y-%m-%d %H:%M:%S"),
+                    "gender": gender,
+                    "longitude": longitude,
+                    "latitude": latitude,
+                    "birthPlace": display_birth_place if capability_id == "bazi" else form.birth_place,
+                    "name": form.name,
+                    "useTrueSolarTime": True,
+                },
             )
-            .data
         )
-    else:
-        calculator = BaziCalculator(
-            birth_dt,
-            gender,
-            longitude,
-            latitude=latitude,
-            name=form.name or None,
-            birth_place=display_birth_place,
-            use_true_solar_time=True,
-        )
-        calc_result = calculator.calculate(hide=report_hide)
+        .data
+    )
     markdown = generate_full_report(calc_result, hide=report_hide, report_system=report_system)
     payload = {
         "birthDate": form.birth_date,
@@ -397,6 +385,7 @@ def _build_workbench_payload(calc_result: dict[str, Any], report_system: str) ->
             "mutagenFlow": calc_result.get("ziweiMutagenFlow", {}),
             "palaceTopics": calc_result.get("ziweiPalaceTopics", []),
             "goldenGuards": calc_result.get("ziweiGoldenGuards", {}),
+            "ruleDepth": calc_result.get("ziweiRuleDepth", {}),
         }
     return {
         "system": "bazi",
@@ -409,6 +398,7 @@ def _build_workbench_payload(calc_result: dict[str, Any], report_system: str) ->
         "majorFortune": calc_result.get("majorFortune", {}),
         "annualFortune": calc_result.get("annualFortune", []),
         "baziBenchmark": calc_result.get("baziBenchmark", {}),
+        "ruleDepth": calc_result.get("baziRuleDepth", {}),
     }
 
 
@@ -429,6 +419,7 @@ def _render_bazi_workbench(workbench: dict[str, Any]) -> str:
     renyuan = benchmark.get("renYuanSiling", {}) if isinstance(benchmark.get("renYuanSiling"), dict) else {}
     yongshen = workbench.get("yongShen", {}) if isinstance(workbench.get("yongShen"), dict) else {}
     geju = workbench.get("geju", {}) if isinstance(workbench.get("geju"), dict) else {}
+    rule_depth = workbench.get("ruleDepth", {}) if isinstance(workbench.get("ruleDepth"), dict) else {}
     trigger_rows = []
     for item in benchmark.get("fortuneTriggers", [])[:12] if isinstance(benchmark.get("fortuneTriggers"), list) else []:
         if isinstance(item, dict):
@@ -480,6 +471,9 @@ def _render_bazi_workbench(workbench: dict[str, Any]) -> str:
             + _h(tabulate(trigger_rows, headers=["年份", "干支", "触发依据"], tablefmt="psql"))
             + "</code></pre>",
             "</details>",
+            "<details><summary>规则深度 / 冲突策略</summary>",
+            "<pre><code>" + _h(json.dumps(rule_depth, ensure_ascii=False, indent=2)) + "</code></pre>",
+            "</details>",
             "</section>",
         ]
     )
@@ -502,6 +496,7 @@ def _render_ziwei_workbench(workbench: dict[str, Any]) -> str:
         )
     taxonomy = workbench.get("starTaxonomy", {}) if isinstance(workbench.get("starTaxonomy"), dict) else {}
     mutagen_flow = workbench.get("mutagenFlow", {}) if isinstance(workbench.get("mutagenFlow"), dict) else {}
+    rule_depth = workbench.get("ruleDepth", {}) if isinstance(workbench.get("ruleDepth"), dict) else {}
     return "\n".join(
         [
             '<section id="ziwei-workbench">',
@@ -517,6 +512,9 @@ def _render_ziwei_workbench(workbench: dict[str, Any]) -> str:
             "</details>",
             "<details><summary>四化飞入 / 运限</summary>",
             "<pre><code>" + _h(json.dumps(mutagen_flow, ensure_ascii=False, indent=2)) + "</code></pre>",
+            "</details>",
+            "<details><summary>规则深度 / 冲突策略</summary>",
+            "<pre><code>" + _h(json.dumps(rule_depth, ensure_ascii=False, indent=2)) + "</code></pre>",
             "</details>",
             "</section>",
         ]

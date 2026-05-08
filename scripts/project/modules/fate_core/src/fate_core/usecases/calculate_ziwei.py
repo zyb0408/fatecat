@@ -8,6 +8,12 @@ from fate_core.usecases.calculate_pure_analysis import (
     build_pure_analysis_input_from_payload,
     normalize_gender,
 )
+from fate_core.usecases.rule_depth import (
+    build_rule_application,
+    collect_source_rule_ids,
+    registry_version,
+    rules_for_system,
+)
 
 
 def build_ziwei_input_from_payload(raw_payload: dict[str, Any]) -> PureAnalysisInput:
@@ -347,6 +353,115 @@ def _build_golden_guards(data: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _build_ziwei_rule_depth(data: dict[str, Any]) -> dict[str, Any]:
+    """装配紫微规则深度层：只引用 iztro/FateCat 已有结构化字段。"""
+    rules = {str(rule.get("id", "")): rule for rule in rules_for_system("ziwei")}
+    taxonomy = data.get("ziweiStarTaxonomy", {}) if isinstance(data.get("ziweiStarTaxonomy"), dict) else {}
+    relations = data.get("ziweiPalaceRelations", {}) if isinstance(data.get("ziweiPalaceRelations"), dict) else {}
+    mutagen = data.get("ziweiMutagenFlow", {}) if isinstance(data.get("ziweiMutagenFlow"), dict) else {}
+    patterns = data.get("ziweiPatternMatches", [])
+    topics = data.get("ziweiPalaceTopics", [])
+    interpretation = data.get("ziweiInterpretation", {}) if isinstance(data.get("ziweiInterpretation"), dict) else {}
+    surrounded = (
+        interpretation.get("surroundedPalaces", {}) if isinstance(interpretation.get("surroundedPalaces"), dict) else {}
+    )
+    fortune_links = interpretation.get("fortuneLinks", [])
+
+    applied = [
+        build_rule_application(
+            rules["ziwei.depth.star.brightness_weight"],
+            status="applied" if taxonomy.get("brightnessCounts") else "partial",
+            confidence=0.88 if taxonomy.get("brightnessCounts") else 0.55,
+            evidence={
+                "categoryCounts": taxonomy.get("categoryCounts", {}),
+                "brightnessCounts": taxonomy.get("brightnessCounts", {}),
+                "ruleIds": taxonomy.get("ruleIds", []),
+            },
+            notes=["亮度只修正解释权重，不单独断吉凶。"],
+        ),
+        build_rule_application(
+            rules["ziwei.depth.palace.triad_focus"],
+            status="applied" if surrounded or relations.get("relations") else "partial",
+            confidence=0.86 if surrounded else 0.65,
+            evidence={
+                "surroundedPalaces": surrounded,
+                "relationCount": len(relations.get("relations", []))
+                if isinstance(relations.get("relations"), list)
+                else 0,
+            },
+            notes=["原生三方四正优先，手工对宫和夹宫仅作补充。"],
+        ),
+        build_rule_application(
+            rules["ziwei.depth.mutagen.scope_chain"],
+            status="applied" if mutagen.get("placements") or mutagen.get("horoscopeScopes") else "partial",
+            confidence=0.83 if mutagen.get("placements") else 0.6,
+            evidence={
+                "placementCount": len(mutagen.get("placements", []))
+                if isinstance(mutagen.get("placements"), list)
+                else 0,
+                "horoscopeScopes": mutagen.get("horoscopeScopes", []),
+            },
+            notes=["本命四化和运限四化分层展示，避免混读。"],
+        ),
+        build_rule_application(
+            rules["ziwei.depth.pattern.condition_matrix"],
+            status="applied" if isinstance(patterns, list) and patterns else "partial",
+            confidence=0.74 if isinstance(patterns, list) and patterns else 0.5,
+            evidence={
+                "matches": patterns,
+                "matchedPatterns": [
+                    item.get("pattern") for item in patterns if isinstance(item, dict) and item.get("matched")
+                ]
+                if isinstance(patterns, list)
+                else [],
+            },
+            notes=["候选格局必须列出 presentStars 和 missingStars。"],
+        ),
+        build_rule_application(
+            rules["ziwei.depth.palace.topic_matrix"],
+            status="applied" if isinstance(topics, list) and len(topics) == 12 else "partial",
+            confidence=0.68 if isinstance(topics, list) and len(topics) == 12 else 0.45,
+            evidence={
+                "topicCount": len(topics) if isinstance(topics, list) else 0,
+                "samplePalaces": [item.get("palace") for item in topics[:4] if isinstance(item, dict)]
+                if isinstance(topics, list)
+                else [],
+            },
+            notes=["专题解释必须回到宫位、星曜、四化和限运证据。"],
+        ),
+        build_rule_application(
+            rules["ziwei.depth.fortune.linkage_chain"],
+            status="applied" if isinstance(fortune_links, list) and fortune_links else "partial",
+            confidence=0.66 if isinstance(fortune_links, list) and len(fortune_links) >= 2 else 0.45,
+            evidence={
+                "fortuneLinkCount": len(fortune_links) if isinstance(fortune_links, list) else 0,
+                "fortuneLinks": fortune_links,
+            },
+            notes=["本命为体、运限为用；运限不得覆盖本命盘面事实。"],
+        ),
+    ]
+    return {
+        "schemaVersion": 1,
+        "registryVersion": registry_version(),
+        "system": "ziwei",
+        "boundary": "紫微规则深度层只组织 iztro 原生命盘和项目解释层证据，不自研星曜排布底层算法。",
+        "appliedRules": applied,
+        "conflictMatrix": [
+            {
+                "topic": "四化作用域",
+                "rules": ["ziwei.depth.mutagen.scope_chain", "ziwei.depth.fortune.linkage_chain"],
+                "policy": "本命、大限、流年、流月、流日、流时分层显示，不混读。",
+            },
+            {
+                "topic": "格局候选",
+                "rules": ["ziwei.depth.pattern.condition_matrix"],
+                "policy": "不满足条件的格局保留 missingStars，不写成成立。",
+            },
+        ],
+        "sourceRuleIds": collect_source_rule_ids(applied),
+    }
+
+
 def _build_ziwei_interpretation(data: dict[str, Any]) -> dict[str, Any]:
     palaces = data.get("palaceAnalysis", [])
     palaces = [item for item in palaces if isinstance(item, dict)] if isinstance(palaces, list) else []
@@ -474,6 +589,7 @@ def _select_ziwei_payload(raw: dict[str, Any], payload: PureAnalysisInput) -> di
     data["ziweiPatternMatches"] = _build_pattern_matches(data)
     data["ziweiPalaceTopics"] = _build_palace_topics(data)
     data["ziweiGoldenGuards"] = _build_golden_guards(data)
+    data["ziweiRuleDepth"] = _build_ziwei_rule_depth(data)
     return data
 
 
@@ -542,12 +658,29 @@ def _build_evidence(data: dict[str, Any]) -> dict[str, Any]:
                 ],
                 "risk": "folk_reference",
             },
+            "ruleDepth": {
+                "source": "rule_depth_registry.json + iztro structured fields",
+                "ruleIds": data.get("ziweiRuleDepth", {}).get("sourceRuleIds", [])
+                if isinstance(data.get("ziweiRuleDepth"), dict)
+                else [],
+                "basis": [
+                    "ziweiRuleDepth.appliedRules",
+                    "ziweiRuleDepth.conflictMatrix",
+                    "ziweiStarTaxonomy",
+                    "ziweiPalaceRelations",
+                    "ziweiMutagenFlow",
+                    "ziweiPatternMatches",
+                    "ziweiPalaceTopics",
+                ],
+                "risk": "folk_reference",
+            },
         },
         "coverage": {
             "hasChart": bool(data.get("ziweiChart")),
             "hasHoroscope": bool(data.get("ziweiHoroscope")),
             "hasInterpretation": bool(data.get("ziweiInterpretation")),
             "hasBenchmarkHardening": bool(data.get("ziweiStarTaxonomy")) and bool(data.get("ziweiGoldenGuards")),
+            "hasRuleDepth": bool(data.get("ziweiRuleDepth")),
             "palaceCount": len(data.get("palaceAnalysis", [])) if isinstance(data.get("palaceAnalysis"), list) else 0,
             "starPositionCount": len(data.get("starPositions", []))
             if isinstance(data.get("starPositions"), list)
