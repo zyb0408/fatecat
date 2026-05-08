@@ -17,7 +17,7 @@ adapters/
 ## 职责边界
 
 - `legacy_bazi.py`：封装遗留 `BaziCalculator`，为综合八字纯分析保留稳定入口。
-- `lunar_calendar.py`：封装 `lunar-python` 公历转农历/黄历入口，供黄历择日等独立 capability 复用。
+- `lunar_calendar.py`：封装 `lunar-python` 公历日/时转农历黄历入口，供黄历择日等独立 capability 复用。
 - `__init__.py`：对外暴露经过适配的稳定符号，避免上层散落 vendor 路径处理。
 
 ## 依赖方向

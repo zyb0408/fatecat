@@ -515,7 +515,7 @@ CLI 的两个关键约定：
 - 必需项：`FATE_BOT_TOKEN`
 - 可选项：`FATE_ADMIN_USER_IDS`、`FATE_BOT_PROXY_URL`
 - 日志目录：`modules/telegram/output/logs/`
-- 确认页可切换已实现 Markdown 报告体系：综合八字、紫微斗数；袁天罡称骨随综合八字输出。黄历/择日已作为 `almanac` 独立 capability 提供 CLI/API 调用，但不进入默认 Markdown；六爻、梅花、奇门、大六壬、风水九星、姓名合婚等仍为独立待实现 capability，不混入综合八字。
+- 确认页可切换已实现 Markdown 报告体系：综合八字、紫微斗数；袁天罡称骨随综合八字输出。紫微斗数同时已作为 `ziwei` 独立 capability 提供 CLI/API 调用；黄历/择日已作为 `almanac` 独立 capability 提供 CLI/API 调用，但不进入默认 Markdown；六爻、梅花、奇门、大六壬、风水九星、姓名合婚等仍为独立待实现 capability，不混入综合八字。
 - 用户可见报告不会回显非北京类真实出生地区；非北京地区只用于后端经纬度解析和计算。
 
 常见命令：
@@ -539,7 +539,7 @@ tail -f modules/telegram/output/logs/bot.log
 | `POST` | `/api/v1/report/markdown` | 按 `options.reportSystem` 生成指定体系 Markdown |
 | `GET` | `/api/v1/report/systems` | 查看已实现与未来规划的独立输出体系 |
 | `GET` | `/api/v1/capabilities` | 查看统一预测 capability 注册表 |
-| `POST` | `/api/v1/capabilities/{capability_id}` | 执行已生产化 capability，例如 `almanac` 黄历择日 |
+| `POST` | `/api/v1/capabilities/{capability_id}` | 执行已生产化 capability，例如 `almanac` 黄历择日、`ziwei` 紫微斗数 |
 | `POST` | `/api/v1/liuyao/factor` | 六爻量化因子统一输出 |
 
 启动命令：

@@ -4,9 +4,24 @@ from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from typing import Any
 
-from fate_core.adapters import build_lunar_day
+from fate_core.adapters import build_lunar_datetime, build_lunar_day
 
 MAX_DATE_RANGE_DAYS = 366
+
+TIME_SLOT_HOURS: tuple[tuple[int, str], ...] = (
+    (23, "子"),
+    (1, "丑"),
+    (3, "寅"),
+    (5, "卯"),
+    (7, "辰"),
+    (9, "巳"),
+    (11, "午"),
+    (13, "未"),
+    (15, "申"),
+    (17, "酉"),
+    (19, "戌"),
+    (21, "亥"),
+)
 
 EVENT_ALIASES: dict[str, tuple[str, ...]] = {
     "开业": ("开市", "交易", "立券"),
@@ -143,6 +158,41 @@ def _lunar_label(lunar: Any) -> str:
     return f"{lunar.getYearInGanZhi()}年 {lunar.getMonthInGanZhi()}月 {lunar.getDayInGanZhi()}日"
 
 
+def _time_slots(current: date, event_terms: list[str]) -> list[dict[str, Any]]:
+    slots: list[dict[str, Any]] = []
+    for hour, zhi in TIME_SLOT_HOURS:
+        lunar = build_lunar_datetime(current.year, current.month, current.day, hour)
+        yi = _safe_list(lunar.getTimeYi())
+        ji = _safe_list(lunar.getTimeJi())
+        matched_yi = [term for term in event_terms if term in yi]
+        matched_ji = [term for term in event_terms if term in ji]
+        if matched_ji:
+            suitability = "avoid"
+            score = -1
+            reason = f"时辰命中忌项：{'、'.join(matched_ji)}"
+        elif matched_yi:
+            suitability = "recommended"
+            score = 1
+            reason = f"时辰命中宜项：{'、'.join(matched_yi)}"
+        else:
+            suitability = "neutral"
+            score = 0
+            reason = "时辰宜忌未直接命中事件关键词"
+        slots.append(
+            {
+                "hour": hour,
+                "zhi": zhi,
+                "timeRange": "23:00-00:59" if hour == 23 else f"{hour:02d}:00-{(hour + 1):02d}:59",
+                "yi": yi,
+                "ji": ji,
+                "suitability": suitability,
+                "score": score,
+                "reason": reason,
+            }
+        )
+    return slots
+
+
 def _daily_almanac(current: date, event_terms: list[str]) -> tuple[dict[str, Any], dict[str, Any]]:
     lunar = build_lunar_day(current.year, current.month, current.day)
     yi = _safe_list(lunar.getDayYi())
@@ -177,6 +227,7 @@ def _daily_almanac(current: date, event_terms: list[str]) -> tuple[dict[str, Any
         "pengZu": f"{lunar.getPengZuGan()} {lunar.getPengZuZhi()}",
         "jiShen": _safe_list(lunar.getDayJiShen()),
         "xiongSha": _safe_list(lunar.getDayXiongSha()),
+        "timeSlots": _time_slots(current, event_terms),
         "positions": {
             "xi": lunar.getPositionXiDesc(),
             "yangGui": lunar.getPositionYangGuiDesc(),
@@ -188,7 +239,7 @@ def _daily_almanac(current: date, event_terms: list[str]) -> tuple[dict[str, Any
     evidence = {
         "source": "lunar-python",
         "calendarDate": current.isoformat(),
-        "ruleIds": ["almanac.day_yi_ji", "almanac.event_alias_mapping"],
+        "ruleIds": ["almanac.day_yi_ji", "almanac.event_alias_mapping", "almanac.time_yi_ji"],
         "basis": {
             "yi": yi,
             "ji": ji,
@@ -197,6 +248,16 @@ def _daily_almanac(current: date, event_terms: list[str]) -> tuple[dict[str, Any
             "zhiXing": day["zhiXing"],
             "chong": day["chong"],
             "sha": day["sha"],
+            "recommendedTimeSlots": [
+                {"hour": item["hour"], "zhi": item["zhi"], "reason": item["reason"]}
+                for item in day["timeSlots"]
+                if item["suitability"] == "recommended"
+            ],
+            "avoidTimeSlots": [
+                {"hour": item["hour"], "zhi": item["zhi"], "reason": item["reason"]}
+                for item in day["timeSlots"]
+                if item["suitability"] == "avoid"
+            ],
         },
         "recommendReason": reason if suitability == "recommended" else "",
         "avoidReason": reason if suitability == "avoid" else "",

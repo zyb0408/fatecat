@@ -139,6 +139,7 @@ def test_main_capabilities_lists_registry(capsys):
     assert "liuyao" in capability_ids
     assert next(item for item in result["capabilities"] if item["capabilityId"] == "bazi")["status"] == "production"
     assert next(item for item in result["capabilities"] if item["capabilityId"] == "almanac")["status"] == "production"
+    assert next(item for item in result["capabilities"] if item["capabilityId"] == "ziwei")["status"] == "production"
 
 
 def test_main_capability_rejects_planned_system(capsys):

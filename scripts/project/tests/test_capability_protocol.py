@@ -23,6 +23,8 @@ def test_capability_registry_keeps_bazi_as_only_default_production_entry():
     assert by_id["bazi"].default_visibility == "default"
     assert by_id["almanac"].status == "production"
     assert by_id["almanac"].default_visibility == "standalone"
+    assert by_id["ziwei"].status == "production"
+    assert by_id["ziwei"].default_visibility == "standalone"
     assert [item.capability_id for item in capabilities if item.default_visibility == "default"] == ["bazi"]
     for capability_id in ["liuyao", "meihua", "qimen", "daliuren", "fengshui_nine_stars", "name_marriage"]:
         assert by_id[capability_id].status == "planned"
@@ -88,7 +90,11 @@ def test_almanac_capability_executes_as_standalone_production():
     assert result.data["dateRange"]["days"] == 3
     assert result.data["eventTerms"] == ["出行"]
     assert result.data["place"] == "北京"
+    assert result.data["days"][0]["timeSlots"]
+    assert len(result.data["days"][0]["timeSlots"]) == 12
+    assert [slot["zhi"] for slot in result.data["days"][0]["timeSlots"]].count("子") == 1
     assert result.evidence["source"] == "lunar-python"
+    assert "almanac.time_yi_ji" in result.evidence["items"]["2026-05-08"]["ruleIds"]
     assert set(result.evidence["items"]) == {"2026-05-08", "2026-05-09", "2026-05-10"}
     assert result.risk["disclaimerRequired"] is True
     assert get_capability("almanac").default_visibility == "standalone"
@@ -108,6 +114,34 @@ def test_almanac_capability_hides_non_beijing_place():
 
     assert result.data["place"] == "已填写（非北京地区已隐藏）"
     assert "上海" not in json.dumps(result.data, ensure_ascii=False)
+
+
+def test_ziwei_capability_delegates_to_ziwei_usecase(monkeypatch):
+    expected_data = {
+        "capabilityId": "ziwei",
+        "ziweiChart": {"palaces": []},
+        "analysisEvidence": {"items": {"ziweiChart": {"ruleIds": ["ziwei.iztro_chart"]}}},
+    }
+
+    monkeypatch.setattr("fate_core.capabilities.executor.calculate_ziwei", lambda payload: expected_data)
+    result = CapabilityExecutor().execute(
+        CapabilityInput(
+            capability_id="ziwei",
+            payload={
+                "birthDateTime": "1990-01-01 08:00:00",
+                "gender": "男",
+                "longitude": 116.4074,
+                "latitude": 39.9042,
+                "birthPlace": "北京",
+            },
+        )
+    )
+
+    assert result.capability_id == "ziwei"
+    assert result.status == "production"
+    assert result.report_profile == "ziwei"
+    assert result.data == expected_data
+    assert result.evidence == expected_data["analysisEvidence"]
 
 
 def test_bazi_capability_delegates_to_pure_analysis(monkeypatch):

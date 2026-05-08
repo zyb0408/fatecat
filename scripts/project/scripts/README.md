@@ -6,6 +6,7 @@
 - API / Bot 启动：在 skill 根目录运行 `bash scripts/serve-api.sh`、`bash scripts/serve-bot.sh`
 - 项目级 `setup/` 脚本仅保留兼容用途，必须通过 `pyproject.toml` 生成的 `fatecat` CLI 入口执行，不再直接绕到 `modules/telegram/start.py`
 - `download_libs.sh` 会写入 vendor 研究素材，默认禁止执行；只有显式设置 `FATECAT_ALLOW_VENDOR_DOWNLOAD=1` 才会下载
+- `run-mingli-bench.sh` 只执行 MingLi-Bench 离线统计，不调用外部模型 API；需要真实模型评测时必须显式提供 token 与模型参数。
 
 ## 📁 目录结构
 
@@ -28,6 +29,7 @@
 - `build_all.sh` - 验证 `fatecat` CLI，并在存在 Dockerfile 时构建镜像
 - `deploy.sh` - 仅在存在真实 Kubernetes manifests 时部署；否则明确失败，避免伪上线
 - `start_all.sh` - 通过 `fatecat serve both` 后台启动 Bot + API
+- `run-mingli-bench.sh` - 验证 MingLi-Bench 外部评测资产可读取，供可选 acceptance 门禁使用
 
 ## 🚀 使用方法
 

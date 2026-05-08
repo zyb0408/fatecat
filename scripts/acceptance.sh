@@ -8,6 +8,7 @@ with_dev="0"
 skip_strict="0"
 skip_delivery="0"
 skip_export="0"
+with_mingli_bench="0"
 delivery_target="both"
 output_dir="/tmp/fatecat-acceptance"
 strict_validator="${HOME}/.codex/skills/auto-skill/scripts/validate-skill.sh"
@@ -15,13 +16,14 @@ strict_validator="${HOME}/.codex/skills/auto-skill/scripts/validate-skill.sh"
 usage() {
   cat <<'EOF'
 用法:
-  bash scripts/acceptance.sh [--with-dev] [--skip-strict] [--skip-delivery] [--skip-export]
+  bash scripts/acceptance.sh [--with-dev] [--with-mingli-bench] [--skip-strict] [--skip-delivery] [--skip-export]
                              [--delivery-target api|bot|both] [--output <dir>]
 
 说明:
   - 统一执行单-skill 仓库的验收链：shell 语法 -> strict skill 校验 -> pure preflight -> vendor health -> source/privacy hygiene -> 全量 pytest（含节气 golden / 报告结构 / evidence 权重）-> 静态门禁 -> API/Bot delivery smoke -> 导出包 smoke
   - 默认输出目录为 /tmp/fatecat-acceptance
   - 默认 --delivery-target both，同时验证 API 与 Bot dry-run；本地快速循环可显式指定 api 或 bot
+  - --with-mingli-bench 只跑 MingLi-Bench 离线 stats，不调用外部模型 API
 EOF
 }
 
@@ -29,6 +31,10 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --with-dev)
       with_dev="1"
+      shift
+      ;;
+    --with-mingli-bench)
+      with_mingli_bench="1"
       shift
       ;;
     --skip-strict)
@@ -111,6 +117,11 @@ bash "${script_dir}/check-source-hygiene.sh"
 
 echo "[acceptance] privacy fixtures"
 bash "${script_dir}/check-privacy-fixtures.sh"
+
+if [[ "${with_mingli_bench}" == "1" ]]; then
+  echo "[acceptance] MingLi-Bench stats"
+  bash "${runtime_root}/scripts/run-mingli-bench.sh" --stats
+fi
 
 echo "[acceptance] pytest"
 "${runtime_root}/.venv/bin/python" -m pytest -q \

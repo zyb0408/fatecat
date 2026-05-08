@@ -23,7 +23,7 @@ Trigger when any of these applies:
 - 不在根目录创建第二套业务源码；真实源码根固定为 `scripts/project/`。
 - 不把缺少真实 token、真实 API URL、生产 CORS、远程服务器权限的 dry-run 说成生产 live 验证。
 - 不在缺少 `birthDateTime`、`gender`、`longitude`、`latitude` 时直接执行纯分析。
-- 不把未来功能塞回默认综合八字报告；黄历、六爻、梅花、奇门、大六壬、风水、姓名合婚等必须走独立体系契约。
+- 不把未来功能塞回默认综合八字报告；紫微、黄历、六爻、梅花、奇门、大六壬、风水、姓名合婚等必须走独立体系契约。
 - 不向用户前端展示除北京以外的真实地区样例；第一方示例统一使用北京 / 测试用户口径。
 
 ## Quick Reference
@@ -95,6 +95,7 @@ bash scripts/serve-bot.sh
 
 ```bash
 bash scripts/acceptance.sh --with-dev
+bash scripts/acceptance.sh --with-dev --with-mingli-bench
 ```
 
 ### 10. 清理本地运行态

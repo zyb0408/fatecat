@@ -57,6 +57,33 @@
       }
     },
     {
+      "capabilityId": "ziwei",
+      "name": "紫微斗数",
+      "tradition": "chinese",
+      "status": "production",
+      "defaultVisibility": "standalone",
+      "description": "紫微斗数命盘、十二宫、基础命宫与运限四化；不得混入默认综合八字报告。",
+      "inputRequired": ["birthDateTime", "gender", "longitude", "latitude"],
+      "inputOptional": ["name", "birthPlace", "useTrueSolarTime"],
+      "engine": {
+        "provider": "fate_core.usecases.calculate_ziwei",
+        "deterministic": true
+      },
+      "report": {
+        "profile": "ziwei",
+        "markdownDefault": false
+      },
+      "evidence": {
+        "required": true,
+        "fields": ["source", "basis", "ruleIds", "risk"]
+      },
+      "riskPolicy": {
+        "riskLevel": "folk_reference",
+        "disclaimerRequired": true,
+        "forbiddenClaims": ["确定未来", "替代医疗法律金融判断", "恐吓式断语"]
+      }
+    },
+    {
       "capabilityId": "liuyao",
       "name": "六爻占卜",
       "tradition": "chinese",

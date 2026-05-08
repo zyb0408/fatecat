@@ -228,6 +228,8 @@ def test_capabilities_api_lists_almanac_as_standalone_production():
     assert capabilities["bazi"]["defaultVisibility"] == "default"
     assert capabilities["almanac"]["status"] == "production"
     assert capabilities["almanac"]["defaultVisibility"] == "standalone"
+    assert capabilities["ziwei"]["status"] == "production"
+    assert capabilities["ziwei"]["defaultVisibility"] == "standalone"
 
 
 def test_capability_api_executes_almanac_without_enabling_markdown_system():
@@ -246,6 +248,8 @@ def test_capability_api_executes_almanac_without_enabling_markdown_system():
     assert body["capabilityId"] == "almanac"
     assert body["reportProfile"] == "almanac"
     assert body["data"]["dateRange"]["days"] == 1
+    assert body["data"]["days"][0]["timeSlots"]
+    assert len(body["data"]["days"][0]["timeSlots"]) == 12
     assert body["evidence"]["source"] == "lunar-python"
 
 

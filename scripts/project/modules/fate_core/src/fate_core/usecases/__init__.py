@@ -9,6 +9,7 @@ from .calculate_pure_analysis import (
     normalize_pure_analysis_payload,
     parse_datetime,
 )
+from .calculate_ziwei import build_ziwei_input_from_payload, calculate_ziwei
 
 __all__ = [
     "AlmanacInput",
@@ -17,6 +18,8 @@ __all__ = [
     "build_pure_analysis_input_from_payload",
     "calculate_almanac",
     "calculate_pure_analysis",
+    "calculate_ziwei",
+    "build_ziwei_input_from_payload",
     "normalize_gender",
     "normalize_pure_analysis_payload",
     "parse_date",
