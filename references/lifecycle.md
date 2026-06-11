@@ -55,8 +55,9 @@
 - 每次进入新阶段前，看 `stage-gates.md`，确认前一阶段的退出条件是否满足。
 - 每次接近交付或发布前，运行健康检查并采集运维包。
 
-## 与 `scripts/project/` 的关系
+## 与企业源码根的关系
 
-- `scripts/project/` 是业务真相源。
+- `domains/*/services/*` 是目标业务源码根。
+- lifecycle 资产位于 `docs/reference-materials/lifecycle/`；运行时和源码不依赖 lifecycle packs。
 - 生命周期包是治理真相源，用来记录为什么做、做到哪、还有什么风险。
-- 两者不能混写：业务实现放 `scripts/project/modules/` 与项目配置区，阶段证据放 `scripts/project/assets/docs/lifecycle/`。
+- 两者不能混写：业务实现优先放 `domains/*/services/*`，阶段证据放 `governance/` 或受控 lifecycle 资产区。

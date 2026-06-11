@@ -1,0 +1,37 @@
+{
+  "schema_version": "auto-github.profile.v1",
+  "repository": "fatecat",
+  "github_identity": {
+    "user": "tradecatlabs",
+    "commit_name": "tradecatlabs",
+    "commit_email": "tradecatlabs@users.noreply.github.com"
+  },
+  "protected_paths": [
+    "AGENTS.md",
+    "README.md",
+    "SKILL.md",
+    "CONSTITUTION.md",
+    "governance/**",
+    "domains/**/service.yaml",
+    "domains/**/AGENTS.md",
+    "domains/**/README.md",
+    "contracts/**",
+    "catalog/**",
+    ".github/workflows/**"
+  ],
+  "dirty_worktree_policy": "preserve-user-changes-and-stage-only-task-scope",
+  "blocked_operations": [
+    "git reset --hard",
+    "git checkout --",
+    "git clean -fd",
+    "git push --force"
+  ],
+  "delivery_gates": [
+    "git status --short --branch",
+    "bash scripts/preflight.sh --mode pure --bootstrap --pretty",
+    "bash scripts/acceptance.sh --with-dev",
+    "bash scripts/export-runtime.sh --output-parent /tmp/fatecat-export --mode lite",
+    "bash scripts/check-export-hygiene.sh /tmp/fatecat-export/fatecat",
+    "git diff --check"
+  ]
+}

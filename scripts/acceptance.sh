@@ -115,6 +115,9 @@ bash "${script_dir}/vendor-health.sh"
 echo "[acceptance] source hygiene"
 bash "${script_dir}/check-source-hygiene.sh"
 
+echo "[acceptance] structure gate"
+bash "${script_dir}/check-structure.sh"
+
 echo "[acceptance] privacy fixtures"
 bash "${script_dir}/check-privacy-fixtures.sh"
 
@@ -141,8 +144,9 @@ fi
 
 echo "[acceptance] pytest"
 "${runtime_root}/.venv/bin/python" -m pytest -q \
-  "${runtime_root}/tests" \
-  "${runtime_root}/modules/telegram/tests"
+  "${skill_root}/domains/fate-analysis/services/fate-core/tests" \
+  "${skill_root}/domains/experience-delivery/services/fatecat-delivery/tests" \
+  "${skill_root}/tests/regression"
 
 echo "[acceptance] ruff"
 RUFF_CACHE_DIR="${RUFF_CACHE_DIR:-/tmp/fatecat-ruff-cache}" \

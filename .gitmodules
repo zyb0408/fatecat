@@ -1,0 +1,3 @@
+# No Git submodules are registered.
+# Vendor and reference repositories must be managed through tools/reference-repos
+# or the existing compatibility asset registry, not implicit submodule state.

@@ -13,8 +13,8 @@ usage() {
   bash scripts/clean-runtime.sh [--venv] [--dry-run]
 
 说明:
-  - 清理根 skill 输出目录、本地编辑器历史与 scripts/project 内的本地缓存
-  - 默认不删除 scripts/project/.venv；如需彻底重建环境，再加 --venv
+  - 清理根输出目录、本地编辑器历史与当前 runtime root 内的本地缓存
+  - 默认不删除 runtime root 的 .venv；如需彻底重建环境，再加 --venv
 EOF
 }
 
@@ -38,6 +38,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+project_root="$(resolve_runtime_root)"
+delivery_output_dir="${project_root}/domains/experience-delivery/services/fatecat-delivery/output"
+
 targets=(
   "${skill_root}/output"
   "${skill_root}/.history"
@@ -47,7 +50,8 @@ targets=(
   "${project_root}/.pytest_cache"
   "${project_root}/.ruff_cache"
   "${project_root}/.mypy_cache"
-  "${project_root}/modules/telegram/output"
+  "${delivery_output_dir}"
+  "${project_root}/infra/runtime/local-state/vendor-build"
 )
 
 if [[ "${remove_venv}" == "1" ]]; then
@@ -98,5 +102,30 @@ if [[ "${python_bytecode_count}" != "0" ]]; then
     -type f \( -name '*.pyc' -o -name '*.pyo' \) -exec rm -f {} +
 fi
 
+runtime_state_roots=(
+  "${project_root}/infra/runtime/local-state"
+  "${project_root}/runtime"
+)
+runtime_database_count=0
+for runtime_state_root in "${runtime_state_roots[@]}"; do
+  [[ -d "${runtime_state_root}" ]] || continue
+  count="$(
+    find "${runtime_state_root}" \
+      -type f \( -name '*.db' -o -name '*.sqlite' -o -name '*.sqlite3' \) -print 2>/dev/null | wc -l
+  )"
+  runtime_database_count=$((runtime_database_count + count))
+  find "${runtime_state_root}" \
+    -type f \( -name '*.db' -o -name '*.sqlite' -o -name '*.sqlite3' \) -exec rm -f {} +
+done
+
+node_modules_count=0
+reference_repo_root="${project_root}/tools/reference-repos"
+if [[ -d "${reference_repo_root}" ]]; then
+  node_modules_count="$(find "${reference_repo_root}" -type d -name node_modules -print 2>/dev/null | wc -l)"
+  find "${reference_repo_root}" -type d -name node_modules -prune -exec rm -rf {} +
+fi
+
 echo "[clean-runtime] removed ${python_cache_dirs_count} __pycache__ dirs"
 echo "[clean-runtime] removed ${python_bytecode_count} Python bytecode files"
+echo "[clean-runtime] removed ${runtime_database_count} runtime database files"
+echo "[clean-runtime] removed ${node_modules_count} reference repo node_modules dirs"

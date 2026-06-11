@@ -1,0 +1,18 @@
+schema_version: enterprise.catalog.component.v1
+component:
+  id: fatecat-delivery
+  name: FateCat Delivery Service
+  type: service
+  owner: engineering
+  lifecycle: migration-transitional
+  service_contract: domains/experience-delivery/services/fatecat-delivery/service.yaml
+  source_root: domains/experience-delivery/services/fatecat-delivery/src
+  compatibility_source_root: scripts/project/modules/telegram
+relationships:
+  depends_on:
+    - fate-core
+    - contracts/fate
+    - Telegram Bot API
+governance:
+  migration_work_order: governance/evidence/baseline/baseline-migration-work-order.md
+  compatibility_status: temporary-compatibility-box

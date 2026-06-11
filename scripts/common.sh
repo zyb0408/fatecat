@@ -3,8 +3,8 @@ set -euo pipefail
 
 skill_scripts_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 skill_root="$(cd -- "${skill_scripts_dir}/.." && pwd)"
-project_root="${skill_scripts_dir}/project"
-lifecycle_root="${project_root}/assets/docs/lifecycle"
+enterprise_project_root="${skill_root}"
+lifecycle_root="${skill_root}/docs/reference-materials/lifecycle"
 lifecycle_templates_dir="${lifecycle_root}/templates"
 lifecycle_packs_dir="${lifecycle_root}/packs"
 
@@ -106,31 +106,106 @@ runtime_bootstrap_required() {
     || venv_has_stale_entrypoints "${runtime_root}"
 }
 
+canonical_roots_exist() {
+  local root="$1"
+
+  [[ -d "${root}/domains" ]] \
+    && [[ -d "${root}/contracts" ]] \
+    && [[ -d "${root}/catalog" ]] \
+    && [[ -d "${root}/governance" ]]
+}
+
+enterprise_runtime_ready() {
+  local root="$1"
+
+  canonical_roots_exist "${root}" \
+    && [[ -f "${root}/pyproject.toml" ]] \
+    && [[ -d "${root}/domains/fate-analysis/services/fate-core/src/fate_core" ]] \
+    && [[ -d "${root}/domains/experience-delivery/services/fatecat-delivery/src" ]] \
+    && [[ -f "${root}/infra/environments/local/branding.json" ]] \
+    && [[ -f "${root}/contracts/fate/capabilities/registry.json" ]] \
+    && [[ -f "${root}/contracts/fate/profiles/pure_analysis.json" ]] \
+    && [[ -f "${root}/domains/fate-analysis/data-products/china_coordinates.csv" ]] \
+    && [[ -f "${root}/infra/databases/bazi/schema_v2.sql" ]] \
+    && [[ -d "${root}/tools/reference-repos/github/lunar-python-master" ]]
+}
+
 project_ready() {
-  [[ -f "${project_root}/pyproject.toml" ]] && ! runtime_bootstrap_required "${project_root}"
+  local root="${1:-${enterprise_project_root}}"
+  [[ -f "${root}/pyproject.toml" ]] && ! runtime_bootstrap_required "${root}"
 }
 
 project_exists() {
-  [[ -f "${project_root}/pyproject.toml" ]]
+  local root="${1:-${enterprise_project_root}}"
+  [[ -f "${root}/pyproject.toml" ]]
+}
+
+resolve_explicit_runtime_root() {
+  if [[ -z "${FATECAT_RUNTIME_ROOT:-}" ]]; then
+    return 1
+  fi
+
+  local explicit_root="${FATECAT_RUNTIME_ROOT}"
+  if [[ ! -d "${explicit_root}" ]]; then
+    echo "FATECAT_RUNTIME_ROOT 指向的目录不存在：${explicit_root}" >&2
+    return 1
+  fi
+
+  explicit_root="$(cd "${explicit_root}" && pwd)"
+  if ! project_exists "${explicit_root}"; then
+    echo "FATECAT_RUNTIME_ROOT 缺少 pyproject.toml：${explicit_root}" >&2
+    return 1
+  fi
+  if ! enterprise_runtime_ready "${explicit_root}"; then
+    echo "FATECAT_RUNTIME_ROOT 必须指向已就绪的企业根：${explicit_root}" >&2
+    return 1
+  fi
+
+  printf '%s\n' "${explicit_root}"
 }
 
 resolve_runtime_root() {
-  if project_ready; then
-    printf '%s\n' "${project_root}"
+  if [[ -n "${FATECAT_RUNTIME_ROOT:-}" ]]; then
+    resolve_explicit_runtime_root
+    return $?
+  fi
+
+  if enterprise_runtime_ready "${enterprise_project_root}" && project_exists "${enterprise_project_root}"; then
+    printf '%s\n' "${enterprise_project_root}"
     return 0
   fi
 
-  if project_exists; then
-    printf '%s\n' "${project_root}"
-    return 0
-  fi
-
-  echo "无法定位 FateCat 项目根目录：缺少 ${project_root}。" >&2
+  echo "无法定位 FateCat 企业运行根：${enterprise_project_root} 缺少 canonical 运行资产。" >&2
   return 1
 }
 
 resolve_bootstrap_root() {
   resolve_runtime_root
+}
+
+runtime_config_dir() {
+  local root="$1"
+  printf '%s\n' "${root}/infra/environments/local"
+}
+
+runtime_contract_dir() {
+  local root="$1"
+  printf '%s\n' "${root}/contracts/fate"
+}
+
+runtime_data_dir() {
+  local root="$1"
+  printf '%s\n' "${root}/domains/fate-analysis/data-products"
+}
+
+runtime_database_dir() {
+  local root="$1"
+  printf '%s\n' "${root}/infra/databases"
+}
+
+runtime_vendor_dir() {
+  local root="$1"
+  printf '%s\n' "${root}/tools/reference-repos"
 }
 
 ensure_lifecycle_dirs() {

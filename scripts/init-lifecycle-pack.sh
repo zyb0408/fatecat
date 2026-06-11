@@ -61,6 +61,7 @@ mkdir -p "${pack_dir}"
 cp "${lifecycle_templates_dir}/"*.md "${pack_dir}/"
 
 git_rev="$(git -C "${skill_root}" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+runtime_root="$(resolve_runtime_root)"
 
 cat > "${pack_dir}/INDEX.md" <<EOF
 # Lifecycle Pack
@@ -68,7 +69,7 @@ cat > "${pack_dir}/INDEX.md" <<EOF
 - 名称：${slug}
 - 生成时间：$(date '+%Y-%m-%d %H:%M:%S %z')
 - skill 根：${skill_root}
-- project 根：${project_root}
+- runtime 根：${runtime_root}
 - git 版本：${git_rev}
 
 ## 阶段顺序
@@ -86,7 +87,7 @@ cat > "${pack_dir}/INDEX.md" <<EOF
 
 - 不把业务实现拷进这里。
 - 这里只记录阶段决策、风险、验收和运维证据。
-- 真正的业务改动仍然落在 \`${project_root}\`。
+- 真正的业务改动仍然落在 \`${runtime_root}\` 的 canonical roots。
 EOF
 
 echo "生命周期包已初始化: ${pack_dir}"

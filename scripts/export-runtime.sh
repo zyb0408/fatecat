@@ -16,7 +16,7 @@ usage() {
 
 说明:
   - full: 导出完整单-skill 仓库骨架，保留 lifecycle templates 与 packs
-  - lite: 导出运行与交付必需骨架，排除 scripts/project/assets/docs/lifecycle/packs 历史沉淀
+  - lite: 导出运行与交付必需骨架，排除 docs/reference-materials/lifecycle/packs 历史沉淀
   - 若传入 --output-parent，会自动导出到 <dir>/fatecat，便于 strict skill 校验
 EOF
 }
@@ -100,29 +100,24 @@ rsync_args=(
   --exclude '*.sqlite'
   --exclude '*.sqlite3'
   --exclude 'output/'
-  --exclude 'scripts/project/.venv/'
-  --exclude 'scripts/project/.pytest_cache/'
-  --exclude 'scripts/project/.ruff_cache/'
-  --exclude 'scripts/project/.mypy_cache/'
-  --exclude 'scripts/project/assets/config/.env'
-  --exclude 'scripts/project/assets/data/classics/raw/'
-  --exclude 'scripts/project/assets/data/calendar/solar_terms/raw/'
-  --exclude 'scripts/project/assets/vendor/github/iztro-main/lib/'
-  --exclude 'scripts/project/modules/telegram/output/'
-  --exclude 'scripts/project/runtime/**/*.db'
+  --exclude 'infra/environments/**/.env'
+  --exclude 'domains/**/output/'
+  --exclude 'domains/**/runtime/**/*.db'
+  --exclude 'infra/runtime/local-state/vendor-build/'
+  --exclude 'tools/reference-repos/**/node_modules/'
 )
 
 if [[ "${bundle_mode}" == "lite" ]]; then
-  rsync_args+=(--exclude 'scripts/project/assets/docs/lifecycle/packs/')
+  rsync_args+=(--exclude 'docs/reference-materials/lifecycle/packs/')
 fi
 
 rsync "${rsync_args[@]}" "${skill_root}/" "${dest_root}/"
 
-mkdir -p "${dest_root}/scripts/project/runtime/database/bazi"
-touch "${dest_root}/scripts/project/runtime/database/bazi/.gitkeep"
+mkdir -p "${dest_root}/infra/runtime/local-state/database/bazi"
+touch "${dest_root}/infra/runtime/local-state/database/bazi/.gitkeep"
 
-if [[ -f "${dest_root}/scripts/project/runtime/database/bazi/bazi.db" ]]; then
-  rm -f "${dest_root}/scripts/project/runtime/database/bazi/bazi.db"
+if [[ -f "${dest_root}/infra/runtime/local-state/database/bazi/bazi.db" ]]; then
+  rm -f "${dest_root}/infra/runtime/local-state/database/bazi/bazi.db"
 fi
 
 echo "导出完成: ${dest_root} (mode=${bundle_mode})"

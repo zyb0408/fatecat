@@ -17,17 +17,14 @@ trap 'rm -f "${violations_file}" "${vendor_hits_file}"' EXIT
 is_first_party_scan_target() {
   local path="$1"
   case "${path}" in
-    README.md|SKILL.md|references/*|scripts/project/DEBUG.md)
+    README.md|SKILL.md|references/*)
+      return 0
+      ;;
+    AGENTS.md|apps/*|ai/*|domains/*|contracts/*|catalog/*|docs/*|governance/*)
       return 0
       ;;
     scripts/*)
       [[ "${path#scripts/}" != */* ]] && return 0
-      ;;
-    scripts/project/assets/docs/*|scripts/project/assets/fate/*|scripts/project/modules/telegram/scripts/*|scripts/project/modules/telegram/tests/*|scripts/project/tests/*)
-      return 0
-      ;;
-    scripts/project/modules/telegram/src/*|scripts/project/modules/fate_core/src/*)
-      return 0
       ;;
   esac
   return 1
@@ -39,13 +36,12 @@ is_first_party_excluded() {
     scripts/check-privacy-fixtures.sh)
       return 0
       ;;
-    scripts/project/modules/telegram/src/location.py)
-      return 0
-      ;;
-    scripts/project/assets/docs/archive/*)
-      return 0
-      ;;
-    scripts/project/assets/docs/vendor/*)
+    # 历史归档、第三方快照和地理数据是隔离证据，不作为一线用户示例扫描。
+    docs/reference-materials/archive/*|\
+    docs/reference-materials/vendor/*|\
+    tools/reference-repos/*|\
+    domains/fate-analysis/data-products/*|\
+    domains/experience-delivery/services/fatecat-delivery/src/location.py)
       return 0
       ;;
   esac
@@ -60,7 +56,7 @@ while IFS= read -r path; do
   if is_first_party_excluded "${path}"; then
     continue
   fi
-  if grep -n -I -E "${first_party_pattern}" "${path}" >> "${violations_file}"; then
+  if grep -nH -I -E "${first_party_pattern}" "${path}" >> "${violations_file}"; then
     :
   fi
 done < <(git ls-files)
@@ -71,16 +67,26 @@ if [[ -s "${violations_file}" ]]; then
   exit 1
 fi
 
-if [[ -d "${runtime_root}/assets/vendor/web" ]]; then
-  if git grep -n -I -E "${vendor_pattern}" -- scripts/project/assets/vendor/web > "${vendor_hits_file}"; then
+vendor_web_paths=()
+vendor_root="$(runtime_vendor_dir "${runtime_root}")"
+vendor_web_root="${vendor_root}/web"
+if [[ -d "${vendor_web_root}" ]]; then
+  vendor_web_paths+=("${vendor_web_root#${skill_root}/}")
+fi
+if [[ -d "tools/reference-repos/web" ]]; then
+  vendor_web_paths+=(tools/reference-repos/web)
+fi
+
+if [[ "${#vendor_web_paths[@]}" -gt 0 ]]; then
+  if git grep -n -I -E "${vendor_pattern}" -- "${vendor_web_paths[@]}" > "${vendor_hits_file}"; then
     while IFS= read -r line; do
       path="${line%%:*}"
       case "${path}" in
-        scripts/project/assets/vendor/web/lifekline-main/components/BaziForm.tsx|\
-        scripts/project/assets/vendor/web/lifekline-main/mock-data.json|\
-        scripts/project/assets/vendor/web/pcbz-monolith.html|\
-        scripts/project/assets/vendor/web/pcbz-paipan/assets/pcbz.iwzwh.com/static/js/*.js|\
-        scripts/project/assets/vendor/web/pcbz-wget/pcbz.iwzwh.com/static/js/*.js)
+        tools/reference-repos/web/pcbz-monolith.html|\
+        tools/reference-repos/web/pcbz-singlefile.html|\
+        tools/reference-repos/web/pcbz-paipan/*|\
+        tools/reference-repos/web/pcbz-wget/*|\
+        tools/reference-repos/web/lifekline-main/components/BaziForm.tsx)
           ;;
         *)
           echo "vendor web 示例扫描失败：发现未登记的真实感占位数据。" >&2

@@ -19,8 +19,8 @@ Trigger when any of these applies:
 
 ## Not For / Boundaries
 
-- 不在 `scripts/project/assets/vendor/` 内魔改第三方算法源码；vendor 默认只读，除非任务明确是供应链治理。
-- 不在根目录创建第二套业务源码；真实源码根固定为 `scripts/project/`。
+- 不在 `tools/reference-repos/` 内魔改第三方算法源码；vendor 默认只读，除非任务明确是供应链治理。
+- 不得新增第二套业务源码或旧路径 fallback；源码根是 `domains/*/services/*`，运行资产根是 `infra/`、`contracts/`、`tools/` 和 `domains/fate-analysis/data-products/`。
 - 不把缺少真实 token、真实 API URL、生产 CORS、远程服务器权限的 dry-run 说成生产 live 验证。
 - 不在缺少 `birthDateTime`、`gender`、`longitude`、`latitude` 时直接执行纯分析。
 - 不把未来功能塞回默认综合八字报告；紫微、黄历、梅花、六爻、奇门、大六壬、风水、姓名合婚等必须走独立体系契约。
@@ -31,7 +31,7 @@ Trigger when any of these applies:
 ### 1. 确认仓库位置
 
 ```bash
-test -f SKILL.md && test -d scripts/project && test -d references
+test -f SKILL.md && test -d domains && test -d governance && test -d references
 ```
 
 ### 2. 首次安装运行时
@@ -147,7 +147,7 @@ bash scripts/production-readiness.sh --api-url https://your-domain.example --req
 - Input: 用户说“先检查这个 skill 能不能跑”。
 - Steps:
   1. `bash scripts/preflight.sh --mode pure --bootstrap --pretty`
-  2. `scripts/project/.venv/bin/fatecat --help`
+  2. `bash scripts/health.sh --mode pure --json --pretty`
   3. 必要时执行 `bash scripts/acceptance.sh --with-dev`
 - Expected output / acceptance:
   - 虚拟环境创建成功。
@@ -196,13 +196,13 @@ bash scripts/production-readiness.sh --api-url https://your-domain.example --req
 - `references/execution-playbook.md`: 标准执行顺序、模式判断和失败处理。
 - `references/commands.md`: 命令入口与使用场景。
 - `references/io-contract.md`: 输入输出契约。
-- `references/architecture.md`: 根 skill、包装脚本与 `scripts/project/` 的职责边界。
+- `references/architecture.md`: 企业根结构、skill 入口、包装脚本与 canonical runtime 边界。
 - `references/ops-pack.md`: 运维包、delivery smoke 与生产边界。
 - `references/live-bot-verification.md`: 真实 Telegram token 验证。
-- `scripts/project/assets/data/calendar/solar_terms/golden/`: 1900-2030 节气 golden 回归 fixture。
-- `scripts/project/assets/fate/evidence_schema.json`: 综合八字机器可读依据契约。
-- `scripts/project/assets/fate/weight_policy.json`: 综合八字核心、动态、辅助、民俗权重边界。
-- `scripts/project/assets/fate/classics_rule_index.json`: 典籍规则索引种子。
+- `domains/fate-analysis/data-products/calendar/solar_terms/golden/`: 1900-2030 节气 golden 回归 fixture。
+- `contracts/fate/evidence_schema.json`: 综合八字机器可读依据契约。
+- `contracts/fate/weight_policy.json`: 综合八字核心、动态、辅助、民俗权重边界。
+- `contracts/fate/classics_rule_index.json`: 典籍规则索引种子。
 - `references/stage-gates.md`: 从可运行到可生产的阶段门禁。
 - `references/troubleshooting.md`: 常见失败与修复路径。
 - `references/migration-plan.md`: 当前目录迁移与根卫生口径。
@@ -217,9 +217,9 @@ bash scripts/production-readiness.sh --api-url https://your-domain.example --req
   - `scripts/delivery-smoke.sh`
   - `scripts/export-runtime.sh`
   - `scripts/acceptance.sh`
-  - `scripts/project/modules/fate_core/src/fate_core/cli.py`
-  - `scripts/project/modules/telegram/src/web_ui.py`
-  - `scripts/project/modules/telegram/src/main.py`
+  - `domains/fate-analysis/services/fate-core/src/fate_core/cli.py`
+  - `domains/experience-delivery/services/fatecat-delivery/src/web_ui.py`
+  - `domains/experience-delivery/services/fatecat-delivery/src/main.py`
 - Quality gate:
   - `/home/lenovo/.codex/skills/auto-skill/scripts/validate-skill.sh /home/lenovo/.projects/fatecat --strict`
   - `bash scripts/preflight.sh --mode pure --bootstrap --pretty`

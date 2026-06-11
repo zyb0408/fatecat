@@ -16,7 +16,7 @@
 
 ## Reading Order
 
-1. 先看 `architecture.md`，理解 `scripts/project/` 作为源码根，以及 `scripts/project/assets/docs/lifecycle/` 作为生命周期治理资产区的边界
+1. 先看 `architecture.md`，理解 `domains/*/services/*` 作为源码根，以及 `infra/`、`contracts/`、`tools/`、`data-products/` 作为运行资产根的边界
 2. 再看 `execution-playbook.md`，按统一顺序执行 `bootstrap -> preflight -> delivery-smoke -> analysis/serve`
 3. 需要判断是否能进入下一阶段时，看 `stage-gates.md`
 4. 要直接执行命令或发布验收时，看 `commands.md`
@@ -30,5 +30,5 @@
 ## Scope Notes
 
 - 这里记录的是 skill 化视角下的操作材料，不重复 FateCat 全量 README
-- 生命周期文档聚焦“如何推进阶段与沉淀资产”，不替代 `scripts/project/` 内业务设计细节
-- 外部成熟算法仓库仍以 `scripts/project/assets/vendor/` 为真相源，不在此处转抄
+- 生命周期文档聚焦“如何推进阶段与沉淀资产”，不替代 `domains/*/services/*` 内服务设计细节
+- 外部成熟算法仓库 active 入口为 `tools/reference-repos/`；vendor 快照默认只读

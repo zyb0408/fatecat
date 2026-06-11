@@ -1,0 +1,47 @@
+schema_version: enterprise.service.v1
+service:
+  id: fatecat-delivery
+  name: FateCat Delivery Service
+  owner: engineering
+  lifecycle: active-canonical
+  source_root: domains/experience-delivery/services/fatecat-delivery/src
+  domain: experience-delivery
+  type: api-web-bot
+runtime:
+  default_start: false
+  startup_profile: manual-unfinished
+  healthcheck: bash scripts/delivery-smoke.sh --target api
+  runbook: references/ops-pack.md
+build:
+  package_manager: pip
+  pyproject: pyproject.toml
+  artifact_policy: sbom-and-provenance-required-after-containerization
+contracts:
+  apis:
+    - POST /api/v1/bazi/pure-analysis
+    - POST /api/v1/report/markdown
+    - GET /api/v1/capabilities
+  events: []
+  datasets:
+    - contracts/fate
+dependencies:
+  services:
+    - fate-core
+  data_products:
+    - domains/fate-analysis/data-products
+  external_providers:
+    - Telegram Bot API
+security:
+  secrets:
+    policy: external-secret-injection
+  runtime_user: non-root-required-after-containerization
+observability:
+  metrics: migration-todo
+  logs: domains/experience-delivery/services/fatecat-delivery/output/logs
+  traces: migration-todo
+governance:
+  risk_level: folk-reference-user-facing
+  production_admission: blocked-until-runtime-evidence
+  evidence_refs:
+    - governance/migration/fatecat-enterprise-assessment.md
+    - governance/evidence/baseline/baseline-ai-system-regulatory-impact-ledger.md

@@ -42,10 +42,24 @@ if [[ -f requirements.lock.txt ]]; then
 fi
 
 .venv/bin/python -m pip install -q --upgrade pip
+mapfile -t build_requires < <(.venv/bin/python - <<'PY'
+from __future__ import annotations
+
+import tomllib
+from pathlib import Path
+
+pyproject = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
+for requirement in pyproject.get("build-system", {}).get("requires", []):
+    print(requirement)
+PY
+)
+if [[ "${#build_requires[@]}" -gt 0 ]]; then
+  .venv/bin/python -m pip install -q "${constraints_args[@]}" "${build_requires[@]}"
+fi
 if [[ "${with_dev}" == "1" ]]; then
-  .venv/bin/python -m pip install -q "${constraints_args[@]}" -e '.[dev]'
+  .venv/bin/python -m pip install -q --no-build-isolation "${constraints_args[@]}" -e '.[dev]'
 else
-  .venv/bin/python -m pip install -q "${constraints_args[@]}" -e .
+  .venv/bin/python -m pip install -q --no-build-isolation "${constraints_args[@]}" -e .
 fi
 
 python_entrypoint_healthy "${runtime_root}" || die "bootstrap 后 python 入口仍不可用"

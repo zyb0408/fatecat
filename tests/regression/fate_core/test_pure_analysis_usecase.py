@@ -1,0 +1,113 @@
+import importlib
+import sys
+from datetime import datetime
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / "domains" / "fate-analysis" / "services" / "fate-core" / "src"))
+
+from fate_core.usecases import PureAnalysisInput, calculate_pure_analysis  # noqa: E402
+
+pure_analysis_module = importlib.import_module("fate_core.usecases.calculate_pure_analysis")
+
+
+def test_calculate_pure_analysis_projects_profile(monkeypatch):
+    captured_payload = {}
+
+    class FakeCalculator:
+        true_solar_time = datetime(1990, 5, 15, 14, 12, 0)
+
+        def _translate_to_chinese(self, value):
+            return value
+
+        def _json_safe(self, value):
+            return value
+
+    def fake_build_runtime(payload):
+        captured_payload["gender"] = payload.gender
+        runtime_payload = payload
+
+        class Runtime:
+            calculator = FakeCalculator()
+            payload = runtime_payload
+            ec = type(
+                "FakeEightChar",
+                (),
+                {
+                    "getYear": lambda self: "庚午",
+                    "getMonth": lambda self: "辛巳",
+                    "getMonthZhi": lambda self: "巳",
+                },
+            )()
+            four_pillars = {"day": {"fullName": "甲子"}, "month": {"branch": "子", "fullName": "丙子"}}
+            hidden_stems = {"day": ["癸"], "month": ["丙", "戊", "庚"]}
+
+        return Runtime()
+
+    def fake_build_base(_runtime):
+        return {
+            "input": {"name": "测试"},
+            "meta": {"calculateTime": "2026-04-14 00:00:00"},
+            "fourPillars": {"day": {"fullName": "甲子"}},
+        }
+
+    def fake_build_fortune(_runtime):
+        return {
+            "majorFortune": {"pillars": []},
+        }
+
+    def fake_build_classical(_runtime):
+        return {
+            "yongShen": {"note": "测试"},
+            "geju": {"main": "测试格局"},
+            "boneWeight": {"weight": "3.8"},
+            "completeTrueSolarTime": {"totalOffsetMinutes": -18},
+            "ziTimeAnalysis": {"zwzShift": False},
+            "jieqiDetail": {"prevJieQi": {"name": "立夏"}, "nextJieQi": {"name": "芒种"}},
+            "jiaoYun": {"startDate": "1998-01-01 00:00:00", "description": "测试起运", "jiaoJieQi": "芒种"},
+            "huangLi": {"should": "drop"},
+            "jianChu": {"should": "drop"},
+            "ziweiChart": {"should": "drop"},
+            "liuyaoHexagram": {"should": "drop"},
+        }
+
+    monkeypatch.setattr(pure_analysis_module, "build_pure_analysis_runtime", fake_build_runtime)
+    monkeypatch.setattr(pure_analysis_module, "build_base_chart_section", fake_build_base)
+    monkeypatch.setattr(pure_analysis_module, "build_fortune_section", fake_build_fortune)
+    monkeypatch.setattr(pure_analysis_module, "build_classical_section", fake_build_classical)
+    monkeypatch.setattr(
+        FakeCalculator,
+        "_calc_analysis_evidence",
+        lambda self, **_kwargs: {
+            "schemaVersion": 1,
+            "profile": "comprehensive_bazi",
+            "visibilityDefault": "hidden",
+            "items": {"dayMaster": {"weight": "core"}},
+        },
+        raising=False,
+    )
+
+    result = calculate_pure_analysis(
+        PureAnalysisInput(
+            birth_dt=datetime(1990, 5, 15, 14, 30, 0),
+            gender="男",
+            longitude=116.4074,
+            latitude=39.9042,
+            name="测试",
+            birth_place="北京市",
+        )
+    )
+
+    assert result["input"]["name"] == "测试"
+    assert captured_payload["gender"] == "male"
+    assert "fourPillars" in result
+    assert "majorFortune" in result
+    assert "yongShen" in result
+    assert result["accuracyGuards"]["solarTermBoundary"]["monthCommand"] == "巳"
+    assert result["analysisEvidence"]["items"]["dayMaster"]["weight"] == "core"
+    assert "timePipeline" in result["analysisEvidence"]["items"]
+    assert "bazi.solar_term_month_boundary" in result["analysisEvidence"]["items"]["solarTermBoundary"]["ruleIds"]
+    assert "huangLi" not in result
+    assert "jianChu" not in result
+    assert "ziweiChart" not in result
+    assert "liuyaoHexagram" not in result

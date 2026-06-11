@@ -12,6 +12,7 @@ response_file=""
 log_file=""
 child_pid=""
 temp_env_created="0"
+temp_env_file=""
 placeholder_token="placeholder-token-for-skill-delivery-smoke"
 
 usage() {
@@ -33,8 +34,8 @@ cleanup() {
     kill "${child_pid}" >/dev/null 2>&1 || true
     wait "${child_pid}" >/dev/null 2>&1 || true
   fi
-  if [[ "${temp_env_created}" == "1" && -f "${runtime_root}/assets/config/.env" ]]; then
-    rm -f "${runtime_root}/assets/config/.env"
+  if [[ "${temp_env_created}" == "1" && -n "${temp_env_file}" && -f "${temp_env_file}" ]]; then
+    rm -f "${temp_env_file}"
   fi
 }
 
@@ -97,6 +98,8 @@ case "${startup_timeout}" in
 esac
 
 runtime_root="$(resolve_runtime_root)"
+config_dir="$(runtime_config_dir "${runtime_root}")"
+env_file="${config_dir}/.env"
 if [[ -z "${log_file}" ]]; then
   log_file="/tmp/fatecat-delivery-smoke-${target}-$(date +%Y%m%d%H%M%S).log"
 fi
@@ -106,13 +109,13 @@ if [[ -n "${response_file}" ]]; then
   ensure_parent_dir "${response_file}"
 fi
 
-if [[ ! -f "${runtime_root}/assets/config/.env" ]]; then
-  template_file="${runtime_root}/assets/config/agent.env.example"
+if [[ ! -f "${env_file}" ]]; then
+  template_file="${config_dir}/agent.env.example"
   if [[ ! -f "${template_file}" ]]; then
-    template_file="${runtime_root}/assets/config/.env.example"
+    template_file="${config_dir}/.env.example"
   fi
-  [[ -f "${template_file}" ]] || die "缺少配置模板：${runtime_root}/assets/config/.env.example"
-  cat > "${runtime_root}/assets/config/.env" <<EOF
+  [[ -f "${template_file}" ]] || die "缺少配置模板：${config_dir}/.env.example"
+  cat > "${env_file}" <<EOF
 # 该文件由 delivery-smoke.sh 自动生成，仅用于本地烟雾验证，脚本退出后会自动删除。
 FATE_BOT_TOKEN=${placeholder_token}
 FATE_ADMIN_USER_IDS=
@@ -121,6 +124,7 @@ FATE_SERVICE_HOST=${host}
 FATE_SERVICE_PORT=${port}
 EOF
   temp_env_created="1"
+  temp_env_file="${env_file}"
   echo "[delivery-smoke] 已生成临时 .env 用于烟雾验证"
 fi
 

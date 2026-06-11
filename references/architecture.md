@@ -1,40 +1,51 @@
-# FateCat Skill 架构说明
+# FateCat 企业架构说明
 
 ## 目标
 
-把 FateCat 从“完整应用仓库”包成“可触发、可治理、可沉淀”的 Agent skill，同时保持现有 CLI / API / Bot 能力不漂移。
+以企业级系统仓库承载 FateCat 的领域源码、运行资产、契约、治理、测试和导出入口，同时保持 CLI / API / Bot / Web / pure-analysis 能力可重复验证。
 
-## 当前阶段设计
+项目主旨：整理综合全部预测流派，首先完善中国传统主流和有效开源仓库，复用先于自写。
+
+## 当前结构
 
 ```text
 fatecat/
-├── SKILL.md                  # 触发入口
-├── references/              # 长文档
-├── scripts/                 # 包装脚本、生命周期脚手架与导出脚本
-│   ├── *.sh                 # 直接调用 FateCat CLI 或治理入口
-│   ├── check-export-hygiene.sh # 导出包卫生门禁，拒绝缓存、运行态与 secret
-│   └── export-runtime.sh    # 物化独立 single-skill bundle，支持 full / lite 导出
-└── scripts/project/         # FateCat 真实源码根，内含项目资产与生命周期治理资产
-    └── assets/docs/lifecycle/
-        ├── templates/       # 阶段模板
-        └── packs/           # 生命周期包默认落点
+├── apps/
+├── ai/
+├── domains/
+│   ├── fate-analysis/services/fate-core/
+│   └── experience-delivery/services/fatecat-delivery/
+├── platform/
+├── infra/
+├── contracts/
+├── catalog/
+├── governance/
+├── shared/
+├── tools/
+├── docs/
+├── scripts/
+├── tests/
+├── SKILL.md
+└── references/
 ```
 
-## 双层结构
+## 分层结构
 
-- 治理层：根级 `SKILL.md`、`references/`、`scripts/` 负责触发入口、阶段约束、文档导航、运维脚本与 bundle 导出。
-- 项目层：`scripts/project/` 负责真实业务代码、运行时目录、配置模板、测试、项目元数据与生命周期治理资产。
-- 这样拆开以后，Agent 可以在不污染业务源码的前提下记录需求、阶段状态、运维证据和退役材料。
+- 企业根：`apps`、`ai`、`domains`、`platform`、`infra`、`contracts`、`catalog`、`governance`、`shared`、`tools`、`docs`、`tests` 是架构真相源。
+- 服务源码：`domains/fate-analysis/services/fate-core/src/` 与 `domains/experience-delivery/services/fatecat-delivery/src/` 承载生产候选源码。
+- 执行层：根 `scripts/` 负责本地可重复验证、导出、卫生门禁、delivery smoke 和 production readiness。
+- Agent 入口：`SKILL.md` 继续作为当前 skill 触发入口，后续可迁入 `ai/skills/fatecat/` 并由导出脚本物化根 skill 包。
+- 历史证据：旧组织映射和任务包保存在 `governance/migration/` 与 `governance/tasks/project-history/`，不参与运行时解析。
 
 ## 依赖边界
 
-- 纯分析核心：`scripts/project/modules/fate_core/`
-- 交付层：`scripts/project/modules/telegram/`
-- 配置、profile、schema、vendor：`scripts/project/assets/`
-- 运行态数据：`scripts/project/runtime/`
-- 生命周期模板：`scripts/project/assets/docs/lifecycle/templates/`
-- 生命周期包默认落点：`scripts/project/assets/docs/lifecycle/packs/`
-- skill 外壳不重写业务逻辑，只包装入口、阶段治理与迁移路径
+- 纯分析核心目标：`domains/fate-analysis/services/fate-core/`
+- 交付层目标：`domains/experience-delivery/services/fatecat-delivery/`
+- capability、profile、evidence、risk policy 目标：`contracts/fate/`
+- 配置、数据库、容器、运行准入目标：`infra/`
+- vendor 快照目标：`tools/reference-repos/` 或 `platform/supply-chain/`
+- 任务、ADR、risk、baseline evidence 目标：`governance/`
+- 退役路径不得作为 fallback；旧路径只允许出现在迁移账本、历史证据、负例测试和防回潮规则中。
 
 ## 生命周期映射
 
@@ -48,6 +59,13 @@ fatecat/
 
 ## 运维边界
 
-- 当前 skill 提供的是 repo 内可执行的健康检查、启动入口、生命周期状态查看和运维包沉淀。
+- 当前根脚本提供的是 repo 内可执行的健康检查、启动入口、结构门禁、卫生门禁、导出和运维包沉淀。
 - 默认执行入口应优先收敛到 `preflight.sh`，而不是让 agent 每次手工拼接检查步骤。
 - 进程级自动救活、外部监控告警、容器编排和云资源编排仍属于部署环境层，不在当前仓库直接自动创建。
+
+## 当前迁移证据
+
+- `governance/migration/fatecat-enterprise-assessment.md`
+- `governance/migration/fatecat-enterprise-directory-mapping.md`
+- `governance/evidence/baseline/baseline-migration-work-order.md`
+- `governance/evidence/baseline/baseline-gate-execution-report.md`

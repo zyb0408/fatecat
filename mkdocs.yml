@@ -1,0 +1,19 @@
+site_name: FateCat
+site_description: FateCat enterprise system repository documentation
+repo_name: tradecatlabs/fatecat
+theme:
+  name: material
+nav:
+  - Home: README.md
+  - Architecture: references/architecture.md
+  - Commands: references/commands.md
+  - Execution Playbook: references/execution-playbook.md
+  - Troubleshooting: references/troubleshooting.md
+  - Governance:
+      - Index: governance/INDEX.md
+      - Migration: governance/migration/INDEX.md
+      - Risk Register: governance/risk-register/INDEX.md
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true

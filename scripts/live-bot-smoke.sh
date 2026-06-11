@@ -12,7 +12,7 @@ usage() {
 说明:
   - 真实连接 Telegram Bot API 并调用 get_me()
   - 不接受 delivery-smoke 的 placeholder token
-  - 若未传环境变量，会读取 scripts/project/assets/config/.env
+  - 若未传环境变量，会读取 infra/environments/local/.env
 EOF
 }
 
@@ -30,8 +30,10 @@ esac
 
 bash "${script_dir}/bootstrap.sh" >/dev/null
 runtime_root="$(resolve_runtime_root)"
+config_dir="$(runtime_config_dir "${runtime_root}")"
+env_file="${config_dir}/.env"
 
-"${runtime_root}/.venv/bin/python" - "${runtime_root}" <<'PY'
+"${runtime_root}/.venv/bin/python" - "${env_file}" <<'PY'
 from __future__ import annotations
 
 import asyncio
@@ -42,14 +44,13 @@ from pathlib import Path
 from dotenv import dotenv_values
 from telegram import Bot
 
-runtime_root = Path(sys.argv[1])
-env_path = runtime_root / "assets" / "config" / ".env"
+env_path = Path(sys.argv[1])
 env_values = dotenv_values(env_path) if env_path.exists() else {}
 
 token = os.getenv("FATE_BOT_TOKEN") or env_values.get("FATE_BOT_TOKEN") or ""
 token = token.strip()
 if not token:
-    print("缺少真实 FATE_BOT_TOKEN；请通过环境变量或 scripts/project/assets/config/.env 提供。", file=sys.stderr)
+    print(f"缺少真实 FATE_BOT_TOKEN；请通过环境变量或 {env_path} 提供。", file=sys.stderr)
     raise SystemExit(2)
 
 blocked_markers = ("placeholder", "smoke", "your_bot_token_here", "你的token")

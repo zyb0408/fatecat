@@ -1,0 +1,28 @@
+repos:
+  - repo: local
+    hooks:
+      - id: fatecat-structure
+        name: FateCat structure gate
+        entry: bash scripts/check-structure.sh
+        language: system
+        pass_filenames: false
+      - id: fatecat-source-hygiene
+        name: FateCat source hygiene
+        entry: bash scripts/check-source-hygiene.sh
+        language: system
+        pass_filenames: false
+      - id: fatecat-privacy-fixtures
+        name: FateCat privacy fixture gate
+        entry: bash scripts/check-privacy-fixtures.sh
+        language: system
+        pass_filenames: false
+      - id: fatecat-governance
+        name: FateCat governance strict validate
+        entry: python3 governance/tools/validate_governance_package.py --project-root . --strict
+        language: system
+        pass_filenames: false
+      - id: fatecat-diff-check
+        name: Git whitespace diff check
+        entry: git diff --check --cached
+        language: system
+        pass_filenames: false

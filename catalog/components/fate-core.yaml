@@ -1,0 +1,17 @@
+schema_version: enterprise.catalog.component.v1
+component:
+  id: fate-core
+  name: FateCat Pure Analysis Core
+  type: service
+  owner: engineering
+  lifecycle: migration-transitional
+  service_contract: domains/fate-analysis/services/fate-core/service.yaml
+  source_root: domains/fate-analysis/services/fate-core/src
+  compatibility_source_root: scripts/project/modules/fate_core
+relationships:
+  depends_on:
+    - contracts/fate
+    - tools/reference-repos/vendor_sources.json
+governance:
+  migration_work_order: governance/evidence/baseline/baseline-migration-work-order.md
+  compatibility_status: temporary-compatibility-box

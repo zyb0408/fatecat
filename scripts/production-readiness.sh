@@ -51,9 +51,11 @@ if [[ "${skip_bootstrap}" != "1" ]]; then
 fi
 
 runtime_root="$(resolve_runtime_root)"
-env_file="${runtime_root}/assets/config/.env"
+config_dir="$(runtime_config_dir "${runtime_root}")"
+env_file="${config_dir}/.env"
+env_rel="${env_file#${runtime_root}/}"
 
-if git -C "${runtime_root}" ls-files --error-unmatch assets/config/.env >/dev/null 2>&1; then
+if git -C "${runtime_root}" ls-files --error-unmatch "${env_rel}" >/dev/null 2>&1; then
   die "生产 .env 已进入 Git 跟踪，必须移除并轮换所有相关凭证"
 fi
 

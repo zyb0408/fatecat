@@ -60,8 +60,9 @@ if fatecat_bin="$(resolve_fatecat_bin "${runtime_root}" 2>/dev/null)"; then
   "${fatecat_bin}" --help > "${bundle_root}/fatecat-help.txt" || true
 fi
 
-if [[ -f "${runtime_root}/assets/config/.env.example" ]]; then
-  cp "${runtime_root}/assets/config/.env.example" "${bundle_root}/env.example"
+config_dir="$(runtime_config_dir "${runtime_root}")"
+if [[ -f "${config_dir}/.env.example" ]]; then
+  cp "${config_dir}/.env.example" "${bundle_root}/env.example"
 fi
 
 latest_pack_path="$(latest_lifecycle_pack || true)"

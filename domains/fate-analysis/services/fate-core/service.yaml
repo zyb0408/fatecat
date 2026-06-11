@@ -1,0 +1,43 @@
+schema_version: enterprise.service.v1
+service:
+  id: fate-core
+  name: FateCat Pure Analysis Core
+  owner: engineering
+  lifecycle: active-canonical
+  source_root: domains/fate-analysis/services/fate-core/src
+  domain: fate-analysis
+  type: library-cli-service
+runtime:
+  default_start: false
+  startup_profile: pure-analysis
+  healthcheck: bash scripts/preflight.sh --mode pure --bootstrap --pretty
+  runbook: references/execution-playbook.md
+build:
+  package_manager: pip
+  pyproject: pyproject.toml
+  artifact_policy: sbom-and-provenance-required-after-containerization
+contracts:
+  apis: []
+  events: []
+  datasets:
+    - contracts/fate
+dependencies:
+  services: []
+  data_products:
+    - domains/fate-analysis/data-products
+  external_providers:
+    - tools/reference-repos/vendor_sources.json
+security:
+  secrets:
+    policy: no-secrets-required-for-pure-analysis
+  runtime_user: non-root-required-after-containerization
+observability:
+  metrics: migration-todo
+  logs: cli-stdout-json
+  traces: migration-todo
+governance:
+  risk_level: folk-reference
+  production_admission: gated-by-preflight
+  evidence_refs:
+    - governance/migration/fatecat-enterprise-assessment.md
+    - governance/migration/fatecat-enterprise-directory-mapping.md

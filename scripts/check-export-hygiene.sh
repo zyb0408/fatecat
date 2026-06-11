@@ -37,14 +37,10 @@ find "${bundle_root}" \
     -path "${bundle_root}/.ruff_cache" -o \
     -path "${bundle_root}/.mypy_cache" -o \
     -path "${bundle_root}/output" -o \
-    -path "${bundle_root}/scripts/project/.venv" -o \
-    -path "${bundle_root}/scripts/project/.pytest_cache" -o \
-    -path "${bundle_root}/scripts/project/.ruff_cache" -o \
-    -path "${bundle_root}/scripts/project/.mypy_cache" -o \
-    -path "${bundle_root}/scripts/project/assets/config/.env" -o \
-    -path "${bundle_root}/scripts/project/assets/data/classics/raw" -o \
-    -path "${bundle_root}/scripts/project/assets/data/calendar/solar_terms/raw" -o \
-    -path "${bundle_root}/scripts/project/modules/telegram/output" -o \
+    -path "${bundle_root}/domains/fate-analysis/services/fate-core/output" -o \
+    -path "${bundle_root}/domains/fate-analysis/services/fate-core/runtime" -o \
+    -path "${bundle_root}/domains/experience-delivery/services/fatecat-delivery/output" -o \
+    -path "${bundle_root}/domains/experience-delivery/services/fatecat-delivery/runtime" -o \
     -name '.env' -o \
     -name '.env.local' -o \
     -name '*.local' -o \

@@ -5,11 +5,12 @@ script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${script_dir}/common.sh"
 
 runtime_root="$(resolve_runtime_root)"
-manifest="${runtime_root}/assets/vendor/vendor_sources.json"
+vendor_root="$(runtime_vendor_dir "${runtime_root}")"
+manifest="${vendor_root}/vendor_sources.json"
 
 [[ -f "${manifest}" ]] || die "缺少 vendor manifest: ${manifest}"
 
-"${runtime_root}/.venv/bin/python" - "${manifest}" "${runtime_root}/assets/vendor" <<'PY'
+"${runtime_root}/.venv/bin/python" - "${manifest}" "${vendor_root}" <<'PY'
 from __future__ import annotations
 
 import json

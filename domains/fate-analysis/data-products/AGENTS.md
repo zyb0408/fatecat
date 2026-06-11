@@ -1,0 +1,44 @@
+# AGENTS.md - domains/fate-analysis/data-products
+
+## 目录用途
+
+`domains/fate-analysis/data-products/` 存放 FateCat 命理分析领域的静态数据与可复核来源资料。这里是算法输入、语料输入和人工校验材料的数据产品层，不保存运行时数据库、日志、缓存或用户输出。
+
+## 目录结构
+
+```text
+domains/fate-analysis/data-products/
+├── AGENTS.md
+├── README.md
+├── china_coordinates.csv
+├── bazi/
+│   └── golden/                  # 综合八字陈述服务轻量命例 golden fixture
+├── calendar/
+│   └── solar_terms/
+│       ├── README.md
+│       ├── golden/              # 可提交的轻量节气 golden fixture
+│       └── source_manifest.tsv
+└── classics/
+    ├── *.txt                    # 已整理、可直接纳入代码/检索流程的轻量语料
+    ├── README.md
+    ├── copyright_review.tsv
+    └── source_manifest.tsv
+```
+
+## 职责边界
+
+- `china_coordinates.csv`：地点解析与经纬度静态数据源。
+- `bazi/golden/`：综合八字陈述服务命例回归 fixture，只锁定结构化盘面、边界、格局、调候、强弱、干支关系和起运字段。
+- `classics/*.txt`：已经整理到轻量文本层的古籍语料，可作为检索、切片与规则提炼输入。
+- `classics/copyright_review.tsv`：标记典籍、外部分发包、案例和知识图谱的版权/隐私/发布可用性。
+- `calendar/solar_terms/golden/`：从 raw 表提炼的轻量回归 fixture，用于锁定节气、月令、立春年界与起运边界。
+- `source_manifest.tsv`：记录来源文件名、大小、哈希、体系归属与来源路径，便于审计和后续清洗。
+
+## 开发规则
+
+- 新增原始书籍、表格或外部分发包时，先放入私有 raw 暂存区，再刷新 `source_manifest.tsv`，不得直接进入此目录。
+- 不得把 raw 私有资料、大文件或未复核外部分发包纳入 Git 或 skill 导出包。
+- 只有完成版权/来源复核、编码清洗、去重、结构化切片和测试后，才能把资料晋升为 `classics/*.txt` 或算法数据。
+- `copyright_review.tsv` 标记为 `blocked` 或 `review_required` 的资产不得被运行时代码直接依赖。
+- 业务代码不得直接依赖 `raw/` 路径；运行期只能依赖已整理的轻量数据或显式配置的数据源。
+- golden fixture 只允许测试读取，不能替换生产期 `lunar-python` 历法计算。

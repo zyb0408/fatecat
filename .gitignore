@@ -5,6 +5,8 @@
 Thumbs.db
 *.swp
 *.swo
+.idea/
+.vscode/
 
 # Python cache
 __pycache__/
@@ -12,19 +14,38 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
 
 # Root skill runtime outputs
 output/
 *.log
 
+# Local env and secrets
+.env
+.env.*
+!.env.example
+!*env.example
+
 # Local raw research/source material
-scripts/project/assets/data/classics/raw/
-scripts/project/assets/data/calendar/solar_terms/raw/
+domains/fate-analysis/data-products/classics/raw/
+domains/fate-analysis/data-products/calendar/solar_terms/raw/
 
 # Lifecycle working packs
-scripts/project/assets/docs/lifecycle/packs/*
-!scripts/project/assets/docs/lifecycle/packs/.gitkeep
+docs/reference-materials/lifecycle/packs/*
+!docs/reference-materials/lifecycle/packs/.gitkeep
 
 # Local virtualenvs
 .venv/
 venv/
+
+# Enterprise service runtime outputs
+domains/*/services/*/output/
+domains/*/services/*/runtime/
+infra/runtime/local-state/**/*.db
+infra/runtime/local-state/**/*.sqlite
+infra/runtime/local-state/vendor-build/
+tools/reference-repos/**/node_modules/
