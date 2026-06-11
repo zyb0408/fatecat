@@ -70,3 +70,98 @@ Result:
 - `bootstrap.sh --with-dev` completed and `pip show hatchling editables` reported installed packages.
 - The former failing path passed: `bash scripts/delivery-smoke.sh --target api --response-file /tmp/fatecat-delivery-api-after-build-fix.json`.
 - Full acceptance with MingLi-Bench completed: `/tmp/fatecat-acceptance-full-test`.
+
+## 2026-06-11 CI follow-up: setuptools.build_meta unavailable
+
+### Bug
+
+GitHub Actions run `27320894427` failed during `bash scripts/acceptance.sh --with-dev --output /tmp/fatecat-ci-acceptance`.
+
+Observed failure excerpt:
+
+```text
+pip._vendor.pyproject_hooks._impl.BackendUnavailable: Cannot import 'setuptools.build_meta'
+```
+
+### Observations
+
+- The failure happened in bootstrap before tests, immediately after CI created a fresh Python 3.12 venv.
+- A clean local temp venv reproduced the environment property: `importlib.util.find_spec("setuptools.build_meta")` raised `ModuleNotFoundError: No module named 'setuptools'`.
+- `bootstrap.sh` installed the project with `pip install --no-build-isolation -e .`, which also makes source builds in that install invocation depend on build backends already present in the venv.
+- Local acceptance did not expose this because the existing local `.venv` already had `setuptools`.
+
+### Hypotheses
+
+1. The root cause is that project editable install used `--no-build-isolation` while still resolving dependencies.
+   - Supports: CI fresh venv lacks `setuptools`, and the failure is `setuptools.build_meta` during dependency preparation.
+   - Test: install dependencies in a normal pip step first, then install only the project editable with `--no-deps --no-build-isolation`.
+2. The root cause is only a transient PyPI/network issue.
+   - Conflicts: the reported backend is missing locally in a clean venv; this is structural for fresh Python 3.12 environments.
+3. The root cause is an invalid project build backend.
+   - Conflicts: the project backend is `hatchling.build`; the missing backend is `setuptools.build_meta` from a third-party source build.
+
+### Root Cause
+
+`bootstrap.sh` disabled build isolation for the project editable install before separating dependency installation. In a fresh CI venv, third-party source distributions that require `setuptools.build_meta` could not build because `setuptools` was not present in the active environment.
+
+### Fix
+
+- Upgrade `pip`, `setuptools`, and `wheel` as bootstrap seed tooling.
+- Install `requirements.txt` or `requirements-dev.txt` in a normal pip dependency step.
+- Install the local project editable with `--no-build-isolation --no-deps`, limiting no-build-isolation to FateCat itself.
+
+### Regression Evidence
+
+Completed:
+
+```bash
+bash scripts/bootstrap.sh --with-dev
+bash scripts/acceptance.sh --with-dev --output /tmp/fatecat-acceptance-ci-fix
+```
+
+Result:
+
+- Fresh local `.venv` rebuild completed with the updated bootstrap flow.
+- CI-parity acceptance passed end to end: 112 pytest tests, ruff, mypy, API/Bot smoke, export smoke, exported hygiene and strict validation.
+- Evidence directory: `/tmp/fatecat-acceptance-ci-fix`.
+
+## 2026-06-11 CI follow-up: iztro vendor hash drift
+
+### Bug
+
+After the bootstrap fix, local CI-parity acceptance reached `vendor-health` and failed:
+
+```text
+iztro sha256 mismatch:
+expected=195f863dd4c66f3925a757ea0c23255803ac0a27aa831500bafefd87064370be
+actual=3817f93a677e0c63b353a94fa7275199f21582a36397edc2f90685b58aae9325
+```
+
+### Observations
+
+- `tools/reference-repos/github/iztro-main` had no working-tree diff after migration.
+- The old manifest at `HEAD^:scripts/project/assets/vendor/vendor_sources.json` recorded `3817f93a677e0c63b353a94fa7275199f21582a36397edc2f90685b58aae9325`.
+- The migration diff changed only the manifest value from `3817f93...` to `195f863...`.
+- File count before and after migration was identical for the iztro snapshot: 338 files.
+
+### Root Cause
+
+The iztro vendor snapshot was migrated byte-for-byte, but `vendor_sources.json` regressed to an older snapshot hash during the path migration.
+
+### Fix
+
+Restore the iztro `snapshotSha256` to the pre-migration verified value `3817f93a677e0c63b353a94fa7275199f21582a36397edc2f90685b58aae9325`.
+
+### Regression Evidence
+
+Completed:
+
+```bash
+bash scripts/vendor-health.sh
+bash scripts/acceptance.sh --with-dev --output /tmp/fatecat-acceptance-ci-fix
+```
+
+Result:
+
+- `vendor-health` passed with `required=5 optionalFutureFeatures=10 hashed=15 licenseAuditRequired=5`.
+- The same CI-parity acceptance passed end to end after the manifest correction.

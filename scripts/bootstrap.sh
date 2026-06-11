@@ -41,7 +41,16 @@ if [[ -f requirements.lock.txt ]]; then
   constraints_args=(-c requirements.lock.txt)
 fi
 
-.venv/bin/python -m pip install -q --upgrade pip
+.venv/bin/python -m pip install -q --upgrade pip setuptools wheel
+
+requirements_file="requirements.txt"
+if [[ "${with_dev}" == "1" ]]; then
+  requirements_file="requirements-dev.txt"
+fi
+if [[ -f "${requirements_file}" ]]; then
+  .venv/bin/python -m pip install -q "${constraints_args[@]}" -r "${requirements_file}"
+fi
+
 mapfile -t build_requires < <(.venv/bin/python - <<'PY'
 from __future__ import annotations
 
@@ -57,9 +66,9 @@ if [[ "${#build_requires[@]}" -gt 0 ]]; then
   .venv/bin/python -m pip install -q "${constraints_args[@]}" "${build_requires[@]}"
 fi
 if [[ "${with_dev}" == "1" ]]; then
-  .venv/bin/python -m pip install -q --no-build-isolation "${constraints_args[@]}" -e '.[dev]'
+  .venv/bin/python -m pip install -q --no-build-isolation --no-deps "${constraints_args[@]}" -e '.[dev]'
 else
-  .venv/bin/python -m pip install -q --no-build-isolation "${constraints_args[@]}" -e .
+  .venv/bin/python -m pip install -q --no-build-isolation --no-deps "${constraints_args[@]}" -e .
 fi
 
 python_entrypoint_healthy "${runtime_root}" || die "bootstrap 后 python 入口仍不可用"
