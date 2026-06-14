@@ -210,10 +210,8 @@ def _render_document(*, form: WebReportForm, result: WebReportResult | None, err
         '<meta charset="utf-8">',
         '<meta name="viewport" content="width=device-width, initial-scale=1">',
         "<title>FateCat Web Markdown 报告</title>",
-        _render_style(),
         "</head>",
         "<body>",
-        "<main>",
         "<h1>FateCat Web Markdown 报告</h1>",
         _render_branding_panel(),
         _render_page_nav(has_result=result is not None, has_errors=bool(errors)),
@@ -231,51 +229,12 @@ def _render_document(*, form: WebReportForm, result: WebReportResult | None, err
     body_parts.extend(
         [
             _render_page_info(generated_at),
-            "</main>",
             _render_copy_script(),
             "</body>",
             "</html>",
         ]
     )
     return "\n".join(body_parts)
-
-
-def _render_style() -> str:
-    return "\n".join(
-        [
-            "<style>",
-            ":root { color-scheme: light; --ink: #1f2937; --muted: #5f6b7a; --line: #d9e2ec; --panel: #f8fafc; --accent: #0f766e; --danger: #b42318; --danger-bg: #fff4f2; }",
-            "* { box-sizing: border-box; }",
-            "body { margin: 0; background: #ffffff; color: var(--ink); font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.55; }",
-            "main { width: min(100%, 980px); margin: 0 auto; padding: 24px 18px 40px; }",
-            "h1 { margin: 0 0 16px; font-size: clamp(1.75rem, 3vw, 2.4rem); letter-spacing: 0; }",
-            "h2 { margin-top: 28px; font-size: 1.25rem; letter-spacing: 0; }",
-            "a { color: var(--accent); }",
-            ".brand-panel { border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; margin: 0 0 18px; padding: 14px 16px; background: #fbfefd; }",
-            ".brand-panel h2 { margin: 0 0 6px; font-size: 1.08rem; }",
-            ".brand-panel p { margin: 6px 0; color: var(--muted); }",
-            ".brand-links { display: flex; flex-wrap: wrap; gap: 8px 14px; padding: 0; margin: 10px 0 0; list-style: none; }",
-            ".brand-links a { font-weight: 700; text-decoration: none; }",
-            ".page-nav ul { display: flex; flex-wrap: wrap; gap: 8px 14px; padding: 0; margin: 0 0 22px; list-style: none; }",
-            ".page-nav a { font-weight: 600; text-decoration: none; }",
-            "fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 0 0 14px; padding: 14px; }",
-            "legend { color: var(--muted); font-weight: 700; padding: 0 6px; }",
-            "label { font-weight: 650; }",
-            "input, select, button { min-height: 40px; max-width: 100%; border: 1px solid #b8c4d1; border-radius: 6px; padding: 8px 10px; font: inherit; }",
-            "input[type='date'], input[type='time'], select { width: min(100%, 360px); }",
-            "input[type='text'] { width: min(100%, 520px); }",
-            "button { background: var(--accent); border-color: var(--accent); color: #ffffff; cursor: pointer; font-weight: 700; }",
-            "pre { overflow: auto; max-width: 100%; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 14px; }",
-            "code { font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace; font-size: 0.92rem; }",
-            "details { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 12px; }",
-            "summary { cursor: pointer; font-weight: 700; }",
-            ".notice { border: 1px solid var(--line); border-radius: 8px; margin: 20px 0; padding: 12px 14px; }",
-            ".notice-error { border-color: #f3b5ad; background: var(--danger-bg); color: var(--danger); }",
-            ".notice-error h2 { margin-top: 0; }",
-            "@media (max-width: 720px) { main { padding: 18px 12px 32px; } .brand-links, .page-nav ul { display: grid; grid-template-columns: 1fr 1fr; } input, select, button { width: 100%; } pre { padding: 10px; } code { font-size: 0.82rem; } }",
-            "</style>",
-        ]
-    )
 
 
 def _render_branding_panel() -> str:
@@ -289,12 +248,11 @@ def _render_branding_panel() -> str:
     link_items = "\n".join(f'<li><a href="{_attr(url)}">{_h(label)}</a></li>' for label, url in links)
     return "\n".join(
         [
-            '<section id="project-brand" class="brand-panel" aria-label="项目归属">',
-            f"<h2>{_h(branding['heroTitle'])}</h2>",
+            '<h2 id="project-brand">项目归属</h2>',
+            f"<p>{_h(branding['heroTitle'])}</p>",
             f"<p>{_h(branding['sponsorText'])}</p>",
             f"<p>{_h(branding['tagline'])}</p>",
-            f'<ul class="brand-links">\n{link_items}\n</ul>',
-            "</section>",
+            f"<ul>\n{link_items}\n</ul>",
         ]
     )
 
@@ -316,7 +274,7 @@ def _render_page_nav(*, has_result: bool, has_errors: bool) -> str:
         )
     links.append(("#page-info", "页面信息"))
     items = "\n".join(f'<li><a href="{href}">{label}</a></li>' for href, label in links)
-    return f'<nav class="page-nav" aria-label="页面导航">\n<ul>\n{items}\n</ul>\n</nav>'
+    return f'<nav aria-label="页面导航">\n<ul>\n{items}\n</ul>\n</nav>'
 
 
 def _render_page_info(generated_at: str) -> str:
@@ -451,7 +409,7 @@ def _render_submitted_input(form: WebReportForm, result: WebReportResult | None)
 
 def _render_errors(errors: list[str]) -> str:
     items = "\n".join(f"<li>{_h(error)}</li>" for error in errors)
-    return f'<section id="errors" class="notice notice-error" role="alert">\n<h2>错误</h2>\n<ul>\n{items}\n</ul>\n</section>'
+    return f'<h2 id="errors">错误</h2>\n<ul>\n{items}\n</ul>'
 
 
 def _render_report(result: WebReportResult) -> str:
@@ -459,8 +417,7 @@ def _render_report(result: WebReportResult) -> str:
     return "\n".join(
         [
             _render_workbench(result),
-            '<section id="markdown-output">',
-            "<h2>Markdown 输出</h2>",
+            '<h2 id="markdown-output">Markdown 输出</h2>',
             f"<p>当前输出体系：{_h(result.report_system_label)}</p>",
             '<p><button type="button" id="copy-report">复制 Markdown</button></p>',
             '<p id="copy-status">尚未复制</p>',
@@ -469,7 +426,6 @@ def _render_report(result: WebReportResult) -> str:
             "<summary>机器可读输入</summary>",
             "<pre><code>" + _h(raw_json) + "</code></pre>",
             "</details>",
-            "</section>",
         ]
     )
 
@@ -527,8 +483,7 @@ def _render_bazi_workbench(workbench: dict[str, Any]) -> str:
         trigger_rows.append(["-", "-", "当前样本未命中已登记触发项"])
     return "\n".join(
         [
-            '<section id="workbench"><section id="bazi-workbench">',
-            "<h2>八字工作台</h2>",
+            '<h2 id="workbench">八字工作台</h2>',
             "<p>该区域只展示后端结构化字段；复制 Markdown 内容不受工作台影响。</p>",
             "<details open><summary>四柱 / 十神 / 藏干</summary>",
             "<pre><code>"
@@ -573,8 +528,6 @@ def _render_bazi_workbench(workbench: dict[str, Any]) -> str:
             "<details><summary>规则深度 / 冲突策略</summary>",
             "<pre><code>" + _h(json.dumps(rule_depth, ensure_ascii=False, indent=2)) + "</code></pre>",
             "</details>",
-            "</section>",
-            "</section>",
         ]
     )
 
@@ -599,8 +552,7 @@ def _render_ziwei_workbench(workbench: dict[str, Any]) -> str:
     rule_depth = workbench.get("ruleDepth", {}) if isinstance(workbench.get("ruleDepth"), dict) else {}
     return "\n".join(
         [
-            '<section id="workbench"><section id="ziwei-workbench">',
-            "<h2>紫微工作台</h2>",
+            '<h2 id="workbench">紫微工作台</h2>',
             "<p>该区域只展示后端 iztro 结构化字段与解释索引；紫微仍为 standalone 输出。</p>",
             "<details open><summary>十二宫 / 星曜</summary>",
             "<pre><code>"
@@ -616,8 +568,6 @@ def _render_ziwei_workbench(workbench: dict[str, Any]) -> str:
             "<details><summary>规则深度 / 冲突策略</summary>",
             "<pre><code>" + _h(json.dumps(rule_depth, ensure_ascii=False, indent=2)) + "</code></pre>",
             "</details>",
-            "</section>",
-            "</section>",
         ]
     )
 

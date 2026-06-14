@@ -17,6 +17,16 @@ if str(FATE_CORE_SRC) not in sys.path:
 from main import app  # noqa: E402
 
 
+def assert_zero_beauty_html(text: str) -> None:
+    assert "<style" not in text
+    assert "</style>" not in text
+    assert "style=" not in text
+    assert "class=" not in text
+    assert "@media" not in text
+    assert "<main>" not in text
+    assert "<section" not in text
+
+
 def test_web_page_renders_semantic_form():
     response = TestClient(app).get("/web")
 
@@ -24,17 +34,16 @@ def test_web_page_renders_semantic_form():
     assert response.headers["content-type"].startswith("text/html")
     text = response.text
     assert "<h1>FateCat Web Markdown 报告</h1>" in text
-    assert '<section id="project-brand" class="brand-panel" aria-label="项目归属">' in text
+    assert '<h2 id="project-brand">项目归属</h2>' in text
     assert "TradeCat Labs｜FateCat 命理 AI 实验室项目" in text
     assert "FateCat 是 TradeCat Labs 的实验室项目。" in text
     assert "https://dexscreener.com/bsc/0x8a99b8d53eff6bc331af529af74ad267f3167777" in text
     assert "https://x.com/tradecatlabs" in text
     assert "https://github.com/tradecatlabs" in text
     assert "https://huggingface.co/tradecatlabs" in text
-    assert '<nav class="page-nav" aria-label="页面导航">' in text
+    assert '<nav aria-label="页面导航">' in text
     assert '<a href="#project-brand">项目</a>' in text
-    assert "<style>" in text
-    assert "@media (max-width: 720px)" in text
+    assert_zero_beauty_html(text)
     assert '<form method="get" action="/web">' in text
     assert '<details id="page-info">\n<summary>页面说明与元信息</summary>' in text
     assert "<details open>\n<summary>页面说明与元信息</summary>" not in text
@@ -74,8 +83,7 @@ def test_web_page_reports_missing_required_fields():
 
     assert response.status_code == 200
     text = response.text
-    assert "<h2>错误</h2>" in text
-    assert '<section id="errors" class="notice notice-error" role="alert">' in text
+    assert '<h2 id="errors">错误</h2>' in text
     assert "缺少必填字段" in text
     assert "出生时间" in text
     assert "出生地区" in text
@@ -114,10 +122,11 @@ def test_web_page_generates_copyable_markdown_report():
 
     assert response.status_code == 200
     text = response.text
+    assert_zero_beauty_html(text)
     assert '<a href="#workbench">工作台</a>' in text
     assert '<a href="#markdown-output">Markdown</a>' in text
     assert '<button type="button" id="copy-report">复制 Markdown</button>' in text
-    assert '<section id="markdown-output">' in text
+    assert '<h2 id="markdown-output">Markdown 输出</h2>' in text
     assert '<pre><code id="report-markdown">' in text
     assert text.index('<pre><code id="report-markdown">') < text.index("<summary>页面说明与元信息</summary>")
     assert "## TradeCat Labs 实验室" in text
@@ -178,7 +187,8 @@ def test_web_page_rejects_retired_report_systems():
     )
 
     assert response.status_code == 200
-    assert "<h2>错误</h2>" in response.text
+    assert_zero_beauty_html(response.text)
+    assert '<h2 id="errors">错误</h2>' in response.text
     assert "报告体系必须为: bazi、ziwei。未来体系需等独立功能实现后启用。" in response.text
     assert "# 建除十二神报告" not in response.text
 
@@ -194,6 +204,7 @@ def test_web_page_rejects_retired_report_systems():
         },
     )
     assert bone_response.status_code == 200
+    assert_zero_beauty_html(bone_response.text)
     assert "报告体系必须为: bazi、ziwei。未来体系需等独立功能实现后启用。" in bone_response.text
     assert "# 袁天罡称骨报告" not in bone_response.text
 
