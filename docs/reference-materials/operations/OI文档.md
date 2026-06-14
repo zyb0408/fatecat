@@ -7,7 +7,7 @@
 FateCat 八字排盘系统 API / Bot 接口规范，基于当前 skill 化后的标准报告契约与 `fate_core` / Telegram 交付层实现。
 
 ### 🎯 当前状态
-- **标准报告**: 默认输出免责声明、赞助支持、标题、第一卷先天命格、第二卷后天运路与第三卷民俗建议，第三卷包含袁天罡称骨。紫微斗数通过 `report_system` / Web 控件 / API `options.reportSystem` / Bot 确认页按钮独立输出，并已作为 `ziwei` capability 提供 CLI/API 结构化输出，不与综合八字混排；黄历/择日已作为 `almanac` 独立 capability 提供 CLI/API 结构化输出，梅花易数已作为 `meihua` 独立 capability 提供轻量起卦盘面；六爻、奇门、大六壬、风水九星、姓名合婚等仍登记为独立待实现体系。
+- **标准报告**: 默认输出免责声明、TradeCat Labs 实验室、标题、第一卷先天命格、第二卷后天运路与第三卷民俗建议，第三卷包含袁天罡称骨。紫微斗数通过 `report_system` / Web 控件 / API `options.reportSystem` / Bot 确认页按钮独立输出，并已作为 `ziwei` capability 提供 CLI/API 结构化输出，不与综合八字混排；黄历/择日已作为 `almanac` 独立 capability 提供 CLI/API 结构化输出，梅花易数已作为 `meihua` 独立 capability 提供轻量起卦盘面；六爻、奇门、大六壬、风水九星、姓名合婚等仍登记为独立待实现体系。
 - **前端地区展示**: 非北京类真实出生地区只参与经纬度解析和后端计算，Web/Bot/Markdown 展示层统一隐藏。
 - **未来功能**: 退出标准报告的扩展能力统一登记在 `contracts/fate/future_features.json`，后续必须按独立输入契约、输出模板与测试重新进入生产。
 - **结构化输出**: API / pure-analysis 优先依赖字段 profile 和结构化 JSON，不要求 TXT 报告承载全部历史字段。

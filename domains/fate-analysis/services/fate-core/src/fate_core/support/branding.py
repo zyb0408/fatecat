@@ -14,6 +14,10 @@ REQUIRED_BRANDING_KEYS = (
     "tagline",
     "tradecatRepo",
     "fatecatRepo",
+    "dexScreenerUrl",
+    "xUrl",
+    "githubUrl",
+    "huggingFaceUrl",
     "ca",
     "disclaimerTitle",
     "disclaimerText",
@@ -50,6 +54,10 @@ def get_branding_payload() -> dict[str, str]:
         "tagline": branding["tagline"],
         "tradecatRepo": branding["tradecatRepo"],
         "fatecatRepo": branding["fatecatRepo"],
+        "dexScreenerUrl": branding["dexScreenerUrl"],
+        "xUrl": branding["xUrl"],
+        "githubUrl": branding["githubUrl"],
+        "huggingFaceUrl": branding["huggingFaceUrl"],
         "ca": branding["ca"],
     }
 
@@ -85,9 +93,10 @@ def build_brand_footer_text(*, compact: bool = False) -> str:
     if compact:
         return "\n".join(
             [
-                f"赞助支持：{branding['name']}",
+                f"项目归属：{branding['name']}",
                 branding["cliBanner"],
-                f"TradeCat Repo: {branding['tradecatRepo']}",
+                f"TradeCat Labs GitHub: {branding['githubUrl']}",
+                f"TradeCat Labs X: {branding['xUrl']}",
                 f"CA: {branding['ca']}",
             ]
         )
@@ -97,7 +106,10 @@ def build_brand_footer_text(*, compact: bool = False) -> str:
             branding["heroTitle"],
             branding["sponsorText"],
             branding["tagline"],
-            f"TradeCat Repo: {branding['tradecatRepo']}",
+            f"TradeCat Labs GitHub: {branding['githubUrl']}",
+            f"TradeCat Labs X: {branding['xUrl']}",
+            f"TradeCat Labs Hugging Face: {branding['huggingFaceUrl']}",
+            f"DEX Screener: {branding['dexScreenerUrl']}",
             f"FateCat Repo: {branding['fatecatRepo']}",
             f"CA: {branding['ca']}",
         ]
@@ -110,9 +122,10 @@ def build_brand_footer_markdown(*, compact: bool = False) -> str:
     if compact:
         return "\n".join(
             [
-                f"*赞助支持：{branding['name']}*",
+                f"*项目归属：{branding['name']}*",
                 branding["cliBanner"],
-                f"TradeCat Repo: {branding['tradecatRepo']}",
+                f"TradeCat Labs GitHub: {branding['githubUrl']}",
+                f"TradeCat Labs X: {branding['xUrl']}",
                 f"CA: `{branding['ca']}`",
             ]
         )
@@ -122,7 +135,10 @@ def build_brand_footer_markdown(*, compact: bool = False) -> str:
             f"*{branding['heroTitle']}*",
             branding["sponsorText"],
             branding["tagline"],
-            f"TradeCat Repo: {branding['tradecatRepo']}",
+            f"TradeCat Labs GitHub: {branding['githubUrl']}",
+            f"TradeCat Labs X: {branding['xUrl']}",
+            f"TradeCat Labs Hugging Face: {branding['huggingFaceUrl']}",
+            f"DEX Screener: {branding['dexScreenerUrl']}",
             f"FateCat Repo: {branding['fatecatRepo']}",
             f"CA: `{branding['ca']}`",
         ]

@@ -24,7 +24,15 @@ def test_web_page_renders_semantic_form():
     assert response.headers["content-type"].startswith("text/html")
     text = response.text
     assert "<h1>FateCat Web Markdown 报告</h1>" in text
+    assert '<nav class="page-nav" aria-label="页面导航">' in text
+    assert "<style>" in text
+    assert "@media (max-width: 720px)" in text
     assert '<form method="get" action="/web">' in text
+    assert '<details id="page-info">\n<summary>页面说明与元信息</summary>' in text
+    assert "<details open>\n<summary>页面说明与元信息</summary>" not in text
+    assert text.index('<form method="get" action="/web">') < text.index("<summary>页面说明与元信息</summary>")
+    assert "页面元信息" in text
+    assert "相关入口" in text
     assert "出生日期（必填）" in text
     assert "出生时间（必填）" in text
     assert "出生地区（必填）" in text
@@ -59,6 +67,7 @@ def test_web_page_reports_missing_required_fields():
     assert response.status_code == 200
     text = response.text
     assert "<h2>错误</h2>" in text
+    assert '<section id="errors" class="notice notice-error" role="alert">' in text
     assert "缺少必填字段" in text
     assert "出生时间" in text
     assert "出生地区" in text
@@ -97,9 +106,13 @@ def test_web_page_generates_copyable_markdown_report():
 
     assert response.status_code == 200
     text = response.text
+    assert '<a href="#workbench">工作台</a>' in text
+    assert '<a href="#markdown-output">Markdown</a>' in text
     assert '<button type="button" id="copy-report">复制 Markdown</button>' in text
+    assert '<section id="markdown-output">' in text
     assert '<pre><code id="report-markdown">' in text
-    assert "## 赞助支持" in text
+    assert text.index('<pre><code id="report-markdown">') < text.index("<summary>页面说明与元信息</summary>")
+    assert "## TradeCat Labs 实验室" in text
     assert "# 命理排盘报告：测试样本" in text
     assert "当前输出体系：综合八字" in text
     assert "## 八字排盘详情" in text

@@ -14,9 +14,13 @@ from fate_core.support import (
 def test_get_branding_payload_contains_required_fields():
     branding = get_branding_payload()
 
-    assert branding["name"] == "交易猫 TradeCat"
-    assert branding["tradecatRepo"] == "https://github.com/tukuaiai/tradecat"
-    assert branding["fatecatRepo"] == "https://github.com/tukuaiai/fatecat"
+    assert branding["name"] == "TradeCat Labs"
+    assert branding["tradecatRepo"] == "https://github.com/tradecatlabs"
+    assert branding["fatecatRepo"] == "https://github.com/tradecatlabs/fatecat"
+    assert branding["dexScreenerUrl"] == "https://dexscreener.com/bsc/0x8a99b8d53eff6bc331af529af74ad267f3167777"
+    assert branding["xUrl"] == "https://x.com/tradecatlabs"
+    assert branding["githubUrl"] == "https://github.com/tradecatlabs"
+    assert branding["huggingFaceUrl"] == "https://huggingface.co/tradecatlabs"
     assert branding["ca"] == "0x8a99b8d53eff6bc331af529af74ad267f3167777"
 
 
@@ -33,15 +37,16 @@ def test_append_branding_text_appends_sponsor_block():
 
     assert text.startswith("⚠️ 免责声明")
     assert "测试正文" in text
-    assert "交易猫 TradeCat" in text
-    assert "TradeCat Repo: https://github.com/tukuaiai/tradecat" in text
+    assert "TradeCat Labs" in text
+    assert "TradeCat Labs GitHub: https://github.com/tradecatlabs" in text
+    assert "TradeCat Labs X: https://x.com/tradecatlabs" in text
 
 
 def test_build_branding_text_puts_disclaimer_before_branding():
     text = build_branding_text(compact=False)
 
     assert text.startswith("⚠️ 免责声明")
-    assert "交易猫 TradeCat｜专业命理排盘与 AI 命理分析基础设施" in text
+    assert "TradeCat Labs｜FateCat 命理 AI 实验室项目" in text
 
 
 def test_full_report_puts_sponsor_before_report_and_drops_extension_blocks():
@@ -56,7 +61,7 @@ def test_full_report_puts_sponsor_before_report_and_drops_extension_blocks():
     )
 
     assert text.startswith("⚠️ 免责声明")
-    assert text.index("## 赞助支持") < text.index("# 命理排盘报告：测试命主")
+    assert text.index("## TradeCat Labs 实验室") < text.index("# 命理排盘报告：测试命主")
 
     removed_sections = [
         "### 建除十二神",
@@ -106,7 +111,7 @@ def test_full_report_default_heading_contract_matches_standard_blocks():
     assert text.startswith("⚠️ 免责声明")
     assert not text.splitlines()[0].startswith("#")
     assert headings == [
-        "## 赞助支持",
+        "## TradeCat Labs 实验室",
         "# 命理排盘报告：测试样本",
         "## 第一卷：先天命格（静态分析）",
         "## 基本资料（含真太阳时、节气）",

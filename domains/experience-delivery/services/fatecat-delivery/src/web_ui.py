@@ -209,12 +209,12 @@ def _render_document(*, form: WebReportForm, result: WebReportResult | None, err
         '<meta charset="utf-8">',
         '<meta name="viewport" content="width=device-width, initial-scale=1">',
         "<title>FateCat Web Markdown 报告</title>",
+        _render_style(),
         "</head>",
         "<body>",
+        "<main>",
         "<h1>FateCat Web Markdown 报告</h1>",
-        "<p>该页面使用原生 HTML 表单生成标准命理排盘 Markdown 报告。核心结果由服务端直接写入页面。</p>",
-        _render_meta(generated_at),
-        _render_navigation(),
+        _render_page_nav(has_result=result is not None, has_errors=bool(errors)),
         _render_field_contract(),
         _render_form(form),
     ]
@@ -228,12 +228,79 @@ def _render_document(*, form: WebReportForm, result: WebReportResult | None, err
 
     body_parts.extend(
         [
+            _render_page_info(generated_at),
+            "</main>",
             _render_copy_script(),
             "</body>",
             "</html>",
         ]
     )
     return "\n".join(body_parts)
+
+
+def _render_style() -> str:
+    return "\n".join(
+        [
+            "<style>",
+            ":root { color-scheme: light; --ink: #1f2937; --muted: #5f6b7a; --line: #d9e2ec; --panel: #f8fafc; --accent: #0f766e; --danger: #b42318; --danger-bg: #fff4f2; }",
+            "* { box-sizing: border-box; }",
+            "body { margin: 0; background: #ffffff; color: var(--ink); font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.55; }",
+            "main { width: min(100%, 980px); margin: 0 auto; padding: 24px 18px 40px; }",
+            "h1 { margin: 0 0 16px; font-size: clamp(1.75rem, 3vw, 2.4rem); letter-spacing: 0; }",
+            "h2 { margin-top: 28px; font-size: 1.25rem; letter-spacing: 0; }",
+            "a { color: var(--accent); }",
+            ".page-nav ul { display: flex; flex-wrap: wrap; gap: 8px 14px; padding: 0; margin: 0 0 22px; list-style: none; }",
+            ".page-nav a { font-weight: 600; text-decoration: none; }",
+            "fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 0 0 14px; padding: 14px; }",
+            "legend { color: var(--muted); font-weight: 700; padding: 0 6px; }",
+            "label { font-weight: 650; }",
+            "input, select, button { min-height: 40px; max-width: 100%; border: 1px solid #b8c4d1; border-radius: 6px; padding: 8px 10px; font: inherit; }",
+            "input[type='date'], input[type='time'], select { width: min(100%, 360px); }",
+            "input[type='text'] { width: min(100%, 520px); }",
+            "button { background: var(--accent); border-color: var(--accent); color: #ffffff; cursor: pointer; font-weight: 700; }",
+            "pre { overflow: auto; max-width: 100%; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 14px; }",
+            "code { font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace; font-size: 0.92rem; }",
+            "details { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 12px; }",
+            "summary { cursor: pointer; font-weight: 700; }",
+            ".notice { border: 1px solid var(--line); border-radius: 8px; margin: 20px 0; padding: 12px 14px; }",
+            ".notice-error { border-color: #f3b5ad; background: var(--danger-bg); color: var(--danger); }",
+            ".notice-error h2 { margin-top: 0; }",
+            "@media (max-width: 720px) { main { padding: 18px 12px 32px; } .page-nav ul { display: grid; grid-template-columns: 1fr 1fr; } input, select, button { width: 100%; } pre { padding: 10px; } code { font-size: 0.82rem; } }",
+            "</style>",
+        ]
+    )
+
+
+def _render_page_nav(*, has_result: bool, has_errors: bool) -> str:
+    links = [
+        ("#field-contract", "字段契约"),
+        ("#input-form", "输入"),
+    ]
+    if has_errors:
+        links.append(("#errors", "错误"))
+    if has_result:
+        links.extend(
+            [
+                ("#workbench", "工作台"),
+                ("#markdown-output", "Markdown"),
+            ]
+        )
+    links.append(("#page-info", "页面信息"))
+    items = "\n".join(f'<li><a href="{href}">{label}</a></li>' for href, label in links)
+    return f'<nav class="page-nav" aria-label="页面导航">\n<ul>\n{items}\n</ul>\n</nav>'
+
+
+def _render_page_info(generated_at: str) -> str:
+    return "\n".join(
+        [
+            '<details id="page-info">',
+            "<summary>页面说明与元信息</summary>",
+            "<p>该页面使用原生 HTML 表单生成标准命理排盘 Markdown 报告。核心结果由服务端直接写入页面。</p>",
+            _render_meta(generated_at),
+            _render_navigation(),
+            "</details>",
+        ]
+    )
 
 
 def _render_meta(generated_at: str) -> str:
@@ -274,7 +341,7 @@ def _render_field_contract() -> str:
         ["name", "姓名", "否", "文本", "为空时报告标题使用命主"],
     ]
     table = tabulate(rows, headers=["参数", "字段", "必填", "格式", "说明"], tablefmt="psql", missingval="")
-    return f"<h2>字段契约</h2>\n<pre><code>{_h(table)}</code></pre>"
+    return f'<h2 id="field-contract">字段契约</h2>\n<pre><code>{_h(table)}</code></pre>'
 
 
 def _render_form(form: WebReportForm) -> str:
@@ -350,12 +417,12 @@ def _render_submitted_input(form: WebReportForm, result: WebReportResult | None)
             ]
         )
     table = tabulate(rows, headers=["字段", "值", "来源"], tablefmt="psql", missingval="")
-    return f"<h2>当前输入</h2>\n<pre><code>{_h(table)}</code></pre>"
+    return f'<h2 id="submitted-input">当前输入</h2>\n<pre><code>{_h(table)}</code></pre>'
 
 
 def _render_errors(errors: list[str]) -> str:
     items = "\n".join(f"<li>{_h(error)}</li>" for error in errors)
-    return f"<h2>错误</h2>\n<ul>\n{items}\n</ul>"
+    return f'<section id="errors" class="notice notice-error" role="alert">\n<h2>错误</h2>\n<ul>\n{items}\n</ul>\n</section>'
 
 
 def _render_report(result: WebReportResult) -> str:
@@ -363,6 +430,7 @@ def _render_report(result: WebReportResult) -> str:
     return "\n".join(
         [
             _render_workbench(result),
+            '<section id="markdown-output">',
             "<h2>Markdown 输出</h2>",
             f"<p>当前输出体系：{_h(result.report_system_label)}</p>",
             '<p><button type="button" id="copy-report">复制 Markdown</button></p>',
@@ -372,6 +440,7 @@ def _render_report(result: WebReportResult) -> str:
             "<summary>机器可读输入</summary>",
             "<pre><code>" + _h(raw_json) + "</code></pre>",
             "</details>",
+            "</section>",
         ]
     )
 
@@ -429,7 +498,7 @@ def _render_bazi_workbench(workbench: dict[str, Any]) -> str:
         trigger_rows.append(["-", "-", "当前样本未命中已登记触发项"])
     return "\n".join(
         [
-            '<section id="bazi-workbench">',
+            '<section id="workbench"><section id="bazi-workbench">',
             "<h2>八字工作台</h2>",
             "<p>该区域只展示后端结构化字段；复制 Markdown 内容不受工作台影响。</p>",
             "<details open><summary>四柱 / 十神 / 藏干</summary>",
@@ -476,6 +545,7 @@ def _render_bazi_workbench(workbench: dict[str, Any]) -> str:
             "<pre><code>" + _h(json.dumps(rule_depth, ensure_ascii=False, indent=2)) + "</code></pre>",
             "</details>",
             "</section>",
+            "</section>",
         ]
     )
 
@@ -500,7 +570,7 @@ def _render_ziwei_workbench(workbench: dict[str, Any]) -> str:
     rule_depth = workbench.get("ruleDepth", {}) if isinstance(workbench.get("ruleDepth"), dict) else {}
     return "\n".join(
         [
-            '<section id="ziwei-workbench">',
+            '<section id="workbench"><section id="ziwei-workbench">',
             "<h2>紫微工作台</h2>",
             "<p>该区域只展示后端 iztro 结构化字段与解释索引；紫微仍为 standalone 输出。</p>",
             "<details open><summary>十二宫 / 星曜</summary>",
@@ -517,6 +587,7 @@ def _render_ziwei_workbench(workbench: dict[str, Any]) -> str:
             "<details><summary>规则深度 / 冲突策略</summary>",
             "<pre><code>" + _h(json.dumps(rule_depth, ensure_ascii=False, indent=2)) + "</code></pre>",
             "</details>",
+            "</section>",
             "</section>",
         ]
     )

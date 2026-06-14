@@ -1,65 +1,76 @@
 # FateCat 自审记录
 
-审查时间：2026-05-07 CST +0800
+审查时间：2026-06-15 HKT +0800
 
 ## 结论
 
-本地仓库卫生、skill 包装装配、导出包 smoke 与第三方审计交接准备为 `PASS`。直接公网生产复用仍为 `WARN`，原因是真实 Bot、生产 API URL、CORS、真实凭证、远端 CI 与 legacy vendor 许可证复核仍需要外部环境或人工权限。
+当前仓库已迁移到企业级 canonical roots，公开口径已统一为 TradeCat Labs 实验室项目。本地代码质量、结构卫生、生产静态门禁、Web 回归和容器运行 smoke 为 `PASS`。
 
-当前 worktree 已完成根目录治理：真实源码收进 `scripts/project/`，生命周期资产收进 `scripts/project/assets/docs/lifecycle/`，根目录只保留 skill 入口、脚本、参考文档、审计文档和 GitHub 配置。
+直接公网生产发布仍为 `WARN`：缺少真实域名/TLS/反向代理、生产 URL、真实 Telegram Bot token、真实 HSTS/proxy/header 验收和远端 CI 对本轮提交的最终结果。必须在推送后等待 GitHub Actions 通过，并在真实环境执行：
+
+```bash
+bash scripts/production-readiness.sh --api-url <real-url> --require-live-bot
+```
 
 ## 当前证据
 
 | 项目 | 证据 |
 |---|---|
 | 当前分支 | `main` |
-| 本次迁移前远端 HEAD | `b6274e8 chore: harden source asset hygiene` |
-| 当前目录形态 | 根 `project/` 已移除；根 `assets/` 已移除；源码根为 `scripts/project/` |
-| 未跟踪非忽略文件 | `git ls-files --others --exclude-standard` 返回 `0` |
-| 完整本地验收 | `bash scripts/acceptance.sh --with-dev` 在目录迁移后通过 |
-| pytest | acceptance 内 `48 passed` |
-| ruff | acceptance 内 `All checks passed!` |
-| format | acceptance 内 `88 files already formatted` |
-| mypy | acceptance 内 `Success: no issues found in 21 source files` |
-| API smoke | acceptance 内通过 |
-| Bot smoke | acceptance 内 dry-run 通过 |
-| 源仓卫生 | `bash scripts/check-source-hygiene.sh` 返回 `source hygiene ok` |
-| 隐私样例 | `bash scripts/check-privacy-fixtures.sh` 返回 `privacy fixtures ok`；vendor web 占位样例保持隔离 |
-| 导出包卫生 | `bash scripts/check-export-hygiene.sh /tmp/fatecat-acceptance/export/fatecat` 返回 `export hygiene ok` |
-| 空白字符检查 | `git diff --check` 与 `git diff --cached --check` 通过 |
+| 本轮基线 HEAD | `9106be0 fix: track production env template` |
+| 当前目录形态 | 根目录使用 `apps/`、`ai/`、`domains/`、`platform/`、`infra/`、`contracts/`、`catalog/`、`governance/`、`shared/`、`tools/`、`docs/`、`scripts/`、`tests/` canonical roots |
+| 最新远端 CI 基线 | `FateCat Acceptance` success `27504782295`；`FateCat Container` success `27504782301`，均对应 `9106be0` |
+| 全量 pytest | `.venv/bin/python -m pytest -q domains/fate-analysis/services/fate-core/tests domains/experience-delivery/services/fatecat-delivery/tests tests/regression`：`120 passed in 158.44s` |
+| ruff / format / mypy | `ruff check .` 通过；`ruff format --check .` 为 `113 files already formatted`；`mypy -p fate_core` 为 `Success: no issues found in 31 source files` |
+| 结构与卫生门禁 | `check-structure.sh`、`check-source-hygiene.sh`、`check-privacy-fixtures.sh`、`git diff --check` 通过 |
+| 生产静态门禁 | 带生产等价 env 的 `scripts/production-readiness.sh --skip-bootstrap` 通过；真实 API URL 与 live Bot 验收未执行 |
+| 容器 smoke | BuildKit 本地 cache 导出失败；使用 `DOCKER_BUILDKIT=0 docker build -f infra/docker/Dockerfile.delivery -t fatecat-delivery:legacybuilder .` 构建成功，`scripts/container-smoke.sh --skip-build --image fatecat-delivery:legacybuilder --port 8003` 通过 |
 
-## 本轮修复
+## 本轮处理
 
-- `project/` 移入 `scripts/project/`，满足根目录卫生要求。
-- 根 `assets/lifecycle/` 移入 `scripts/project/assets/docs/lifecycle/`。
-- 根脚本、CI、导出、live smoke、源仓卫生、隐私样例和文档路径同步到新目录结构。
-- `scripts/common.sh` 统一以 `scripts/project/` 作为项目根，以 `scripts/project/assets/docs/lifecycle/` 作为生命周期资产根。
-- 第一方 docs、tests、scripts 示例不再使用深圳、张三等非北京真实感样例，统一为北京 / 测试用户口径。
-- `scripts/check-privacy-fixtures.sh` 保持第三方 vendor web 样例隔离，防止其进入第一方文档、测试、脚本或生产 Web 输出。
-- `scripts/clean-runtime.sh` 默认清理根 `.history/`，并继续清理根输出、Python 缓存和工具缓存。
+- `REVIEW.md` 已从 2026-05-07 的旧 `scripts/project/` 口径更新为当前企业仓库与生产化状态。
+- `/web` 页面保留原生 HTML 表单和服务端直出 Markdown，底部“页面说明与元信息”保持默认收起，并补齐轻量 CSS、移动端可读性、错误态层级和结果锚点导航。
+- TradeCat Labs 项目口径已进入 branding、README、报告页脚、Bot 按钮、配置和相关文档。
+- 请求体大小限制不再只依赖 `Content-Length`：应用层会按 request stream 限额缓冲，缺失或绕过 `Content-Length` 的超大 body 返回 413。
+- `/metrics` 增加 `fatecat_request_latency_seconds_bucket/count/sum` histogram 和 `fatecat_request_errors_total` 错误分类计数。
+- 请求链路增加 `X-Request-ID` 响应头和结构化 HTTP 访问日志，日志包含 route、status、elapsedMs、client、errorClass。
+- `production-readiness.sh` 增加多副本限流门禁：`FATE_DEPLOYMENT_REPLICAS>1` 时禁止继续使用 `FATE_RATE_LIMIT_BACKEND=memory`。
+- 生产配置模板补齐 `FATE_DEPLOYMENT_REPLICAS`、`FATE_RATE_LIMIT_BACKEND`、`FATE_EDGE_BODY_LIMIT_ENABLED`，并记录边缘层 body limit 与应用层兜底的职责边界。
 
 ## 剩余风险
 
-### 生产验证缺口
+### 外部生产验收
 
-- 真实 `FATE_BOT_TOKEN` 尚未完成 Telegram Bot live 验证。
-- 真实 webhook、生产服务器、生产 API URL、CORS allowlist、systemd / 容器部署与生产数据库权限仍需外部环境验证。
-- 当前 owner/admin token 模型适合轻量 API 保护；若开放公网多租户，应接入成熟认证层，补齐 token 轮换、撤销、审计日志和限流。
+- 真实公网域名、TLS、反向代理、生产 URL、CORS allowlist、HSTS、可信代理头和真实 Bot token 仍需在外部环境验证。
+- 当前 production-readiness 静态门禁只能证明配置口径，不证明公网链路、证书、代理转发、Bot API 和云侧限流真实可用。
+- 推送本轮提交后，远端 `FateCat Acceptance` 与 `FateCat Container` 结果才是最终 CI 证据。
 
-### 供应链与 vendor
+### 多副本公共服务
 
-- `scripts/project/assets/vendor/` 保存完整外部源码快照，体积偏大是为了完整复用和审计。
-- 部分 legacy vendor 资产仍需人工许可证复核；`vendor-health.sh` 能校验元数据和哈希，不能替代法律审计。
-- 第三方 vendor web 样例可能包含原始 demo 占位数据。当前已被策略和测试隔离，公开再分发前仍建议审计人员复查。
+- 应用内 memory 限流只适合单副本兜底；多副本公共服务必须迁到网关、Redis、WAF 或云平台统一限流。
+- 请求体上限已做应用层流式兜底；公网仍应在 Nginx、Traefik、Cloudflare 或等价边缘层配置 body limit。
 
-### 交付状态
+### 可观测性
 
-- 本次迁移涉及数千个文件，审查时应按目录迁移看待，而不是普通功能 diff。
-- 远端 CI 只有在本次迁移 commit 推送后才是最终权威结果。
+- 当前已具备 `/metrics`、`/ready`、延迟 histogram、错误分类和 request id 日志。
+- 尚未接入外部 Prometheus/Grafana 告警、集中日志、分布式 tracing 或业务级 p95/p99 看板；公共服务上线前应补齐运行平台侧仪表盘和告警规则。
+
+### 代码维护
+
+当前核心文件仍偏大，应按后续业务改动逐步收边界，不建议在本轮为了行数做大拆：
+
+| 文件 | 行数 | 后续边界 |
+|---|---:|---|
+| `domains/experience-delivery/services/fatecat-delivery/src/bazi_calculator.py` | 2775 | 计算内核、规则索引、评分/触发拆分 |
+| `domains/experience-delivery/services/fatecat-delivery/src/report_generator.py` | 1967 | 报告模板、章节渲染、品牌页脚拆分 |
+| `domains/experience-delivery/services/fatecat-delivery/src/bot.py` | 1145 | Bot 交互、命令解析、交付编排拆分 |
+| `domains/experience-delivery/services/fatecat-delivery/src/main.py` | 905 | API 路由、公共服务护栏、观测指标拆分 |
+| `domains/experience-delivery/services/fatecat-delivery/src/web_ui.py` | 669 | 表单、工作台、Markdown 输出、页面元信息拆分 |
 
 ## 当前门禁
 
-- 本地仓库卫生：PASS
-- skill 包装装配：PASS
-- 第三方审计准备：PASS，风险已记录
-- 直接公网生产发布：WARN，需完成 live Bot、生产网络、真实凭证、远端 CI 与 legacy vendor 许可证审计
+- 本地功能回归：PASS
+- 本地结构 / 源码 / 隐私卫生：PASS
+- 生产静态配置：PASS，外部 live API 和 live Bot 为未执行
+- 容器运行 smoke：PASS，BuildKit 本机 cache 需要清理或重建 builder 后再恢复默认构建路径
+- 直接公网生产发布：WARN，等待真实环境验收与本轮远端 CI

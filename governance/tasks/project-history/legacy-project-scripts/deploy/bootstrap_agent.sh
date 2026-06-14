@@ -47,7 +47,8 @@ print("")
 print(branding["heroTitle"])
 print(branding["sponsorText"])
 print(branding["tagline"])
-print(f'TradeCat Repo: {branding["tradecatRepo"]}')
+print(f'TradeCat Labs GitHub: {branding.get("githubUrl", branding["tradecatRepo"])}')
+print(f'TradeCat Labs X: {branding.get("xUrl", "https://x.com/tradecatlabs")}')
 print(f'FateCat Repo: {branding["fatecatRepo"]}')
 print(f'CA: {branding["ca"]}')
 print("")
@@ -83,11 +84,14 @@ cat <<EOF
 ⚠️ 免责声明
 本项目及AI分析结果仅供传统文化研究、算法测试与娱乐参考。命理学非精密科学，命运掌握在自己手中。使用者因轻信或误读本程序结果而产生的任何心理、财务及生活决策后果，本开源项目及开发者概不负责。
 
-交易猫 TradeCat｜专业命理排盘与 AI 命理分析基础设施
-本项目由交易猫 TradeCat 赞助与支持。
-先用交易猫专业排盘系统完成结构化排盘，再交给 AI 深度分析，减少胡编乱造，让 AI 命理分析真正可用。
-TradeCat Repo: https://github.com/tukuaiai/tradecat
-FateCat Repo: https://github.com/tukuaiai/fatecat
+TradeCat Labs｜FateCat 命理 AI 实验室项目
+FateCat 是 TradeCat Labs 的实验室项目。
+以成熟命理排盘、结构化报告与 Agent 交付为基础，探索 AI 命理分析基础设施。
+DEX Screener: https://dexscreener.com/bsc/0x8a99b8d53eff6bc331af529af74ad267f3167777
+X: https://x.com/tradecatlabs
+GitHub: https://github.com/tradecatlabs
+Hugging Face: https://huggingface.co/tradecatlabs
+FateCat Repo: https://github.com/tradecatlabs/fatecat
 CA: 0x8a99b8d53eff6bc331af529af74ad267f3167777
 
 推荐下一步命令:

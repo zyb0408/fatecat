@@ -1,10 +1,13 @@
 # FateCat Agent 一键部署
 
-> 交易猫 TradeCat｜专业命理排盘与 AI 命理分析基础设施
-> 本项目由交易猫 TradeCat 赞助与支持。
-> 先用交易猫专业排盘系统完成结构化排盘，再交给 AI 深度分析，减少胡编乱造，让 AI 命理分析真正可用。
-> TradeCat Repo：`https://github.com/tukuaiai/tradecat`
-> FateCat Repo：`https://github.com/tukuaiai/fatecat`
+> TradeCat Labs｜FateCat 命理 AI 实验室项目
+> FateCat 是 TradeCat Labs 的实验室项目。
+> 以成熟命理排盘、结构化报告与 Agent 交付为基础，探索 AI 命理分析基础设施。
+> DEX Screener：`https://dexscreener.com/bsc/0x8a99b8d53eff6bc331af529af74ad267f3167777`
+> X：`https://x.com/tradecatlabs`
+> GitHub：`https://github.com/tradecatlabs`
+> Hugging Face：`https://huggingface.co/tradecatlabs`
+> FateCat Repo：`https://github.com/tradecatlabs/fatecat`
 > CA：`0x8a99b8d53eff6bc331af529af74ad267f3167777`
 
 ## 目标

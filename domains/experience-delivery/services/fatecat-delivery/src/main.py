@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import os
 import secrets
@@ -81,10 +82,14 @@ logger = logging.getLogger(__name__)
 _metrics_lock = Lock()
 _request_counts: dict[tuple[str, str, int], int] = defaultdict(int)
 _request_latency_seconds: dict[tuple[str, str, int], float] = defaultdict(float)
+_request_latency_buckets: dict[tuple[str, str, int, str], int] = defaultdict(int)
+_request_error_counts: dict[tuple[str, str, int, str], int] = defaultdict(int)
 _inflight_requests = 0
 _rate_limit_lock = Lock()
 _rate_limit_windows: dict[str, deque[float]] = defaultdict(deque)
 _RATE_LIMIT_EXEMPT_PATHS = {"/health", "/live", "/ready", "/metrics"}
+_REQUEST_LATENCY_BUCKETS = (0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0)
+_BODY_LIMIT_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
 
 
 def _records_enabled() -> bool:
@@ -103,6 +108,10 @@ class ApiPrincipal:
     @property
     def is_admin(self) -> bool:
         return self.role == "admin"
+
+
+class RequestBodyTooLarge(Exception):
+    """请求体超过公网服务允许的最大字节数。"""
 
 
 def _cors_allow_origins() -> list[str]:
@@ -214,15 +223,81 @@ def _check_rate_limit(request: Request) -> tuple[bool, int]:
     return True, 0
 
 
-def _record_request_metric(method: str, route: str, status_code: int, elapsed_seconds: float) -> None:
+def _record_request_metric(
+    method: str,
+    route: str,
+    status_code: int,
+    elapsed_seconds: float,
+    *,
+    error_class: str | None = None,
+) -> None:
     key = (method, route, status_code)
     with _metrics_lock:
         _request_counts[key] += 1
         _request_latency_seconds[key] += elapsed_seconds
+        for bucket in _REQUEST_LATENCY_BUCKETS:
+            if elapsed_seconds <= bucket:
+                _request_latency_buckets[(method, route, status_code, _format_bucket(bucket))] += 1
+        _request_latency_buckets[(method, route, status_code, "+Inf")] += 1
+        if error_class:
+            _request_error_counts[(method, route, status_code, error_class)] += 1
+
+
+def _classify_error(status_code: int) -> str | None:
+    if status_code < 400:
+        return None
+    if status_code == 400:
+        return "bad_request"
+    if status_code in {401, 403}:
+        return "auth"
+    if status_code == 404:
+        return "not_found"
+    if status_code == 413:
+        return "body_too_large"
+    if status_code == 422:
+        return "validation"
+    if status_code == 429:
+        return "rate_limited"
+    if status_code == 504:
+        return "timeout"
+    if status_code >= 500:
+        return "server_error"
+    return "client_error"
+
+
+def _format_bucket(bucket: float) -> str:
+    return f"{bucket:g}"
 
 
 def _escape_metric_label(value: str) -> str:
     return value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+
+
+async def _buffer_limited_body(request: Request) -> None:
+    if request.method not in _BODY_LIMIT_METHODS:
+        return
+
+    received = 0
+    chunks: list[bytes] = []
+    async for chunk in request.stream():
+        received += len(chunk)
+        if received > MAX_REQUEST_BYTES:
+            raise RequestBodyTooLarge
+        if chunk:
+            chunks.append(chunk)
+
+    body = b"".join(chunks)
+    request._body = body
+    consumed = False
+
+    async def replay_body():
+        nonlocal consumed
+        if consumed:
+            return {"type": "http.request", "body": b"", "more_body": False}
+        consumed = True
+        return {"type": "http.request", "body": body, "more_body": False}
+
+    request._receive = replay_body
 
 
 def _apply_public_response_headers(response: Response, request_id: str) -> Response:
@@ -246,9 +321,42 @@ def _finalize_early_response(
     request_id: str,
     status_code: int,
     started: float,
+    error_class: str,
 ) -> Response:
-    _record_request_metric(request.method, _route_label(request), status_code, time.perf_counter() - started)
+    elapsed = time.perf_counter() - started
+    route = _route_label(request)
+    _record_request_metric(request.method, route, status_code, elapsed, error_class=error_class)
+    _log_request(request, request_id, route, status_code, elapsed, error_class=error_class)
     return _apply_public_response_headers(response, request_id)
+
+
+def _log_request(
+    request: Request,
+    request_id: str,
+    route: str,
+    status_code: int,
+    elapsed_seconds: float,
+    *,
+    error_class: str | None,
+) -> None:
+    payload = {
+        "event": "http_request",
+        "requestId": request_id,
+        "method": request.method,
+        "route": route,
+        "status": status_code,
+        "elapsedMs": round(elapsed_seconds * 1000, 3),
+        "client": _client_key(request),
+    }
+    if error_class:
+        payload["errorClass"] = error_class
+    message = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    if status_code >= 500:
+        logger.error(message)
+    elif status_code >= 400:
+        logger.warning(message)
+    else:
+        logger.info(message)
 
 
 @app.middleware("http")
@@ -260,31 +368,42 @@ async def production_guardrails(request: Request, call_next):
         try:
             if int(content_length) > MAX_REQUEST_BYTES:
                 response = _json_error(413, "请求体过大")
-                return _finalize_early_response(request, response, request_id, 413, started)
+                return _finalize_early_response(request, response, request_id, 413, started, "body_too_large")
         except ValueError:
             response = _json_error(400, "Content-Length 无效")
-            return _finalize_early_response(request, response, request_id, 400, started)
+            return _finalize_early_response(request, response, request_id, 400, started, "bad_request")
 
     allowed, retry_after = _check_rate_limit(request)
     if not allowed:
         response = _json_error(429, "请求过于频繁")
         response.headers["Retry-After"] = str(retry_after)
-        return _finalize_early_response(request, response, request_id, 429, started)
+        return _finalize_early_response(request, response, request_id, 429, started, "rate_limited")
+
+    try:
+        await _buffer_limited_body(request)
+    except RequestBodyTooLarge:
+        response = _json_error(413, "请求体过大")
+        return _finalize_early_response(request, response, request_id, 413, started, "body_too_large")
 
     global _inflight_requests
     with _metrics_lock:
         _inflight_requests += 1
 
     status_code = 500
+    error_class: str | None = None
     try:
         response = await asyncio.wait_for(call_next(request), timeout=REQUEST_TIMEOUT_SECONDS)
         status_code = response.status_code
+        error_class = _classify_error(status_code)
     except TimeoutError:
         response = _json_error(504, "请求处理超时")
         status_code = 504
+        error_class = "timeout"
     finally:
         elapsed = time.perf_counter() - started
-        _record_request_metric(request.method, _route_label(request), status_code, elapsed)
+        route = _route_label(request)
+        _record_request_metric(request.method, route, status_code, elapsed, error_class=error_class)
+        _log_request(request, request_id, route, status_code, elapsed, error_class=error_class)
         with _metrics_lock:
             _inflight_requests -= 1
 
@@ -378,6 +497,8 @@ def metrics():
     with _metrics_lock:
         counts = dict(_request_counts)
         latencies = dict(_request_latency_seconds)
+        latency_buckets = dict(_request_latency_buckets)
+        error_counts = dict(_request_error_counts)
         inflight = _inflight_requests
 
     for (method, route, status_code), count in sorted(counts.items()):
@@ -386,13 +507,35 @@ def metrics():
 
     lines.extend(
         [
-            "# HELP fatecat_request_latency_seconds_sum Total HTTP request latency seconds.",
-            "# TYPE fatecat_request_latency_seconds_sum counter",
+            "# HELP fatecat_request_latency_seconds HTTP request latency histogram.",
+            "# TYPE fatecat_request_latency_seconds histogram",
         ]
     )
+    for (method, route, status_code, bucket), count in sorted(latency_buckets.items()):
+        labels = (
+            f'method="{_escape_metric_label(method)}",route="{_escape_metric_label(route)}",'
+            f'status="{status_code}",le="{bucket}"'
+        )
+        lines.append(f"fatecat_request_latency_seconds_bucket{{{labels}}} {count}")
+    for (method, route, status_code), count in sorted(counts.items()):
+        labels = f'method="{_escape_metric_label(method)}",route="{_escape_metric_label(route)}",status="{status_code}"'
+        lines.append(f"fatecat_request_latency_seconds_count{{{labels}}} {count}")
     for (method, route, status_code), total in sorted(latencies.items()):
         labels = f'method="{_escape_metric_label(method)}",route="{_escape_metric_label(route)}",status="{status_code}"'
         lines.append(f"fatecat_request_latency_seconds_sum{{{labels}}} {total:.6f}")
+
+    lines.extend(
+        [
+            "# HELP fatecat_request_errors_total Total HTTP error responses by class.",
+            "# TYPE fatecat_request_errors_total counter",
+        ]
+    )
+    for (method, route, status_code, error_class), count in sorted(error_counts.items()):
+        labels = (
+            f'method="{_escape_metric_label(method)}",route="{_escape_metric_label(route)}",'
+            f'status="{status_code}",error_class="{_escape_metric_label(error_class)}"'
+        )
+        lines.append(f"fatecat_request_errors_total{{{labels}}} {count}")
 
     lines.extend(
         [

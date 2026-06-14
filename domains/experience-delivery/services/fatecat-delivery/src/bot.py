@@ -119,8 +119,8 @@ def _with_branding_text(text: str, *, compact: bool = False) -> str:
     return append_branding_text(text, compact=compact)
 
 
-def _brand_button_row(label: str = "🐱 交易猫 TradeCat") -> list[InlineKeyboardButton]:
-    return [InlineKeyboardButton(label, url=BRANDING["tradecatRepo"])]
+def _brand_button_row(label: str = "TradeCat Labs") -> list[InlineKeyboardButton]:
+    return [InlineKeyboardButton(label, url=BRANDING["githubUrl"])]
 
 
 def main_kb(gender="male"):

@@ -157,6 +157,23 @@ rate_limit = assert_int_setting("FATE_RATE_LIMIT_PER_MINUTE", 120, 0, 10_000)
 if rate_limit == 0:
     fail("FATE_RATE_LIMIT_PER_MINUTE=0 会关闭公网限流")
 
+replicas = assert_int_setting("FATE_DEPLOYMENT_REPLICAS", 1, 1, 100)
+rate_limit_backend = (value("FATE_RATE_LIMIT_BACKEND") or "memory").lower()
+allowed_rate_limit_backends = {"memory", "gateway", "redis", "waf", "external"}
+if rate_limit_backend not in allowed_rate_limit_backends:
+    fail("FATE_RATE_LIMIT_BACKEND 必须是 memory/gateway/redis/waf/external")
+if replicas > 1 and rate_limit_backend == "memory":
+    fail("多副本公网部署不能使用单进程 memory 限流；请改用 gateway/redis/waf/external")
+if rate_limit_backend == "memory":
+    ok("当前使用单实例内存限流；仅适合单副本或前置网关已限流场景")
+else:
+    ok(f"已声明外部限流后端：{rate_limit_backend}")
+
+if value("FATE_EDGE_BODY_LIMIT_ENABLED").lower() in {"1", "true", "yes"}:
+    ok("已声明反向代理/CDN 层请求体上限；应用层仍保留流式兜底限制")
+else:
+    print("[production-readiness] WARN: 未声明 FATE_EDGE_BODY_LIMIT_ENABLED；公网最好在 Nginx/Traefik/Cloudflare 层限制请求体")
+
 if value("FATE_TRUST_PROXY_HEADERS").lower() in {"1", "true", "yes"}:
     ok("已启用可信反向代理头解析；必须确保只有可信代理能访问服务直连端口")
 else:

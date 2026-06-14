@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+import json
 import sys
 from pathlib import Path
 
@@ -72,6 +74,9 @@ def test_ready_and_metrics_endpoints_are_available():
     assert metrics_response.status_code == 200
     assert metrics_response.headers["content-type"].startswith("text/plain")
     assert "fatecat_requests_total" in metrics_response.text
+    assert "fatecat_request_latency_seconds_bucket" in metrics_response.text
+    assert "fatecat_request_latency_seconds_count" in metrics_response.text
+    assert "fatecat_request_errors_total" in metrics_response.text
     assert "fatecat_inflight_requests" in metrics_response.text
 
 
@@ -85,6 +90,93 @@ def test_request_body_limit_rejects_oversized_payload(monkeypatch):
     assert response.headers["x-content-type-options"] == "nosniff"
     assert response.headers["x-frame-options"] == "DENY"
     assert response.headers["x-request-id"]
+
+
+def test_request_body_limit_rejects_stream_without_content_length(monkeypatch):
+    monkeypatch.setattr(main, "MAX_REQUEST_BYTES", 32)
+    sent_messages = []
+    body_messages = [
+        {
+            "type": "http.request",
+            "body": b'{"name":"oversized-stream-body","gender":"male"}',
+            "more_body": False,
+        }
+    ]
+
+    async def receive():
+        if body_messages:
+            return body_messages.pop(0)
+        return {"type": "http.disconnect"}
+
+    async def send(message):
+        sent_messages.append(message)
+
+    scope = {
+        "type": "http",
+        "asgi": {"version": "3.0", "spec_version": "2.3"},
+        "http_version": "1.1",
+        "method": "POST",
+        "scheme": "http",
+        "path": "/api/v1/bazi/pure-analysis",
+        "raw_path": b"/api/v1/bazi/pure-analysis",
+        "query_string": b"",
+        "root_path": "",
+        "headers": [(b"host", b"testserver"), (b"content-type", b"application/json")],
+        "client": ("testclient", 50000),
+        "server": ("testserver", 80),
+    }
+
+    asyncio.run(app(scope, receive, send))
+
+    response_start = next(message for message in sent_messages if message["type"] == "http.response.start")
+    headers = {name.lower(): value for name, value in response_start["headers"]}
+    assert response_start["status"] == 413
+    assert headers[b"x-content-type-options"] == b"nosniff"
+    assert b"x-request-id" in headers
+
+
+def test_request_body_limit_accepts_stream_without_content_length(monkeypatch):
+    monkeypatch.setattr(main, "MAX_REQUEST_BYTES", 4096)
+    sent_messages = []
+    body_messages = [
+        {
+            "type": "http.request",
+            "body": json.dumps(_payload()).encode(),
+            "more_body": False,
+        }
+    ]
+
+    async def receive():
+        if body_messages:
+            return body_messages.pop(0)
+        return {"type": "http.disconnect"}
+
+    async def send(message):
+        sent_messages.append(message)
+
+    scope = {
+        "type": "http",
+        "asgi": {"version": "3.0", "spec_version": "2.3"},
+        "http_version": "1.1",
+        "method": "POST",
+        "scheme": "http",
+        "path": "/api/v1/bazi/pure-analysis",
+        "raw_path": b"/api/v1/bazi/pure-analysis",
+        "query_string": b"",
+        "root_path": "",
+        "headers": [(b"host", b"testserver"), (b"content-type", b"application/json")],
+        "client": ("testclient", 50000),
+        "server": ("testserver", 80),
+    }
+
+    asyncio.run(app(scope, receive, send))
+
+    response_start = next(message for message in sent_messages if message["type"] == "http.response.start")
+    response_body = b"".join(
+        message.get("body", b"") for message in sent_messages if message["type"] == "http.response.body"
+    )
+    assert response_start["status"] == 200
+    assert json.loads(response_body)["success"] is True
 
 
 def test_rate_limit_rejects_excess_requests(monkeypatch):

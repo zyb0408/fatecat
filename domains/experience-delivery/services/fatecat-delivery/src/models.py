@@ -178,6 +178,10 @@ class BrandingInfo(BaseModel):
     tagline: str
     tradecatRepo: str
     fatecatRepo: str
+    dexScreenerUrl: str
+    xUrl: str
+    githubUrl: str
+    huggingFaceUrl: str
     ca: str
 
 
