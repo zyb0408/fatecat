@@ -217,3 +217,53 @@ git check-ignore -v infra/environments/production/.env.production.example || tru
 git ls-files infra/environments/production/.env.production.example
 bash scripts/check-structure.sh
 ```
+
+## 2026-06-15 Web follow-up: TradeCat Labs branding missing from empty `/web`
+
+### Bug
+
+用户要求强调 FateCat 是 TradeCat Labs 实验室项目，并提供 DEX Screener、X、GitHub、Hugging Face 链接；这些链接已经进入配置和报告页脚，但打开 `/web` 空表单页时看不到。
+
+### Observations
+
+- `infra/environments/local/branding.json` 已包含 `dexScreenerUrl`、`xUrl`、`githubUrl`、`huggingFaceUrl`。
+- `fate_core.support.branding` 已把这些字段暴露给 API payload、报告页脚和 Bot 按钮。
+- `tests/regression/test_branding_support.py` 覆盖了 branding payload 和报告 Markdown。
+- `web_ui.py` 只渲染字段契约、表单、结果、底部页面元信息，没有消费 `get_branding_payload()`。
+- 本地 `127.0.0.1:8001` 仍在跑旧进程，返回的 HTML 还没有上一轮 CSS/nav，说明即使代码更新，运行进程也需要重启才会显示。
+
+### Hypotheses
+
+1. 根因是 `/web` 空表单页没有接入 branding payload。
+   - Supports: 代码没有 import 或调用 `get_branding_payload()`。
+   - Test: 给空表单页增加 branding panel，并断言四个链接出现在 `/web`。
+2. 根因是配置没有加载。
+   - Conflicts: API/report/Bot 测试已能读到相同 branding 字段。
+3. 根因只是浏览器缓存或旧进程。
+   - Supports: 当前 8001 进程返回旧 HTML。
+   - Conflicts: 即使新代码启动，空表单页原本也不会显示四个链接。
+
+### Root Cause
+
+TradeCat Labs 口径已进入统一 branding 数据源和报告输出，但 `/web` 空表单页没有消费该数据源；同时本地服务进程未重启导致页面继续显示旧 HTML。
+
+### Fix
+
+- `web_ui.py` 在标题下方渲染 `project-brand` 区块，直接使用 `get_branding_payload()` 显示 TradeCat Labs 说明和 DEX/X/GitHub/Hugging Face 链接。
+- 页面导航增加“项目”锚点。
+- `test_web_html.py` 增加空表单页品牌区块和四个外链断言。
+
+### Regression Evidence
+
+Completed:
+
+```bash
+.venv/bin/python -m pytest -q tests/regression/test_web_html.py tests/regression/test_branding_support.py
+curl -fsS http://127.0.0.1:8001/web | rg 'TradeCat Labs|dexscreener|x.com/tradecatlabs|github.com/tradecatlabs|huggingface.co/tradecatlabs'
+```
+
+Result:
+
+- `17 passed in 4.74s`
+- `/web` 空表单页返回 `project-brand` 区块，包含 TradeCat Labs 标题、实验室项目说明、DEX Screener、X、GitHub、Hugging Face 链接。
+- 本地 8001 服务已重启，当前后台进程为 `start.py api` + `src/main.py`，`/health` 和 `/web` 返回 200。

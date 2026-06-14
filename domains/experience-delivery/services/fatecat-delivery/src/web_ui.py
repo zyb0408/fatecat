@@ -16,6 +16,7 @@ from typing import Any
 from fastapi.responses import HTMLResponse
 from tabulate import tabulate
 
+from branding import get_branding_payload
 from fate_core.capabilities import CapabilityExecutor, CapabilityInput
 from location import get as get_location
 from prediction_systems import PREDICTION_SYSTEMS, report_system_allowed_text
@@ -214,6 +215,7 @@ def _render_document(*, form: WebReportForm, result: WebReportResult | None, err
         "<body>",
         "<main>",
         "<h1>FateCat Web Markdown 报告</h1>",
+        _render_branding_panel(),
         _render_page_nav(has_result=result is not None, has_errors=bool(errors)),
         _render_field_contract(),
         _render_form(form),
@@ -249,6 +251,11 @@ def _render_style() -> str:
             "h1 { margin: 0 0 16px; font-size: clamp(1.75rem, 3vw, 2.4rem); letter-spacing: 0; }",
             "h2 { margin-top: 28px; font-size: 1.25rem; letter-spacing: 0; }",
             "a { color: var(--accent); }",
+            ".brand-panel { border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; margin: 0 0 18px; padding: 14px 16px; background: #fbfefd; }",
+            ".brand-panel h2 { margin: 0 0 6px; font-size: 1.08rem; }",
+            ".brand-panel p { margin: 6px 0; color: var(--muted); }",
+            ".brand-links { display: flex; flex-wrap: wrap; gap: 8px 14px; padding: 0; margin: 10px 0 0; list-style: none; }",
+            ".brand-links a { font-weight: 700; text-decoration: none; }",
             ".page-nav ul { display: flex; flex-wrap: wrap; gap: 8px 14px; padding: 0; margin: 0 0 22px; list-style: none; }",
             ".page-nav a { font-weight: 600; text-decoration: none; }",
             "fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 0 0 14px; padding: 14px; }",
@@ -265,14 +272,36 @@ def _render_style() -> str:
             ".notice { border: 1px solid var(--line); border-radius: 8px; margin: 20px 0; padding: 12px 14px; }",
             ".notice-error { border-color: #f3b5ad; background: var(--danger-bg); color: var(--danger); }",
             ".notice-error h2 { margin-top: 0; }",
-            "@media (max-width: 720px) { main { padding: 18px 12px 32px; } .page-nav ul { display: grid; grid-template-columns: 1fr 1fr; } input, select, button { width: 100%; } pre { padding: 10px; } code { font-size: 0.82rem; } }",
+            "@media (max-width: 720px) { main { padding: 18px 12px 32px; } .brand-links, .page-nav ul { display: grid; grid-template-columns: 1fr 1fr; } input, select, button { width: 100%; } pre { padding: 10px; } code { font-size: 0.82rem; } }",
             "</style>",
+        ]
+    )
+
+
+def _render_branding_panel() -> str:
+    branding = get_branding_payload()
+    links = [
+        ("DEX Screener", branding["dexScreenerUrl"]),
+        ("X", branding["xUrl"]),
+        ("GitHub", branding["githubUrl"]),
+        ("Hugging Face", branding["huggingFaceUrl"]),
+    ]
+    link_items = "\n".join(f'<li><a href="{_attr(url)}">{_h(label)}</a></li>' for label, url in links)
+    return "\n".join(
+        [
+            '<section id="project-brand" class="brand-panel" aria-label="项目归属">',
+            f"<h2>{_h(branding['heroTitle'])}</h2>",
+            f"<p>{_h(branding['sponsorText'])}</p>",
+            f"<p>{_h(branding['tagline'])}</p>",
+            f'<ul class="brand-links">\n{link_items}\n</ul>',
+            "</section>",
         ]
     )
 
 
 def _render_page_nav(*, has_result: bool, has_errors: bool) -> str:
     links = [
+        ("#project-brand", "项目"),
         ("#field-contract", "字段契约"),
         ("#input-form", "输入"),
     ]

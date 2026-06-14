@@ -24,7 +24,15 @@ def test_web_page_renders_semantic_form():
     assert response.headers["content-type"].startswith("text/html")
     text = response.text
     assert "<h1>FateCat Web Markdown 报告</h1>" in text
+    assert '<section id="project-brand" class="brand-panel" aria-label="项目归属">' in text
+    assert "TradeCat Labs｜FateCat 命理 AI 实验室项目" in text
+    assert "FateCat 是 TradeCat Labs 的实验室项目。" in text
+    assert "https://dexscreener.com/bsc/0x8a99b8d53eff6bc331af529af74ad267f3167777" in text
+    assert "https://x.com/tradecatlabs" in text
+    assert "https://github.com/tradecatlabs" in text
+    assert "https://huggingface.co/tradecatlabs" in text
     assert '<nav class="page-nav" aria-label="页面导航">' in text
+    assert '<a href="#project-brand">项目</a>' in text
     assert "<style>" in text
     assert "@media (max-width: 720px)" in text
     assert '<form method="get" action="/web">' in text
