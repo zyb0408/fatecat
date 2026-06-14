@@ -168,7 +168,18 @@ bash scripts/preflight.sh --mode pure --bootstrap --pretty
 bash scripts/preflight.sh --mode delivery --bootstrap --pretty
 ```
 
-### 3. 执行一次命理排盘并输出文件
+### 3. 本地 CI/CD profile
+
+```bash
+bash scripts/local-ci.sh --profile quick
+bash scripts/local-ci.sh --profile full
+bash scripts/local-ci.sh --profile container
+bash scripts/local-ci.sh --profile public-service
+```
+
+`local-ci.sh` 只调用本仓脚本，不调用 GitHub Actions；`full` 复用本地 `scripts/acceptance.sh --with-dev`，`container` 执行真实 Docker 容器 smoke，`public-service` 执行公网服务静态准入门禁。
+
+### 4. 执行一次命理排盘并输出文件
 
 ```bash
 mkdir -p output
@@ -178,10 +189,10 @@ bash scripts/pure-analysis.sh \
   --pretty
 ```
 
-### 4. 做完整验收
+### 5. 做完整验收
 
 ```bash
-bash scripts/acceptance.sh --with-dev
+bash scripts/local-ci.sh --profile full
 ```
 
 完整验收覆盖 shell 语法、strict skill 校验、纯分析 smoke、vendor health、全量 pytest、ruff、format、`fate_core` mypy、API/Bot dry-run、导出包卫生检查与导出包 smoke。
@@ -334,11 +345,14 @@ POST /api/v1/capabilities/ziwei
 
 ```bash
 bash scripts/bootstrap.sh --with-dev
+bash scripts/local-ci.sh --profile quick
+bash scripts/local-ci.sh --profile full
+bash scripts/local-ci.sh --profile container
+bash scripts/local-ci.sh --profile public-service
 bash scripts/preflight.sh --mode pure --bootstrap --pretty
 bash scripts/preflight.sh --mode pure --bootstrap --smoke --output-file output/preflight-sample.json --pretty
 bash scripts/preflight.sh --mode delivery --bootstrap --pretty
 bash scripts/pure-analysis.sh --input-file input.json --output-file output/result.json --pretty
-bash scripts/acceptance.sh --with-dev
 bash scripts/delivery-smoke.sh --target api
 bash scripts/serve-api.sh
 bash scripts/delivery-smoke.sh --target bot --startup-timeout 8
@@ -383,6 +397,7 @@ fatecat/
 │   ├── clean-runtime.sh
 │   ├── delivery-smoke.sh
 │   ├── export-runtime.sh
+│   ├── local-ci.sh
 │   └── preflight.sh
 ```
 

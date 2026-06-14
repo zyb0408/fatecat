@@ -28,6 +28,17 @@ bash scripts/acceptance.sh --with-dev --with-mingli-bench
 
 默认会执行 strict skill 校验、纯分析 smoke、vendor health、源仓卫生门禁、隐私示例门禁、全量 pytest、ruff、format、`fate_core` mypy、API 与 Bot dry-run delivery smoke、导出包卫生检查，以及导出后的 lite skill 包独立 smoke。追加 `--with-mingli-bench` 时会覆盖 MingLi-Bench 统计、prompt 生成和离线答案评分 smoke。只在明确需要缩短本地循环时使用 `--delivery-target api|bot`、`--skip-delivery` 或 `--skip-export`。
 
+### 本地 CI/CD profile
+
+```bash
+bash scripts/local-ci.sh --profile quick
+bash scripts/local-ci.sh --profile full
+bash scripts/local-ci.sh --profile container
+bash scripts/local-ci.sh --profile public-service
+```
+
+`local-ci.sh` 是本地流水线入口，不调用 GitHub Actions，也不 watch 远端 Acceptance。`quick` 用于日常快速门禁，`full` 复用本地完整验收，`container` 做真实 Docker 容器 smoke，`public-service` 做公网服务静态准入；需要一次跑完时使用 `--profile all`。
+
 ### 初始化生命周期包
 
 ```bash

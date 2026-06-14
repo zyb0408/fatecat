@@ -13,6 +13,7 @@ scripts/
 ├── container-build.sh
 ├── container-release.sh
 ├── container-smoke.sh
+├── local-ci.sh
 ├── preflight.sh
 ├── export-runtime.sh
 ├── run-mingli-bench.sh
@@ -25,6 +26,7 @@ scripts/
 - `container-build.sh`：构建 FateCat delivery 镜像。
 - `container-smoke.sh`：启动临时容器并验证 `/health` 与真实排盘 API。
 - `container-release.sh`：构建、smoke，并在显式 `--push` 时推送 registry。
+- `local-ci.sh`：本地 CI/CD 调度入口；只编排本仓脚本，不调用 GitHub Actions。
 - `common.sh` 负责解析 runtime root；只允许已就绪的企业根作为运行根。
 - `run-mingli-bench.sh` 负责离线 FortuneTellingBench 统计、提示词生成和预测结果评估，不调用外部模型 API。
 - 脚本不得保活退役路径；任何旧路径只能出现在防回潮门禁、历史证据或迁移账本中。

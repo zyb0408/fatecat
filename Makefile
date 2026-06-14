@@ -1,4 +1,4 @@
-.PHONY: venv rebuild-venv install install-dev install-locked install-dev-locked freeze preflight acceptance structure hygiene privacy governance export-lite export-hygiene lint format format-black typecheck test pre-commit build sdist wheel docs-serve clean-runtime clean-cache serve-api serve-bot container-build container-smoke container-release
+.PHONY: venv rebuild-venv install install-dev install-locked install-dev-locked freeze local-ci local-ci-quick local-ci-full local-ci-container local-ci-public-service preflight acceptance structure hygiene privacy governance export-lite export-hygiene lint format format-black typecheck test pre-commit build sdist wheel docs-serve clean-runtime clean-cache serve-api serve-bot container-build container-smoke container-release
 
 PYTHON ?= python3
 EXPORT_PARENT ?= /tmp/fatecat-export
@@ -25,6 +25,20 @@ install-dev-locked:
 
 freeze:
 	$(PYTHON) -m pip freeze > requirements.lock.txt
+
+local-ci: local-ci-quick
+
+local-ci-quick:
+	bash scripts/local-ci.sh --profile quick
+
+local-ci-full:
+	bash scripts/local-ci.sh --profile full
+
+local-ci-container:
+	bash scripts/local-ci.sh --profile container
+
+local-ci-public-service:
+	bash scripts/local-ci.sh --profile public-service
 
 preflight:
 	bash scripts/preflight.sh --mode pure --bootstrap --pretty
