@@ -30,10 +30,10 @@ related_gates:
 后续代理处理 FateCat Web 页面时必须：
 
 - 先读取 `/home/lenovo/.codex/Design.md`。
-- 默认禁止 CSS、视觉 class、视觉布局和卡片包装。
+- 默认禁止 CSS、视觉 class、视觉布局和卡片包装；当前唯一例外是用户明确授权的 `/web` 黄金三块生产空间布局。
 - 只做信息结构、操作结构和可审计数据结构。
 - 用测试或 `rg` 证明没有禁用项。
-- 如需偏离零美化语义界面，必须先得到用户明确许可，并记录原因和回滚路径。
+- 如需偏离零美化语义界面，必须先得到用户明确许可，并记录原因和回滚路径；已授权的黄金三块生产空间只允许复刻 `D:\.projects\pdf` 工作台外壳，不得扩展为圆角、阴影、卡片、动画、图标或营销视觉。
 
 ## 处理状态
 
@@ -44,4 +44,4 @@ resolved
 - [x] lesson: `governance/evidence/lessons/LESSON-0001-Web-HTML-必须遵守零美化语义界面规范.md`
 - [x] gate: `governance/architecture-gates/rules/GATE-0001-Web-HTML-禁止自定义前端样式.md`
 - [x] module context: `governance/context/module-contexts/domains-experience-delivery-services-fatecat-delivery-src-web-ui-py/CONTEXT.md`
-- [x] regression: `tests/regression/test_web_html.py::assert_zero_beauty_html`
+- [x] regression: `tests/regression/test_web_html.py::assert_web_production_layout_html`

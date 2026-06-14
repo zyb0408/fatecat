@@ -23,7 +23,8 @@ fatecat-delivery/
 - 不定义 capability registry、字段 profile 或底层命理算法。
 - 不读取真实 secret 入仓；delivery smoke 可临时生成本地 `.env` 并清理。
 - `src/web_ui.py` 只负责零美化语义 HTML：服务端直出、原生表单、真实链接、psql ASCII 表格、Markdown 原文和机器可读片段。
-- Web HTML 禁止 CSS、视觉 class、颜色、圆角、卡片、响应式布局和装饰性容器；修改前必须读取 `/home/lenovo/.codex/Design.md` 与 `GATE-0001`。
+- `/web` 当前唯一授权布局例外是 `D:\.projects\pdf` 工作台同类的黄金比例三块全屏生产空间：左上 TradeCat Labs 资产声明、右上服务端生成报告、底部参数输入；只允许 `web-production-*` 结构 class、必要 grid CSS、面板边界和控件可读性 CSS。
+- Web HTML 禁止授权例外之外的 CSS、视觉 class、颜色、圆角、卡片、响应式布局和装饰性容器；修改前必须读取 `/home/lenovo/.codex/Design.md` 与 `GATE-0001`。
 
 ## 依赖方向
 

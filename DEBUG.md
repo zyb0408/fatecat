@@ -322,3 +322,63 @@ Result:
 - Empty submit returns `<h2 id="errors">错误</h2>` and `缺少必填字段: 出生日期、出生时间、出生地区、性别`.
 - Full submit returns `Markdown 输出` / `report-markdown` and no missing-field error.
 - `/web` HTML remains zero-beauty: no `<style>`、`style=`、`class=`、`@media` or `required` attributes.
+
+## 2026-06-15 Web bug: golden layout copied as ratio but not workbench
+
+### Bug
+
+用户要求把 `D:\.projects\pdf` 的 Web 生产空间三块黄金分割布局引用到 FateCat `/web`，但第一版只复制了比例和三个语义区块，没有复制目标工作台的全屏结构。用户截图对比后确认当前 FateCat 页面仍像普通文档流，不像目标工作台。
+
+### Observations
+
+- FateCat 第一版仍在三块 grid 之前显示外部 `h1` 和页面导航，导致第一屏先出现普通页面标题和列表。
+- 三块 grid 被放在普通文档流下方，没有成为页面本体。
+- 目标 pdf 工作台第一屏没有外部 `h1`；`<body>` 内直接是全屏三窗口工作台。
+- 目标 pdf 工作台使用 `html/body height: 100%`、`body overflow: hidden`、`form` 高度占满视口、面板边界、深色工作台背景和顶部 61.8034% / 底部 38.1966% 网格。
+- FateCat 第一版禁止了背景、边界和字体等外壳 CSS，结果丢掉了目标工作台可见结构。
+
+### Hypotheses
+
+1. 根因是只复制比例，没有复制“页面即工作台”的外壳契约。
+   - Supports: FateCat 页面截图顶部存在大标题和导航，目标工作台没有。
+   - Test: `<body>` 必须直接进入 `<form class="web-production-grid">`，且 `h1` 不在 body 中。
+2. 根因是治理例外过窄，错误禁止了 pdf 工作台外壳 CSS。
+   - Supports: 第一版测试禁止 `background:`、`color:`、`font-family`，与目标工作台源码冲突。
+   - Test: 测试应允许工作台外壳 CSS，但继续禁止阴影、渐变、动画、卡片等装饰。
+3. 根因是三块区域职责放错。
+   - Conflicts: 第一版已经是左上项目、右上报告、底部参数，职责方向正确。
+   - Test: 只调整外壳与面板结构，不改变报告生成链路。
+
+### Root Cause
+
+我把用户要求的“复用 pdf Web 生产空间”错误降级成“在普通语义页面里放一个黄金比例 grid”。真实目标不是普通页面布局，而是全屏工作台外壳：三块面板就是第一屏主体，外部标题和导航不能占用第四个视觉块。
+
+### Fix
+
+- 移除 `/web` body 外部 `h1` 和外部导航；页面标题只保留在 `<title>`。
+- 让 `<body>` 直接进入 `<form class="web-production-grid">`。
+- 复刻 pdf 工作台外壳：全屏 `html/body`、深色背景、面板边界、黄金比例 grid、`gap: 0`、面板滚动和窄屏自然堆叠。
+- 右上报告面板增加标题行和提交按钮，贴近目标工作台右上主操作结构。
+- 底部参数区改为控件网格，页面导航和页面元信息收到底部区域内。
+- 更新治理例外：允许复刻 pdf 工作台外壳 CSS；继续禁止圆角、阴影、动画、图标、卡片和营销视觉。
+
+### Regression Evidence
+
+Completed:
+
+```bash
+.venv/bin/python -m pytest -q tests/regression/test_web_html.py
+bash scripts/local-ci.sh --profile quick --output /tmp/fatecat-local-ci-golden-web-layout-v2
+curl -fsS http://127.0.0.1:8001/web > /tmp/fatecat-web-workbench-v2.html
+curl -fsS 'http://127.0.0.1:8001/web?submitted=1&birthDate=1990-01-01&birthTime=08:00&birthPlace=%E5%8C%97%E4%BA%AC&gender=male&name=%E6%B5%8B%E8%AF%95' > /tmp/fatecat-web-report-v2.html
+google-chrome --headless --no-sandbox --disable-gpu --window-size=2048,1180 --screenshot=/tmp/fatecat-web-workbench-v2.png http://127.0.0.1:8001/web
+```
+
+Result:
+
+- `tests/regression/test_web_html.py` passed with `9 passed`.
+- `scripts/local-ci.sh --profile quick` passed with `42 passed`.
+- `/web` DOM now starts with `<body>` then `<form class="web-production-grid" method="get" action="/web">`; body no longer renders `<h1>FateCat Web Markdown 报告</h1>`.
+- `/web` contains `web-production-report-header` and the right-top `生成 Markdown 报告` submit button.
+- Full submit still renders `Markdown 输出` / `report-markdown` and keeps `当前输入` in the bottom parameter panel.
+- Headless Chrome screenshot written to `/tmp/fatecat-web-workbench-v2.png`; visible first screen is three workbench panels matching the pdf workbench structure.
