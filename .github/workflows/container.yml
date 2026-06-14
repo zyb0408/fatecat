@@ -1,0 +1,50 @@
+name: FateCat Container
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  pull_request:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  delivery-image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Build delivery image
+        run: bash scripts/container-build.sh --image fatecat-delivery:ci --progress plain
+
+      - name: Smoke delivery image
+        run: bash scripts/container-smoke.sh --image fatecat-delivery:ci --skip-build --startup-timeout 90
+
+      - name: Login to GHCR
+        if: github.event_name == 'push'
+        run: echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Push main image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          image="ghcr.io/${{ github.repository_owner }}/fatecat-delivery"
+          short_sha="$(git rev-parse --short=12 HEAD)"
+          docker tag fatecat-delivery:ci "${image}:main"
+          docker tag fatecat-delivery:ci "${image}:${short_sha}"
+          docker push "${image}:main"
+          docker push "${image}:${short_sha}"
+
+      - name: Push release tag image
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        run: |
+          image="ghcr.io/${{ github.repository_owner }}/fatecat-delivery"
+          version="${GITHUB_REF_NAME}"
+          docker tag fatecat-delivery:ci "${image}:${version}"
+          docker push "${image}:${version}"

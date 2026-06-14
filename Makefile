@@ -1,4 +1,4 @@
-.PHONY: venv rebuild-venv install install-dev install-locked freeze preflight acceptance structure hygiene privacy governance export-lite export-hygiene lint format format-black typecheck test pre-commit build sdist wheel docs-serve clean-runtime clean-cache serve-api serve-bot
+.PHONY: venv rebuild-venv install install-dev install-locked install-dev-locked freeze preflight acceptance structure hygiene privacy governance export-lite export-hygiene lint format format-black typecheck test pre-commit build sdist wheel docs-serve clean-runtime clean-cache serve-api serve-bot container-build container-smoke container-release
 
 PYTHON ?= python3
 EXPORT_PARENT ?= /tmp/fatecat-export
@@ -19,6 +19,9 @@ install-dev:
 
 install-locked:
 	$(PYTHON) -m pip install -c requirements.lock.txt -r requirements.txt
+
+install-dev-locked:
+	$(PYTHON) -m pip install -c requirements-dev.lock.txt -r requirements-dev.txt
 
 freeze:
 	$(PYTHON) -m pip freeze > requirements.lock.txt
@@ -89,3 +92,12 @@ serve-api:
 
 serve-bot:
 	bash scripts/serve-bot.sh
+
+container-build:
+	bash scripts/container-build.sh
+
+container-smoke:
+	bash scripts/container-smoke.sh
+
+container-release:
+	bash scripts/container-release.sh

@@ -11,6 +11,7 @@
 ```text
 fatecat/
 ├── AGENTS.md
+├── compose.yaml
 ├── DEBUG.md
 ├── README.md
 ├── REVIEW.md
@@ -29,6 +30,9 @@ fatecat/
 │           └── tests/
 ├── platform/
 ├── infra/
+│   └── docker/
+│       ├── Dockerfile.delivery
+│       └── entrypoint.delivery.sh
 ├── contracts/
 ├── catalog/
 ├── governance/
@@ -39,7 +43,8 @@ fatecat/
 ├── .github/
 │   ├── AGENTS.md
 │   └── workflows/
-│       └── acceptance.yml
+│       ├── acceptance.yml
+│       └── container.yml
 ├── references/
 │   ├── commands.md
 │   ├── execution-playbook.md
@@ -47,6 +52,9 @@ fatecat/
 └── scripts/
 │   ├── acceptance.sh
 │   ├── check-structure.sh
+│   ├── container-build.sh
+│   ├── container-release.sh
+│   ├── container-smoke.sh
 │   ├── check-export-hygiene.sh
 │   ├── check-source-hygiene.sh
 │   ├── clean-runtime.sh
@@ -61,6 +69,7 @@ fatecat/
 ## 职责边界
 
 - `SKILL.md`：标准 skill 入口说明。
+- `compose.yaml`：本地和单机容器编排入口，只编排 delivery 容器与运行态 volume。
 - `DEBUG.md`：当前调试证据、根因和回归验证记录；只承载已复现问题的诊断闭环。
 - `REVIEW.md`：当前仓库审计结果与 release gate 结论；只记录证据、风险与交接，不承载业务源码。
 - `apps/`：用户体验入口和渠道壳层。
@@ -77,7 +86,7 @@ fatecat/
 - `tests/`：仓库级结构、契约、导出和跨服务测试入口。
 - `.github/`：GitHub Actions 远端验收配置；只调用仓库脚本，不保存业务代码或 secret。
 - `references/`：长文档、阶段门禁、输入输出契约、迁移与排障材料；其中 `execution-playbook.md` 是统一执行顺序真相源。
-- `scripts/`：本地可重复执行入口；其中 `preflight.sh` 是默认预检入口，`acceptance.sh` 是发布门禁入口，`check-structure.sh` 是企业结构门禁。
+- `scripts/`：本地可重复执行入口；其中 `preflight.sh` 是默认预检入口，`acceptance.sh` 是发布门禁入口，`check-structure.sh` 是企业结构门禁，`container-*.sh` 是容器构建、烟雾和发布入口。
 
 ## 依赖方向
 
@@ -85,6 +94,7 @@ fatecat/
 - `domains/experience-delivery -> domains/fate-analysis + contracts + infra`
 - `domains/fate-analysis -> contracts + tools/reference-repos`
 - `catalog -> domains + contracts + governance`
-- `.github/workflows/* -> scripts/acceptance.sh`
+- `.github/workflows/acceptance.yml -> scripts/acceptance.sh`
+- `.github/workflows/container.yml -> scripts/container-build.sh + scripts/container-smoke.sh`
 - `scripts/* -> domains + contracts + infra + governance`
 - 禁止新增旧路径 fallback；退役路径只允许出现在迁移账本、历史证据、负例测试和防回潮规则中。

@@ -9,13 +9,14 @@ service:
   type: api-web-bot
 runtime:
   default_start: false
-  startup_profile: manual-unfinished
+  startup_profile: container-ready
   healthcheck: bash scripts/delivery-smoke.sh --target api
+  container_healthcheck: bash scripts/container-smoke.sh --skip-build
   runbook: references/ops-pack.md
 build:
   package_manager: pip
   pyproject: pyproject.toml
-  artifact_policy: sbom-and-provenance-required-after-containerization
+  artifact_policy: container-primary-sbom-and-provenance-required-before-public-release
 contracts:
   apis:
     - POST /api/v1/bazi/pure-analysis
@@ -35,13 +36,19 @@ security:
   secrets:
     policy: external-secret-injection
   runtime_user: non-root-required-after-containerization
+  public_service_guardrails:
+    - cors-allowlist-required
+    - request-size-limit
+    - request-timeout
+    - ip-rate-limit
+    - records-can-be-disabled
 observability:
-  metrics: migration-todo
-  logs: domains/experience-delivery/services/fatecat-delivery/output/logs
+  metrics: GET /metrics
+  logs: stdout-plain
   traces: migration-todo
 governance:
   risk_level: folk-reference-user-facing
-  production_admission: blocked-until-runtime-evidence
+  production_admission: blocked-until-production-readiness-live-evidence
   evidence_refs:
     - governance/migration/fatecat-enterprise-assessment.md
     - governance/evidence/baseline/baseline-ai-system-regulatory-impact-ledger.md

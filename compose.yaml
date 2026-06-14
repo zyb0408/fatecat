@@ -1,0 +1,41 @@
+name: fatecat
+
+services:
+  delivery:
+    image: ${FATECAT_IMAGE:-fatecat-delivery:local}
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.delivery
+    ports:
+      - "${FATECAT_HOST_PORT:-8001}:8001"
+    environment:
+      FATE_SERVICE_HOST: 0.0.0.0
+      FATE_SERVICE_PORT: "8001"
+      FATE_CORS_ALLOW_ORIGINS: ${FATE_CORS_ALLOW_ORIGINS:-}
+      FATE_API_TOKEN: ${FATE_API_TOKEN:-}
+      FATE_API_ADMIN_TOKEN: ${FATE_API_ADMIN_TOKEN:-}
+      FATE_API_USER_TOKENS: ${FATE_API_USER_TOKENS:-}
+      FATE_RECORDS_ENABLED: ${FATE_RECORDS_ENABLED:-1}
+      FATE_MAX_REQUEST_BYTES: ${FATE_MAX_REQUEST_BYTES:-1048576}
+      FATE_REQUEST_TIMEOUT_SECONDS: ${FATE_REQUEST_TIMEOUT_SECONDS:-30}
+      FATE_RATE_LIMIT_PER_MINUTE: ${FATE_RATE_LIMIT_PER_MINUTE:-120}
+      FATE_TRUST_PROXY_HEADERS: ${FATE_TRUST_PROXY_HEADERS:-}
+      FATE_ENABLE_HSTS: ${FATE_ENABLE_HSTS:-}
+      FATE_BOT_TOKEN: ${FATE_BOT_TOKEN:-}
+      FATE_ADMIN_USER_IDS: ${FATE_ADMIN_USER_IDS:-}
+      FATE_BOT_PROXY_URL: ${FATE_BOT_PROXY_URL:-}
+    volumes:
+      - fatecat-runtime:/app/infra/runtime/local-state
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/ready', timeout=3).read()"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  fatecat-runtime:

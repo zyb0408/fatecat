@@ -10,6 +10,7 @@
 - 标准验收入口：`bash scripts/acceptance.sh --with-dev`
 - 启动入口：`bash scripts/serve-api.sh`、`bash scripts/serve-bot.sh`
 - 交付层烟雾入口：`bash scripts/delivery-smoke.sh --target api`、`bash scripts/delivery-smoke.sh --target bot --startup-timeout 8`
+- 容器入口：`bash scripts/container-build.sh`、`bash scripts/container-smoke.sh`、`bash scripts/container-release.sh`
 - 生产就绪门禁：`bash scripts/production-readiness.sh --api-url <url> --require-live-bot`
 - 生命周期状态入口：`bash scripts/lifecycle-status.sh`
 - 运维包采集：`bash scripts/collect-ops-bundle.sh --output <dir>`
@@ -26,6 +27,7 @@
 ## 可观察性边界
 
 - 当前仓库能提供“进程前”与“进程内”的检查入口。
+- API 交付层提供 `/health`、`/live`、`/ready` 和 `/metrics`，可接入外部探针与指标采集。
 - 当前仓库不会自动替你接 Prometheus、Grafana、Sentry、systemd、supervisor、k8s 或云告警平台。
 - 如果你要真正实现自动救活，需要把这里提供的健康检查与重启命令接到目标环境的守护体系。
 
@@ -42,7 +44,10 @@
 
 - 用 `serve-api.sh` 或 `serve-bot.sh` 作为启动命令
 - 在上线前先跑目标入口的 `delivery-smoke.sh`；发布前总验收默认同时覆盖 API 与 Bot dry-run
-- 真正公网生产前必须跑 `production-readiness.sh`；没有真实 API URL、真实 Telegram token、生产 CORS allowlist 和生产 API token 时，只能算仓库内 dry-run 通过
+- 用 `container-smoke.sh` 验证 Docker 镜像真实可启动，且 `/health` 与排盘 API 均可用
+- 推送 registry 前用 `container-release.sh --image <registry/repo> --tag <tag> --push`，并先完成 `docker login`
+- 纯公共排盘服务优先设置 `FATE_RECORDS_ENABLED=0`；只有明确需要用户记录时才开启记录接口和 token
+- 真正公网生产前必须跑 `production-readiness.sh`；没有真实 API URL、真实 Telegram token、生产 CORS allowlist 和记录接口 token 或无状态模式时，只能算仓库内 dry-run 通过
 - 把健康检查接进外部守护器
 - 把运维包放进发布记录或事故记录
 

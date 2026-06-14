@@ -10,6 +10,9 @@
 scripts/
 ├── AGENTS.md
 ├── acceptance.sh
+├── container-build.sh
+├── container-release.sh
+├── container-smoke.sh
 ├── preflight.sh
 ├── export-runtime.sh
 ├── run-mingli-bench.sh
@@ -18,7 +21,10 @@ scripts/
 
 ## 职责边界
 
-- 根脚本负责 bootstrap、preflight、acceptance、delivery smoke、导出卫生和生产就绪检查。
+- 根脚本负责 bootstrap、preflight、acceptance、delivery smoke、容器 smoke、导出卫生和生产就绪检查。
+- `container-build.sh`：构建 FateCat delivery 镜像。
+- `container-smoke.sh`：启动临时容器并验证 `/health` 与真实排盘 API。
+- `container-release.sh`：构建、smoke，并在显式 `--push` 时推送 registry。
 - `common.sh` 负责解析 runtime root；只允许已就绪的企业根作为运行根。
 - `run-mingli-bench.sh` 负责离线 FortuneTellingBench 统计、提示词生成和预测结果评估，不调用外部模型 API。
 - 脚本不得保活退役路径；任何旧路径只能出现在防回潮门禁、历史证据或迁移账本中。

@@ -1,0 +1,45 @@
+# syntax=docker/dockerfile:1.7
+
+FROM python:3.12-slim-bookworm
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    FATECAT_RUNTIME_ROOT=/app \
+    FATE_SERVICE_HOST=0.0.0.0 \
+    FATE_SERVICE_PORT=8001 \
+    PYTHONPATH=/app/domains/fate-analysis/services/fate-core/src:/app/domains/experience-delivery/services/fatecat-delivery/src
+
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      bash \
+      ca-certificates \
+      curl \
+      nodejs \
+      npm \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system fatecat \
+    && useradd --system --gid fatecat --home-dir /app --shell /usr/sbin/nologin fatecat
+
+COPY requirements.txt requirements.lock.txt ./
+
+RUN python -m pip install -c requirements.lock.txt --upgrade pip setuptools wheel \
+    && python -m pip install -c requirements.lock.txt -r requirements.txt
+
+COPY --chown=fatecat:fatecat . .
+COPY infra/docker/entrypoint.delivery.sh /usr/local/bin/fatecat-delivery
+
+RUN chmod +x /usr/local/bin/fatecat-delivery \
+    && mkdir -p /app/infra/runtime/local-state/database/bazi /app/infra/runtime/local-state/vendor-build \
+    && chown -R fatecat:fatecat /app/infra/runtime/local-state
+
+USER fatecat
+
+EXPOSE 8001
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD python -c "import os, urllib.request; urllib.request.urlopen(f'http://127.0.0.1:{os.getenv(\"FATE_SERVICE_PORT\", \"8001\")}/ready', timeout=3).read()"
+
+CMD ["fatecat-delivery"]

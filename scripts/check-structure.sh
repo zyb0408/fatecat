@@ -65,12 +65,31 @@ required_root_files=(
   CONSTITUTION.md
   LICENSE
   Makefile
+  compose.yaml
   mkdocs.yml
   pyproject.toml
   requirements.txt
   requirements-dev.txt
   requirements.lock.txt
 )
+
+required_container_files=(
+  infra/docker/AGENTS.md
+  infra/docker/Dockerfile.delivery
+  infra/docker/entrypoint.delivery.sh
+  infra/environments/production/AGENTS.md
+  infra/environments/production/.env.production.example
+  scripts/container-build.sh
+  scripts/container-smoke.sh
+  scripts/container-release.sh
+  .github/workflows/container.yml
+)
+
+for path in "${required_container_files[@]}"; do
+  if [[ ! -f "${path}" ]]; then
+    printf 'missing container release file: %s\n' "${path}" >> "${violations_file}"
+  fi
+done
 
 for path in "${required_root_files[@]}"; do
   if [[ ! -f "${path}" ]]; then

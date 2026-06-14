@@ -36,12 +36,17 @@ if [[ -n "${rebuild_reason}" ]]; then
   python3 -m venv .venv
 fi
 
-constraints_args=()
-if [[ -f requirements.lock.txt ]]; then
-  constraints_args=(-c requirements.lock.txt)
+constraints_file="requirements.lock.txt"
+if [[ "${with_dev}" == "1" && -f requirements-dev.lock.txt ]]; then
+  constraints_file="requirements-dev.lock.txt"
 fi
 
-.venv/bin/python -m pip install -q --upgrade pip setuptools wheel
+constraints_args=()
+if [[ -f "${constraints_file}" ]]; then
+  constraints_args=(-c "${constraints_file}")
+fi
+
+.venv/bin/python -m pip install -q "${constraints_args[@]}" --upgrade pip setuptools wheel
 
 requirements_file="requirements.txt"
 if [[ "${with_dev}" == "1" ]]; then

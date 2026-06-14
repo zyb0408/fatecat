@@ -1,17 +1,22 @@
+import asyncio
 import logging
 import os
 import secrets
 import sys
+import time
+import uuid
+from collections import defaultdict, deque
 from dataclasses import dataclass
 from datetime import datetime
+from threading import Lock
 from typing import Any
 from zoneinfo import ZoneInfo
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, Header, HTTPException, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, Response
 
 from _paths import FATE_CORE_SRC_DIR, get_env_file
 from branding import attach_branding, get_branding_payload, get_disclaimer_payload
@@ -28,6 +33,24 @@ except FileNotFoundError:
 SERVICE_HOST = os.getenv("FATE_SERVICE_HOST", "127.0.0.1")
 SERVICE_PORT = int(os.getenv("FATE_SERVICE_PORT", "8001"))
 API_TOKEN = os.getenv("FATE_API_TOKEN", "").strip()
+
+
+def _env_int(name: str, default: int, *, minimum: int = 0) -> int:
+    raw = os.getenv(name, "").strip()
+    if not raw:
+        return default
+    try:
+        value = int(raw)
+    except ValueError:
+        return default
+    return max(value, minimum)
+
+
+MAX_REQUEST_BYTES = _env_int("FATE_MAX_REQUEST_BYTES", 1_048_576, minimum=1024)
+REQUEST_TIMEOUT_SECONDS = _env_int("FATE_REQUEST_TIMEOUT_SECONDS", 30, minimum=1)
+RATE_LIMIT_PER_MINUTE = _env_int("FATE_RATE_LIMIT_PER_MINUTE", 120, minimum=0)
+TRUST_PROXY_HEADERS = os.getenv("FATE_TRUST_PROXY_HEADERS", "").strip().lower() in {"1", "true", "yes"}
+ENABLE_HSTS = os.getenv("FATE_ENABLE_HSTS", "").strip().lower() in {"1", "true", "yes"}
 
 import db_v2 as db  # noqa: E402
 from bazi_calculator import BaziCalculator  # noqa: E402
@@ -54,9 +77,22 @@ from report_generator import (  # noqa: E402
 )
 from web_ui import render_web_report_page  # noqa: E402
 
-db.ensure_db()
-
 logger = logging.getLogger(__name__)
+_metrics_lock = Lock()
+_request_counts: dict[tuple[str, str, int], int] = defaultdict(int)
+_request_latency_seconds: dict[tuple[str, str, int], float] = defaultdict(float)
+_inflight_requests = 0
+_rate_limit_lock = Lock()
+_rate_limit_windows: dict[str, deque[float]] = defaultdict(deque)
+_RATE_LIMIT_EXEMPT_PATHS = {"/health", "/live", "/ready", "/metrics"}
+
+
+def _records_enabled() -> bool:
+    return os.getenv("FATE_RECORDS_ENABLED", "1").strip().lower() not in {"0", "false", "no", "off"}
+
+
+if _records_enabled():
+    db.ensure_db()
 
 
 @dataclass(frozen=True)
@@ -105,6 +141,8 @@ def _user_tokens() -> dict[str, str]:
 
 
 def _require_record_access(x_api_key: str | None, authorization: str | None) -> ApiPrincipal:
+    if not _records_enabled():
+        raise HTTPException(status_code=403, detail="记录接口未启用")
     admin_tokens = _admin_tokens()
     user_tokens = _user_tokens()
     if not admin_tokens and not user_tokens:
@@ -131,6 +169,126 @@ def _require_owner_or_admin(principal: ApiPrincipal, user_id: str) -> None:
 
 app = FastAPI(title="八字排盘服务", version="1.0.0")
 app.add_middleware(CORSMiddleware, allow_origins=_cors_allow_origins(), allow_methods=["*"], allow_headers=["*"])
+
+
+def _client_key(request: Request) -> str:
+    if TRUST_PROXY_HEADERS:
+        forwarded_for = request.headers.get("x-forwarded-for", "")
+        if forwarded_for:
+            return forwarded_for.split(",", 1)[0].strip()
+    if request.client:
+        return request.client.host
+    return "unknown"
+
+
+def _route_label(request: Request) -> str:
+    route = request.scope.get("route")
+    path = getattr(route, "path", None)
+    if isinstance(path, str):
+        return path
+    return request.url.path
+
+
+def _json_error(status_code: int, error: str) -> JSONResponse:
+    return JSONResponse(
+        status_code=status_code,
+        content=attach_branding({"success": False, "error": error, "statusCode": status_code}),
+    )
+
+
+def _check_rate_limit(request: Request) -> tuple[bool, int]:
+    if RATE_LIMIT_PER_MINUTE <= 0 or request.url.path in _RATE_LIMIT_EXEMPT_PATHS:
+        return True, 0
+
+    now = time.monotonic()
+    key = _client_key(request)
+    with _rate_limit_lock:
+        window = _rate_limit_windows[key]
+        cutoff = now - 60
+        while window and window[0] <= cutoff:
+            window.popleft()
+        if len(window) >= RATE_LIMIT_PER_MINUTE:
+            retry_after = max(1, int(60 - (now - window[0])))
+            return False, retry_after
+        window.append(now)
+    return True, 0
+
+
+def _record_request_metric(method: str, route: str, status_code: int, elapsed_seconds: float) -> None:
+    key = (method, route, status_code)
+    with _metrics_lock:
+        _request_counts[key] += 1
+        _request_latency_seconds[key] += elapsed_seconds
+
+
+def _escape_metric_label(value: str) -> str:
+    return value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+
+
+def _apply_public_response_headers(response: Response, request_id: str) -> Response:
+    response.headers["X-Request-ID"] = request_id
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "no-referrer")
+    response.headers.setdefault(
+        "Content-Security-Policy",
+        "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; "
+        "script-src 'self' 'unsafe-inline'; frame-ancestors 'none'",
+    )
+    if ENABLE_HSTS:
+        response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+    return response
+
+
+def _finalize_early_response(
+    request: Request,
+    response: Response,
+    request_id: str,
+    status_code: int,
+    started: float,
+) -> Response:
+    _record_request_metric(request.method, _route_label(request), status_code, time.perf_counter() - started)
+    return _apply_public_response_headers(response, request_id)
+
+
+@app.middleware("http")
+async def production_guardrails(request: Request, call_next):
+    request_id = request.headers.get("x-request-id") or uuid.uuid4().hex
+    started = time.perf_counter()
+    content_length = request.headers.get("content-length")
+    if content_length:
+        try:
+            if int(content_length) > MAX_REQUEST_BYTES:
+                response = _json_error(413, "请求体过大")
+                return _finalize_early_response(request, response, request_id, 413, started)
+        except ValueError:
+            response = _json_error(400, "Content-Length 无效")
+            return _finalize_early_response(request, response, request_id, 400, started)
+
+    allowed, retry_after = _check_rate_limit(request)
+    if not allowed:
+        response = _json_error(429, "请求过于频繁")
+        response.headers["Retry-After"] = str(retry_after)
+        return _finalize_early_response(request, response, request_id, 429, started)
+
+    global _inflight_requests
+    with _metrics_lock:
+        _inflight_requests += 1
+
+    status_code = 500
+    try:
+        response = await asyncio.wait_for(call_next(request), timeout=REQUEST_TIMEOUT_SECONDS)
+        status_code = response.status_code
+    except TimeoutError:
+        response = _json_error(504, "请求处理超时")
+        status_code = 504
+    finally:
+        elapsed = time.perf_counter() - started
+        _record_request_metric(request.method, _route_label(request), status_code, elapsed)
+        with _metrics_lock:
+            _inflight_requests -= 1
+
+    return _apply_public_response_headers(response, request_id)
 
 
 def _branding_model() -> BrandingInfo:
@@ -188,6 +346,62 @@ async def branded_exception_handler(_request, exc: Exception):
 @app.get("/health")
 def health():
     return attach_branding({"status": "ok"})
+
+
+@app.get("/live")
+def live():
+    return attach_branding({"status": "live"})
+
+
+@app.get("/ready")
+def ready():
+    checks = {"database": "disabled" if not _records_enabled() else "ok", "capabilities": "ok"}
+    try:
+        if _records_enabled():
+            db.ensure_db()
+        list_capabilities()
+    except Exception as exc:
+        logger.exception("readiness 检查失败")
+        return JSONResponse(
+            status_code=503,
+            content=attach_branding({"status": "not_ready", "checks": checks, "error": str(exc)}),
+        )
+    return attach_branding({"status": "ready", "checks": checks})
+
+
+@app.get("/metrics", response_class=PlainTextResponse)
+def metrics():
+    lines = [
+        "# HELP fatecat_requests_total Total HTTP requests.",
+        "# TYPE fatecat_requests_total counter",
+    ]
+    with _metrics_lock:
+        counts = dict(_request_counts)
+        latencies = dict(_request_latency_seconds)
+        inflight = _inflight_requests
+
+    for (method, route, status_code), count in sorted(counts.items()):
+        labels = f'method="{_escape_metric_label(method)}",route="{_escape_metric_label(route)}",status="{status_code}"'
+        lines.append(f"fatecat_requests_total{{{labels}}} {count}")
+
+    lines.extend(
+        [
+            "# HELP fatecat_request_latency_seconds_sum Total HTTP request latency seconds.",
+            "# TYPE fatecat_request_latency_seconds_sum counter",
+        ]
+    )
+    for (method, route, status_code), total in sorted(latencies.items()):
+        labels = f'method="{_escape_metric_label(method)}",route="{_escape_metric_label(route)}",status="{status_code}"'
+        lines.append(f"fatecat_request_latency_seconds_sum{{{labels}}} {total:.6f}")
+
+    lines.extend(
+        [
+            "# HELP fatecat_inflight_requests Current in-flight HTTP requests.",
+            "# TYPE fatecat_inflight_requests gauge",
+            f"fatecat_inflight_requests {inflight}",
+        ]
+    )
+    return PlainTextResponse("\n".join(lines) + "\n", media_type="text/plain; version=0.0.4")
 
 
 @app.get("/web", response_class=HTMLResponse)
@@ -515,7 +729,7 @@ def get_record(
 def get_user_records(
     user_id: str,
     biz_type: str = None,
-    limit: int = 10,
+    limit: int = Query(default=10, ge=1, le=100),
     x_fatecat_api_key: str | None = Header(default=None, alias="X-FateCat-API-Key"),
     authorization: str | None = Header(default=None),
 ):

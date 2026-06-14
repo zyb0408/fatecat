@@ -50,6 +50,61 @@ def test_pure_analysis_api_returns_success():
     assert "jianChu" not in body["data"]
 
 
+def test_health_adds_public_service_security_headers():
+    response = TestClient(app).get("/health")
+
+    assert response.status_code == 200
+    assert response.headers["x-content-type-options"] == "nosniff"
+    assert response.headers["x-frame-options"] == "DENY"
+    assert response.headers["referrer-policy"] == "no-referrer"
+    assert "frame-ancestors 'none'" in response.headers["content-security-policy"]
+    assert response.headers["x-request-id"]
+
+
+def test_ready_and_metrics_endpoints_are_available():
+    client = TestClient(app)
+    ready_response = client.get("/ready")
+
+    assert ready_response.status_code == 200
+    assert ready_response.json()["status"] == "ready"
+
+    metrics_response = client.get("/metrics")
+    assert metrics_response.status_code == 200
+    assert metrics_response.headers["content-type"].startswith("text/plain")
+    assert "fatecat_requests_total" in metrics_response.text
+    assert "fatecat_inflight_requests" in metrics_response.text
+
+
+def test_request_body_limit_rejects_oversized_payload(monkeypatch):
+    monkeypatch.setattr(main, "MAX_REQUEST_BYTES", 32)
+
+    response = TestClient(app).post("/api/v1/bazi/pure-analysis", json=_payload())
+
+    assert response.status_code == 413
+    assert response.json()["error"] == "请求体过大"
+    assert response.headers["x-content-type-options"] == "nosniff"
+    assert response.headers["x-frame-options"] == "DENY"
+    assert response.headers["x-request-id"]
+
+
+def test_rate_limit_rejects_excess_requests(monkeypatch):
+    monkeypatch.setattr(main, "RATE_LIMIT_PER_MINUTE", 1)
+    main._rate_limit_windows.clear()
+
+    client = TestClient(app)
+    first_response = client.get("/api/v1/report/systems")
+    second_response = client.get("/api/v1/report/systems")
+
+    main._rate_limit_windows.clear()
+    assert first_response.status_code == 200
+    assert second_response.status_code == 429
+    assert second_response.json()["error"] == "请求过于频繁"
+    assert second_response.headers["retry-after"]
+    assert second_response.headers["x-content-type-options"] == "nosniff"
+    assert second_response.headers["x-frame-options"] == "DENY"
+    assert second_response.headers["x-request-id"]
+
+
 def test_simple_api_does_not_return_retired_jianchu_field():
     response = TestClient(app).post("/api/v1/bazi/simple", json=_payload())
 
@@ -132,6 +187,16 @@ def test_record_read_requires_api_token(monkeypatch):
     assert response.json()["error"] == "未授权"
 
 
+def test_record_interfaces_can_be_disabled(monkeypatch):
+    monkeypatch.setenv("FATE_RECORDS_ENABLED", "false")
+    monkeypatch.setattr(main, "API_TOKEN", "admin-token")
+
+    response = TestClient(app).get("/api/v1/records/1", headers={"X-FateCat-API-Key": "admin-token"})
+
+    assert response.status_code == 403
+    assert response.json()["error"] == "记录接口未启用"
+
+
 def test_user_token_cannot_read_other_user_record(monkeypatch):
     monkeypatch.setattr(main, "API_TOKEN", "")
     monkeypatch.setenv("FATE_API_USER_TOKENS", "u1:user-token")
@@ -171,6 +236,18 @@ def test_admin_token_can_read_any_record(monkeypatch):
 
     assert response.status_code == 200
     assert response.json()["data"]["userId"] == "u2"
+
+
+def test_user_records_limit_is_bounded(monkeypatch):
+    monkeypatch.setattr(main, "API_TOKEN", "admin-token")
+
+    response = TestClient(app).get(
+        "/api/v1/user/u1/records?limit=-1",
+        headers={"X-FateCat-API-Key": "admin-token"},
+    )
+
+    assert response.status_code == 422
+    assert response.json()["error"] == "请求参数无效"
 
 
 def test_markdown_report_api_selects_ziwei_without_bazi_blocks():
