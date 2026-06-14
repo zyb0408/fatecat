@@ -28,6 +28,7 @@ output/
 .env
 .env.*
 !.env.example
+!.env.*.example
 !*env.example
 
 # Local raw research/source material

@@ -165,3 +165,55 @@ Result:
 
 - `vendor-health` passed with `required=5 optionalFutureFeatures=10 hashed=15 licenseAuditRequired=5`.
 - The same CI-parity acceptance passed end to end after the manifest correction.
+
+## 2026-06-15 CI follow-up: production env example ignored
+
+### Bug
+
+GitHub Actions run `27504699378` failed in `bash scripts/acceptance.sh --with-dev --output /tmp/fatecat-ci-acceptance`.
+
+Observed failure excerpt:
+
+```text
+structure gate failed:
+  - missing container release file: infra/environments/production/.env.production.example
+```
+
+### Observations
+
+- Local `bash scripts/check-structure.sh` passed before push.
+- `infra/environments/production/.env.production.example` existed locally, but was not present in the pushed commit.
+- `git check-ignore -v infra/environments/production/.env.production.example` reported `.gitignore:29:.env.*`.
+- `.gitignore` allowed `!.env.example` and `!*env.example`, but the latter did not unignore the dotted basename `.env.production.example`.
+- The container workflow for the same commit succeeded and pushed the main GHCR image, so the failure was isolated to acceptance structure validation.
+
+### Hypotheses
+
+1. The production env example was ignored by `.gitignore` and therefore omitted from the commit.
+   - Supports: `git check-ignore -v` points at `.env.*`.
+   - Test: add an explicit unignore rule for `.env.*.example` and force the file into Git status.
+2. The structure gate path is wrong.
+   - Conflicts: the same path exists locally and is the intended production template path.
+   - Test: keep the structure gate unchanged and make the file tracked.
+3. CI checkout lost the file because of export or sparse checkout behavior.
+   - Conflicts: Actions checkout is a normal repository checkout, and the file was not in the commit.
+   - Test: inspect pushed tree / Git status after unignore.
+
+### Root Cause
+
+The production `.env.production.example` template was a required tracked template, but `.gitignore`'s `.env.*` rule ignored it. Local validation passed because the ignored file existed in the working tree; CI failed because ignored untracked files are not checked out.
+
+### Fix
+
+- Add explicit `.gitignore` exception `!.env.*.example`.
+- Track `infra/environments/production/.env.production.example`.
+
+### Regression Evidence
+
+Required before close:
+
+```bash
+git check-ignore -v infra/environments/production/.env.production.example || true
+git ls-files infra/environments/production/.env.production.example
+bash scripts/check-structure.sh
+```
