@@ -3,7 +3,7 @@ id: GOV-INDEX
 type: index
 status: current
 owner: engineering
-last_reviewed: 2026-06-06
+last_reviewed: 2026-06-15
 ---
 
 # 治理包索引
@@ -20,6 +20,7 @@ last_reviewed: 2026-06-06
 - [OK] `standards/工程质量标准.md`
 - [OK] `standards/劣质代码定义.md`
 - [OK] `standards/非功能性需求标准.md`
+- [OK] `standards/零美化语义界面标准.md`
 - [optional] `standards/优质代码定义.md`
 - [optional] `standards/性能效率优化标准.md`
 - [optional] `standards/可靠性标准.md`
@@ -43,18 +44,18 @@ last_reviewed: 2026-06-06
 ## 记录与证据
 
 - [OK] `decisions/adr/INDEX.md`
-- [optional] `evidence/reviews/INDEX.md`
+- [OK] `evidence/reviews/INDEX.md`
 - [OK] `evidence/postmortems/INDEX.md`
 - [OK] `evidence/lessons/INDEX.md`
-- [optional] `evidence/workorders/INDEX.md`
-- [optional] `evidence/tech-debt/INDEX.md`
+- [OK] `evidence/workorders/INDEX.md`
+- [OK] `evidence/tech-debt/INDEX.md`
 - [OK] `architecture-gates/rules/INDEX.md`
 - [OK] `evidence/qa-plans/INDEX.md`
 - [OK] `agent-governance/agent-feedback/INDEX.md`
-- [REQUIRED-MISSING] `evidence/baselines/INDEX.md`
-- [REQUIRED-MISSING] `control-plane/controls/INDEX.md`
-- [REQUIRED-MISSING] `evidence/exceptions/INDEX.md`
+- [OK] `evidence/baselines/INDEX.md`
+- [OK] `control-plane/controls/INDEX.md`
+- [OK] `evidence/exceptions/INDEX.md`
 - [OK] `risk-register/INDEX.md`
-- [optional] `evidence/conformance/INDEX.md`
-- [optional] `evidence/audit-exports/INDEX.md`
-- [optional] `evidence/releases/INDEX.md`
+- [OK] `evidence/conformance/INDEX.md`
+- [OK] `evidence/audit-exports/INDEX.md`
+- [OK] `evidence/releases/INDEX.md`

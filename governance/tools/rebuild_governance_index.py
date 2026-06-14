@@ -77,6 +77,12 @@ def record_rows(directory: Path, prefix: str) -> list[tuple[str, str, str, str]]
     return rows
 
 
+def render_lines(lines: list[str]) -> str:
+    while lines and lines[-1] == "":
+        lines.pop()
+    return "\n".join(lines) + "\n"
+
+
 def write_record_index(directory: Path, title: str, rows: list[tuple[str, str, str, str]], dry_run: bool) -> Path:
     directory.mkdir(parents=True, exist_ok=True)
     index = directory / "INDEX.md"
@@ -97,7 +103,7 @@ def write_record_index(directory: Path, title: str, rows: list[tuple[str, str, s
     ]
     for record_id, title_text, status, filename in rows:
         lines.append(f"| `{record_id}` | {title_text} | {status} | `{filename}` |")
-    content = "\n".join(lines) + "\n"
+    content = render_lines(lines)
     if not dry_run:
         index.write_text(content, encoding="utf-8")
     return index
@@ -140,7 +146,7 @@ def write_gate_index(root: Path, dry_run: bool) -> Path:
         lines.append(f"| `{row[0]}` | {row[1]} | {row[2]} | {row[3]} | {row[4]} | {row[5]} | `{row[6]}` |")
     if not dry_run:
         index.parent.mkdir(parents=True, exist_ok=True)
-        index.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        index.write_text(render_lines(lines), encoding="utf-8")
     return index
 
 
@@ -162,6 +168,7 @@ def write_root_index(root: Path, dry_run: bool) -> Path:
                 ("standards/工程质量标准.md", True),
                 ("standards/劣质代码定义.md", True),
                 ("standards/非功能性需求标准.md", True),
+                ("standards/零美化语义界面标准.md", True),
                 ("standards/优质代码定义.md", False),
                 ("standards/性能效率优化标准.md", False),
                 ("standards/可靠性标准.md", False),
@@ -222,7 +229,7 @@ def write_root_index(root: Path, dry_run: bool) -> Path:
             lines.append(f"- [{status}] `{rel}`")
         lines.append("")
     if not dry_run:
-        index.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        index.write_text(render_lines(lines), encoding="utf-8")
     return index
 
 

@@ -17,6 +17,7 @@ review_cycle: P90D
 | 项目根 | `.` | `context/PROJECT-TOPOLOGY.md` | `decisions/adr/INDEX.md` | governance strict validate |
 | 治理包 | `governance/` | `context/AGENT-ENTRY.md` | `decisions/adr/INDEX.md` | governance health report |
 | 任务容器 | `governance/tasks/` | `tasks/INDEX.md` | `decisions/adr/INDEX.md` | task tree validation |
+| FateCat Web HTML 语义界面 | `domains/experience-delivery/services/fatecat-delivery/src/web_ui.py` | `context/module-contexts/domains-experience-delivery-services-fatecat-delivery-src-web-ui-py/CONTEXT.md` | `GATE-0001` | `bash scripts/local-ci.sh --profile quick` |
 
 ## 维护规则
 

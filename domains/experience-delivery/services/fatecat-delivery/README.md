@@ -21,3 +21,5 @@ bash scripts/delivery-smoke.sh --target api
 - 不改变 API 路径和响应模型。
 - 不改变 Web 表单语义和 Markdown 输出边界。
 - 不把未来 capability 混入默认综合八字报告。
+- Web HTML 必须遵守 `/home/lenovo/.codex/Design.md` 的零美化语义界面规范：禁止 CSS、视觉 class、颜色、圆角、卡片、响应式布局和装饰性容器。
+- 修改 `src/web_ui.py` 后必须跑 `python -m pytest -q tests/regression/test_web_html.py` 或 `bash scripts/local-ci.sh --profile quick`。

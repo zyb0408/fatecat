@@ -88,6 +88,14 @@ fatecat/
 - `references/`：长文档、阶段门禁、输入输出契约、迁移与排障材料；其中 `execution-playbook.md` 是统一执行顺序真相源。
 - `scripts/`：本地可重复执行入口；其中 `preflight.sh` 是默认预检入口，`acceptance.sh` 是发布门禁入口，`check-structure.sh` 是企业结构门禁，`container-*.sh` 是容器构建、烟雾和发布入口。
 
+## Web HTML 设计硬规则
+
+- `GET /web` 和同类工程报表页必须遵守 `/home/lenovo/.codex/Design.md` 的零美化语义界面规范。
+- 禁止擅自加入 CSS、`style`、视觉 class、颜色、圆角、卡片、响应式布局、装饰性容器或前端视觉效果。
+- 页面结构只允许服务信息结构和操作结构：原生表单、真实链接、`dl` 元信息、`pre/code` 原始数据、`details/summary` 非核心长内容。
+- 修改 `domains/experience-delivery/services/fatecat-delivery/src/web_ui.py` 前必须读取 `governance/standards/零美化语义界面标准.md`、`GATE-0001` 和对应 module context。
+- 验证必须覆盖 `tests/regression/test_web_html.py::assert_zero_beauty_html`，默认跑 `bash scripts/local-ci.sh --profile quick`。
+
 ## 依赖方向
 
 - `apps/ai -> domains + contracts`
