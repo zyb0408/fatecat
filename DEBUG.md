@@ -267,3 +267,58 @@ Result:
 - `17 passed in 4.74s`
 - `/web` 空表单页返回 `project-brand` 区块，包含 TradeCat Labs 标题、实验室项目说明、DEX Screener、X、GitHub、Hugging Face 链接。
 - 本地 8001 服务已重启，当前后台进程为 `start.py api` + `src/main.py`，`/health` 和 `/web` 返回 200。
+
+## 2026-06-15 Web bug: generate Markdown button appeared inactive
+
+### Bug
+
+用户点击 `/web` 页面“生成 Markdown 报告”后看起来没有反应，尤其是空表单或未填完必填字段时没有看到服务端错误反馈。
+
+### Observations
+
+- 表单字段使用 HTML5 `required` 属性，浏览器会在请求到达 FastAPI 之前拦截空值或未填完的提交。
+- 服务端只在 `form.has_input()` 为真时生成报告或错误；空表单提交和首次打开 `/web` 在服务端状态上不可区分。
+- `/web` 原本没有显式提交标记，所以点击按钮但所有业务字段为空时，服务端仍渲染初始页。
+- 本地 8001 旧进程曾继续返回旧 HTML；重启后新代码才对 curl 验证生效。
+
+### Hypotheses
+
+1. 浏览器原生 `required` 校验阻止请求进入服务端。
+   - Supports: HTML 中存在 `required`；空表单点击不会触发服务端错误页。
+   - Test: 移除 `required` 后提交空表单必须由服务端返回“缺少必填字段”。
+2. 空表单提交缺少显式提交标记。
+   - Supports: `has_input()` 对空字段返回 false；首次打开和空提交路径相同。
+   - Test: 增加 `submitted=1` hidden input 后，`/web?submitted=1` 必须返回错误块。
+3. 只是运行进程没有更新。
+   - Supports: 重启前 curl 仍看到旧 required HTML。
+   - Conflicts: 即使进程更新，缺少 `submitted` 标记仍会让空提交走初始页。
+
+### Root Cause
+
+`/web` 表单把必填校验交给浏览器原生 `required`，导致请求可能根本不到服务端；同时服务端没有提交状态标记，无法区分“首次打开页面”和“用户点击生成但没有填字段”。两者叠加后，按钮在用户视角表现为“没反应”。
+
+### Fix
+
+- 表单增加 `<input type="hidden" name="submitted" value="1">`，服务端接收 `submitted` 查询参数。
+- `WebReportForm` 增加 `submitted` 状态，`render_web_report_page()` 在 `submitted` 或存在输入时都进入报告/错误生成路径。
+- 移除表单字段的 HTML5 `required` 属性，让必填错误由服务端统一写入页面。
+- 增加回归测试，断言空提交返回服务端错误块，并禁止页面重新引入 `required`。
+
+### Regression Evidence
+
+Completed:
+
+```bash
+.venv/bin/python -m ruff check domains/experience-delivery/services/fatecat-delivery/src/main.py domains/experience-delivery/services/fatecat-delivery/src/web_ui.py tests/regression/test_web_html.py
+.venv/bin/python -m pytest -q tests/regression/test_web_html.py
+curl -fsS 'http://127.0.0.1:8001/web?submitted=1' > /tmp/fatecat-web-empty-submit.html
+curl -fsS 'http://127.0.0.1:8001/web?submitted=1&birthDate=1990-01-01&birthTime=08:00&birthPlace=%E5%8C%97%E4%BA%AC&gender=male&name=%E6%B5%8B%E8%AF%95' > /tmp/fatecat-web-full-submit.html
+```
+
+Result:
+
+- `ruff check` passed.
+- `pytest` passed with `9 passed in 1.97s`.
+- Empty submit returns `<h2 id="errors">错误</h2>` and `缺少必填字段: 出生日期、出生时间、出生地区、性别`.
+- Full submit returns `Markdown 输出` / `report-markdown` and no missing-field error.
+- `/web` HTML remains zero-beauty: no `<style>`、`style=`、`class=`、`@media` or `required` attributes.

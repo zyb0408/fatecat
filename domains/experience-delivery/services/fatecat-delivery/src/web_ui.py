@@ -34,6 +34,7 @@ class WebReportForm:
     gender: str = ""
     name: str = ""
     report_system: str = "bazi"
+    submitted: bool = False
 
     @classmethod
     def from_query(
@@ -45,6 +46,7 @@ class WebReportForm:
         gender: str | None = None,
         name: str | None = None,
         report_system: str | None = None,
+        submitted: str | None = None,
     ) -> WebReportForm:
         return cls(
             birth_date=(birth_date or "").strip(),
@@ -53,6 +55,7 @@ class WebReportForm:
             gender=(gender or "").strip(),
             name=(name or "").strip(),
             report_system=(report_system or "bazi").strip() or "bazi",
+            submitted=(submitted or "").strip() == "1",
         )
 
     def has_input(self) -> bool:
@@ -79,6 +82,7 @@ def render_web_report_page(
     gender: str | None = None,
     name: str | None = None,
     report_system: str | None = None,
+    submitted: str | None = None,
 ) -> HTMLResponse:
     """渲染 Web 版标准 Markdown 报告页面。"""
     form = WebReportForm.from_query(
@@ -88,11 +92,12 @@ def render_web_report_page(
         gender=gender,
         name=name,
         report_system=report_system,
+        submitted=submitted,
     )
 
     errors: list[str] = []
     result: WebReportResult | None = None
-    if form.has_input():
+    if form.submitted or form.has_input():
         try:
             result = _build_report(form)
         except ValueError as exc:
@@ -336,27 +341,28 @@ def _render_form(form: WebReportForm) -> str:
         [
             '<h2 id="input-form">输入表单</h2>',
             '<form method="get" action="/web">',
+            '<input type="hidden" name="submitted" value="1">',
             "<fieldset>",
             "<legend>必填字段</legend>",
             "<p>",
             '<label for="birthDate">出生日期（必填）</label><br>',
-            f'<input id="birthDate" name="birthDate" type="date" value="{_attr(form.birth_date)}" required>',
+            f'<input id="birthDate" name="birthDate" type="date" value="{_attr(form.birth_date)}">',
             "</p>",
             "<p>",
             '<label for="birthTime">出生时间（必填）</label><br>',
-            f'<input id="birthTime" name="birthTime" type="time" value="{_attr(_time_value(form.birth_time))}" required>',
+            f'<input id="birthTime" name="birthTime" type="time" value="{_attr(_time_value(form.birth_time))}">',
             "</p>",
             "<p>",
             '<label for="birthPlace">出生地区（必填）</label><br>',
             (
                 '<input id="birthPlace" name="birthPlace" type="text" '
                 f'value="{_attr(public_birth_place(form.birth_place))}" '
-                'placeholder="北京 或 116.4074,39.9042" required>'
+                'placeholder="北京 或 116.4074,39.9042">'
             ),
             "</p>",
             "<p>",
             '<label for="gender">性别（必填）</label><br>',
-            '<select id="gender" name="gender" required>',
+            '<select id="gender" name="gender">',
             f'<option value=""{_selected(form.gender, "")}>请选择</option>',
             f'<option value="male"{_selected(form.gender, "male")}>男 male</option>',
             f'<option value="female"{_selected(form.gender, "female")}>女 female</option>',

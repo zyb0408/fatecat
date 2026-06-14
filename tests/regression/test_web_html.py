@@ -45,6 +45,8 @@ def test_web_page_renders_semantic_form():
     assert '<a href="#project-brand">项目</a>' in text
     assert_zero_beauty_html(text)
     assert '<form method="get" action="/web">' in text
+    assert '<input type="hidden" name="submitted" value="1">' in text
+    assert " required>" not in text
     assert '<details id="page-info">\n<summary>页面说明与元信息</summary>' in text
     assert "<details open>\n<summary>页面说明与元信息</summary>" not in text
     assert text.index('<form method="get" action="/web">') < text.index("<summary>页面说明与元信息</summary>")
@@ -85,6 +87,20 @@ def test_web_page_reports_missing_required_fields():
     text = response.text
     assert '<h2 id="errors">错误</h2>' in text
     assert "缺少必填字段" in text
+    assert "出生时间" in text
+    assert "出生地区" in text
+    assert "性别" in text
+
+
+def test_web_page_empty_submit_reports_server_side_errors():
+    response = TestClient(app).get("/web", params={"submitted": "1"})
+
+    assert response.status_code == 200
+    text = response.text
+    assert_zero_beauty_html(text)
+    assert '<h2 id="errors">错误</h2>' in text
+    assert "缺少必填字段" in text
+    assert "出生日期" in text
     assert "出生时间" in text
     assert "出生地区" in text
     assert "性别" in text
