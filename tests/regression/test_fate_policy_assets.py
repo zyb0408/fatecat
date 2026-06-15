@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import tomllib
 from datetime import datetime
 from pathlib import Path
 
@@ -47,6 +48,17 @@ def test_classics_rule_index_is_traceable_and_bounded():
         assert rule["sources"]
         assert rule["appliesWhen"]
         assert rule["doesNotApplyWhen"]
+
+
+def test_lunar_python_is_declared_as_runtime_dependency():
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    dependencies = set(pyproject["project"]["dependencies"])
+    requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8").splitlines()
+    locked = (ROOT / "requirements.lock.txt").read_text(encoding="utf-8").splitlines()
+
+    assert "lunar-python>=1.4.8" in dependencies
+    assert "lunar-python>=1.4.8" in requirements
+    assert "lunar-python==1.4.8" in locked
 
 
 def test_emitted_analysis_evidence_rule_ids_exist_in_classics_index():

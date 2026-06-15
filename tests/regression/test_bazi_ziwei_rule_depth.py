@@ -128,6 +128,45 @@ def test_bazi_rule_depth_outputs_rule_applications_and_evidence():
     assert set(evidence["ruleIds"]) <= _classics_rule_ids()
 
 
+def test_bazi_gap_closure_benchmark_fields_are_structured():
+    result = _bazi_result()
+    benchmark = result["baziBenchmark"]
+
+    combine = benchmark["combineTransformMatrix"]
+    assert combine["schemaVersion"] == 1
+    assert combine["conditionCatalog"] == [
+        "paired_stems_present",
+        "month_command_supports_transform_element",
+        "transform_element_transparent",
+        "transform_element_rooted",
+        "no_direct_blocker",
+    ]
+    assert combine["riskBoundary"]
+    for candidate in combine["candidates"]:
+        assert candidate["conditions"]
+        assert all("met" in condition and "evidence" in condition for condition in candidate["conditions"])
+        assert candidate["status"] in {"formed_candidate", "guarded_candidate", "weak_candidate"}
+
+    special = benchmark["patternRegistry"]["specialPatternCandidates"]
+    assert {candidate["name"] for candidate in special["candidates"]} >= {"从格", "化气", "专旺", "假从", "从杀", "从财"}
+    assert all(candidate["conditions"] and candidate["boundary"] for candidate in special["candidates"])
+    assert all(candidate["status"] in {"candidate", "guarded", "not_supported"} for candidate in special["candidates"])
+
+    decision = benchmark["yongShenDecision"]
+    assert decision["primaryStrategy"]
+    assert len(decision["scoredStrategies"]) == 4
+    assert [item["score"] for item in decision["scoredStrategies"]] == sorted(
+        [item["score"] for item in decision["scoredStrategies"]],
+        reverse=True,
+    )
+    assert all(item["evidenceFields"] for item in decision["scoredStrategies"])
+
+    topics = benchmark["topicProfiles"]
+    assert {item["topic"] for item in topics} >= {"事业", "财运", "婚姻", "健康", "学业", "迁移"}
+    assert all(item["status"] == "evidence_seed" for item in topics)
+    assert all(0 <= item["score"] <= 100 and item["riskBoundary"] for item in topics)
+
+
 def test_ziwei_rule_depth_outputs_rule_applications_and_evidence():
     result = CapabilityExecutor().execute(
         CapabilityInput(
