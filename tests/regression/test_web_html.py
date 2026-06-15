@@ -196,6 +196,8 @@ def test_web_page_generates_copyable_markdown_report():
     assert '<button type="button" id="copy-report">复制 Markdown</button>' in text
     assert '<h2 id="markdown-output">Markdown 输出</h2>' in text
     assert '<pre><code id="report-markdown">' in text
+    assert '<section id="bazi-workbench">' in text
+    assert text.index('<pre><code id="report-markdown">') < text.index('<section id="bazi-workbench">')
     assert text.index('<pre><code id="report-markdown">') < text.index("<summary>页面说明与元信息</summary>")
     assert "## TradeCat Labs 实验室" in text
     assert "# 命理排盘报告：测试样本" in text
@@ -239,6 +241,8 @@ def test_web_page_can_select_ziwei_report_without_bazi_blocks():
     assert "## 八字排盘详情" not in text
     assert "## 袁天罡称骨" not in text
     assert '"reportSystem": "ziwei"' in text
+    assert '<section id="ziwei-workbench">' in text
+    assert text.index('<pre><code id="report-markdown">') < text.index('<section id="ziwei-workbench">')
 
 
 def test_web_page_rejects_retired_report_systems():

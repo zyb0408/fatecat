@@ -218,6 +218,58 @@ git ls-files infra/environments/production/.env.production.example
 bash scripts/check-structure.sh
 ```
 
+## 2026-06-15 Web report follow-up: workbench contract and report order drift
+
+### Bug
+
+本地八字/紫微 Web 合同测试发现工作台 DOM 合同漂移：测试期望服务端输出 `<section id="bazi-workbench">` 和 `<section id="ziwei-workbench">`，实际页面只输出 `<h2 id="workbench">...工作台</h2>`。同时右上报告面板先输出工作台，再输出 Markdown 报告，和“报告区域优先展示生成结果”的页面契约不一致。
+
+### Observations
+
+- `/web` 生成结果页仍能正常返回 200，八字计算与 API 能力未失败。
+- `tests/regression/test_bazi_ziwei_benchmark_hardening.py::test_web_workbench_is_backend_structured_and_keeps_privacy` 在 `<section id="bazi-workbench">` 断言处失败。
+- `web_ui._render_report()` 将 `_render_workbench(result)` 放在 Markdown 输出前。
+- `web_ui._render_bazi_workbench()` 与 `_render_ziwei_workbench()` 只保留通用 `id="workbench"` 标题，缺少体系级 section 锚点。
+
+### Hypotheses
+
+1. 根因是 Web 渲染函数在布局改造后丢失了体系级 workbench section。
+   - Supports: 页面仍有“八字工作台/紫微工作台”文本，但没有测试要求的 `bazi-workbench/ziwei-workbench` section。
+   - Test: 恢复体系级 section 包裹后重跑 Web 和 benchmark hardening 测试。
+2. 根因是测试过期。
+   - Conflicts: 体系级 section 是区分八字/紫微工作台的稳定合同，恢复它不会增加新视觉样式或新业务规则。
+   - Test: 保持测试合同不变，修复 HTML 输出。
+3. 根因是八字计算失败。
+   - Conflicts: CLI/API 已能返回结构化八字结果，失败点是 HTML 字符串断言。
+   - Test: 只修改 Web HTML 后重跑相关回归。
+
+### Root Cause
+
+Web 生产空间布局改造时保留了通用 `#workbench` 导航锚点，但删除了测试和结构化工作台合同依赖的体系级 section；同一处渲染顺序还让工作台先于 Markdown 报告输出。
+
+### Fix
+
+- 在八字工作台外恢复 `<section id="bazi-workbench">`。
+- 在紫微工作台外恢复 `<section id="ziwei-workbench">`。
+- 将 Markdown 报告输出移动到工作台之前，确保右上报告面板先展示生成结果，再展示结构化工作台。
+- 增加本地 Web 回归断言，锁定 Markdown 先于工作台 section。
+
+### Regression Evidence
+
+Completed:
+
+```bash
+.venv/bin/python -m pytest -q tests/regression/test_web_html.py tests/regression/test_bazi_ziwei_benchmark_hardening.py
+.venv/bin/python -m pytest -q tests/regression/fate_core/test_field_registry.py tests/regression/fate_core/test_pure_analysis_usecase.py tests/regression/test_capability_protocol.py tests/regression/test_fate_core_cli.py tests/regression/test_fate_policy_assets.py tests/regression/test_solar_terms_golden.py tests/regression/test_strength_mapping.py tests/regression/test_bazi_statement_golden.py tests/regression/test_bazi_ziwei_benchmark_hardening.py tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py tests/regression/test_web_html.py
+.venv/bin/python -m ruff check domains/experience-delivery/services/fatecat-delivery/src/web_ui.py tests/regression/test_web_html.py
+```
+
+Result:
+
+- Web and benchmark hardening targeted tests: 15 passed.
+- 八字/能力协议/API/Web 本地核心回归：100 passed.
+- Ruff targeted check: All checks passed.
+
 ## 2026-06-15 Web follow-up: TradeCat Labs branding missing from empty `/web`
 
 ### Bug

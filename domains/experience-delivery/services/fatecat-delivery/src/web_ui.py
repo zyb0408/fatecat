@@ -264,11 +264,6 @@ def _render_workspace_style() -> str:
             "h1, h2, h3 { margin: 0 0 0.75rem; }",
             "p { margin: 0 0 0.75rem; }",
             "form { margin: 0; }",
-            "fieldset {",
-            "  border: 1px solid #555;",
-            "  margin: 0;",
-            "  padding: 0.75rem;",
-            "}",
             "label {",
             "  display: block;",
             "  margin-bottom: 0.25rem;",
@@ -599,12 +594,12 @@ def _render_report(result: WebReportResult) -> str:
     raw_json = json.dumps(result.input_payload, ensure_ascii=False, indent=2)
     return "\n".join(
         [
-            _render_workbench(result),
             '<h2 id="markdown-output">Markdown 输出</h2>',
             f"<p>当前输出体系：{_h(result.report_system_label)}</p>",
             '<p><button type="button" id="copy-report">复制 Markdown</button></p>',
             '<p id="copy-status">尚未复制</p>',
             '<pre><code id="report-markdown">' + _h(result.markdown) + "</code></pre>",
+            _render_workbench(result),
             "<details>",
             "<summary>机器可读输入</summary>",
             "<pre><code>" + _h(raw_json) + "</code></pre>",
@@ -666,6 +661,7 @@ def _render_bazi_workbench(workbench: dict[str, Any]) -> str:
         trigger_rows.append(["-", "-", "当前样本未命中已登记触发项"])
     return "\n".join(
         [
+            '<section id="bazi-workbench">',
             '<h2 id="workbench">八字工作台</h2>',
             "<p>该区域只展示后端结构化字段；复制 Markdown 内容不受工作台影响。</p>",
             "<details open><summary>四柱 / 十神 / 藏干</summary>",
@@ -711,6 +707,7 @@ def _render_bazi_workbench(workbench: dict[str, Any]) -> str:
             "<details><summary>规则深度 / 冲突策略</summary>",
             "<pre><code>" + _h(json.dumps(rule_depth, ensure_ascii=False, indent=2)) + "</code></pre>",
             "</details>",
+            "</section>",
         ]
     )
 
@@ -735,6 +732,7 @@ def _render_ziwei_workbench(workbench: dict[str, Any]) -> str:
     rule_depth = workbench.get("ruleDepth", {}) if isinstance(workbench.get("ruleDepth"), dict) else {}
     return "\n".join(
         [
+            '<section id="ziwei-workbench">',
             '<h2 id="workbench">紫微工作台</h2>',
             "<p>该区域只展示后端 iztro 结构化字段与解释索引；紫微仍为 standalone 输出。</p>",
             "<details open><summary>十二宫 / 星曜</summary>",
@@ -751,6 +749,7 @@ def _render_ziwei_workbench(workbench: dict[str, Any]) -> str:
             "<details><summary>规则深度 / 冲突策略</summary>",
             "<pre><code>" + _h(json.dumps(rule_depth, ensure_ascii=False, indent=2)) + "</code></pre>",
             "</details>",
+            "</section>",
         ]
     )
 
