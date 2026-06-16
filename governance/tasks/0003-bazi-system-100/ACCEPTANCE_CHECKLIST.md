@@ -42,75 +42,75 @@
 ### TP-00.02
 - 标题: 建立八字 100% scorecard
 - 验收项:
-  - [ ] 100% 是工程验收定义，不是预测绝对准确
-  - [ ] MingLi 准确率目标分阶段记录
+  - [x] 100% 是工程验收定义，不是预测绝对准确
+  - [x] MingLi 准确率目标分阶段记录
 - Verify: test -s governance/tasks/0003-bazi-system-100/SCORECARD.md && rg '基础排盘|高级格局|MingLi|100%' governance/tasks/0003-bazi-system-100/SCORECARD.md
 - Gate: 每个维度有 current%、target evidence、verify command、falsifier
 - 输出物:
-  - [ ] governance/tasks/0003-bazi-system-100/SCORECARD.md
+  - [x] governance/tasks/0003-bazi-system-100/SCORECARD.md
 - 标准清单:
-  - [ ] Verify: test -s governance/tasks/0003-bazi-system-100/SCORECARD.md && rg '基础排盘|高级格局|MingLi|100%' governance/tasks/0003-bazi-system-100/SCORECARD.md
-  - [ ] Gate: 每个维度有 current%、target evidence、verify command、falsifier
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: test -s governance/tasks/0003-bazi-system-100/SCORECARD.md && rg '基础排盘|高级格局|MingLi|100%' governance/tasks/0003-bazi-system-100/SCORECARD.md
+  - [x] Gate: 每个维度有 current%、target evidence、verify command、falsifier
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-00.03
 - 标题: 生成当前能力基线证据
 - 验收项:
-  - [ ] 当前 76% 估算有命令证据支撑
-  - [ ] 失败最多的专题分类进入后续优先级
+  - [x] 当前 76% 估算有命令证据支撑
+  - [x] 失败最多的专题分类进入后续优先级
 - Verify: bash scripts/generate-mingli-predictions.sh --year 2025 --sample 10 --output-jsonl /tmp/fatecat-mingli-baseline.jsonl && bash scripts/run-mingli-bench.sh --year 2025 --sample 10 --predictions-file /tmp/fatecat-mingli-baseline.jsonl --output-json /tmp/fatecat-mingli-baseline.json
 - Gate: baseline report 记录 total/answered/correct/accuracy/byCategory，且不把 sample 10 当最终能力
 - 输出物:
-  - [ ] governance/tasks/0003-bazi-system-100/BASELINE_EVIDENCE.md
+  - [x] governance/tasks/0003-bazi-system-100/BASELINE_EVIDENCE.md
 - 标准清单:
-  - [ ] Verify: bash scripts/generate-mingli-predictions.sh --year 2025 --sample 10 --output-jsonl /tmp/fatecat-mingli-baseline.jsonl && bash scripts/run-mingli-bench.sh --year 2025 --sample 10 --predictions-file /tmp/fatecat-mingli-baseline.jsonl --output-json /tmp/fatecat-mingli-baseline.json
-  - [ ] Gate: baseline report 记录 total/answered/correct/accuracy/byCategory，且不把 sample 10 当最终能力
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: bash scripts/generate-mingli-predictions.sh --year 2025 --sample 10 --output-jsonl /tmp/fatecat-mingli-baseline.jsonl && bash scripts/run-mingli-bench.sh --year 2025 --sample 10 --predictions-file /tmp/fatecat-mingli-baseline.jsonl --output-json /tmp/fatecat-mingli-baseline.json
+  - [x] Gate: baseline report 记录 total/answered/correct/accuracy/byCategory，且不把 sample 10 当最终能力
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ## TP-01
 - 标题: 材料与资源治理
 - 验收项:
-  - [ ] `材料与资源治理` 达到其 objective，且依赖关系保持一致
+  - [x] `材料与资源治理` 达到其 objective，且依赖关系保持一致
 - Verify: 核对目标完成并补充执行证据
 - Gate: 任务目标与上下文已确认
 - 输出物:
-  - [ ] 明确哪些库、典籍、benchmark 和 oracle 用于补齐 100%，以及每类资源的生产边界
+  - [x] 明确哪些库、典籍、benchmark 和 oracle 用于补齐 100%，以及每类资源的生产边界
 - 标准清单:
-  - [ ] Verify: 核对目标完成并补充执行证据
-  - [ ] Gate: 任务目标与上下文已确认
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: 核对目标完成并补充执行证据
+  - [x] Gate: 任务目标与上下文已确认
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-01.01
 - 标题: 整理资源地图
 - 验收项:
-  - [ ] 无 license 资源只标 reference_only
-  - [ ] oracle 不进入生产主链
+  - [x] 无 license 资源只标 reference_only
+  - [x] oracle 不进入生产主链
 - Verify: test -s governance/tasks/0003-bazi-system-100/RESOURCE_MAP.md && rg 'lunar-python|MingLi-Bench|oracle_only|reference_only' governance/tasks/0003-bazi-system-100/RESOURCE_MAP.md
 - Gate: 每个资源有 usageRole、license boundary、可补能力和禁止用途
 - 输出物:
-  - [ ] governance/tasks/0003-bazi-system-100/RESOURCE_MAP.md
+  - [x] governance/tasks/0003-bazi-system-100/RESOURCE_MAP.md
 - 标准清单:
-  - [ ] Verify: test -s governance/tasks/0003-bazi-system-100/RESOURCE_MAP.md && rg 'lunar-python|MingLi-Bench|oracle_only|reference_only' governance/tasks/0003-bazi-system-100/RESOURCE_MAP.md
-  - [ ] Gate: 每个资源有 usageRole、license boundary、可补能力和禁止用途
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: test -s governance/tasks/0003-bazi-system-100/RESOURCE_MAP.md && rg 'lunar-python|MingLi-Bench|oracle_only|reference_only' governance/tasks/0003-bazi-system-100/RESOURCE_MAP.md
+  - [x] Gate: 每个资源有 usageRole、license boundary、可补能力和禁止用途
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-01.02
 - 标题: 建立规则来源覆盖矩阵
 - 验收项:
-  - [ ] 缺失来源不能进入实现
-  - [ ] 规则来源只保留短摘要和条件
+  - [x] 缺失来源不能进入实现
+  - [x] 规则来源只保留短摘要和条件
 - Verify: python3 -m json.tool contracts/fate/classics_rule_index.json >/dev/null && python3 -m json.tool contracts/fate/rule_depth_registry.json >/dev/null
 - Gate: 每个待实现专业能力至少有候选 sourceRuleId；缺口列入 RULE_SOURCE_GAPS.md
 - 输出物:
-  - [ ] governance/tasks/0003-bazi-system-100/RULE_SOURCE_GAPS.md
+  - [x] governance/tasks/0003-bazi-system-100/RULE_SOURCE_GAPS.md
 - 标准清单:
-  - [ ] Verify: python3 -m json.tool contracts/fate/classics_rule_index.json >/dev/null && python3 -m json.tool contracts/fate/rule_depth_registry.json >/dev/null
-  - [ ] Gate: 每个待实现专业能力至少有候选 sourceRuleId；缺口列入 RULE_SOURCE_GAPS.md
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: python3 -m json.tool contracts/fate/classics_rule_index.json >/dev/null && python3 -m json.tool contracts/fate/rule_depth_registry.json >/dev/null
+  - [x] Gate: 每个待实现专业能力至少有候选 sourceRuleId；缺口列入 RULE_SOURCE_GAPS.md
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ## TP-02
@@ -130,15 +130,15 @@
 ### TP-02.01
 - 标题: 历法 oracle 覆盖审计
 - 验收项:
-  - [ ] `历法 oracle 覆盖审计` 达到其 objective，且依赖关系保持一致
+  - [x] `历法 oracle 覆盖审计` 达到其 objective，且依赖关系保持一致
 - Verify: .venv/bin/python -m pytest tests/regression/test_calendar_oracle_contract.py tests/regression/test_solar_terms_golden.py -q
 - Gate: oracle 只用于测试/评估；差异样本有 failureExplanation
 - 输出物:
-  - [ ] governance/tasks/0003-bazi-system-100/CALENDAR_ORACLE_AUDIT.md
+  - [x] governance/tasks/0003-bazi-system-100/CALENDAR_ORACLE_AUDIT.md
 - 标准清单:
-  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_calendar_oracle_contract.py tests/regression/test_solar_terms_golden.py -q
-  - [ ] Gate: oracle 只用于测试/评估；差异样本有 failureExplanation
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: .venv/bin/python -m pytest tests/regression/test_calendar_oracle_contract.py tests/regression/test_solar_terms_golden.py -q
+  - [x] Gate: oracle 只用于测试/评估；差异样本有 failureExplanation
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-02.02
@@ -516,15 +516,15 @@
 ### TP-09.01
 - 标题: 大文件职责切片路线
 - 验收项:
-  - [ ] `大文件职责切片路线` 达到其 objective，且依赖关系保持一致
+  - [x] `大文件职责切片路线` 达到其 objective，且依赖关系保持一致
 - Verify: test -s governance/tasks/0003-bazi-system-100/CORE_FILE_BURNDOWN.md && rg 'bazi_calculator|calculate_pure_analysis|report_generator' governance/tasks/0003-bazi-system-100/CORE_FILE_BURNDOWN.md
 - Gate: 每个拆分候选有行为保持测试和回滚路径；不做大爆炸重写
 - 输出物:
-  - [ ] governance/tasks/0003-bazi-system-100/CORE_FILE_BURNDOWN.md
+  - [x] governance/tasks/0003-bazi-system-100/CORE_FILE_BURNDOWN.md
 - 标准清单:
-  - [ ] Verify: test -s governance/tasks/0003-bazi-system-100/CORE_FILE_BURNDOWN.md && rg 'bazi_calculator|calculate_pure_analysis|report_generator' governance/tasks/0003-bazi-system-100/CORE_FILE_BURNDOWN.md
-  - [ ] Gate: 每个拆分候选有行为保持测试和回滚路径；不做大爆炸重写
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: test -s governance/tasks/0003-bazi-system-100/CORE_FILE_BURNDOWN.md && rg 'bazi_calculator|calculate_pure_analysis|report_generator' governance/tasks/0003-bazi-system-100/CORE_FILE_BURNDOWN.md
+  - [x] Gate: 每个拆分候选有行为保持测试和回滚路径；不做大爆炸重写
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-09.02

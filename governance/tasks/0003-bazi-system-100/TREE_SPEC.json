@@ -31,7 +31,8 @@
       "type": "package",
       "objective": "在干净版本边界上建立八字 100% 的 scorecard 和当前缺口基线",
       "parent": "ROOT",
-      "status": "In Progress"
+      "status": "Done",
+      "evidence": "2026-06-16：TP-00.02 SCORECARD.md 与 TP-00.03 BASELINE_EVIDENCE.md 均完成；版本与基线控制面已验收。"
     },
     {
       "id": "TP-00.01",
@@ -73,7 +74,8 @@
         "100% 是工程验收定义，不是预测绝对准确",
         "MingLi 准确率目标分阶段记录"
       ],
-      "status": "Not Started"
+      "status": "Done",
+      "evidence": "2026-06-16：新增 SCORECARD.md，固化 10 个维度 current%、100% evidence、Verify 和 Falsifier；节点 Verify 通过。"
     },
     {
       "id": "TP-00.03",
@@ -95,7 +97,8 @@
         "当前 76% 估算有命令证据支撑",
         "失败最多的专题分类进入后续优先级"
       ],
-      "status": "Not Started"
+      "status": "Done",
+      "evidence": "2026-06-16：新增 BASELINE_EVIDENCE.md；MingLi 2025 sample10 answered 10/10、correct 3、accuracy 30.00%；local-ci quick PASS，focused regression 47 passed。"
     },
     {
       "id": "TP-01",
@@ -107,7 +110,8 @@
       "depends_on": [
         "TP-00"
       ],
-      "status": "Not Started"
+      "status": "Done",
+      "evidence": "2026-06-16：TP-01.01 RESOURCE_MAP.md 与 TP-01.02 RULE_SOURCE_GAPS.md 均完成；资源角色和规则来源覆盖已验收。"
     },
     {
       "id": "TP-01.01",
@@ -129,7 +133,8 @@
         "无 license 资源只标 reference_only",
         "oracle 不进入生产主链"
       ],
-      "status": "Not Started"
+      "status": "Done",
+      "evidence": "2026-06-16：新增 RESOURCE_MAP.md；Verify 通过；reference manifest policy tests 3 passed。"
     },
     {
       "id": "TP-01.02",
@@ -151,7 +156,8 @@
         "缺失来源不能进入实现",
         "规则来源只保留短摘要和条件"
       ],
-      "status": "Not Started"
+      "status": "Done",
+      "evidence": "2026-06-16：新增 RULE_SOURCE_GAPS.md；规则 JSON 校验通过；43 个引用的 bazi sourceRuleId 均能回指现有 classics/rule-depth 资产。"
     },
     {
       "id": "TP-02",
@@ -163,7 +169,8 @@
       "depends_on": [
         "TP-01"
       ],
-      "status": "Not Started"
+      "status": "In Progress",
+      "evidence": "2026-06-16：TP-02.01 CALENDAR_ORACLE_AUDIT.md 完成；oracle 隔离 PASS，现有 boundary fixture 字段缺口转交 TP-02.02。"
     },
     {
       "id": "TP-02.01",
@@ -181,7 +188,8 @@
       "outputs": [
         "governance/tasks/0003-bazi-system-100/CALENDAR_ORACLE_AUDIT.md"
       ],
-      "status": "Not Started"
+      "status": "Done",
+      "evidence": "2026-06-16：新增 CALENDAR_ORACLE_AUDIT.md；Verify `.venv/bin/python -m pytest tests/regression/test_calendar_oracle_contract.py tests/regression/test_solar_terms_golden.py -q` 通过，10 passed in 71.82s。"
     },
     {
       "id": "TP-02.02",
@@ -625,7 +633,8 @@
         "TP-00",
         "TP-01"
       ],
-      "status": "Not Started"
+      "status": "In Progress",
+      "evidence": "2026-06-16：TP-09.01 CORE_FILE_BURNDOWN.md 完成；核心大文件拆分候选、行为保持测试与回滚路径已记录。"
     },
     {
       "id": "TP-09.01",
@@ -643,7 +652,8 @@
       "outputs": [
         "governance/tasks/0003-bazi-system-100/CORE_FILE_BURNDOWN.md"
       ],
-      "status": "Not Started"
+      "status": "Done",
+      "evidence": "2026-06-16：新增 CORE_FILE_BURNDOWN.md；Verify `test -s governance/tasks/0003-bazi-system-100/CORE_FILE_BURNDOWN.md && rg bazi_calculator/calculate_pure_analysis/report_generator governance/tasks/0003-bazi-system-100/CORE_FILE_BURNDOWN.md` 通过。"
     },
     {
       "id": "TP-09.02",
