@@ -104,6 +104,75 @@
         "bazi.regulating_climate",
         "bazi.balance_five_elements",
         "bazi.yongshen_strategy"
+      ],
+      "strategyScoringMatrix": [
+        {
+          "strategy": "调候",
+          "appliesWhen": [
+            "月令、节气、寒暖燥湿、调候原始依据存在"
+          ],
+          "doesNotApplyWhen": [
+            "缺少季节气候依据",
+            "把调候当作医疗/养生处方"
+          ],
+          "scoreBasis": [
+            "yongShen.basis",
+            "yongShen.tiaohouRaw",
+            "climateScores"
+          ],
+          "conflictPolicy": "调候优先解释气候偏性，但不得覆盖扶抑、通关、病药。"
+        },
+        {
+          "strategy": "扶抑",
+          "appliesWhen": [
+            "日主强弱、月令、通根、透干、五行分数齐备"
+          ],
+          "doesNotApplyWhen": [
+            "只存在单一强弱标签",
+            "五行分数或藏干缺失"
+          ],
+          "scoreBasis": [
+            "dayMaster.strength",
+            "wuxingScores.strongScore",
+            "wuxingScores.statusDetail"
+          ],
+          "conflictPolicy": "扶抑与调候冲突时并列呈现，不能单独覆盖用神。"
+        },
+        {
+          "strategy": "通关",
+          "appliesWhen": [
+            "干支冲合刑害破或五行克战关系显著",
+            "存在可缓冲的中介五行"
+          ],
+          "doesNotApplyWhen": [
+            "关系链不可追溯",
+            "只有单点五行偏枯而无冲突链"
+          ],
+          "scoreBasis": [
+            "ganzhiRelations",
+            "branchRelations",
+            "baziBenchmark.ganzhiPriority"
+          ],
+          "conflictPolicy": "通关只解释冲突缓冲，不替代调候或扶抑主策略。"
+        },
+        {
+          "strategy": "病药",
+          "appliesWhen": [
+            "五行偏枯、寒暖燥湿或格局病处可定位",
+            "存在对应药处证据"
+          ],
+          "doesNotApplyWhen": [
+            "偏枯不明显",
+            "病处无法回指证据字段",
+            "输出生活处方"
+          ],
+          "scoreBasis": [
+            "wuxingScores.fiveElementScore",
+            "climateScores",
+            "geju"
+          ],
+          "conflictPolicy": "病药作为解释优先级，不输出现实诊疗、金融或法律建议。"
+        }
       ]
     },
     {
@@ -319,6 +388,96 @@
       "sourceRuleIds": [
         "bazi.pattern_by_month_command",
         "bazi.pattern_root_transparency"
+      ],
+      "patternMatrix": [
+        {
+          "name": "正格",
+          "sourceRuleId": "bazi.pattern_by_month_command",
+          "appliesWhen": [
+            "月令主气可取格",
+            "透干或藏干能支持月令取象",
+            "未触发特殊格局完整条件"
+          ],
+          "breaksWhen": [
+            "月令不清或节气边界未验证",
+            "合冲刑害破改变取格依据但无证据链",
+            "从格、化气、专旺条件已完整成立"
+          ],
+          "riskBoundary": "正格只作为解释优先级，不替代完整命例判断。"
+        },
+        {
+          "name": "变格",
+          "sourceRuleId": "bazi.pattern_root_transparency",
+          "appliesWhen": [
+            "月令取格后出现透干、通根、合冲导致取象转移",
+            "原始正格有明确破格因素"
+          ],
+          "breaksWhen": [
+            "缺少透干/通根证据",
+            "只因文案偏好调整格局名称",
+            "无法解释破格来源"
+          ],
+          "riskBoundary": "变格必须保留原始取格和变格证据，不直接覆盖正格。"
+        },
+        {
+          "name": "从格",
+          "sourceRuleId": "bazi.pattern_by_month_command",
+          "appliesWhen": [
+            "日主极弱且自党扶助极少",
+            "财官食伤等外部势力显著成势",
+            "无有效印比破从"
+          ],
+          "breaksWhen": [
+            "日主有强根或透出生扶",
+            "岁运或原局出现印比破从",
+            "外部势力不专一"
+          ],
+          "riskBoundary": "从格未具备完整条件时只能输出 candidate/guarded。"
+        },
+        {
+          "name": "假从",
+          "sourceRuleId": "bazi.pattern_root_transparency",
+          "appliesWhen": [
+            "日主偏弱且外部势力强",
+            "仍存在少量自党或反向证据"
+          ],
+          "breaksWhen": [
+            "自党扶助足以转为普通弱格",
+            "外部势力不成气候",
+            "缺少通根/透干证据"
+          ],
+          "riskBoundary": "假从必须显式标注反证，不得写成真从。"
+        },
+        {
+          "name": "专旺",
+          "sourceRuleId": "bazi.pattern_root_transparency",
+          "appliesWhen": [
+            "日主强旺且同党成势",
+            "月令或通根支持一气专旺",
+            "泄耗制化不能破坏主体气势"
+          ],
+          "breaksWhen": [
+            "财官食伤强力制泄",
+            "月令不支持专旺",
+            "同党数量不足或根气不稳"
+          ],
+          "riskBoundary": "专旺候选必须等待 golden 反例验证后才能提高置信度。"
+        },
+        {
+          "name": "化气",
+          "sourceRuleId": "bazi.ganzhi_priority",
+          "appliesWhen": [
+            "天干五合成对出现",
+            "化神得月令或通根支持",
+            "化神透出且无直接阻隔"
+          ],
+          "breaksWhen": [
+            "月令不助化神",
+            "化神无根无透",
+            "出现冲破、争合或克制阻隔"
+          ],
+          "riskBoundary": "化气必须依赖合化条件链，不得由合象直接跳到成化。"
+        }
       ]
     },
     {
@@ -340,7 +499,8 @@
       "sourceRuleIds": [
         "bazi.pattern_by_month_command",
         "bazi.pattern_root_transparency"
-      ]
+      ],
+      "patternMatrixRef": "bazi.depth.pattern.regular_vs_special.patternMatrix"
     },
     {
       "id": "bazi.depth.yongshen.tiaohou_priority",
@@ -586,6 +746,105 @@
       "sourceRuleIds": [
         "bazi.stem_branch_relations",
         "bazi.ganzhi_priority"
+      ],
+      "transformStateMatrix": [
+        {
+          "state": "structural_relation",
+          "label": "合象登记",
+          "evidenceFields": [
+            "ganzhiRelations.tianGan",
+            "branchRelations",
+            "baziBenchmark.combineTransformMatrix.candidates"
+          ],
+          "appliesWhen": [
+            "存在天干五合或地支会合关系"
+          ],
+          "counterConditions": [
+            "关系名称缺失",
+            "四柱干支不完整"
+          ],
+          "riskBoundary": "只登记结构关系，不宣称成化。"
+        },
+        {
+          "state": "transform_candidate",
+          "label": "成化候选",
+          "evidenceFields": [
+            "monthCommand",
+            "hiddenStems",
+            "baziBenchmark.combineTransformMatrix.conditionCatalog"
+          ],
+          "appliesWhen": [
+            "配对天干存在",
+            "月令支持化神或化神有透根",
+            "未发现直接冲破"
+          ],
+          "counterConditions": [
+            "月令不支持化神",
+            "化神无透无根",
+            "条件链缺失"
+          ],
+          "riskBoundary": "候选只能说明有成化可能，不能当作已成化。"
+        },
+        {
+          "state": "transform_success",
+          "label": "成化成立",
+          "evidenceFields": [
+            "monthCommand",
+            "transparentStems",
+            "rootedBranches",
+            "blockers"
+          ],
+          "appliesWhen": [
+            "月令支持化神",
+            "化神透出",
+            "化神通根",
+            "无冲破阻隔",
+            "无争合"
+          ],
+          "counterConditions": [
+            "任一关键条件缺失",
+            "出现冲破或争合",
+            "化神被强克"
+          ],
+          "riskBoundary": "当前阶段仅定义 contract；无 golden 充分覆盖前不得在报告强断。"
+        },
+        {
+          "state": "transform_broken",
+          "label": "破化/阻隔",
+          "evidenceFields": [
+            "branchRelations.conflictsDetail",
+            "ganzhiExtra.keDetail",
+            "blockers"
+          ],
+          "appliesWhen": [
+            "冲破阻隔直接作用于合化双方",
+            "化神被克制或失令",
+            "成化条件被反证覆盖"
+          ],
+          "counterConditions": [
+            "阻隔对象与合化双方无关",
+            "只有弱反证且主条件完整"
+          ],
+          "riskBoundary": "破化只说明成化条件不足，不输出现实灾断。"
+        },
+        {
+          "state": "contested_transform",
+          "label": "争合",
+          "evidenceFields": [
+            "ganzhiRelations.tianGan",
+            "pairedStems",
+            "positions"
+          ],
+          "appliesWhen": [
+            "同一干参与多组合",
+            "合化双方被其他关系牵制"
+          ],
+          "counterConditions": [
+            "只有唯一配对",
+            "争合位置不能回指四柱"
+          ],
+          "riskBoundary": "争合优先降低置信度，不自动改写格局。"
+        }
       ]
     },
     {
@@ -734,7 +993,8 @@
       "sourceRuleIds": [
         "bazi.pattern_by_month_command",
         "bazi.pattern_root_transparency"
-      ]
+      ],
+      "patternMatrixRef": "bazi.depth.pattern.regular_vs_special.patternMatrix"
     },
     {
       "id": "bazi.depth.pattern.finance_official_seal_food_matrix",

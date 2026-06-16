@@ -187,16 +187,16 @@
 ### TP-03.01
 - 标题: 格局分类语法矩阵
 - 验收项:
-  - [ ] `格局分类语法矩阵` 达到其 objective，且依赖关系保持一致
+  - [x] `格局分类语法矩阵` 达到其 objective，且依赖关系保持一致
 - Verify: python3 -m json.tool contracts/fate/rule_depth_registry.json >/dev/null && rg '从格|化气|专旺|假从|格局正变' contracts/fate -n
 - Gate: 每类格局有 sourceRuleId、成立条件、破格条件、riskBoundary
 - 输出物:
-  - [ ] contracts/fate/rule_depth_registry.json
-  - [ ] contracts/fate/classics_rule_index.json
+  - [x] contracts/fate/rule_depth_registry.json
+  - [x] contracts/fate/classics_rule_index.json
 - 标准清单:
-  - [ ] Verify: python3 -m json.tool contracts/fate/rule_depth_registry.json >/dev/null && rg '从格|化气|专旺|假从|格局正变' contracts/fate -n
-  - [ ] Gate: 每类格局有 sourceRuleId、成立条件、破格条件、riskBoundary
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: python3 -m json.tool contracts/fate/rule_depth_registry.json >/dev/null && rg '从格|化气|专旺|假从|格局正变' contracts/fate -n
+  - [x] Gate: 每类格局有 sourceRuleId、成立条件、破格条件、riskBoundary
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-03.02
@@ -245,15 +245,15 @@
 ### TP-04.01
 - 标题: 合化条件链 registry
 - 验收项:
-  - [ ] `合化条件链 registry` 达到其 objective，且依赖关系保持一致
+  - [x] `合化条件链 registry` 达到其 objective，且依赖关系保持一致
 - Verify: rg '合化|成化|破化|阻隔|争合' contracts/fate -n && python3 -m json.tool contracts/fate/rule_depth_registry.json >/dev/null
 - Gate: 合化规则不再只有保护文案；每个状态有证据字段和反例条件
 - 输出物:
-  - [ ] contracts/fate/rule_depth_registry.json
+  - [x] contracts/fate/rule_depth_registry.json
 - 标准清单:
-  - [ ] Verify: rg '合化|成化|破化|阻隔|争合' contracts/fate -n && python3 -m json.tool contracts/fate/rule_depth_registry.json >/dev/null
-  - [ ] Gate: 合化规则不再只有保护文案；每个状态有证据字段和反例条件
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: rg '合化|成化|破化|阻隔|争合' contracts/fate -n && python3 -m json.tool contracts/fate/rule_depth_registry.json >/dev/null
+  - [x] Gate: 合化规则不再只有保护文案；每个状态有证据字段和反例条件
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-04.02
@@ -302,15 +302,15 @@
 ### TP-05.01
 - 标题: 用神策略评分矩阵
 - 验收项:
-  - [ ] `用神策略评分矩阵` 达到其 objective，且依赖关系保持一致
+  - [x] `用神策略评分矩阵` 达到其 objective，且依赖关系保持一致
 - Verify: rg '调候|扶抑|通关|病药|用神' contracts/fate -n && python3 -m json.tool contracts/fate/rule_depth_registry.json >/dev/null
 - Gate: 每种策略有 appliesWhen、doesNotApplyWhen、score basis、conflictPolicy
 - 输出物:
-  - [ ] contracts/fate/rule_depth_registry.json
+  - [x] contracts/fate/rule_depth_registry.json
 - 标准清单:
-  - [ ] Verify: rg '调候|扶抑|通关|病药|用神' contracts/fate -n && python3 -m json.tool contracts/fate/rule_depth_registry.json >/dev/null
-  - [ ] Gate: 每种策略有 appliesWhen、doesNotApplyWhen、score basis、conflictPolicy
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: rg '调候|扶抑|通关|病药|用神' contracts/fate -n && python3 -m json.tool contracts/fate/rule_depth_registry.json >/dev/null
+  - [x] Gate: 每种策略有 appliesWhen、doesNotApplyWhen、score basis、conflictPolicy
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-05.02

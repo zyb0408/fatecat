@@ -27,6 +27,10 @@ def _classics_rule_ids() -> set[str]:
     return {rule["id"] for rule in data["rules"]}
 
 
+def _rule_depth_rules() -> dict[str, dict]:
+    return {rule["id"]: rule for rule in _rule_depth_registry()["rules"]}
+
+
 def _bazi_result() -> dict:
     return calculate_pure_analysis(
         PureAnalysisInput(
@@ -201,6 +205,51 @@ def test_bazi_gap_closure_benchmark_fields_are_structured():
         assert not (forbidden_profile_fields & set(item))
         rendered = json.dumps(item, ensure_ascii=False)
         assert not any(term in rendered for term in forbidden_profile_terms)
+
+
+def test_bazi_pattern_matrix_declares_conditions_counterevidence_and_boundaries():
+    rules = _rule_depth_rules()
+    matrix = rules["bazi.depth.pattern.regular_vs_special"]["patternMatrix"]
+    classics = _classics_rule_ids()
+
+    assert {item["name"] for item in matrix} >= {"正格", "变格", "从格", "假从", "专旺", "化气"}
+    for item in matrix:
+        assert item["sourceRuleId"] in classics
+        assert item["appliesWhen"]
+        assert item["breaksWhen"]
+        assert item["riskBoundary"]
+
+    assert rules["bazi.depth.pattern.follow_transform_guard"]["patternMatrixRef"]
+    assert rules["bazi.depth.pattern.special_pattern_checklist"]["patternMatrixRef"]
+
+
+def test_bazi_combine_transform_matrix_declares_states_and_counter_conditions():
+    matrix = _rule_depth_rules()["bazi.depth.relation.combine_transform_guard"]["transformStateMatrix"]
+
+    assert {item["state"] for item in matrix} >= {
+        "structural_relation",
+        "transform_candidate",
+        "transform_success",
+        "transform_broken",
+        "contested_transform",
+    }
+    assert {item["label"] for item in matrix} >= {"成化成立", "破化/阻隔", "争合"}
+    for item in matrix:
+        assert item["evidenceFields"]
+        assert item["appliesWhen"]
+        assert item["counterConditions"]
+        assert item["riskBoundary"]
+
+
+def test_bazi_yongshen_strategy_scoring_matrix_has_conflict_policy():
+    matrix = _rule_depth_rules()["bazi.depth.yongshen.strategy_matrix"]["strategyScoringMatrix"]
+
+    assert [item["strategy"] for item in matrix] == ["调候", "扶抑", "通关", "病药"]
+    for item in matrix:
+        assert item["appliesWhen"]
+        assert item["doesNotApplyWhen"]
+        assert item["scoreBasis"]
+        assert item["conflictPolicy"]
 
 
 def test_ziwei_rule_depth_outputs_rule_applications_and_evidence():
