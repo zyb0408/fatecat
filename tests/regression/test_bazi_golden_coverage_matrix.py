@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -58,6 +59,14 @@ def _shard_config_from_env() -> tuple[int, int]:
 
 def _select_shard_cases(cases: list[dict], total: int, index: int) -> list[dict]:
     return [case for position, case in enumerate(cases) if position % total == index]
+
+
+def _write_timing_report(path: str | None, payload: dict) -> None:
+    if not path:
+        return
+    output = Path(path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def test_bazi_golden_coverage_matrix_has_300_plus_traceable_cases():
@@ -124,8 +133,13 @@ def test_bazi_golden_coverage_matrix_all_cases_match_current_core():
     shard_total, shard_index = _shard_config_from_env()
     selected_cases = _select_shard_cases(cases, shard_total, shard_index)
     assert selected_cases, f"golden shard empty: index={shard_index}, total={shard_total}"
+    case_budget_seconds = float(os.getenv("FATECAT_GOLDEN_CASE_BUDGET_SECONDS", "30"))
+    timings: list[dict] = []
+    slow_cases: list[dict] = []
+    suite_started = time.perf_counter()
 
     for case in selected_cases:
+        case_started = time.perf_counter()
         result = _run_case(case)
         expected = case["expected"]
 
@@ -133,3 +147,23 @@ def test_bazi_golden_coverage_matrix_all_cases_match_current_core():
         assert result["dayMaster"]["stem"] == expected["dayStem"], case["id"]
         assert result["jiaoYun"]["startDate"] == expected["fortuneStart"]["startDate"], case["id"]
         assert result["baziRuleDepth"]["appliedRules"], case["id"]
+        elapsed_seconds = round(time.perf_counter() - case_started, 4)
+        timing = {"id": case["id"], "elapsedSeconds": elapsed_seconds}
+        timings.append(timing)
+        if elapsed_seconds > case_budget_seconds:
+            slow_cases.append(timing)
+
+    total_elapsed_seconds = round(time.perf_counter() - suite_started, 4)
+    _write_timing_report(
+        os.getenv("FATECAT_GOLDEN_TIMING_JSON"),
+        {
+            "schemaVersion": 1,
+            "shardTotal": shard_total,
+            "shardIndex": shard_index,
+            "selectedCaseCount": len(selected_cases),
+            "caseBudgetSeconds": case_budget_seconds,
+            "totalElapsedSeconds": total_elapsed_seconds,
+            "caseTimings": timings,
+        },
+    )
+    assert not slow_cases, slow_cases

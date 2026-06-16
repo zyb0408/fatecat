@@ -116,15 +116,15 @@
 ## TP-02
 - 标题: 基础排盘与时间边界 100%
 - 验收项:
-  - [ ] `基础排盘与时间边界 100%` 达到其 objective，且依赖关系保持一致
+  - [x] `基础排盘与时间边界 100%` 达到其 objective，且依赖关系保持一致
 - Verify: 核对目标完成并补充执行证据
 - Gate: 任务目标与上下文已确认
 - 输出物:
-  - [ ] 把基础排盘从约 90% 推到可审计 100%，重点补节气、真太阳时、早晚子时、起运和跨时区边界
+  - [x] 把基础排盘从约 90% 推到可审计 100%，重点补节气、真太阳时、早晚子时、起运和跨时区边界
 - 标准清单:
-  - [ ] Verify: 核对目标完成并补充执行证据
-  - [ ] Gate: 任务目标与上下文已确认
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: 核对目标完成并补充执行证据
+  - [x] Gate: 任务目标与上下文已确认
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-02.01
@@ -159,15 +159,15 @@
 ### TP-02.03
 - 标题: 全量 golden deep gate 性能预算
 - 验收项:
-  - [ ] `全量 golden deep gate 性能预算` 达到其 objective，且依赖关系保持一致
+  - [x] `全量 golden deep gate 性能预算` 达到其 objective，且依赖关系保持一致
 - Verify: FATECAT_RUN_FULL_GOLDEN_MATRIX=1 FATECAT_GOLDEN_SHARD_TOTAL=4 FATECAT_GOLDEN_SHARD_INDEX=0 .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py -q
 - Gate: deep gate 有 shard、case-level timing 或明确耗时预算；quick 不跑全量
 - 输出物:
-  - [ ] governance/tasks/0003-bazi-system-100/GOLDEN_DEEP_GATE.md
+  - [x] governance/tasks/0003-bazi-system-100/GOLDEN_DEEP_GATE.md
 - 标准清单:
-  - [ ] Verify: FATECAT_RUN_FULL_GOLDEN_MATRIX=1 FATECAT_GOLDEN_SHARD_TOTAL=4 FATECAT_GOLDEN_SHARD_INDEX=0 .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py -q
-  - [ ] Gate: deep gate 有 shard、case-level timing 或明确耗时预算；quick 不跑全量
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: FATECAT_RUN_FULL_GOLDEN_MATRIX=1 FATECAT_GOLDEN_SHARD_TOTAL=4 FATECAT_GOLDEN_SHARD_INDEX=0 .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py -q
+  - [x] Gate: deep gate 有 shard、case-level timing 或明确耗时预算；quick 不跑全量
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ## TP-03

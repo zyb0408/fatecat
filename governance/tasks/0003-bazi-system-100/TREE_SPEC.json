@@ -169,8 +169,8 @@
       "depends_on": [
         "TP-01"
       ],
-      "status": "In Progress",
-      "evidence": "2026-06-16：TP-02.01/TP-02.02 完成；calendar boundary fixture 扩展到 9 条，逐条带 source/failureExplanation/privacy/license。"
+      "status": "Done",
+      "evidence": "2026-06-16：TP-02.01/TP-02.02/TP-02.03 均完成；基础排盘与时间边界 golden、oracle 隔离、deep gate 预算已验收。"
     },
     {
       "id": "TP-02.01",
@@ -227,7 +227,8 @@
       "outputs": [
         "governance/tasks/0003-bazi-system-100/GOLDEN_DEEP_GATE.md"
       ],
-      "status": "Not Started"
+      "status": "Done",
+      "evidence": "2026-06-16：新增 GOLDEN_DEEP_GATE.md；quick `9 passed, 1 skipped in 29.44s`；shard0 `10 passed in 578.31s`，75 cases，无 over-budget case。"
     },
     {
       "id": "TP-03",
@@ -240,7 +241,8 @@
         "TP-01",
         "TP-02"
       ],
-      "status": "Not Started"
+      "status": "Not Started",
+      "evidence": "下一步可执行 TP-03.01。"
     },
     {
       "id": "TP-03.01",
@@ -309,7 +311,8 @@
         "TP-01",
         "TP-02"
       ],
-      "status": "Not Started"
+      "status": "Not Started",
+      "evidence": "下一步可执行 TP-04.01。"
     },
     {
       "id": "TP-04.01",
@@ -377,7 +380,8 @@
         "TP-01",
         "TP-02"
       ],
-      "status": "Not Started"
+      "status": "Not Started",
+      "evidence": "下一步可执行 TP-05.01。"
     },
     {
       "id": "TP-05.01",
