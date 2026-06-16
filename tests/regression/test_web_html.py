@@ -197,6 +197,12 @@ def test_web_page_generates_copyable_markdown_report():
     assert '<h2 id="markdown-output">Markdown 输出</h2>' in text
     assert '<pre><code id="report-markdown">' in text
     assert '<section id="bazi-workbench">' in text
+    assert "<details><summary>专题 profile / 风险边界</summary>" in text
+    assert "财运 profile 只作结构趋势证据" in text
+    assert "健康 profile 只作五行结构压力证据" in text
+    assert "lifecycle" not in text
+    for forbidden in ("医疗建议", "投资建议", "法律建议", "心理建议", "必然", "保证", "灾祸"):
+        assert forbidden not in text
     assert text.index('<pre><code id="report-markdown">') < text.index('<section id="bazi-workbench">')
     assert text.index('<pre><code id="report-markdown">') < text.index("<summary>页面说明与元信息</summary>")
     assert "## TradeCat Labs 实验室" in text

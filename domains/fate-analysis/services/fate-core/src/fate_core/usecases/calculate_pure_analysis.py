@@ -706,7 +706,7 @@ def _build_yongshen_decision(raw: dict[str, Any], strategies: list[dict[str, Any
         "病药": {
             "appliesWhen": ["五行偏枯、寒暖燥湿或格局病处可定位", "存在对应药处证据"],
             "doesNotApplyWhen": ["偏枯不明显", "病处无法回指证据字段", "输出生活处方"],
-            "conflictPolicy": "病药作为解释优先级，不输出现实诊疗、金融或法律建议。",
+            "conflictPolicy": "病药作为解释优先级，不输出现实诊疗、金融或法律决策。",
         },
     }
     scored = [

@@ -345,15 +345,15 @@
 ## TP-06
 - 标题: 岁运与专题推理
 - 验收项:
-  - [ ] `岁运与专题推理` 达到其 objective，且依赖关系保持一致
+  - [x] `岁运与专题推理` 达到其 objective，且依赖关系保持一致
 - Verify: 核对目标完成并补充执行证据
 - Gate: 任务目标与上下文已确认
 - 输出物:
-  - [ ] 把岁运专题从约 55% 推到事业、财运、婚姻、健康、学业、迁移、家庭均有规则证据和 benchmark 反馈
+  - [x] 把岁运专题从约 55% 推到事业、财运、婚姻、健康、学业、迁移、家庭均有规则证据和 benchmark 反馈
 - 标准清单:
-  - [ ] Verify: 核对目标完成并补充执行证据
-  - [ ] Gate: 任务目标与上下文已确认
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: 核对目标完成并补充执行证据
+  - [x] Gate: 任务目标与上下文已确认
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-06.01
@@ -389,15 +389,15 @@
 ### TP-06.03
 - 标题: 专题报告边界
 - 验收项:
-  - [ ] `专题报告边界` 达到其 objective，且依赖关系保持一致
+  - [x] `专题报告边界` 达到其 objective，且依赖关系保持一致
 - Verify: .venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_web_html.py tests/regression/test_fate_policy_assets.py -q
 - Gate: 报告不输出医疗、金融、法律或心理确定建议
 - 输出物:
-  - [ ] report/API/Web evidence boundary
+  - [x] report/API/Web evidence boundary
 - 标准清单:
-  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_web_html.py tests/regression/test_fate_policy_assets.py -q
-  - [ ] Gate: 报告不输出医疗、金融、法律或心理确定建议
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: .venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_web_html.py tests/regression/test_fate_policy_assets.py -q
+  - [x] Gate: 报告不输出医疗、金融、法律或心理确定建议
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ## TP-07

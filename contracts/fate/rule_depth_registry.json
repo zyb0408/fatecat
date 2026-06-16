@@ -171,7 +171,7 @@
             "climateScores",
             "geju"
           ],
-          "conflictPolicy": "病药作为解释优先级，不输出现实诊疗、金融或法律建议。"
+          "conflictPolicy": "病药作为解释优先级，不输出现实诊疗、金融或法律决策。"
         }
       ]
     },
@@ -416,7 +416,7 @@
         "生年、大限、流年、流月、流日或流时四化至少一层可用"
       ],
       "conflictPolicy": "本命四化与运限四化必须分层，不得混读。",
-      "riskBoundary": "四化引动只作趋势证据，不输出必然事件。",
+      "riskBoundary": "四化引动只作趋势证据，不输出确定事件。",
       "sourceRuleIds": [
         "ziwei.mutagen_scope",
         "ziwei.mutagen_flow",
@@ -479,7 +479,7 @@
         "本命、大限、流年等至少两层结构可对照"
       ],
       "conflictPolicy": "本命为体、运限为用；运限不得反向覆盖本命盘面事实。",
-      "riskBoundary": "运限只说明时间层级触发，不保证事件结果。",
+      "riskBoundary": "运限只说明时间层级触发，不承诺事件结果。",
       "sourceRuleIds": [
         "ziwei.fortune_linkage",
         "ziwei.horoscope_cycles"
@@ -794,7 +794,7 @@
       "conditions": [
         "十二宫专题输出存在"
       ],
-      "conflictPolicy": "健康、财富、婚恋等专题不得替代医疗、金融、法律或心理建议。",
+      "conflictPolicy": "健康、财富、婚恋等专题不得替代医疗、金融、法律或心理决策。",
       "riskBoundary": "禁止恐吓式和确定式断语。",
       "sourceRuleIds": [
         "ziwei.palace_topic"
@@ -815,7 +815,7 @@
         "本命和至少一层运限可对照"
       ],
       "conflictPolicy": "大限定阶段，流年触发主题，流月/流日/流时只作细化。",
-      "riskBoundary": "动态运限不保证事件结果。",
+      "riskBoundary": "动态运限不承诺事件结果。",
       "sourceRuleIds": [
         "ziwei.fortune_linkage",
         "ziwei.horoscope_cycles"
@@ -980,7 +980,7 @@
         "大运、流年、流月层级字段可用"
       ],
       "conflictPolicy": "原局优先，大运定阶段，流年定触发，流月只细化窗口。",
-      "riskBoundary": "动态层不得覆盖原局结构，不保证事件结果。",
+      "riskBoundary": "动态层不得覆盖原局结构，不承诺事件结果。",
       "sourceRuleIds": [
         "bazi.fortune_trigger_boundary",
         "bazi.fortune_start_boundary"
@@ -1043,7 +1043,7 @@
         "四化落宫和作用域可用"
       ],
       "conflictPolicy": "禄权科忌按作用域和落宫分层，不把单一化曜视为全局结论。",
-      "riskBoundary": "四化只作结构引动证据，不保证事件结果。",
+      "riskBoundary": "四化只作结构引动证据，不承诺事件结果。",
       "sourceRuleIds": [
         "ziwei.mutagen_flow",
         "ziwei.mutagen_scope"
@@ -1191,7 +1191,7 @@
         "合冲刑害破关系可排序"
       ],
       "conflictPolicy": "刑冲害破只说明结构摩擦和触发，不与成化结论混写。",
-      "riskBoundary": "禁止把刑冲害破输出成恐吓式灾祸断语。",
+      "riskBoundary": "禁止把刑冲害破输出成恐吓式断语。",
       "sourceRuleIds": [
         "bazi.stem_branch_relations",
         "bazi.ganzhi_priority"

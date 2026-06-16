@@ -611,6 +611,22 @@ def _render_bazi_workbench(workbench: dict[str, Any]) -> str:
             trigger_rows.append([item.get("year", ""), item.get("ganZhi", ""), "；".join(item.get("reasons", []))])
     if not trigger_rows:
         trigger_rows.append(["-", "-", "当前样本未命中已登记触发项"])
+    profile_rows = []
+    for item in benchmark.get("topicProfiles", []) if isinstance(benchmark.get("topicProfiles"), list) else []:
+        if not isinstance(item, dict):
+            continue
+        profile_rows.append(
+            [
+                item.get("topic", ""),
+                item.get("score", ""),
+                item.get("lifecycle", ""),
+                "、".join(str(part) for part in item.get("basis", []) if str(part).strip()),
+                "、".join(str(field) for field in item.get("evidenceFields", []) if str(field).strip()),
+                item.get("riskBoundary", ""),
+            ]
+        )
+    if not profile_rows:
+        profile_rows.append(["-", "-", "-", "-", "-", "当前样本未生成专题 profile"])
     return "\n".join(
         [
             '<section id="bazi-workbench">',
@@ -654,6 +670,17 @@ def _render_bazi_workbench(workbench: dict[str, Any]) -> str:
             "<details><summary>大运流年触发</summary>",
             "<pre><code>"
             + _h(tabulate(trigger_rows, headers=["年份", "干支", "触发依据"], tablefmt="psql"))
+            + "</code></pre>",
+            "</details>",
+            "<details><summary>专题 profile / 风险边界</summary>",
+            "<pre><code>"
+            + _h(
+                tabulate(
+                    profile_rows,
+                    headers=["专题", "分数", "生命周期", "依据", "证据字段", "风险边界"],
+                    tablefmt="psql",
+                )
+            )
             + "</code></pre>",
             "</details>",
             "<details><summary>规则深度 / 冲突策略</summary>",

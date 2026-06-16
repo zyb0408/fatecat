@@ -459,8 +459,8 @@
         "TP-04",
         "TP-05"
       ],
-      "status": "In Progress",
-      "evidence": "2026-06-16：TP-06.01 岁运触发规则矩阵、TP-06.02 专题 profile 推理器完成；报告边界继续推进。"
+      "status": "Done",
+      "evidence": "2026-06-16：TP-06.01/TP-06.02/TP-06.03 均完成；岁运触发、专题 profile、报告/API/Web 边界已通过回归。"
     },
     {
       "id": "TP-06.01",
@@ -520,8 +520,8 @@
       "outputs": [
         "report/API/Web evidence boundary"
       ],
-      "status": "Not Started",
-      "evidence": "下一步报告边界任务。"
+      "status": "Done",
+      "evidence": "2026-06-16：Web 工作台新增专题 profile/风险边界折叠块；Markdown API 不输出 topicProfiles 或高风险禁词；指定 regression 52 passed，ruff check/format PASS。"
     },
     {
       "id": "TP-07",
@@ -533,7 +533,8 @@
       "depends_on": [
         "TP-06"
       ],
-      "status": "Not Started"
+      "status": "Not Started",
+      "evidence": "下一步可执行 TP-07.01。"
     },
     {
       "id": "TP-07.01",
@@ -551,7 +552,8 @@
       "outputs": [
         "governance/tasks/0003-bazi-system-100/MINGLI_FULL_EVALUATION.md"
       ],
-      "status": "Not Started"
+      "status": "Not Started",
+      "evidence": "下一步 P0 主线。"
     },
     {
       "id": "TP-07.02",

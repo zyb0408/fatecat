@@ -458,6 +458,20 @@ def test_markdown_report_api_selects_ziwei_without_bazi_blocks():
     assert "## 八字排盘详情" not in markdown
 
 
+def test_bazi_markdown_report_keeps_high_risk_topic_profiles_out_of_default_report():
+    response = TestClient(app).post("/api/v1/report/markdown", json=_payload())
+
+    assert response.status_code == 200
+    markdown = response.json()["data"]["markdown"]
+    assert "# 命理排盘报告：测试样本" in markdown
+    assert "专题 profile" not in markdown
+    assert "topicProfiles" not in markdown
+    assert "健康 profile" not in markdown
+    assert "财运 profile" not in markdown
+    for forbidden in ("医疗建议", "投资建议", "法律建议", "心理建议", "必然", "保证", "灾祸"):
+        assert forbidden not in markdown
+
+
 def test_markdown_report_api_rejects_retired_jianchu_system():
     payload = _payload()
     payload["options"]["reportSystem"] = "jianchu"

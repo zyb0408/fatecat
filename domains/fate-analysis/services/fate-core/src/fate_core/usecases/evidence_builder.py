@@ -30,7 +30,7 @@ def risk_boundary_for_weight(weight: str) -> str:
     if weight == "auxiliary":
         return "辅助证据只能补充结构背景，不替代核心格局、强弱或用神判断。"
     if weight == "fortune":
-        return "岁运触发只说明传统结构被引动，不输出必然事件或高风险决策建议。"
+        return "岁运触发只说明传统结构被引动，不输出确定事件或高风险决策建议。"
     return "仅作传统文化结构分析，不输出确定性人生结论或替代专业建议。"
 
 
