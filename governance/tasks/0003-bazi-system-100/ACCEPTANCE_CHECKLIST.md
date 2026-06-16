@@ -417,15 +417,15 @@
 ### TP-07.01
 - 标题: MingLi 全量 160 评测
 - 验收项:
-  - [ ] `MingLi 全量 160 评测` 达到其 objective，且依赖关系保持一致
+  - [x] `MingLi 全量 160 评测` 达到其 objective，且依赖关系保持一致
 - Verify: bash scripts/generate-mingli-predictions.sh --output-jsonl /tmp/fatecat-mingli-full.jsonl && bash scripts/run-mingli-bench.sh --predictions-file /tmp/fatecat-mingli-full.jsonl --output-json /tmp/fatecat-mingli-full.json
 - Gate: 全量报告包含 total/answered/correct/accuracy/byCategory/results，且无答案泄漏
 - 输出物:
-  - [ ] governance/tasks/0003-bazi-system-100/MINGLI_FULL_EVALUATION.md
+  - [x] governance/tasks/0003-bazi-system-100/MINGLI_FULL_EVALUATION.md
 - 标准清单:
-  - [ ] Verify: bash scripts/generate-mingli-predictions.sh --output-jsonl /tmp/fatecat-mingli-full.jsonl && bash scripts/run-mingli-bench.sh --predictions-file /tmp/fatecat-mingli-full.jsonl --output-json /tmp/fatecat-mingli-full.json
-  - [ ] Gate: 全量报告包含 total/answered/correct/accuracy/byCategory/results，且无答案泄漏
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: bash scripts/generate-mingli-predictions.sh --output-jsonl /tmp/fatecat-mingli-full.jsonl && bash scripts/run-mingli-bench.sh --predictions-file /tmp/fatecat-mingli-full.jsonl --output-json /tmp/fatecat-mingli-full.json
+  - [x] Gate: 全量报告包含 total/answered/correct/accuracy/byCategory/results，且无答案泄漏
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-07.02

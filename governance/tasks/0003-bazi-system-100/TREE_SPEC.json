@@ -533,8 +533,8 @@
       "depends_on": [
         "TP-06"
       ],
-      "status": "Not Started",
-      "evidence": "下一步可执行 TP-07.01。"
+      "status": "In Progress",
+      "evidence": "2026-06-16：TP-07.01 全量 MingLi 160 评测完成；失败样本归因与 benchmark policy 继续推进。"
     },
     {
       "id": "TP-07.01",
@@ -552,8 +552,8 @@
       "outputs": [
         "governance/tasks/0003-bazi-system-100/MINGLI_FULL_EVALUATION.md"
       ],
-      "status": "Not Started",
-      "evidence": "下一步 P0 主线。"
+      "status": "Done",
+      "evidence": "2026-06-16：全量 MingLi predictions 160/160；answered 160、correct 45、accuracy 28.12%；report 含 byCategory/results；predictions 无 expected/answer/correct 泄漏字段；证据写入 MINGLI_FULL_EVALUATION.md。"
     },
     {
       "id": "TP-07.02",
@@ -571,7 +571,8 @@
       "outputs": [
         "governance/tasks/0003-bazi-system-100/MINGLI_FAILURE_TAXONOMY.md"
       ],
-      "status": "Not Started"
+      "status": "Not Started",
+      "evidence": "下一步 P0 主线。"
     },
     {
       "id": "TP-07.03",
