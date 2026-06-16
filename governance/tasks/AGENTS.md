@@ -13,7 +13,8 @@ tasks/
 ├── INDEX.md
 ├── lessons.md
 ├── 0001-quality-standards-100/
-└── 0002-quality-completion-to-100/
+├── 0002-quality-completion-to-100/
+└── 0003-bazi-system-100/
 ```
 
 ## 职责边界

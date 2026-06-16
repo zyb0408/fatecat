@@ -502,15 +502,15 @@
 ## TP-09
 - 标题: 长期维护性和模块边界
 - 验收项:
-  - [ ] `长期维护性和模块边界` 达到其 objective，且依赖关系保持一致
+  - [x] `长期维护性和模块边界` 达到其 objective，且依赖关系保持一致
 - Verify: 核对目标完成并补充执行证据
 - Gate: 任务目标与上下文已确认
 - 输出物:
-  - [ ] 把八字规则体系从大文件堆叠推进到 registry/evaluator/golden/report 分层维护
+  - [x] 把八字规则体系从大文件堆叠推进到 registry/evaluator/golden/report 分层维护
 - 标准清单:
-  - [ ] Verify: 核对目标完成并补充执行证据
-  - [ ] Gate: 任务目标与上下文已确认
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: 核对目标完成并补充执行证据
+  - [x] Gate: 任务目标与上下文已确认
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-09.01
@@ -530,15 +530,15 @@
 ### TP-09.02
 - 标题: 规则 evaluator 模块边界
 - 验收项:
-  - [ ] `规则 evaluator 模块边界` 达到其 objective，且依赖关系保持一致
+  - [x] `规则 evaluator 模块边界` 达到其 objective，且依赖关系保持一致
 - Verify: test -s governance/tasks/0003-bazi-system-100/EVALUATOR_BOUNDARIES.md
 - Gate: evaluation 不进生产 kernel；oracle 不进主链；delivery 不承载领域算法
 - 输出物:
-  - [ ] governance/tasks/0003-bazi-system-100/EVALUATOR_BOUNDARIES.md
+  - [x] governance/tasks/0003-bazi-system-100/EVALUATOR_BOUNDARIES.md
 - 标准清单:
-  - [ ] Verify: test -s governance/tasks/0003-bazi-system-100/EVALUATOR_BOUNDARIES.md
-  - [ ] Gate: evaluation 不进生产 kernel；oracle 不进主链；delivery 不承载领域算法
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: test -s governance/tasks/0003-bazi-system-100/EVALUATOR_BOUNDARIES.md
+  - [x] Gate: evaluation 不进生产 kernel；oracle 不进主链；delivery 不承载领域算法
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ## TP-10

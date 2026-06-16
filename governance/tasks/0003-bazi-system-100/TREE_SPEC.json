@@ -658,8 +658,8 @@
         "TP-00",
         "TP-01"
       ],
-      "status": "In Progress",
-      "evidence": "2026-06-16：TP-09.01 CORE_FILE_BURNDOWN.md 完成；核心大文件拆分候选、行为保持测试与回滚路径已记录。"
+      "status": "Done",
+      "evidence": "2026-06-16：TP-09.01 CORE_FILE_BURNDOWN.md 与 TP-09.02 EVALUATOR_BOUNDARIES.md 完成；registry/evaluator/golden/report 分层边界已记录。"
     },
     {
       "id": "TP-09.01",
@@ -699,8 +699,8 @@
       "outputs": [
         "governance/tasks/0003-bazi-system-100/EVALUATOR_BOUNDARIES.md"
       ],
-      "status": "Not Started",
-      "evidence": "下一步维护边界任务。"
+      "status": "Done",
+      "evidence": "2026-06-16：新增 EVALUATOR_BOUNDARIES.md；明确 evaluation 不进生产 kernel、oracle 不进主链、delivery 不承载领域算法，并定义 pattern/hehua/yongshen/fortune/topic 边界。"
     },
     {
       "id": "TP-10",
@@ -719,7 +719,8 @@
         "TP-08",
         "TP-09"
       ],
-      "status": "Not Started"
+      "status": "Not Started",
+      "evidence": "依赖已满足，下一步执行最终六维审查。"
     },
     {
       "id": "TP-10.01",
@@ -738,7 +739,8 @@
       "outputs": [
         "governance/tasks/0003-bazi-system-100/FINAL_REVIEW.md"
       ],
-      "status": "Not Started"
+      "status": "Not Started",
+      "evidence": "依赖已满足，下一步执行 local-ci quick 和六维审查。"
     },
     {
       "id": "TP-10.02",

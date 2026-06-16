@@ -2,7 +2,7 @@
 - Overall Status: `In Progress`
 
 # Next Executable Leaves
-- TP-09.02 | Wave 13 | Depends On: TP-00.01, TP-00.02, TP-00.03, TP-01.01, TP-01.02, TP-03.01, TP-04.01, TP-05.01, TP-06.01 | Gate: evaluation 不进生产 kernel；oracle 不进主链；delivery 不承载领域算法
+- TP-10.01 | Wave 14 | Depends On: TP-02.01, TP-02.02, TP-02.03, TP-03.01, TP-03.02, TP-03.03, TP-04.01, TP-04.02, TP-04.03, TP-05.01, TP-05.02, TP-05.03, TP-06.01, TP-06.02, TP-06.03, TP-07.01, TP-07.02, TP-07.03, TP-08.01, TP-08.02, TP-09.01, TP-09.02 | Gate: active BLOCK=0；WARN 有 owner、证据和下一步；不得伪造 100%
 
 # Task Package Status Table
 | Node ID | Parent | Depth | Depends On | Ready | Status | Recent Evidence | Blocker | Unblock Needed |
@@ -41,11 +41,11 @@
 | TP-08 | ROOT | 1 | TP-06.01, TP-06.02, TP-06.03, TP-07.01, TP-07.02, TP-07.03 | No | Done | 2026-06-16：TP-08.01/TP-08.02 均完成；报告字段契约、风险话术和免责声明回归已落地。 | 无 | 无 |
 | TP-08.01 | TP-08 | 2 | TP-06.01, TP-06.02, TP-06.03, TP-07.01, TP-07.02, TP-07.03 | No | Done | 2026-06-16：新增 REPORT_FIELD_CONTRACT.md；API 测试锁高级格局、合化、用神、岁运、专题 profile 和 ruleDepth 字段；Web/Markdown 合同回归 40 passed。 | 无 | 无 |
 | TP-08.02 | TP-08 | 2 | TP-06.01, TP-06.02, TP-06.03, TP-07.01, TP-07.02, TP-07.03, TP-08.01 | No | Done | 2026-06-16：classics/rule-depth 风险话术统一为边界语言；新增 policy test 防止医疗/金融/法律/心理替代建议和保证类词回潮；指定 regression 45 passed。 | 无 | 无 |
-| TP-09 | ROOT | 1 | TP-00.01, TP-00.02, TP-00.03, TP-01.01, TP-01.02 | No | In Progress | 2026-06-16：TP-09.01 CORE_FILE_BURNDOWN.md 完成；核心大文件拆分候选、行为保持测试与回滚路径已记录。 | 无 | 无 |
+| TP-09 | ROOT | 1 | TP-00.01, TP-00.02, TP-00.03, TP-01.01, TP-01.02 | No | Done | 2026-06-16：TP-09.01 CORE_FILE_BURNDOWN.md 与 TP-09.02 EVALUATOR_BOUNDARIES.md 完成；registry/evaluator/golden/report 分层边界已记录。 | 无 | 无 |
 | TP-09.01 | TP-09 | 2 | TP-00.01, TP-00.02, TP-00.03, TP-01.01, TP-01.02 | No | Done | 2026-06-16：新增 CORE_FILE_BURNDOWN.md；核心文件关键名检索通过。 | 无 | 无 |
-| TP-09.02 | TP-09 | 2 | TP-00.01, TP-00.02, TP-00.03, TP-01.01, TP-01.02, TP-03.01, TP-04.01, TP-05.01, TP-06.01 | Yes | Not Started | 依赖已满足，低于 TP-06.02 P0 主线优先级。 | 无 | 无 |
-| TP-10 | ROOT | 1 | TP-02.01, TP-02.02, TP-02.03, TP-03.01, TP-03.02, TP-03.03, TP-04.01, TP-04.02, TP-04.03, TP-05.01, TP-05.02, TP-05.03, TP-06.01, TP-06.02, TP-06.03, TP-07.01, TP-07.02, TP-07.03, TP-08.01, TP-08.02, TP-09.01, TP-09.02 | No | Not Started | 待回填 | 无 | 无 |
-| TP-10.01 | TP-10 | 2 | TP-02.01, TP-02.02, TP-02.03, TP-03.01, TP-03.02, TP-03.03, TP-04.01, TP-04.02, TP-04.03, TP-05.01, TP-05.02, TP-05.03, TP-06.01, TP-06.02, TP-06.03, TP-07.01, TP-07.02, TP-07.03, TP-08.01, TP-08.02, TP-09.01, TP-09.02 | No | Not Started | 待回填 | 无 | 无 |
+| TP-09.02 | TP-09 | 2 | TP-00.01, TP-00.02, TP-00.03, TP-01.01, TP-01.02, TP-03.01, TP-04.01, TP-05.01, TP-06.01 | No | Done | 2026-06-16：新增 EVALUATOR_BOUNDARIES.md；明确 evaluation 不进生产 kernel、oracle 不进主链、delivery 不承载领域算法，并定义 pattern/hehua/yongshen/fortune/topic 边界。 | 无 | 无 |
+| TP-10 | ROOT | 1 | TP-02.01, TP-02.02, TP-02.03, TP-03.01, TP-03.02, TP-03.03, TP-04.01, TP-04.02, TP-04.03, TP-05.01, TP-05.02, TP-05.03, TP-06.01, TP-06.02, TP-06.03, TP-07.01, TP-07.02, TP-07.03, TP-08.01, TP-08.02, TP-09.01, TP-09.02 | No | Not Started | 依赖已满足，下一步执行最终六维审查。 | 无 | 无 |
+| TP-10.01 | TP-10 | 2 | TP-02.01, TP-02.02, TP-02.03, TP-03.01, TP-03.02, TP-03.03, TP-04.01, TP-04.02, TP-04.03, TP-05.01, TP-05.02, TP-05.03, TP-06.01, TP-06.02, TP-06.03, TP-07.01, TP-07.02, TP-07.03, TP-08.01, TP-08.02, TP-09.01, TP-09.02 | Yes | Not Started | 依赖已满足，下一步执行 local-ci quick 和六维审查。 | 无 | 无 |
 | TP-10.02 | TP-10 | 2 | TP-02.01, TP-02.02, TP-02.03, TP-03.01, TP-03.02, TP-03.03, TP-04.01, TP-04.02, TP-04.03, TP-05.01, TP-05.02, TP-05.03, TP-06.01, TP-06.02, TP-06.03, TP-07.01, TP-07.02, TP-07.03, TP-08.01, TP-08.02, TP-09.01, TP-09.02, TP-10.01 | No | Not Started | 待回填 | 无 | 无 |
 
 # Blockers
