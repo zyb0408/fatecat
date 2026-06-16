@@ -137,7 +137,7 @@ def test_ziwei_golden_case_locks_core_chart_fields():
         assert rule_id in emitted
 
 
-def test_web_workbench_is_backend_structured_and_keeps_privacy():
+def test_web_workbench_is_backend_structured_and_displays_birth_place():
     client = TestClient(app)
     bazi_response = client.get(
         "/web",
@@ -172,8 +172,8 @@ def test_web_workbench_is_backend_structured_and_keeps_privacy():
     assert "紫微工作台" in ziwei_response.text
     assert "十二宫 / 星曜" in ziwei_response.text
     assert "四化飞入 / 运限" in ziwei_response.text
-    assert "上海" not in ziwei_response.text
-    assert "已填写（非北京地区已隐藏）" in ziwei_response.text
+    assert "上海" in ziwei_response.text
+    assert "已填写（非北京地区已隐藏）" not in ziwei_response.text
 
 
 def test_api_and_web_share_benchmark_contract_fields():

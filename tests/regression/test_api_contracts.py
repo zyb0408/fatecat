@@ -611,7 +611,7 @@ def test_capability_api_executes_meihua_without_enabling_markdown_system():
     assert body["evidence"]["items"]["cast"]["ruleIds"] == ["meihua.number_cast"]
 
 
-def test_markdown_report_hides_non_beijing_birth_place():
+def test_markdown_report_displays_submitted_birth_place():
     payload = _payload()
     payload["birthPlace"] = {
         "name": "上海市",
@@ -624,5 +624,6 @@ def test_markdown_report_hides_non_beijing_birth_place():
 
     assert response.status_code == 200
     markdown = response.json()["data"]["markdown"]
-    assert "上海" not in markdown
-    assert "已填写（非北京地区已隐藏）" in markdown
+    assert "出生地区" in markdown
+    assert "上海市" in markdown
+    assert "已填写（非北京地区已隐藏）" not in markdown

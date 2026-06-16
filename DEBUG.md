@@ -611,3 +611,63 @@ Result:
 - Focused regression tests passed: `49 passed in 9.74s`.
 - `mypy fate_core` passed: `Success: no issues found in 39 source files`.
 - 八字 rule-depth regression passed: `30 passed in 62.50s`.
+
+## 2026-06-16 Web follow-up: submitted birth place hidden in report
+
+### Bug
+
+用户提交非北京出生地区后，Web/Markdown 报告显示：
+
+```text
+| 出生地区 | 已填写（非北京地区已隐藏） |
+```
+
+用户当前要求是展示已填写出生地区。
+
+### Observations
+
+- `git status --short --branch` 显示 `main...origin/main [ahead 27]`，本地提交未推送远端。
+- 旧隐藏策略来自活跃 helper：
+  - `domains/experience-delivery/services/fatecat-delivery/src/report_generator.py::public_birth_place`
+  - `domains/fate-analysis/services/fate-core/src/fate_core/usecases/calculate_ziwei.py::_public_place`
+  - `domains/fate-analysis/services/fate-core/src/fate_core/usecases/calculate_almanac.py::_public_place`
+- 一线 README / docs 仍写着非北京地区展示层隐藏，和当前产品口径冲突。
+
+### Hypotheses
+
+1. 根因是旧隐私展示策略硬编码，而不是页面没拿到 birthPlace。
+   - Supports: helper 直接返回 `已填写（非北京地区已隐藏）`。
+   - Test: 去掉 helper 脱敏后，Web 和 Markdown 都应显示 `上海` / `上海市`。
+2. 根因是 location 解析失败。
+   - Conflicts: 合法上海 payload 的 API 可以生成完整 Markdown，只是展示字段被替换。
+3. 根因是 Web 前端未渲染该字段。
+   - Conflicts: Markdown 里已有 `出生地区` 行，只是值被脱敏。
+
+### Root Cause
+
+历史隐私策略把“非北京出生地区不得展示”写进生产 helper 和回归测试，导致合法用户输入在报告层被替换为隐藏文案。
+
+### Fix
+
+- `public_birth_place()`、紫微 `_public_place()`、黄历 `_public_place()` 改为返回用户提交地区的规范化文本。
+- Web、Markdown、紫微、黄历 capability 回归改为断言真实提交地区会展示。
+- README 和一线 reference docs 改为当前口径：展示层回显出生地区，经纬度继续用于解析和真太阳时计算。
+
+### Regression Evidence
+
+Completed:
+
+```bash
+.venv/bin/python -m pytest tests/regression/test_web_html.py tests/regression/test_api_contracts.py tests/regression/test_bazi_ziwei_benchmark_hardening.py tests/regression/test_capability_protocol.py -q
+bash scripts/check-privacy-fixtures.sh
+bash scripts/local-ci.sh --profile quick
+```
+
+Result:
+
+- Targeted regression passed: `56 passed in 8.87s`.
+- Privacy fixtures gate passed.
+- `local-ci quick` passed with evidence `/tmp/fatecat-local-ci-20260616175059`.
+- Direct TestClient smoke:
+  - `/web` with `birthPlace=上海`: `web_has_shanghai=True`, `web_has_hidden=False`
+  - `/api/v1/report/markdown` with `birthPlace.name=上海市`: `birth_place_line | 出生地区 | 上海市 |`

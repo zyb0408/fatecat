@@ -33,14 +33,9 @@ from report_markdown import (
 def public_birth_place(value: str | None) -> str:
     """返回可展示的出生地区。
 
-    用户前端只允许展示北京类地区；其他真实地区名只参与经纬度解析和后端记录。
+    出生地区是用户报告的核心输入，展示层必须回显用户填写的地区。
     """
-    text = (value or "").strip()
-    if not text:
-        return ""
-    if "北京" in text:
-        return text
-    return "已填写（非北京地区已隐藏）"
+    return (value or "").strip()
 
 
 def _rule_depth_narrative(result: dict[str, Any], key: str) -> str:

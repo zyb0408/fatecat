@@ -107,7 +107,7 @@ def test_almanac_capability_executes_as_standalone_production():
     assert get_capability("almanac").default_visibility == "standalone"
 
 
-def test_almanac_capability_hides_non_beijing_place():
+def test_almanac_capability_displays_submitted_place():
     result = CapabilityExecutor().execute(
         CapabilityInput(
             capability_id="almanac",
@@ -119,8 +119,8 @@ def test_almanac_capability_hides_non_beijing_place():
         )
     )
 
-    assert result.data["place"] == "已填写（非北京地区已隐藏）"
-    assert "上海" not in json.dumps(result.data, ensure_ascii=False)
+    assert result.data["place"] == "上海市"
+    assert "已填写（非北京地区已隐藏）" not in json.dumps(result.data, ensure_ascii=False)
 
 
 def test_meihua_capability_executes_number_cast_as_standalone_production():

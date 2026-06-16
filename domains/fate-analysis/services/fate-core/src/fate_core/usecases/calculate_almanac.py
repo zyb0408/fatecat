@@ -125,7 +125,7 @@ def _normalize_place(value: Any) -> str:
 
 
 def _public_place(place: str) -> str:
-    return place if "北京" in place else "已填写（非北京地区已隐藏）"
+    return place.strip()
 
 
 def _event_terms(event_type: str) -> list[str]:

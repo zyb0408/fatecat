@@ -46,7 +46,7 @@ def build_ziwei_input_from_payload(raw_payload: dict[str, Any]) -> PureAnalysisI
 
 
 def _public_place(place: str) -> str:
-    return place if "北京" in place else "已填写（非北京地区已隐藏）"
+    return place.strip()
 
 
 def _star_names(stars: object) -> list[str]:
