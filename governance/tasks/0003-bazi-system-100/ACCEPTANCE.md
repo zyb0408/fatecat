@@ -23,7 +23,7 @@
 - ponytail：新增对象必须有当前消费者、验证命令和删除/升级条件
 
 # Runtime Verification Gate
-- [ ] Runtime tool/action 结果、审批状态、compaction/resume 状态和 verifier 结论均可复核
+- [x] Runtime tool/action 结果、审批状态、compaction/resume 状态和 verifier 结论均可复核
 
 # Ship Readiness
 - Planning Done：0003 任务树通过 decompose 校验，checkpoint commit 后工作树只含 0003 计划改动

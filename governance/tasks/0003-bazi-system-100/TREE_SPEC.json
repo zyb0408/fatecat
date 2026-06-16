@@ -719,8 +719,8 @@
         "TP-08",
         "TP-09"
       ],
-      "status": "In Progress",
-      "evidence": "2026-06-16：TP-10.01 FINAL_REVIEW.md 完成；local-ci quick、rule-depth regression、task docs decompose 均通过。"
+      "status": "Done",
+      "evidence": "2026-06-16：TP-10.01 FINAL_REVIEW.md 与 TP-10.02 CLOSEOUT.md 完成；最终任务包进入 Done。"
     },
     {
       "id": "TP-10.01",
@@ -759,8 +759,8 @@
         "governance/tasks/0003-bazi-system-100/CLOSEOUT.md",
         "git delivery evidence"
       ],
-      "status": "Not Started",
-      "evidence": "依赖已满足，下一步生成 closeout 并完成版本交付。"
+      "status": "Done",
+      "evidence": "2026-06-16：新增 CLOSEOUT.md；closeout 汇总交付物、验证证据、Git 证据、剩余 WARN 和不越界声明。"
     }
   ]
 }

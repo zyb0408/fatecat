@@ -1,5 +1,5 @@
 # Execution Checklist
-[ ] TP-00.01 | P0 | 提交当前质量 hardening checkpoint | Verify: git log --oneline -1 && git status --short | Gate: 最新提交为质量 hardening checkpoint，且提交后可明确区分 0003 新改动 | Parallelizable: No
+[x] TP-00.01 | P0 | 提交当前质量 hardening checkpoint | Verify: git log --oneline -1 && git status --short | Gate: 最新提交为质量 hardening checkpoint，且提交后可明确区分 0003 新改动 | Parallelizable: No
 [x] TP-00.02 | P0 | 建立八字 100% scorecard | Verify: test -s governance/tasks/0003-bazi-system-100/SCORECARD.md && rg '基础排盘|高级格局|MingLi|100%' governance/tasks/0003-bazi-system-100/SCORECARD.md | Gate: 每个维度有 current%、target evidence、verify command、falsifier | Parallelizable: No
 [x] TP-00.03 | P0 | 生成当前能力基线证据 | Verify: bash scripts/generate-mingli-predictions.sh --year 2025 --sample 10 --output-jsonl /tmp/fatecat-mingli-baseline.jsonl && bash scripts/run-mingli-bench.sh --year 2025 --sample 10 --predictions-file /tmp/fatecat-mingli-baseline.jsonl --output-json /tmp/fatecat-mingli-baseline.json | Gate: baseline report 记录 total/answered/correct/accuracy/byCategory，且不把 sample 10 当最终能力 | Parallelizable: No
 [x] TP-01.01 | P0 | 整理资源地图 | Verify: test -s governance/tasks/0003-bazi-system-100/RESOURCE_MAP.md && rg 'lunar-python|MingLi-Bench|oracle_only|reference_only' governance/tasks/0003-bazi-system-100/RESOURCE_MAP.md | Gate: 每个资源有 usageRole、license boundary、可补能力和禁止用途 | Parallelizable: Yes
@@ -27,7 +27,7 @@
 [x] TP-09.01 | P1 | 大文件职责切片路线 | Verify: test -s governance/tasks/0003-bazi-system-100/CORE_FILE_BURNDOWN.md && rg 'bazi_calculator|calculate_pure_analysis|report_generator' governance/tasks/0003-bazi-system-100/CORE_FILE_BURNDOWN.md | Gate: 每个拆分候选有行为保持测试和回滚路径；不做大爆炸重写 | Parallelizable: Yes
 [x] TP-09.02 | P1 | 规则 evaluator 模块边界 | Verify: test -s governance/tasks/0003-bazi-system-100/EVALUATOR_BOUNDARIES.md | Gate: evaluation 不进生产 kernel；oracle 不进主链；delivery 不承载领域算法 | Parallelizable: No
 [x] TP-10.01 | P0 | 八字体系 100% 六维审查 | Verify: bash scripts/local-ci.sh --profile quick && python3 /home/lenovo/.codex/skills/auto-tasks/scripts/validate_task_docs.py --task-dir governance/tasks/0003-bazi-system-100 --phase decompose | Gate: active BLOCK=0；WARN 有 owner、证据和下一步；不得伪造 100% | Parallelizable: No
-[ ] TP-10.02 | P0 | Closeout 和版本交付 | Verify: python3 /home/lenovo/.codex/skills/auto-tasks/scripts/validate_task_docs.py --task-dir governance/tasks/0003-bazi-system-100 --phase closeout && git status --short | Gate: closeout 可校验；提交边界清晰；最终结论不越过证据 | Parallelizable: No
+[x] TP-10.02 | P0 | Closeout 和版本交付 | Verify: python3 /home/lenovo/.codex/skills/auto-tasks/scripts/validate_task_docs.py --task-dir governance/tasks/0003-bazi-system-100 --phase closeout && git status --short | Gate: closeout 可校验；提交边界清晰；最终结论不越过证据 | Parallelizable: No
 
 说明：
 - 每一行后续必须绑定 `TP-XX(.YY...)`
