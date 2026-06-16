@@ -172,6 +172,23 @@
             "geju"
           ],
           "conflictPolicy": "病药作为解释优先级，不输出现实诊疗、金融或法律决策。"
+        },
+        {
+          "strategy": "格局用神",
+          "appliesWhen": [
+            "格局候选、成败条件和用神策略同时可回指证据"
+          ],
+          "doesNotApplyWhen": [
+            "格局未成立或只存在孤立格局名称",
+            "缺少成败条件链",
+            "把格局名称直接当作唯一用神"
+          ],
+          "scoreBasis": [
+            "baziBenchmark.patternRegistry",
+            "baziBenchmark.combineTransformMatrix",
+            "baziBenchmark.yongShenDecision"
+          ],
+          "conflictPolicy": "格局用神只能作为并列策略，不覆盖调候、扶抑、通关和病药。"
         }
       ]
     },
@@ -520,7 +537,14 @@
             "合冲刑害破改变取格依据但无证据链",
             "从格、化气、专旺条件已完整成立"
           ],
-          "riskBoundary": "正格只作为解释优先级，不替代完整命例判断。"
+          "riskBoundary": "正格只作为解释优先级，不替代完整命例判断。",
+          "lifecycle": "production_guarded",
+          "doesNotApplyWhen": [
+            "月令不清或节气边界未验证",
+            "合冲刑害破改变取格依据但无证据链",
+            "从格、化气、专旺条件已完整成立"
+          ],
+          "lifecycleGate": "production 需要 appliesWhen、doesNotApplyWhen、正反边界 golden 和报告风险边界同时通过。"
         },
         {
           "name": "变格",
@@ -534,7 +558,14 @@
             "只因文案偏好调整格局名称",
             "无法解释破格来源"
           ],
-          "riskBoundary": "变格必须保留原始取格和变格证据，不直接覆盖正格。"
+          "riskBoundary": "变格必须保留原始取格和变格证据，不直接覆盖正格。",
+          "lifecycle": "beta",
+          "doesNotApplyWhen": [
+            "缺少透干/通根证据",
+            "只因文案偏好调整格局名称",
+            "无法解释破格来源"
+          ],
+          "lifecycleGate": "production 需要 appliesWhen、doesNotApplyWhen、正反边界 golden 和报告风险边界同时通过。"
         },
         {
           "name": "从格",
@@ -549,7 +580,14 @@
             "岁运或原局出现印比破从",
             "外部势力不专一"
           ],
-          "riskBoundary": "从格未具备完整条件时只能输出 candidate/guarded。"
+          "riskBoundary": "从格未具备完整条件时只能输出 candidate/guarded。",
+          "lifecycle": "beta_hitl",
+          "doesNotApplyWhen": [
+            "日主有强根或透出生扶",
+            "岁运或原局出现印比破从",
+            "外部势力不专一"
+          ],
+          "lifecycleGate": "production 需要 appliesWhen、doesNotApplyWhen、正反边界 golden 和报告风险边界同时通过。"
         },
         {
           "name": "假从",
@@ -563,7 +601,14 @@
             "外部势力不成气候",
             "缺少通根/透干证据"
           ],
-          "riskBoundary": "假从必须显式标注反证，不得写成真从。"
+          "riskBoundary": "假从必须显式标注反证，不得写成真从。",
+          "lifecycle": "beta_hitl",
+          "doesNotApplyWhen": [
+            "自党扶助足以转为普通弱格",
+            "外部势力不成气候",
+            "缺少通根/透干证据"
+          ],
+          "lifecycleGate": "production 需要 appliesWhen、doesNotApplyWhen、正反边界 golden 和报告风险边界同时通过。"
         },
         {
           "name": "专旺",
@@ -578,7 +623,14 @@
             "月令不支持专旺",
             "同党数量不足或根气不稳"
           ],
-          "riskBoundary": "专旺候选必须等待 golden 反例验证后才能提高置信度。"
+          "riskBoundary": "专旺候选必须等待 golden 反例验证后才能提高置信度。",
+          "lifecycle": "beta_hitl",
+          "doesNotApplyWhen": [
+            "财官食伤强力制泄",
+            "月令不支持专旺",
+            "同党数量不足或根气不稳"
+          ],
+          "lifecycleGate": "production 需要 appliesWhen、doesNotApplyWhen、正反边界 golden 和报告风险边界同时通过。"
         },
         {
           "name": "化气",
@@ -593,7 +645,14 @@
             "化神无根无透",
             "出现冲破、争合或克制阻隔"
           ],
-          "riskBoundary": "化气必须依赖合化条件链，不得由合象直接跳到成化。"
+          "riskBoundary": "化气必须依赖合化条件链，不得由合象直接跳到成化。",
+          "lifecycle": "beta_hitl",
+          "doesNotApplyWhen": [
+            "月令不助化神",
+            "化神无根无透",
+            "出现冲破、争合或克制阻隔"
+          ],
+          "lifecycleGate": "production 需要 appliesWhen、doesNotApplyWhen、正反边界 golden 和报告风险边界同时通过。"
         }
       ]
     },
@@ -880,7 +939,23 @@
             "关系名称缺失",
             "四柱干支不完整"
           ],
-          "riskBoundary": "只登记结构关系，不宣称成化。"
+          "riskBoundary": "只登记结构关系，不宣称成化。",
+          "doesNotApplyWhen": [
+            "关系名称缺失",
+            "四柱干支不完整"
+          ],
+          "requiredEvidenceFields": [
+            "ganzhiRelations.tianGan",
+            "branchRelations",
+            "baziBenchmark.combineTransformMatrix.candidates"
+          ],
+          "conditionChainFields": [
+            "month_command",
+            "transparent_stems",
+            "rooted_branches",
+            "blockers",
+            "counter_conditions"
+          ]
         },
         {
           "state": "transform_candidate",
@@ -900,7 +975,24 @@
             "化神无透无根",
             "条件链缺失"
           ],
-          "riskBoundary": "候选只能说明有成化可能，不能当作已成化。"
+          "riskBoundary": "候选只能说明有成化可能，不能当作已成化。",
+          "doesNotApplyWhen": [
+            "月令不支持化神",
+            "化神无透无根",
+            "条件链缺失"
+          ],
+          "requiredEvidenceFields": [
+            "monthCommand",
+            "hiddenStems",
+            "baziBenchmark.combineTransformMatrix.conditionCatalog"
+          ],
+          "conditionChainFields": [
+            "month_command",
+            "transparent_stems",
+            "rooted_branches",
+            "blockers",
+            "counter_conditions"
+          ]
         },
         {
           "state": "transform_success",
@@ -923,7 +1015,25 @@
             "出现冲破或争合",
             "化神被强克"
           ],
-          "riskBoundary": "当前阶段仅定义 contract；无 golden 充分覆盖前不得在报告强断。"
+          "riskBoundary": "当前阶段仅定义 contract；无 golden 充分覆盖前不得在报告强断。",
+          "doesNotApplyWhen": [
+            "任一关键条件缺失",
+            "出现冲破或争合",
+            "化神被强克"
+          ],
+          "requiredEvidenceFields": [
+            "monthCommand",
+            "transparentStems",
+            "rootedBranches",
+            "blockers"
+          ],
+          "conditionChainFields": [
+            "month_command",
+            "transparent_stems",
+            "rooted_branches",
+            "blockers",
+            "counter_conditions"
+          ]
         },
         {
           "state": "transform_broken",
@@ -942,7 +1052,23 @@
             "阻隔对象与合化双方无关",
             "只有弱反证且主条件完整"
           ],
-          "riskBoundary": "破化只说明成化条件不足，不输出现实灾断。"
+          "riskBoundary": "破化只说明成化条件不足，不输出现实灾断。",
+          "doesNotApplyWhen": [
+            "阻隔对象与合化双方无关",
+            "只有弱反证且主条件完整"
+          ],
+          "requiredEvidenceFields": [
+            "branchRelations.conflictsDetail",
+            "ganzhiExtra.keDetail",
+            "blockers"
+          ],
+          "conditionChainFields": [
+            "month_command",
+            "transparent_stems",
+            "rooted_branches",
+            "blockers",
+            "counter_conditions"
+          ]
         },
         {
           "state": "contested_transform",
@@ -960,7 +1086,23 @@
             "只有唯一配对",
             "争合位置不能回指四柱"
           ],
-          "riskBoundary": "争合优先降低置信度，不自动改写格局。"
+          "riskBoundary": "争合优先降低置信度，不自动改写格局。",
+          "doesNotApplyWhen": [
+            "只有唯一配对",
+            "争合位置不能回指四柱"
+          ],
+          "requiredEvidenceFields": [
+            "ganzhiRelations.tianGan",
+            "pairedStems",
+            "positions"
+          ],
+          "conditionChainFields": [
+            "month_command",
+            "transparent_stems",
+            "rooted_branches",
+            "blockers",
+            "counter_conditions"
+          ]
         }
       ]
     },

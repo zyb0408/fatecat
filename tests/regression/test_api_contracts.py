@@ -60,19 +60,30 @@ def test_pure_analysis_api_exposes_advanced_bazi_report_field_contract():
     assert response.status_code == 200
     data = response.json()["data"]
     benchmark = data["baziBenchmark"]
+    regular = benchmark["patternRegistry"]["regularPatternCandidates"]
     special = benchmark["patternRegistry"]["specialPatternCandidates"]
     combine = benchmark["combineTransformMatrix"]
     decision = benchmark["yongShenDecision"]
+    fortune_matrix = benchmark["fortuneTriggerMatrix"]
     topics = benchmark["topicProfiles"]
     rule_depth = data["baziRuleDepth"]
+
+    assert regular["schemaVersion"] == 1
+    assert regular["riskBoundary"]
+    assert regular["uncertaintyPolicy"]
+    assert regular["candidates"]
+    assert all(candidate["conditions"] and candidate["breaksWhen"] for candidate in regular["candidates"])
+    assert all(candidate["status"] == "established" or candidate["uncertainty"] for candidate in regular["candidates"])
 
     assert special["schemaVersion"] == 1
     assert special["candidates"]
     assert special["riskBoundary"]
     assert all(candidate["status"] in {"candidate", "guarded", "not_supported"} for candidate in special["candidates"])
+    assert all(candidate["breaksWhen"] and candidate["lifecycleGate"] for candidate in special["candidates"])
 
     assert combine["schemaVersion"] == 1
     assert combine["stateCatalog"]
+    assert set(combine["stateContracts"]) >= set(combine["stateCatalog"])
     assert combine["riskBoundary"]
     assert all(candidate["state"] in combine["stateCatalog"] for candidate in combine["candidates"])
 
@@ -80,12 +91,58 @@ def test_pure_analysis_api_exposes_advanced_bazi_report_field_contract():
     assert decision["riskBoundary"]
     assert {item["strategy"] for item in decision["scoredStrategies"]} == {"调候", "扶抑", "通关", "病药"}
     assert all(item["evidenceFields"] and item["conflictPolicy"] for item in decision["scoredStrategies"])
+    assert all(
+        item["basis"] and item["scoreBasis"] and item["doesNotApplyWhen"] for item in decision["scoredStrategies"]
+    )
+    assert all(
+        all(score_item["factor"] and score_item["evidenceField"] for score_item in item["scoreBasis"])
+        for item in decision["scoredStrategies"]
+    )
+    assert decision["noAbsoluteConclusion"] is True
+    assert len(decision["ranking"]) == len(decision["scoredStrategies"])
+    assert decision["selectedCandidates"]
+    assert all(item["strategy"] and item["tier"] and item["evidenceFields"] for item in decision["selectedCandidates"])
+    assert decision["conflicts"]
+    assert all(
+        item["type"] and item["explanation"] and item["counterEvidence"] is not None for item in decision["conflicts"]
+    )
+    assert [item["rank"] for item in decision["ranking"]] == list(range(1, len(decision["ranking"]) + 1))
+    assert [item["score"] for item in decision["ranking"]] == sorted(
+        [item["score"] for item in decision["ranking"]],
+        reverse=True,
+    )
+    assert [item["step"] for item in decision["decisionTrace"]] == [
+        "score_strategies",
+        "rank_by_score",
+        "select_parallel_candidates",
+        "attach_conflicts",
+    ]
+
+    assert fortune_matrix["schemaVersion"] == 1
+    assert fortune_matrix["layerOrder"] == ["original_chart", "major_stage", "annual_trigger", "monthly_refinement"]
+    assert fortune_matrix["riskBoundary"]
+    assert {item["type"] for item in fortune_matrix["matrix"]} >= {
+        "major_stage",
+        "annual_trigger",
+        "monthly_refinement",
+        "fu_yin",
+        "fan_yin",
+        "sui_yun_bing_lin",
+        "tian_ke_di_chong",
+    }
+    assert all(item["evidenceFields"] and item["doesNotApplyWhen"] for item in fortune_matrix["matrix"])
 
     assert {item["topic"] for item in topics} >= {"事业", "财运", "婚姻", "健康", "学业", "迁移", "家庭"}
     for item in topics:
-        assert item["lifecycle"] in {"beta", "production"}
+        assert item["lifecycle"] == "beta"
         assert item["basis"]
         assert item["scoreBasis"]
+        assert item["scoreTrace"]
+        assert item["jointScoreInputs"]
+        assert item["productionGate"]["status"] == "blocked"
+        assert item["riskPolicy"]["disclaimerRequired"] is True
+        assert item["riskPolicy"]["riskLevel"] == "high_topic_boundary"
+        assert item["scoreTrace"]["cappedScore"] == item["score"]
         assert item["evidenceFields"]
         assert item["riskBoundary"]
 

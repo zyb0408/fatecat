@@ -56,6 +56,18 @@ def test_bazi_benchmark_hardening_fields_cover_tp02_tp03():
     assert "bazi.renyuan_siling_weight" in benchmark["renYuanSiling"]["ruleIds"]
     assert benchmark["strengthScore"]["label"] in {"身弱", "中和偏弱", "中和", "中和偏强", "身强"}
     assert "bazi.strength_score_golden" in benchmark["strengthScore"]["ruleIds"]
+    assert benchmark["strengthScore"]["score"] == benchmark["strengthScore"]["strongScore"]
+    assert benchmark["strengthScore"]["sourceRuleId"] == "bazi.day_master_strength"
+    assert benchmark["strengthScore"]["basis"]
+    assert benchmark["strengthScore"]["conflicts"]
+    assert {item["factor"] for item in benchmark["strengthScore"]["basis"]} >= {
+        "dayMaster",
+        "monthCommand",
+        "strongScore",
+        "dayElementScore",
+        "twelveGrowthStatus",
+    }
+    assert all(item["type"] and item["explanation"] for item in benchmark["strengthScore"]["conflicts"])
     assert [item["key"] for item in benchmark["ganzhiPriority"]] == [
         "hehua",
         "sanHui",
@@ -66,6 +78,14 @@ def test_bazi_benchmark_hardening_fields_cover_tp02_tp03():
     ]
     assert len(benchmark["yongShenStrategies"]) == 4
     assert benchmark["tenGodStructure"]["counts"]
+    assert benchmark["tenGodStructure"]["sourceRuleId"] == "bazi.ten_god_structure"
+    assert benchmark["tenGodStructure"]["basisEvidence"]
+    assert benchmark["tenGodStructure"]["families"]
+    assert benchmark["tenGodStructure"]["dominant"]
+    assert all(
+        item["pillar"] and item["source"] and item["evidenceField"]
+        for item in benchmark["tenGodStructure"]["basisEvidence"]
+    )
     assert {item["topic"] for item in benchmark["topicProfiles"]} >= {"事业", "财运", "婚姻", "健康"}
 
     rule_ids = set(result["analysisEvidence"]["items"]["baziBenchmark"]["ruleIds"])

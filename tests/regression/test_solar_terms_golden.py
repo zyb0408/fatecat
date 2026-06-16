@@ -170,12 +170,15 @@ def test_bazi_calendar_boundary_golden_cases_lock_time_semantics():
     payload = _load_bazi_boundary_fixture()
     assert payload["schemaVersion"] == 1
     assert payload["caseCount"] == len(payload["cases"]) >= payload["coverageRequirements"]["minCaseCount"]
+    assert payload["coverageRequirements"]["minCaseCount"] >= 50
+    assert payload["coverageRequirements"]["minRuntimeFullCaseCount"] >= 9
     assert payload["source"]["calendarProvider"] == "lunar-python"
     assert payload["source"]["trueSolarProvider"] == "paipan-master true solar time adapter"
     required_tags = set(payload["coverageRequirements"]["requiredTags"])
     observed_tags = {tag for case in payload["cases"] for tag in case["coverageTags"]}
     assert required_tags <= observed_tags
 
+    runtime_full_checked = 0
     for case in payload["cases"]:
         case_source = case["source"]
         assert case_source["type"] == "synthetic_boundary_fixture"
@@ -183,11 +186,17 @@ def test_bazi_calendar_boundary_golden_cases_lock_time_semantics():
         assert case_source["privacy"] == "synthetic edge-case payload; no real person data"
         assert case_source["productionUse"] == "test_only_not_runtime_oracle"
         assert case["coverageTags"]
+        assert case["expected"]
+        assert case["expected"]["tolerance"]
         assert case["failureExplanation"]["trueSolarTime"]
         assert case["failureExplanation"]["fourPillars"]
         assert case["failureExplanation"]["fortuneStart"]
         assert case["failureExplanation"]["boundaryTags"] == case["coverageTags"]
 
+        if case.get("validationMode", "runtime_full") != "runtime_full":
+            continue
+
+        runtime_full_checked += 1
         raw_input = case["input"]
         expected = case["expected"]
         pure_input = build_pure_analysis_input_from_payload(raw_input)
@@ -214,6 +223,7 @@ def test_bazi_calendar_boundary_golden_cases_lock_time_semantics():
         assert result["jiaoYun"]["jiaoJieQi"] == expected["fortuneStart"]["anchorTerm"], case["id"]
         for key, expected_value in expected["ziTimeAnalysis"].items():
             assert result["ziTimeAnalysis"][key] == expected_value, f"{case['id']} {key}"
+    assert runtime_full_checked >= payload["coverageRequirements"]["minRuntimeFullCaseCount"]
 
 
 def test_yun_start_time_regression_samples():

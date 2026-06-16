@@ -216,6 +216,21 @@ def test_web_page_generates_copyable_markdown_report():
     assert '"reportSystem": "bazi"' in text
 
 
+def test_web_page_workbench_does_not_recalculate_domain_rules():
+    source = (TELEGRAM_SRC / "web_ui.py").read_text(encoding="utf-8")
+
+    assert "from fate_core.capabilities import CapabilityExecutor" in source
+    for forbidden in [
+        "from fate_core.usecases import",
+        "from fate_core.usecases.evaluators",
+        "calculate_pure_analysis",
+        "rules_for_system(",
+        "build_fortune_trigger_matrix",
+        "bazi.depth.",
+    ]:
+        assert forbidden not in source
+
+
 def test_web_page_can_select_ziwei_report_without_bazi_blocks():
     response = TestClient(app).get(
         "/web",

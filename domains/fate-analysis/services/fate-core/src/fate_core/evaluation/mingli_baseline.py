@@ -343,21 +343,36 @@ def generate_predictions(
 ) -> list[dict[str, Any]]:
     questions = _load_questions(data_path, selected_year, sample_size)
     rows: list[dict[str, Any]] = []
+    result_cache: dict[tuple[Any, ...], dict[str, Any]] = {}
 
     for item in questions:
         birth_info = _as_dict(item.get("birth_info"))
         longitude, latitude = location_coords(birth_info)
-        result = calculate_pure_analysis(
-            PureAnalysisInput(
-                birth_dt=build_birth_dt(birth_info),
-                gender=normalize_gender(birth_info.get("gender")),
-                longitude=longitude,
-                latitude=latitude,
-                birth_place=str(birth_info.get("location") or birth_info.get("country") or ""),
-                name="MingLi-Bench 匿名样本",
-                use_true_solar_time=False,
-            )
+        birth_dt = build_birth_dt(birth_info)
+        gender = normalize_gender(birth_info.get("gender"))
+        birth_place = str(birth_info.get("location") or birth_info.get("country") or "")
+        cache_key = (
+            birth_dt.isoformat(timespec="minutes"),
+            gender,
+            round(longitude, 6),
+            round(latitude, 6),
+            birth_place,
+            False,
         )
+        result = result_cache.get(cache_key)
+        if result is None:
+            result = calculate_pure_analysis(
+                PureAnalysisInput(
+                    birth_dt=birth_dt,
+                    gender=gender,
+                    longitude=longitude,
+                    latitude=latitude,
+                    birth_place=birth_place,
+                    name="MingLi-Bench 匿名样本",
+                    use_true_solar_time=False,
+                )
+            )
+            result_cache[cache_key] = result
         predicted, trace = choose_answer(item, result)
         depth = _as_dict(result.get("baziRuleDepth"))
         rows.append(

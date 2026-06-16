@@ -61,3 +61,27 @@ def test_bazi_statement_cases_lock_core_judgement_boundaries(case: dict):
     }
     for rule_id in expected["accuracyRuleIds"]:
         assert rule_id in emitted_rule_ids
+
+    forbidden_topic_terms = {
+        "必然",
+        "一定",
+        "保证",
+        "灾祸",
+        "疾病",
+        "医疗建议",
+        "投资建议",
+        "法律建议",
+        "心理建议",
+        "必破产",
+        "必离婚",
+    }
+    forbidden_topic_fields = {"statement", "prediction", "judgement", "conclusion", "advice"}
+    topic_profiles = result["baziBenchmark"]["topicProfiles"]
+    assert topic_profiles
+    for profile in topic_profiles:
+        assert profile["lifecycle"] == "beta"
+        assert profile["productionGate"]["status"] == "blocked"
+        assert profile["riskPolicy"]["disclaimerRequired"] is True
+        assert forbidden_topic_fields.isdisjoint(profile)
+        rendered = json.dumps(profile, ensure_ascii=False)
+        assert not any(term in rendered for term in forbidden_topic_terms)

@@ -1,0 +1,797 @@
+{
+  "schemaVersion": 1,
+  "reportType": "calendar_oracle_mismatch",
+  "generatedFrom": "calendar_boundary_cases.json",
+  "provider": "lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+  "oracles": [
+    "FateCat accepted runtime_full regression fixture",
+    "sxtwl stable four-pillar subset for Beijing early zi and Hong Kong UTC input"
+  ],
+  "decisionPolicy": {
+    "none": "provider output matches accepted runtime_full expected fields",
+    "explained": "provider/oracle difference is documented with decision and failureExplanation",
+    "unexplained": "must fail release gate and cannot be marked PASS"
+  },
+  "summary": {
+    "runtimeFullCaseCount": 9,
+    "schemaCatalogExcludedCount": 42,
+    "acceptedRegressionCount": 9,
+    "explainedMismatchCount": 0,
+    "unexplainedMismatchCount": 0
+  },
+  "cases": [
+    {
+      "id": "beijing_early_zi_2000",
+      "validationMode": "runtime_full",
+      "provider": "lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+      "oracle": "FateCat accepted regression: lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+      "input": {
+        "birthDateTime": "2000-09-09 00:30:00",
+        "gender": "male",
+        "longitude": 116.4074,
+        "latitude": 39.9042,
+        "birthPlace": "北京",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "trueSolarTime": "2000-09-09 00:18:40",
+        "ziTimeAnalysis": {
+          "timeZhi": "子",
+          "dayPillarNormal": "庚午",
+          "dayPillarZwz": "庚午",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "庚辰",
+          "month": "乙酉",
+          "day": "庚午",
+          "hour": "丙子"
+        },
+        "fortuneStart": {
+          "startDate": "2010-06-19 00:18:40",
+          "anchorTerm": "寒露"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
+        }
+      },
+      "actual": {
+        "trueSolarTime": "2000-09-09 00:18:40",
+        "ziTimeAnalysis": {
+          "timeZhi": "子",
+          "dayPillarNormal": "庚午",
+          "dayPillarZwz": "庚午",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "庚辰",
+          "month": "乙酉",
+          "day": "庚午",
+          "hour": "丙子"
+        },
+        "fortuneStart": {
+          "startDate": "2010-06-19 00:18:40",
+          "anchorTerm": "寒露"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
+        }
+      },
+      "mismatchStatus": "none",
+      "decision": "accepted_regression",
+      "failureExplanation": {
+        "trueSolarTime": "锁定当前真太阳时管线；失败说明经度、均时差、时区归一化或 paipan adapter 行为发生变化。",
+        "fourPillars": "锁定 lunar-python 四柱结果；失败说明节气、日柱、时柱或子时边界语义发生变化。",
+        "fortuneStart": "锁定 lunar-python 起运结果；失败说明顺逆起运、节气锚点或真太阳时输入发生变化。",
+        "boundaryTags": [
+          "true_solar_time",
+          "early_zi",
+          "beijing",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "beijing_late_zi_2000",
+      "validationMode": "runtime_full",
+      "provider": "lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+      "oracle": "FateCat accepted regression: lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+      "input": {
+        "birthDateTime": "2000-09-09 23:30:00",
+        "gender": "male",
+        "longitude": 116.4074,
+        "latitude": 39.9042,
+        "birthPlace": "北京",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "trueSolarTime": "2000-09-09 23:18:40",
+        "ziTimeAnalysis": {
+          "timeZhi": "子",
+          "dayPillarNormal": "辛未",
+          "dayPillarZwz": "庚午",
+          "zwzShift": true
+        },
+        "fourPillars": {
+          "year": "庚辰",
+          "month": "乙酉",
+          "day": "庚午",
+          "hour": "戊子"
+        },
+        "fortuneStart": {
+          "startDate": "2010-03-01 23:18:40",
+          "anchorTerm": "寒露"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
+        }
+      },
+      "actual": {
+        "trueSolarTime": "2000-09-09 23:18:40",
+        "ziTimeAnalysis": {
+          "timeZhi": "子",
+          "dayPillarNormal": "辛未",
+          "dayPillarZwz": "庚午",
+          "zwzShift": true
+        },
+        "fourPillars": {
+          "year": "庚辰",
+          "month": "乙酉",
+          "day": "庚午",
+          "hour": "戊子"
+        },
+        "fortuneStart": {
+          "startDate": "2010-03-01 23:18:40",
+          "anchorTerm": "寒露"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
+        }
+      },
+      "mismatchStatus": "none",
+      "decision": "accepted_regression",
+      "failureExplanation": {
+        "trueSolarTime": "锁定当前真太阳时管线；失败说明经度、均时差、时区归一化或 paipan adapter 行为发生变化。",
+        "fourPillars": "锁定 lunar-python 四柱结果；失败说明节气、日柱、时柱或子时边界语义发生变化。",
+        "fortuneStart": "锁定 lunar-python 起运结果；失败说明顺逆起运、节气锚点或真太阳时输入发生变化。",
+        "boundaryTags": [
+          "true_solar_time",
+          "late_zi",
+          "zi_day_shift",
+          "beijing",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "urumqi_lichun_2024",
+      "validationMode": "runtime_full",
+      "provider": "lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+      "oracle": "FateCat accepted regression: lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+      "input": {
+        "birthDateTime": "2024-02-04 18:45:00",
+        "gender": "male",
+        "longitude": 87.6168,
+        "latitude": 43.8256,
+        "birthPlace": "乌鲁木齐",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "trueSolarTime": "2024-02-04 16:21:07",
+        "totalOffsetMinutesRange": [
+          -143.89,
+          -143.87
+        ],
+        "ziTimeAnalysis": {
+          "timeZhi": "申",
+          "dayPillarNormal": "戊戌",
+          "dayPillarZwz": "戊戌",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "癸卯",
+          "month": "乙丑",
+          "day": "戊戌",
+          "hour": "庚申"
+        },
+        "fortuneStart": {
+          "startDate": "2033-12-04 16:21:07",
+          "anchorTerm": "大雪"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
+        }
+      },
+      "actual": {
+        "trueSolarTime": "2024-02-04 16:21:07",
+        "totalOffsetMinutesRange": [
+          -143.89,
+          -143.87
+        ],
+        "ziTimeAnalysis": {
+          "timeZhi": "申",
+          "dayPillarNormal": "戊戌",
+          "dayPillarZwz": "戊戌",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "癸卯",
+          "month": "乙丑",
+          "day": "戊戌",
+          "hour": "庚申"
+        },
+        "fortuneStart": {
+          "startDate": "2033-12-04 16:21:07",
+          "anchorTerm": "大雪"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
+        }
+      },
+      "mismatchStatus": "none",
+      "decision": "accepted_regression",
+      "failureExplanation": {
+        "trueSolarTime": "锁定当前真太阳时管线；失败说明经度、均时差、时区归一化或 paipan adapter 行为发生变化。",
+        "fourPillars": "锁定 lunar-python 四柱结果；失败说明节气、日柱、时柱或子时边界语义发生变化。",
+        "fortuneStart": "锁定 lunar-python 起运结果；失败说明顺逆起运、节气锚点或真太阳时输入发生变化。",
+        "boundaryTags": [
+          "true_solar_time",
+          "lichun_boundary",
+          "extreme_longitude_offset",
+          "urumqi",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "hong_kong_utc_input",
+      "validationMode": "runtime_full",
+      "provider": "lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+      "oracle": "FateCat accepted regression: lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+      "input": {
+        "birthDateTime": "1990-01-01T00:00:00Z",
+        "timezone": "Asia/Hong_Kong",
+        "gender": "male",
+        "longitude": 114.1694,
+        "latitude": 22.3193,
+        "birthPlace": "香港",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "normalizedBirthDateTime": "1990-01-01T08:00:00",
+        "trueSolarTime": "1990-01-01 07:33:08",
+        "ziTimeAnalysis": {
+          "timeZhi": "辰",
+          "dayPillarNormal": "丙寅",
+          "dayPillarZwz": "丙寅",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "己巳",
+          "month": "丙子",
+          "day": "丙寅",
+          "hour": "壬辰"
+        },
+        "fortuneStart": {
+          "startDate": "1998-04-11 07:33:08",
+          "anchorTerm": "立冬"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
+        }
+      },
+      "actual": {
+        "normalizedBirthDateTime": "1990-01-01T08:00:00",
+        "trueSolarTime": "1990-01-01 07:33:08",
+        "ziTimeAnalysis": {
+          "timeZhi": "辰",
+          "dayPillarNormal": "丙寅",
+          "dayPillarZwz": "丙寅",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "己巳",
+          "month": "丙子",
+          "day": "丙寅",
+          "hour": "壬辰"
+        },
+        "fortuneStart": {
+          "startDate": "1998-04-11 07:33:08",
+          "anchorTerm": "立冬"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
+        }
+      },
+      "mismatchStatus": "none",
+      "decision": "accepted_regression",
+      "failureExplanation": {
+        "trueSolarTime": "锁定当前真太阳时管线；失败说明经度、均时差、时区归一化或 paipan adapter 行为发生变化。",
+        "fourPillars": "锁定 lunar-python 四柱结果；失败说明节气、日柱、时柱或子时边界语义发生变化。",
+        "fortuneStart": "锁定 lunar-python 起运结果；失败说明顺逆起运、节气锚点或真太阳时输入发生变化。",
+        "boundaryTags": [
+          "true_solar_time",
+          "utc_input",
+          "timezone_normalization",
+          "hong_kong",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "beijing_lichun_second_before_2024",
+      "validationMode": "runtime_full",
+      "provider": "lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+      "oracle": "FateCat accepted regression: lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+      "input": {
+        "birthDateTime": "2024-02-04T16:54:00",
+        "timezone": "Asia/Shanghai",
+        "gender": "male",
+        "longitude": 116.4074,
+        "latitude": 39.9042,
+        "birthPlace": "北京",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "normalizedBirthDateTime": "2024-02-04T16:54:00",
+        "trueSolarTime": "2024-02-04 16:25:18",
+        "totalOffsetMinutesRange": [
+          -28.7,
+          -28.66
+        ],
+        "ziTimeAnalysis": {
+          "timeZhi": "申",
+          "dayPillarNormal": "戊戌",
+          "dayPillarZwz": "戊戌",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "癸卯",
+          "month": "乙丑",
+          "day": "戊戌",
+          "hour": "庚申"
+        },
+        "fortuneStart": {
+          "startDate": "2033-12-04 16:25:18",
+          "anchorTerm": "大雪"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
+        }
+      },
+      "actual": {
+        "normalizedBirthDateTime": "2024-02-04T16:54:00",
+        "trueSolarTime": "2024-02-04 16:25:18",
+        "totalOffsetMinutesRange": [
+          -28.7,
+          -28.66
+        ],
+        "ziTimeAnalysis": {
+          "timeZhi": "申",
+          "dayPillarNormal": "戊戌",
+          "dayPillarZwz": "戊戌",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "癸卯",
+          "month": "乙丑",
+          "day": "戊戌",
+          "hour": "庚申"
+        },
+        "fortuneStart": {
+          "startDate": "2033-12-04 16:25:18",
+          "anchorTerm": "大雪"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
+        }
+      },
+      "mismatchStatus": "none",
+      "decision": "accepted_regression",
+      "failureExplanation": {
+        "trueSolarTime": "锁定当前真太阳时管线；失败说明经度、均时差、时区归一化或 paipan adapter 行为发生变化。",
+        "fourPillars": "锁定 lunar-python 四柱结果；失败说明节气、日柱、时柱或子时边界语义发生变化。",
+        "fortuneStart": "锁定 lunar-python 起运结果；失败说明顺逆起运、节气锚点或真太阳时输入发生变化。",
+        "boundaryTags": [
+          "true_solar_time",
+          "lichun_boundary",
+          "second_level_boundary",
+          "beijing",
+          "before_boundary",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "beijing_lichun_second_after_2024",
+      "validationMode": "runtime_full",
+      "provider": "lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+      "oracle": "FateCat accepted regression: lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+      "input": {
+        "birthDateTime": "2024-02-04T16:56:00",
+        "timezone": "Asia/Shanghai",
+        "gender": "male",
+        "longitude": 116.4074,
+        "latitude": 39.9042,
+        "birthPlace": "北京",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "normalizedBirthDateTime": "2024-02-04T16:56:00",
+        "trueSolarTime": "2024-02-04 16:27:18",
+        "totalOffsetMinutesRange": [
+          -28.7,
+          -28.66
+        ],
+        "ziTimeAnalysis": {
+          "timeZhi": "申",
+          "dayPillarNormal": "戊戌",
+          "dayPillarZwz": "戊戌",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "甲辰",
+          "month": "丙寅",
+          "day": "戊戌",
+          "hour": "庚申"
+        },
+        "fortuneStart": {
+          "startDate": "2034-01-04 16:27:18",
+          "anchorTerm": "惊蛰"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
+        }
+      },
+      "actual": {
+        "normalizedBirthDateTime": "2024-02-04T16:56:00",
+        "trueSolarTime": "2024-02-04 16:27:18",
+        "totalOffsetMinutesRange": [
+          -28.7,
+          -28.66
+        ],
+        "ziTimeAnalysis": {
+          "timeZhi": "申",
+          "dayPillarNormal": "戊戌",
+          "dayPillarZwz": "戊戌",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "甲辰",
+          "month": "丙寅",
+          "day": "戊戌",
+          "hour": "庚申"
+        },
+        "fortuneStart": {
+          "startDate": "2034-01-04 16:27:18",
+          "anchorTerm": "惊蛰"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
+        }
+      },
+      "mismatchStatus": "none",
+      "decision": "accepted_regression",
+      "failureExplanation": {
+        "trueSolarTime": "锁定当前真太阳时管线；失败说明经度、均时差、时区归一化或 paipan adapter 行为发生变化。",
+        "fourPillars": "锁定 lunar-python 四柱结果；失败说明节气、日柱、时柱或子时边界语义发生变化。",
+        "fortuneStart": "锁定 lunar-python 起运结果；失败说明顺逆起运、节气锚点或真太阳时输入发生变化。",
+        "boundaryTags": [
+          "true_solar_time",
+          "lichun_boundary",
+          "second_level_boundary",
+          "beijing",
+          "after_boundary",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "new_york_dst_utc_input_2024",
+      "validationMode": "runtime_full",
+      "provider": "lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+      "oracle": "FateCat accepted regression: lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+      "input": {
+        "birthDateTime": "2024-03-10T06:59:30Z",
+        "timezone": "America/New_York",
+        "gender": "female",
+        "longitude": -74.006,
+        "latitude": 40.7128,
+        "birthPlace": "纽约",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "normalizedBirthDateTime": "2024-03-10T01:59:30",
+        "trueSolarTime": "2024-03-09 12:53:31",
+        "totalOffsetMinutesRange": [
+          -785.99,
+          -785.95
+        ],
+        "ziTimeAnalysis": {
+          "timeZhi": "午",
+          "dayPillarNormal": "壬申",
+          "dayPillarZwz": "壬申",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "甲辰",
+          "month": "丁卯",
+          "day": "壬申",
+          "hour": "丙午"
+        },
+        "fortuneStart": {
+          "startDate": "2025-07-19 12:53:31",
+          "anchorTerm": "立春"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
+        }
+      },
+      "actual": {
+        "normalizedBirthDateTime": "2024-03-10T01:59:30",
+        "trueSolarTime": "2024-03-09 12:53:31",
+        "totalOffsetMinutesRange": [
+          -785.99,
+          -785.95
+        ],
+        "ziTimeAnalysis": {
+          "timeZhi": "午",
+          "dayPillarNormal": "壬申",
+          "dayPillarZwz": "壬申",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "甲辰",
+          "month": "丁卯",
+          "day": "壬申",
+          "hour": "丙午"
+        },
+        "fortuneStart": {
+          "startDate": "2025-07-19 12:53:31",
+          "anchorTerm": "立春"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
+        }
+      },
+      "mismatchStatus": "none",
+      "decision": "accepted_regression",
+      "failureExplanation": {
+        "trueSolarTime": "锁定当前真太阳时管线；失败说明经度、均时差、时区归一化或 paipan adapter 行为发生变化。",
+        "fourPillars": "锁定 lunar-python 四柱结果；失败说明节气、日柱、时柱或子时边界语义发生变化。",
+        "fortuneStart": "锁定 lunar-python 起运结果；失败说明顺逆起运、节气锚点或真太阳时输入发生变化。",
+        "boundaryTags": [
+          "true_solar_time",
+          "utc_input",
+          "timezone_normalization",
+          "dst_boundary",
+          "non_east_8",
+          "western_longitude",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "kathmandu_quarter_timezone_2000",
+      "validationMode": "runtime_full",
+      "provider": "lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+      "oracle": "FateCat accepted regression: lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+      "input": {
+        "birthDateTime": "2000-01-01T00:15:00+05:45",
+        "timezone": "Asia/Kathmandu",
+        "gender": "male",
+        "longitude": 85.324,
+        "latitude": 27.7172,
+        "birthPlace": "加德满都",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "normalizedBirthDateTime": "2000-01-01T00:15:00",
+        "trueSolarTime": "1999-12-31 21:52:50",
+        "totalOffsetMinutesRange": [
+          -142.17,
+          -142.13
+        ],
+        "ziTimeAnalysis": {
+          "timeZhi": "亥",
+          "dayPillarNormal": "丁巳",
+          "dayPillarZwz": "丁巳",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "己卯",
+          "month": "丙子",
+          "day": "丁巳",
+          "hour": "辛亥"
+        },
+        "fortuneStart": {
+          "startDate": "2007-12-31 21:52:50",
+          "anchorTerm": "立冬"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
+        }
+      },
+      "actual": {
+        "normalizedBirthDateTime": "2000-01-01T00:15:00",
+        "trueSolarTime": "1999-12-31 21:52:50",
+        "totalOffsetMinutesRange": [
+          -142.17,
+          -142.13
+        ],
+        "ziTimeAnalysis": {
+          "timeZhi": "亥",
+          "dayPillarNormal": "丁巳",
+          "dayPillarZwz": "丁巳",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "己卯",
+          "month": "丙子",
+          "day": "丁巳",
+          "hour": "辛亥"
+        },
+        "fortuneStart": {
+          "startDate": "2007-12-31 21:52:50",
+          "anchorTerm": "立冬"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
+        }
+      },
+      "mismatchStatus": "none",
+      "decision": "accepted_regression",
+      "failureExplanation": {
+        "trueSolarTime": "锁定当前真太阳时管线；失败说明经度、均时差、时区归一化或 paipan adapter 行为发生变化。",
+        "fourPillars": "锁定 lunar-python 四柱结果；失败说明节气、日柱、时柱或子时边界语义发生变化。",
+        "fortuneStart": "锁定 lunar-python 起运结果；失败说明顺逆起运、节气锚点或真太阳时输入发生变化。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_whole_hour_timezone",
+          "non_east_8",
+          "cross_day_true_solar",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "beijing_female_yun_start_2024",
+      "validationMode": "runtime_full",
+      "provider": "lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+      "oracle": "FateCat accepted regression: lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+      "input": {
+        "birthDateTime": "2024-02-04T16:56:00",
+        "timezone": "Asia/Shanghai",
+        "gender": "female",
+        "longitude": 116.4074,
+        "latitude": 39.9042,
+        "birthPlace": "北京",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "normalizedBirthDateTime": "2024-02-04T16:56:00",
+        "trueSolarTime": "2024-02-04 16:27:18",
+        "totalOffsetMinutesRange": [
+          -28.7,
+          -28.66
+        ],
+        "ziTimeAnalysis": {
+          "timeZhi": "申",
+          "dayPillarNormal": "戊戌",
+          "dayPillarZwz": "戊戌",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "甲辰",
+          "month": "丙寅",
+          "day": "戊戌",
+          "hour": "庚申"
+        },
+        "fortuneStart": {
+          "startDate": "2024-02-04 16:27:18",
+          "anchorTerm": "小寒"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
+        }
+      },
+      "actual": {
+        "normalizedBirthDateTime": "2024-02-04T16:56:00",
+        "trueSolarTime": "2024-02-04 16:27:18",
+        "totalOffsetMinutesRange": [
+          -28.7,
+          -28.66
+        ],
+        "ziTimeAnalysis": {
+          "timeZhi": "申",
+          "dayPillarNormal": "戊戌",
+          "dayPillarZwz": "戊戌",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "甲辰",
+          "month": "丙寅",
+          "day": "戊戌",
+          "hour": "庚申"
+        },
+        "fortuneStart": {
+          "startDate": "2024-02-04 16:27:18",
+          "anchorTerm": "小寒"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
+        }
+      },
+      "mismatchStatus": "none",
+      "decision": "accepted_regression",
+      "failureExplanation": {
+        "trueSolarTime": "锁定当前真太阳时管线；失败说明经度、均时差、时区归一化或 paipan adapter 行为发生变化。",
+        "fourPillars": "锁定 lunar-python 四柱结果；失败说明节气、日柱、时柱或子时边界语义发生变化。",
+        "fortuneStart": "锁定 lunar-python 起运结果；失败说明顺逆起运、节气锚点或真太阳时输入发生变化。",
+        "boundaryTags": [
+          "true_solar_time",
+          "lichun_boundary",
+          "gender_female",
+          "yun_start_direction",
+          "beijing",
+          "fortune_start"
+        ]
+      }
+    }
+  ]
+}

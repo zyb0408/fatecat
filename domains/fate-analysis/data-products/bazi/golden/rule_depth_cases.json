@@ -109,8 +109,77 @@
         "failureExplanation": {
           "specialPatternStatuses": "锁定特殊格局候选成熟度；失败说明条件链、强弱、十神家族或合化候选输入发生变化。",
           "combineTransformStates": "锁定合化 state/status/score；失败说明合化条件链、阻隔判断或 state 映射发生变化。",
-          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。"
-        }
+          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。",
+          "yongShenRanking": "锁定用神 ranking 的策略和分数；失败说明证据权重、排序阈值或输入证据字段发生变化。",
+          "yongShenSelectedCandidates": "锁定并列候选和 secondary review 边界；失败说明单一用神覆盖防线或候选阈值发生变化。",
+          "yongShenConflictMatrix": "锁定调候扶抑、通关病药等冲突类型和 delta；失败说明冲突裁决策略发生变化。"
+        },
+        "yongShenRanking": [
+          {
+            "strategy": "通关",
+            "score": 100
+          },
+          {
+            "strategy": "病药",
+            "score": 100
+          },
+          {
+            "strategy": "调候",
+            "score": 80
+          },
+          {
+            "strategy": "扶抑",
+            "score": 75
+          }
+        ],
+        "yongShenSelectedCandidates": [
+          {
+            "strategy": "通关",
+            "tier": "primary",
+            "selectionReason": "score_within_parallel_threshold"
+          },
+          {
+            "strategy": "病药",
+            "tier": "parallel_review",
+            "selectionReason": "score_within_parallel_threshold"
+          }
+        ],
+        "yongShenConflictMatrix": [
+          {
+            "type": "strategy_ranking_delta",
+            "severity": "medium",
+            "delta": 0,
+            "strategies": [
+              "通关",
+              "病药"
+            ]
+          },
+          {
+            "type": "climate_vs_strength",
+            "severity": "medium",
+            "delta": 5,
+            "strategies": [
+              "调候",
+              "扶抑"
+            ]
+          },
+          {
+            "type": "relationship_or_imbalance_overlay",
+            "severity": "medium",
+            "delta": 0,
+            "strategies": [
+              "通关",
+              "病药"
+            ]
+          }
+        ],
+        "yongShenDecisionTraceSteps": [
+          "score_strategies",
+          "rank_by_score",
+          "select_parallel_candidates",
+          "attach_conflicts"
+        ],
+        "yongShenNoAbsoluteConclusion": true
       }
     },
     {
@@ -227,8 +296,77 @@
         "failureExplanation": {
           "specialPatternStatuses": "锁定特殊格局候选成熟度；失败说明条件链、强弱、十神家族或合化候选输入发生变化。",
           "combineTransformStates": "锁定合化 state/status/score；失败说明合化条件链、阻隔判断或 state 映射发生变化。",
-          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。"
-        }
+          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。",
+          "yongShenRanking": "锁定用神 ranking 的策略和分数；失败说明证据权重、排序阈值或输入证据字段发生变化。",
+          "yongShenSelectedCandidates": "锁定并列候选和 secondary review 边界；失败说明单一用神覆盖防线或候选阈值发生变化。",
+          "yongShenConflictMatrix": "锁定调候扶抑、通关病药等冲突类型和 delta；失败说明冲突裁决策略发生变化。"
+        },
+        "yongShenRanking": [
+          {
+            "strategy": "通关",
+            "score": 100
+          },
+          {
+            "strategy": "病药",
+            "score": 88
+          },
+          {
+            "strategy": "调候",
+            "score": 80
+          },
+          {
+            "strategy": "扶抑",
+            "score": 75
+          }
+        ],
+        "yongShenSelectedCandidates": [
+          {
+            "strategy": "通关",
+            "tier": "primary",
+            "selectionReason": "score_within_parallel_threshold"
+          },
+          {
+            "strategy": "病药",
+            "tier": "parallel_review",
+            "selectionReason": "score_within_parallel_threshold"
+          }
+        ],
+        "yongShenConflictMatrix": [
+          {
+            "type": "strategy_ranking_delta",
+            "severity": "medium",
+            "delta": 12,
+            "strategies": [
+              "通关",
+              "病药"
+            ]
+          },
+          {
+            "type": "climate_vs_strength",
+            "severity": "medium",
+            "delta": 5,
+            "strategies": [
+              "调候",
+              "扶抑"
+            ]
+          },
+          {
+            "type": "relationship_or_imbalance_overlay",
+            "severity": "medium",
+            "delta": 12,
+            "strategies": [
+              "通关",
+              "病药"
+            ]
+          }
+        ],
+        "yongShenDecisionTraceSteps": [
+          "score_strategies",
+          "rank_by_score",
+          "select_parallel_candidates",
+          "attach_conflicts"
+        ],
+        "yongShenNoAbsoluteConclusion": true
       }
     },
     {
@@ -326,8 +464,77 @@
         "failureExplanation": {
           "specialPatternStatuses": "锁定特殊格局候选成熟度；失败说明条件链、强弱、十神家族或合化候选输入发生变化。",
           "combineTransformStates": "锁定合化 state/status/score；失败说明合化条件链、阻隔判断或 state 映射发生变化。",
-          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。"
-        }
+          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。",
+          "yongShenRanking": "锁定用神 ranking 的策略和分数；失败说明证据权重、排序阈值或输入证据字段发生变化。",
+          "yongShenSelectedCandidates": "锁定并列候选和 secondary review 边界；失败说明单一用神覆盖防线或候选阈值发生变化。",
+          "yongShenConflictMatrix": "锁定调候扶抑、通关病药等冲突类型和 delta；失败说明冲突裁决策略发生变化。"
+        },
+        "yongShenRanking": [
+          {
+            "strategy": "通关",
+            "score": 100
+          },
+          {
+            "strategy": "病药",
+            "score": 85
+          },
+          {
+            "strategy": "调候",
+            "score": 80
+          },
+          {
+            "strategy": "扶抑",
+            "score": 75
+          }
+        ],
+        "yongShenSelectedCandidates": [
+          {
+            "strategy": "通关",
+            "tier": "primary",
+            "selectionReason": "score_within_parallel_threshold"
+          },
+          {
+            "strategy": "病药",
+            "tier": "parallel_review",
+            "selectionReason": "score_within_parallel_threshold"
+          }
+        ],
+        "yongShenConflictMatrix": [
+          {
+            "type": "strategy_ranking_delta",
+            "severity": "medium",
+            "delta": 15,
+            "strategies": [
+              "通关",
+              "病药"
+            ]
+          },
+          {
+            "type": "climate_vs_strength",
+            "severity": "medium",
+            "delta": 5,
+            "strategies": [
+              "调候",
+              "扶抑"
+            ]
+          },
+          {
+            "type": "relationship_or_imbalance_overlay",
+            "severity": "medium",
+            "delta": 15,
+            "strategies": [
+              "通关",
+              "病药"
+            ]
+          }
+        ],
+        "yongShenDecisionTraceSteps": [
+          "score_strategies",
+          "rank_by_score",
+          "select_parallel_candidates",
+          "attach_conflicts"
+        ],
+        "yongShenNoAbsoluteConclusion": true
       }
     },
     {
@@ -425,8 +632,77 @@
         "failureExplanation": {
           "specialPatternStatuses": "锁定特殊格局候选成熟度；失败说明条件链、强弱、十神家族或合化候选输入发生变化。",
           "combineTransformStates": "锁定合化 state/status/score；失败说明合化条件链、阻隔判断或 state 映射发生变化。",
-          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。"
-        }
+          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。",
+          "yongShenRanking": "锁定用神 ranking 的策略和分数；失败说明证据权重、排序阈值或输入证据字段发生变化。",
+          "yongShenSelectedCandidates": "锁定并列候选和 secondary review 边界；失败说明单一用神覆盖防线或候选阈值发生变化。",
+          "yongShenConflictMatrix": "锁定调候扶抑、通关病药等冲突类型和 delta；失败说明冲突裁决策略发生变化。"
+        },
+        "yongShenRanking": [
+          {
+            "strategy": "病药",
+            "score": 100
+          },
+          {
+            "strategy": "调候",
+            "score": 80
+          },
+          {
+            "strategy": "扶抑",
+            "score": 75
+          },
+          {
+            "strategy": "通关",
+            "score": 65
+          }
+        ],
+        "yongShenSelectedCandidates": [
+          {
+            "strategy": "病药",
+            "tier": "primary",
+            "selectionReason": "score_within_parallel_threshold"
+          },
+          {
+            "strategy": "调候",
+            "tier": "parallel_review",
+            "selectionReason": "non_absolute_secondary_strategy_retained"
+          }
+        ],
+        "yongShenConflictMatrix": [
+          {
+            "type": "strategy_ranking_delta",
+            "severity": "low",
+            "delta": 20,
+            "strategies": [
+              "病药",
+              "调候"
+            ]
+          },
+          {
+            "type": "climate_vs_strength",
+            "severity": "medium",
+            "delta": 5,
+            "strategies": [
+              "调候",
+              "扶抑"
+            ]
+          },
+          {
+            "type": "relationship_or_imbalance_overlay",
+            "severity": "medium",
+            "delta": 35,
+            "strategies": [
+              "通关",
+              "病药"
+            ]
+          }
+        ],
+        "yongShenDecisionTraceSteps": [
+          "score_strategies",
+          "rank_by_score",
+          "select_parallel_candidates",
+          "attach_conflicts"
+        ],
+        "yongShenNoAbsoluteConclusion": true
       }
     },
     {
@@ -534,8 +810,77 @@
         "failureExplanation": {
           "specialPatternStatuses": "锁定特殊格局候选成熟度；失败说明条件链、强弱、十神家族或合化候选输入发生变化。",
           "combineTransformStates": "锁定合化 state/status/score；失败说明合化条件链、阻隔判断或 state 映射发生变化。",
-          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。"
-        }
+          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。",
+          "yongShenRanking": "锁定用神 ranking 的策略和分数；失败说明证据权重、排序阈值或输入证据字段发生变化。",
+          "yongShenSelectedCandidates": "锁定并列候选和 secondary review 边界；失败说明单一用神覆盖防线或候选阈值发生变化。",
+          "yongShenConflictMatrix": "锁定调候扶抑、通关病药等冲突类型和 delta；失败说明冲突裁决策略发生变化。"
+        },
+        "yongShenRanking": [
+          {
+            "strategy": "通关",
+            "score": 100
+          },
+          {
+            "strategy": "调候",
+            "score": 80
+          },
+          {
+            "strategy": "扶抑",
+            "score": 75
+          },
+          {
+            "strategy": "病药",
+            "score": 64
+          }
+        ],
+        "yongShenSelectedCandidates": [
+          {
+            "strategy": "通关",
+            "tier": "primary",
+            "selectionReason": "score_within_parallel_threshold"
+          },
+          {
+            "strategy": "调候",
+            "tier": "parallel_review",
+            "selectionReason": "non_absolute_secondary_strategy_retained"
+          }
+        ],
+        "yongShenConflictMatrix": [
+          {
+            "type": "strategy_ranking_delta",
+            "severity": "low",
+            "delta": 20,
+            "strategies": [
+              "通关",
+              "调候"
+            ]
+          },
+          {
+            "type": "climate_vs_strength",
+            "severity": "medium",
+            "delta": 5,
+            "strategies": [
+              "调候",
+              "扶抑"
+            ]
+          },
+          {
+            "type": "relationship_or_imbalance_overlay",
+            "severity": "medium",
+            "delta": 36,
+            "strategies": [
+              "通关",
+              "病药"
+            ]
+          }
+        ],
+        "yongShenDecisionTraceSteps": [
+          "score_strategies",
+          "rank_by_score",
+          "select_parallel_candidates",
+          "attach_conflicts"
+        ],
+        "yongShenNoAbsoluteConclusion": true
       }
     },
     {
@@ -648,8 +993,77 @@
         "failureExplanation": {
           "specialPatternStatuses": "锁定特殊格局候选成熟度；失败说明条件链、强弱、十神家族或合化候选输入发生变化。",
           "combineTransformStates": "锁定合化 state/status/score；失败说明合化条件链、阻隔判断或 state 映射发生变化。",
-          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。"
-        }
+          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。",
+          "yongShenRanking": "锁定用神 ranking 的策略和分数；失败说明证据权重、排序阈值或输入证据字段发生变化。",
+          "yongShenSelectedCandidates": "锁定并列候选和 secondary review 边界；失败说明单一用神覆盖防线或候选阈值发生变化。",
+          "yongShenConflictMatrix": "锁定调候扶抑、通关病药等冲突类型和 delta；失败说明冲突裁决策略发生变化。"
+        },
+        "yongShenRanking": [
+          {
+            "strategy": "通关",
+            "score": 100
+          },
+          {
+            "strategy": "病药",
+            "score": 82
+          },
+          {
+            "strategy": "调候",
+            "score": 80
+          },
+          {
+            "strategy": "扶抑",
+            "score": 75
+          }
+        ],
+        "yongShenSelectedCandidates": [
+          {
+            "strategy": "通关",
+            "tier": "primary",
+            "selectionReason": "score_within_parallel_threshold"
+          },
+          {
+            "strategy": "病药",
+            "tier": "parallel_review",
+            "selectionReason": "non_absolute_secondary_strategy_retained"
+          }
+        ],
+        "yongShenConflictMatrix": [
+          {
+            "type": "strategy_ranking_delta",
+            "severity": "low",
+            "delta": 18,
+            "strategies": [
+              "通关",
+              "病药"
+            ]
+          },
+          {
+            "type": "climate_vs_strength",
+            "severity": "medium",
+            "delta": 5,
+            "strategies": [
+              "调候",
+              "扶抑"
+            ]
+          },
+          {
+            "type": "relationship_or_imbalance_overlay",
+            "severity": "medium",
+            "delta": 18,
+            "strategies": [
+              "通关",
+              "病药"
+            ]
+          }
+        ],
+        "yongShenDecisionTraceSteps": [
+          "score_strategies",
+          "rank_by_score",
+          "select_parallel_candidates",
+          "attach_conflicts"
+        ],
+        "yongShenNoAbsoluteConclusion": true
       }
     },
     {
@@ -743,8 +1157,77 @@
         "failureExplanation": {
           "specialPatternStatuses": "锁定特殊格局候选成熟度；失败说明条件链、强弱、十神家族或合化候选输入发生变化。",
           "combineTransformStates": "锁定合化 state/status/score；失败说明合化条件链、阻隔判断或 state 映射发生变化。",
-          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。"
-        }
+          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。",
+          "yongShenRanking": "锁定用神 ranking 的策略和分数；失败说明证据权重、排序阈值或输入证据字段发生变化。",
+          "yongShenSelectedCandidates": "锁定并列候选和 secondary review 边界；失败说明单一用神覆盖防线或候选阈值发生变化。",
+          "yongShenConflictMatrix": "锁定调候扶抑、通关病药等冲突类型和 delta；失败说明冲突裁决策略发生变化。"
+        },
+        "yongShenRanking": [
+          {
+            "strategy": "通关",
+            "score": 100
+          },
+          {
+            "strategy": "调候",
+            "score": 80
+          },
+          {
+            "strategy": "扶抑",
+            "score": 75
+          },
+          {
+            "strategy": "病药",
+            "score": 61
+          }
+        ],
+        "yongShenSelectedCandidates": [
+          {
+            "strategy": "通关",
+            "tier": "primary",
+            "selectionReason": "score_within_parallel_threshold"
+          },
+          {
+            "strategy": "调候",
+            "tier": "parallel_review",
+            "selectionReason": "non_absolute_secondary_strategy_retained"
+          }
+        ],
+        "yongShenConflictMatrix": [
+          {
+            "type": "strategy_ranking_delta",
+            "severity": "low",
+            "delta": 20,
+            "strategies": [
+              "通关",
+              "调候"
+            ]
+          },
+          {
+            "type": "climate_vs_strength",
+            "severity": "medium",
+            "delta": 5,
+            "strategies": [
+              "调候",
+              "扶抑"
+            ]
+          },
+          {
+            "type": "relationship_or_imbalance_overlay",
+            "severity": "medium",
+            "delta": 39,
+            "strategies": [
+              "通关",
+              "病药"
+            ]
+          }
+        ],
+        "yongShenDecisionTraceSteps": [
+          "score_strategies",
+          "rank_by_score",
+          "select_parallel_candidates",
+          "attach_conflicts"
+        ],
+        "yongShenNoAbsoluteConclusion": true
       }
     },
     {
@@ -848,9 +1331,337 @@
         "failureExplanation": {
           "specialPatternStatuses": "锁定特殊格局候选成熟度；失败说明条件链、强弱、十神家族或合化候选输入发生变化。",
           "combineTransformStates": "锁定合化 state/status/score；失败说明合化条件链、阻隔判断或 state 映射发生变化。",
-          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。"
-        }
+          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。",
+          "yongShenRanking": "锁定用神 ranking 的策略和分数；失败说明证据权重、排序阈值或输入证据字段发生变化。",
+          "yongShenSelectedCandidates": "锁定并列候选和 secondary review 边界；失败说明单一用神覆盖防线或候选阈值发生变化。",
+          "yongShenConflictMatrix": "锁定调候扶抑、通关病药等冲突类型和 delta；失败说明冲突裁决策略发生变化。"
+        },
+        "yongShenRanking": [
+          {
+            "strategy": "通关",
+            "score": 100
+          },
+          {
+            "strategy": "病药",
+            "score": 100
+          },
+          {
+            "strategy": "调候",
+            "score": 80
+          },
+          {
+            "strategy": "扶抑",
+            "score": 75
+          }
+        ],
+        "yongShenSelectedCandidates": [
+          {
+            "strategy": "通关",
+            "tier": "primary",
+            "selectionReason": "score_within_parallel_threshold"
+          },
+          {
+            "strategy": "病药",
+            "tier": "parallel_review",
+            "selectionReason": "score_within_parallel_threshold"
+          }
+        ],
+        "yongShenConflictMatrix": [
+          {
+            "type": "strategy_ranking_delta",
+            "severity": "medium",
+            "delta": 0,
+            "strategies": [
+              "通关",
+              "病药"
+            ]
+          },
+          {
+            "type": "climate_vs_strength",
+            "severity": "medium",
+            "delta": 5,
+            "strategies": [
+              "调候",
+              "扶抑"
+            ]
+          },
+          {
+            "type": "relationship_or_imbalance_overlay",
+            "severity": "medium",
+            "delta": 0,
+            "strategies": [
+              "通关",
+              "病药"
+            ]
+          }
+        ],
+        "yongShenDecisionTraceSteps": [
+          "score_strategies",
+          "rank_by_score",
+          "select_parallel_candidates",
+          "attach_conflicts"
+        ],
+        "yongShenNoAbsoluteConclusion": true
       }
+    }
+  ],
+  "advancedPatternGoldenMatrix": [
+    {
+      "name": "正格",
+      "lifecycle": "production_guarded",
+      "samples": [
+        {
+          "kind": "positive",
+          "caseId": "spring_1995_weak",
+          "expectedStatus": "candidate",
+          "evidencePath": "baziBenchmark.patternRegistry.regularPatternCandidates",
+          "failureExplanation": "正格候选必须能回指月令取格；失败说明正格候选提取或月令边界发生变化。"
+        },
+        {
+          "kind": "negative",
+          "caseId": "autumn_2000_strong_yangren",
+          "expectedStatus": "absent",
+          "evidencePath": "baziBenchmark.patternRegistry.regularPatternCandidates",
+          "failureExplanation": "强旺或特殊候选压过常规格局时，正格不得被强行填充。"
+        },
+        {
+          "kind": "boundary",
+          "caseId": "winter_1984_cold_weak",
+          "expectedStatus": "uncertain",
+          "evidencePath": "baziBenchmark.patternRegistry.regularPatternCandidates",
+          "failureExplanation": "正格存在不确定证据时必须保留 uncertainty，不得写成定格。"
+        }
+      ],
+      "promotionBlocked": false,
+      "riskBoundary": "正格仍只作为解释优先级，不替代完整命例判断。"
+    },
+    {
+      "name": "变格",
+      "lifecycle": "beta",
+      "samples": [
+        {
+          "kind": "positive",
+          "caseId": null,
+          "expectedStatus": "missing",
+          "evidencePath": "future_golden_required",
+          "failureExplanation": "当前没有可审计正例，变格保持 beta，不进入 production 强断。"
+        },
+        {
+          "kind": "negative",
+          "caseId": null,
+          "expectedStatus": "missing",
+          "evidencePath": "future_golden_required",
+          "failureExplanation": "当前没有可审计反例，变格保持 beta，不进入 production 强断。"
+        },
+        {
+          "kind": "boundary",
+          "caseId": null,
+          "expectedStatus": "missing",
+          "evidencePath": "future_golden_required",
+          "failureExplanation": "当前没有可审计边界例，变格保持 beta，不进入 production 强断。"
+        }
+      ],
+      "promotionBlocked": true,
+      "riskBoundary": "变格必须补齐正反边界 golden 后才能脱离 beta。"
+    },
+    {
+      "name": "从格",
+      "lifecycle": "beta_hitl",
+      "samples": [
+        {
+          "kind": "positive",
+          "caseId": "winter_1984_cold_weak",
+          "expectedStatus": "candidate",
+          "evidencePath": "expected.specialPatternStatuses.从格",
+          "failureExplanation": "从格候选必须锁定日主极弱和外部势力成势。"
+        },
+        {
+          "kind": "negative",
+          "caseId": "autumn_2000_strong_yangren",
+          "expectedStatus": "not_supported",
+          "evidencePath": "expected.specialPatternStatuses.从格",
+          "failureExplanation": "日主强旺或自党明显时不得误判从格。"
+        },
+        {
+          "kind": "boundary",
+          "caseId": "spring_1995_weak",
+          "expectedStatus": "guarded",
+          "evidencePath": "expected.specialPatternStatuses.从格",
+          "failureExplanation": "从格条件不全时必须 guarded，不得直接定格。"
+        }
+      ],
+      "promotionBlocked": true,
+      "riskBoundary": "从格无专家命例授权前保持 beta/HITL。"
+    },
+    {
+      "name": "假从",
+      "lifecycle": "beta_hitl",
+      "samples": [
+        {
+          "kind": "positive",
+          "caseId": "winter_1984_cold_weak",
+          "expectedStatus": "candidate",
+          "evidencePath": "expected.specialPatternStatuses.假从",
+          "failureExplanation": "假从候选必须保留少量反向证据。"
+        },
+        {
+          "kind": "negative",
+          "caseId": "autumn_2000_strong_yangren",
+          "expectedStatus": "not_supported",
+          "evidencePath": "expected.specialPatternStatuses.假从",
+          "failureExplanation": "自党扶助足以转普通格时不得标记假从。"
+        },
+        {
+          "kind": "boundary",
+          "caseId": null,
+          "expectedStatus": "missing",
+          "evidencePath": "future_golden_required",
+          "failureExplanation": "当前缺少假从 guarded 边界样本，必须继续 beta/HITL。"
+        }
+      ],
+      "promotionBlocked": true,
+      "riskBoundary": "假从必须显式标注反证，不得写成真从。"
+    },
+    {
+      "name": "专旺",
+      "lifecycle": "beta_hitl",
+      "samples": [
+        {
+          "kind": "positive",
+          "caseId": "autumn_2000_strong_yangren",
+          "expectedStatus": "candidate",
+          "evidencePath": "expected.specialPatternStatuses.专旺",
+          "failureExplanation": "专旺候选必须锁定日主强旺和同党成势。"
+        },
+        {
+          "kind": "negative",
+          "caseId": "spring_1995_weak",
+          "expectedStatus": "not_supported",
+          "evidencePath": "expected.specialPatternStatuses.专旺",
+          "failureExplanation": "同党不足或月令不支持时不得误判专旺。"
+        },
+        {
+          "kind": "boundary",
+          "caseId": "lichun_2024_pianyin",
+          "expectedStatus": "guarded",
+          "evidencePath": "expected.specialPatternStatuses.专旺",
+          "failureExplanation": "专旺证据不足时必须 guarded。"
+        }
+      ],
+      "promotionBlocked": true,
+      "riskBoundary": "专旺候选必须等待 golden 反例验证后才能提高置信度。"
+    },
+    {
+      "name": "化气",
+      "lifecycle": "beta_hitl",
+      "samples": [
+        {
+          "kind": "positive",
+          "caseId": "spring_1995_weak",
+          "expectedStatus": "candidate",
+          "evidencePath": "expected.specialPatternStatuses.化气",
+          "failureExplanation": "化气候选必须依赖合化条件链。"
+        },
+        {
+          "kind": "negative",
+          "caseId": null,
+          "expectedStatus": "missing",
+          "evidencePath": "future_golden_required",
+          "failureExplanation": "当前缺少化气 not_supported 反例，必须继续 beta/HITL。"
+        },
+        {
+          "kind": "boundary",
+          "caseId": "lichun_2024_pianyin",
+          "expectedStatus": "guarded",
+          "evidencePath": "expected.specialPatternStatuses.化气",
+          "failureExplanation": "月令、透干、通根任一不足时不得由合象直接跳到化气定格。"
+        }
+      ],
+      "promotionBlocked": true,
+      "riskBoundary": "化气必须依赖合化条件链，不得由合象直接跳到成化。"
+    }
+  ],
+  "combineTransformCounterexampleMatrix": [
+    {
+      "scenario": "破化",
+      "state": "transform_broken",
+      "evaluatorCaseId": "combine_transform_broken_contract",
+      "conditionChainField": "blockers",
+      "failedCondition": "no_direct_blocker",
+      "failureExplanation": "存在冲破阻隔时，成化候选必须降为破化。"
+    },
+    {
+      "scenario": "阻隔",
+      "state": "transform_broken",
+      "evaluatorCaseId": "combine_transform_broken_contract",
+      "conditionChainField": "blockers",
+      "failedCondition": "no_direct_blocker",
+      "failureExplanation": "阻隔对象作用于合化双方时，失败原因必须定位到 blockers。"
+    },
+    {
+      "scenario": "冲破",
+      "state": "transform_broken",
+      "evaluatorCaseId": "combine_transform_broken_contract",
+      "conditionChainField": "counter_conditions",
+      "failedCondition": "direct_conflict_breaks_transform",
+      "failureExplanation": "冲破属于合化反证，不得继续输出成化成立。"
+    },
+    {
+      "scenario": "争合",
+      "state": "contested_transform",
+      "evaluatorCaseId": "combine_contested_transform_contract",
+      "conditionChainField": "counter_conditions",
+      "failedCondition": "paired_stem_contested",
+      "promotionBlocked": false,
+      "failureExplanation": "同一干参与多组合时必须登记争合，降低成化置信度。"
+    }
+  ],
+  "yongShenCounterexampleMatrix": [
+    {
+      "scenario": "single_absolute_conclusion_forbidden",
+      "caseId": "spring_1995_weak",
+      "expectedNoAbsoluteConclusion": true,
+      "requiredSelectedCandidateMin": 2,
+      "forbiddenClaims": [
+        "deterministic_future",
+        "professional_replacement",
+        "guarantee",
+        "fear_claim"
+      ],
+      "failureExplanation": "用神输出必须保留并列候选，不得退回唯一绝对结论。"
+    },
+    {
+      "scenario": "climate_vs_strength_conflict",
+      "caseId": "winter_1984_cold_weak",
+      "requiredConflictType": "climate_vs_strength",
+      "expectedNoAbsoluteConclusion": true,
+      "failureExplanation": "调候与扶抑冲突必须进入 conflict matrix。"
+    },
+    {
+      "scenario": "relationship_or_imbalance_overlay",
+      "caseId": "spring_1995_weak",
+      "requiredConflictType": "relationship_or_imbalance_overlay",
+      "expectedNoAbsoluteConclusion": true,
+      "failureExplanation": "通关/病药等覆盖关系必须解释 ranking 变化。"
+    },
+    {
+      "scenario": "topic_report_boundary",
+      "caseId": "spring_1995_weak",
+      "expectedTopicLifecycle": "beta",
+      "expectedProductionGateStatus": "blocked",
+      "expectedNoAbsoluteConclusion": true,
+      "forbiddenTerms": [
+        "必然",
+        "一定",
+        "保证",
+        "灾祸",
+        "疾病",
+        "医疗建议",
+        "投资建议",
+        "法律建议",
+        "心理建议"
+      ],
+      "failureExplanation": "报告边界必须保留 beta/blocked，不输出现实处方或恐吓式断语。"
     }
   ],
   "evaluatorStateCases": {
@@ -1073,6 +1884,58 @@
           "state": "transform_broken",
           "status": "guarded_candidate",
           "failureExplanation": "甲己合土原有成化条件，但合化双方位置存在冲破阻隔，必须降为破化。"
+        }
+      },
+      {
+        "id": "combine_contested_transform_contract",
+        "source": {
+          "type": "synthetic_evaluator_fixture",
+          "privacy": "no_real_person_data",
+          "license": "project-owned fixture",
+          "productionUse": "test_only_not_runtime_oracle"
+        },
+        "raw": {
+          "fourPillars": {
+            "year": {
+              "stem": "庚",
+              "branch": "申"
+            },
+            "month": {
+              "stem": "乙",
+              "branch": "酉"
+            },
+            "day": {
+              "stem": "乙",
+              "branch": "卯"
+            },
+            "hour": {
+              "stem": "戊",
+              "branch": "辰"
+            }
+          },
+          "hiddenStems": {
+            "year": [
+              "庚",
+              "壬",
+              "戊"
+            ],
+            "month": [
+              "辛"
+            ],
+            "day": [
+              "乙"
+            ],
+            "hour": [
+              "戊",
+              "乙",
+              "癸"
+            ]
+          }
+        },
+        "expected": {
+          "state": "contested_transform",
+          "status": "guarded_candidate",
+          "failureExplanation": "庚同时与两处乙形成合象，同一干参与多组合，必须登记争合而不是成化成立。"
         }
       }
     ]

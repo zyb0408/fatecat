@@ -13,6 +13,40 @@ from fate_core.providers import (
     build_fortune_section,
     build_pure_analysis_runtime,
 )
+from fate_core.usecases.evaluators import (
+    BRANCH_CLASH,
+    ELEMENT_CONTROLS,
+    GAN_ELEMENT,
+    build_fortune_trigger_matrix,
+    build_strength_score,
+    build_ten_god_structure,
+    ten_god_families,
+    ten_god_values,
+)
+from fate_core.usecases.evaluators import (
+    build_combine_transform_matrix as _build_combine_transform_matrix,
+)
+from fate_core.usecases.evaluators import (
+    build_regular_pattern_candidates as _build_regular_pattern_candidates,
+)
+from fate_core.usecases.evaluators import (
+    build_relation_order as _relation_order,
+)
+from fate_core.usecases.evaluators import (
+    build_special_pattern_candidates as _build_special_pattern_candidates,
+)
+from fate_core.usecases.evaluators import (
+    build_topic_profiles as _build_topic_profiles,
+)
+from fate_core.usecases.evaluators import (
+    build_yongshen_decision as _build_yongshen_decision,
+)
+from fate_core.usecases.evaluators import (
+    relation_families as _relation_families,
+)
+from fate_core.usecases.evaluators import (
+    temperature_band as _temperature_band,
+)
 from fate_core.usecases.evidence_builder import (
     append_accuracy_evidence,
     append_bazi_benchmark_evidence,
@@ -254,110 +288,6 @@ def _build_accuracy_guards(runtime: Any, raw: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-GAN_ELEMENT = {
-    "甲": "木",
-    "乙": "木",
-    "丙": "火",
-    "丁": "火",
-    "戊": "土",
-    "己": "土",
-    "庚": "金",
-    "辛": "金",
-    "壬": "水",
-    "癸": "水",
-}
-BRANCH_ELEMENT = {
-    "子": "水",
-    "丑": "土",
-    "寅": "木",
-    "卯": "木",
-    "辰": "土",
-    "巳": "火",
-    "午": "火",
-    "未": "土",
-    "申": "金",
-    "酉": "金",
-    "戌": "土",
-    "亥": "水",
-}
-ELEMENT_STEMS = {
-    "木": {"甲", "乙"},
-    "火": {"丙", "丁"},
-    "土": {"戊", "己"},
-    "金": {"庚", "辛"},
-    "水": {"壬", "癸"},
-}
-TRANSFORM_ELEMENT_BY_PAIR = {
-    frozenset({"甲", "己"}): "土",
-    frozenset({"乙", "庚"}): "金",
-    frozenset({"丙", "辛"}): "水",
-    frozenset({"丁", "壬"}): "木",
-    frozenset({"戊", "癸"}): "火",
-}
-BRANCH_CLASH = {
-    "子": "午",
-    "午": "子",
-    "丑": "未",
-    "未": "丑",
-    "寅": "申",
-    "申": "寅",
-    "卯": "酉",
-    "酉": "卯",
-    "辰": "戌",
-    "戌": "辰",
-    "巳": "亥",
-    "亥": "巳",
-}
-ELEMENT_CONTROLS = {"木": "土", "土": "水", "水": "火", "火": "金", "金": "木"}
-
-
-def _ten_god_values(value: Any) -> list[str]:
-    values: list[str] = []
-    if isinstance(value, dict):
-        for item in value.values():
-            values.extend(_ten_god_values(item))
-    elif isinstance(value, list):
-        for item in value:
-            values.extend(_ten_god_values(item))
-    elif value not in (None, ""):
-        values.append(str(value))
-    return values
-
-
-def _relation_order(raw: dict[str, Any]) -> list[dict[str, Any]]:
-    """把干支关系按审计优先级整理成稳定结构。"""
-    relations = raw.get("ganzhiRelations", {}) if isinstance(raw.get("ganzhiRelations"), dict) else {}
-    branch_rel = raw.get("branchRelations", {}) if isinstance(raw.get("branchRelations"), dict) else {}
-    extra = raw.get("ganzhiExtra", {}) if isinstance(raw.get("ganzhiExtra"), dict) else {}
-    groups = [
-        ("hehua", "合化", relations.get("tianGan", []), "先记录天干五合；是否成化需要后续条件字段确认。"),
-        ("sanHui", "三会", branch_rel.get("sanHuiDetail") or branch_rel.get("sanHui", []), "三会优先于三合展示。"),
-        ("sanHe", "三合", branch_rel.get("sanHeDetail") or branch_rel.get("sanHe", []), "完整三合优先于半合。"),
-        ("liuHe", "六合", branch_rel.get("liuHeDetail") or branch_rel.get("liuHe", []), "六合作为结构辅助关系。"),
-        (
-            "conflict",
-            "冲刑害破",
-            branch_rel.get("conflictsDetail") or branch_rel.get("conflicts", []),
-            "动态触发时优先进入运势证据。",
-        ),
-        ("ku", "入库", extra.get("kuDetail", {}), "库气与入库只作为结构证据，不单独决定喜忌。"),
-    ]
-    ordered = []
-    for priority, (key, label, value, boundary) in enumerate(groups, start=1):
-        count = len(value) if isinstance(value, (list, dict)) else (1 if value else 0)
-        ordered.append(
-            {
-                "key": key,
-                "label": label,
-                "priority": priority,
-                "count": count,
-                "items": value,
-                "boundary": boundary,
-            }
-        )
-    return ordered
-
-
 def _fortune_triggers(raw: dict[str, Any]) -> list[dict[str, Any]]:
     """抽取岁运触发点：只做结构提示，不输出确定性断语。"""
     pillars = raw.get("fourPillars", {}) if isinstance(raw.get("fourPillars"), dict) else {}
@@ -442,477 +372,18 @@ def _build_yongshen_strategies(raw: dict[str, Any]) -> list[dict[str, Any]]:
     return strategies
 
 
-def _pillar_items(raw: dict[str, Any]) -> list[dict[str, Any]]:
-    pillars = raw.get("fourPillars", {}) if isinstance(raw.get("fourPillars"), dict) else {}
-    hidden_stems = raw.get("hiddenStems", {}) if isinstance(raw.get("hiddenStems"), dict) else {}
-    items: list[dict[str, Any]] = []
-    for name, label in [("year", "年"), ("month", "月"), ("day", "日"), ("hour", "时")]:
-        pillar = pillars.get(name, {}) if isinstance(pillars.get(name), dict) else {}
-        stem = str(pillar.get("stem", ""))
-        branch = str(pillar.get("branch", ""))
-        hidden = hidden_stems.get(name, [])
-        items.append(
-            {
-                "position": name,
-                "label": label,
-                "stem": stem,
-                "branch": branch,
-                "stemElement": GAN_ELEMENT.get(stem, ""),
-                "branchElement": BRANCH_ELEMENT.get(branch, ""),
-                "hiddenStems": hidden if isinstance(hidden, list) else [],
-            }
-        )
-    return items
-
-
-def _branch_supports_element(branch: str, hidden: list[Any], element: str) -> bool:
-    if BRANCH_ELEMENT.get(branch) == element:
-        return True
-    return any(GAN_ELEMENT.get(str(stem)) == element for stem in hidden)
-
-
-def _relation_blockers(raw: dict[str, Any], positions: set[str]) -> list[str]:
-    blockers: list[str] = []
-    branch_rel = raw.get("branchRelations", {}) if isinstance(raw.get("branchRelations"), dict) else {}
-    for item in branch_rel.get("conflictsDetail", []) if isinstance(branch_rel.get("conflictsDetail"), list) else []:
-        if not isinstance(item, dict):
-            continue
-        if item.get("rel") not in {"冲", "刑", "被刑", "害", "破"}:
-            continue
-        if item.get("from") in positions or any(str(target) in positions for target in item.get("to", [])):
-            blockers.append(str(item.get("text", "")))
-    extra = raw.get("ganzhiExtra", {}) if isinstance(raw.get("ganzhiExtra"), dict) else {}
-    for item in extra.get("keDetail", []) if isinstance(extra.get("keDetail"), list) else []:
-        if isinstance(item, dict) and {item.get("from"), item.get("to")} & positions:
-            blockers.append(str(item.get("text", "")))
-    return [item for item in blockers if item][:8]
-
-
-def _condition(name: str, met: bool, evidence: Any) -> dict[str, Any]:
-    return {"name": name, "met": bool(met), "evidence": evidence}
-
-
-def _build_combine_transform_matrix(raw: dict[str, Any]) -> dict[str, Any]:
-    """登记合化候选的条件链；缺条件时只保留合象，不输出成化断语。"""
-    items = _pillar_items(raw)
-    stems_present = [item for item in items if item["stem"]]
-    month = next((item for item in items if item["position"] == "month"), {})
-    candidates: list[dict[str, Any]] = []
-    for index, left in enumerate(stems_present):
-        for right in stems_present[index + 1 :]:
-            transform_element = TRANSFORM_ELEMENT_BY_PAIR.get(frozenset({left["stem"], right["stem"]}))
-            if not transform_element:
-                continue
-            transform_stems = ELEMENT_STEMS.get(transform_element, set())
-            stem_transparent = any(item["stem"] in transform_stems for item in items)
-            rooted_positions = [
-                item["position"]
-                for item in items
-                if _branch_supports_element(item["branch"], item["hiddenStems"], transform_element)
-            ]
-            month_support = _branch_supports_element(
-                str(month.get("branch", "")), list(month.get("hiddenStems", [])), transform_element
-            )
-            blockers = _relation_blockers(raw, {left["position"], right["position"]})
-            conditions = [
-                _condition("paired_stems_present", True, [left["stem"], right["stem"]]),
-                _condition("month_command_supports_transform_element", month_support, month),
-                _condition("transform_element_transparent", stem_transparent, sorted(transform_stems)),
-                _condition("transform_element_rooted", bool(rooted_positions), rooted_positions),
-                _condition("no_direct_blocker", not blockers, blockers),
-            ]
-            score = sum([20, 25 if month_support else 0, 20 if stem_transparent else 0, 20 if rooted_positions else 0])
-            if blockers:
-                score -= 15
-            status = (
-                "formed_candidate"
-                if score >= 75 and not blockers
-                else "guarded_candidate"
-                if score >= 45
-                else "weak_candidate"
-            )
-            state = (
-                "transform_broken"
-                if blockers
-                else "transform_success"
-                if score >= 75
-                else "transform_candidate"
-                if score >= 45
-                else "structural_relation"
-            )
-            candidates.append(
-                {
-                    "pair": [left["stem"], right["stem"]],
-                    "positions": [left["position"], right["position"]],
-                    "transformElement": transform_element,
-                    "score": max(0, min(100, score)),
-                    "status": status,
-                    "state": state,
-                    "conditions": conditions,
-                    "boundary": "合化成败必须同时看月令、透干、通根和阻隔；这里不把合象直接写成成化。",
-                }
-            )
-    return {
-        "schemaVersion": 1,
-        "status": "has_candidates" if candidates else "no_direct_stem_pair",
-        "stateCatalog": ["structural_relation", "transform_candidate", "transform_success", "transform_broken"],
-        "conditionCatalog": [
-            "paired_stems_present",
-            "month_command_supports_transform_element",
-            "transform_element_transparent",
-            "transform_element_rooted",
-            "no_direct_blocker",
-        ],
-        "candidates": candidates,
-        "riskBoundary": "缺少完整条件链时只登记合象或候选，不宣称已经成化。",
-    }
-
-
-def _score_status(score: int, *, candidate_at: int = 80, guarded_at: int = 30) -> str:
-    if score >= candidate_at:
-        return "candidate"
-    if score >= guarded_at:
-        return "guarded"
-    return "not_supported"
-
-
-def _build_special_pattern_candidates(raw: dict[str, Any], combine_matrix: dict[str, Any]) -> dict[str, Any]:
-    day_master = raw.get("dayMaster", {}) if isinstance(raw.get("dayMaster"), dict) else {}
-    strength_label = str(day_master.get("strength", ""))
-    strength = raw.get("wuxingScores", {}) if isinstance(raw.get("wuxingScores"), dict) else {}
-    strong_score = strength.get("strongScore")
-    ten_god_counts = _ten_god_families(
-        {
-            name: _ten_god_values(raw.get("tenGods", {})).count(name)
-            for name in set(_ten_god_values(raw.get("tenGods", {})))
-        }
-    )
-    support_self = int(ten_god_counts.get("印", 0)) + int(ten_god_counts.get("比劫", 0))
-    dominant_family = max(ten_god_counts.items(), key=lambda item: item[1], default=("", 0))
-    has_transform_candidate = bool(combine_matrix.get("candidates"))
-    weak = "弱" in strength_label
-    strong = bool(isinstance(strong_score, int | float) and strong_score >= 30)
-
-    definitions = [
-        (
-            "从格",
-            [
-                _condition("day_master_weak", weak, strength_label),
-                _condition("self_support_low", support_self <= 2, support_self),
-                _condition("external_family_dominant", dominant_family[0] in {"财", "官杀", "食伤"}, dominant_family),
-            ],
-        ),
-        (
-            "化气",
-            [
-                _condition(
-                    "combine_transform_candidate_exists", has_transform_candidate, combine_matrix.get("candidates", [])
-                ),
-                _condition(
-                    "candidate_has_condition_chain",
-                    bool(combine_matrix.get("conditionCatalog")),
-                    combine_matrix.get("conditionCatalog"),
-                ),
-            ],
-        ),
-        (
-            "专旺",
-            [
-                _condition("day_master_strong", strong, {"label": strength_label, "strongScore": strong_score}),
-                _condition("self_support_dominant", support_self >= max(3, dominant_family[1]), ten_god_counts),
-            ],
-        ),
-        (
-            "假从",
-            [
-                _condition("day_master_weak", weak, strength_label),
-                _condition("self_support_present_but_not_dominant", 0 < support_self <= 4, support_self),
-                _condition("external_family_dominant", dominant_family[0] in {"财", "官杀", "食伤"}, dominant_family),
-            ],
-        ),
-        (
-            "从杀",
-            [
-                _condition("day_master_weak", weak, strength_label),
-                _condition("official_killing_dominant", dominant_family[0] == "官杀", ten_god_counts),
-            ],
-        ),
-        (
-            "从财",
-            [
-                _condition("day_master_weak", weak, strength_label),
-                _condition("wealth_dominant", dominant_family[0] == "财", ten_god_counts),
-            ],
-        ),
-    ]
-    candidates = []
-    for name, conditions in definitions:
-        met_count = sum(1 for item in conditions if item["met"])
-        score = int(round(100 * met_count / len(conditions)))
-        candidates.append(
-            {
-                "name": name,
-                "score": score,
-                "status": _score_status(score),
-                "maturity": {
-                    "basis": "condition_chain",
-                    "metConditions": met_count,
-                    "totalConditions": len(conditions),
-                },
-                "conditions": conditions,
-                "boundary": "特殊格局只登记候选成熟度；未达到完整成败条件时不得定格。",
-            }
-        )
-    return {
-        "schemaVersion": 1,
-        "candidates": candidates,
-        "dominantFamily": {"name": dominant_family[0], "count": dominant_family[1]},
-        "selfSupportCount": support_self,
-        "riskBoundary": "从格、化气、专旺、假从等高级格局必须有专门 golden case 才能提升为定格。",
-    }
-
-
-def _five_element_spread(raw: dict[str, Any]) -> int:
-    scores = (
-        raw.get("wuxingScores", {}).get("fiveElementScore", {}) if isinstance(raw.get("wuxingScores"), dict) else {}
-    )
-    values = [int(value) for value in scores.values() if isinstance(value, int | float)]
-    return max(values) - min(values) if values else 0
-
-
-def _build_yongshen_decision(raw: dict[str, Any], strategies: list[dict[str, Any]]) -> dict[str, Any]:
-    strategy_names = {str(item.get("strategy")): item for item in strategies if isinstance(item, dict)}
-    relation_count = sum(item.get("count", 0) for item in _relation_order(raw) if isinstance(item.get("count"), int))
-    spread = _five_element_spread(raw)
-    climate_band = _temperature_band(raw.get("climateScores", {}))
-    strength = raw.get("wuxingScores", {}) if isinstance(raw.get("wuxingScores"), dict) else {}
-    yong_shen = raw.get("yongShen", {}) if isinstance(raw.get("yongShen"), dict) else {}
-    strategy_contracts = {
-        "调候": {
-            "appliesWhen": ["月令、节气、寒暖燥湿、调候原始依据存在"],
-            "doesNotApplyWhen": ["缺少季节气候依据", "把调候当作医疗/养生处方"],
-            "conflictPolicy": "调候优先解释气候偏性，但不得覆盖扶抑、通关、病药。",
-        },
-        "扶抑": {
-            "appliesWhen": ["日主强弱、月令、通根、透干、五行分数齐备"],
-            "doesNotApplyWhen": ["只存在单一强弱标签", "五行分数或藏干缺失"],
-            "conflictPolicy": "扶抑与调候冲突时并列呈现，不能单独覆盖用神。",
-        },
-        "通关": {
-            "appliesWhen": ["干支冲合刑害破或五行克战关系显著", "存在可缓冲的中介五行"],
-            "doesNotApplyWhen": ["关系链不可追溯", "只有单点五行偏枯而无冲突链"],
-            "conflictPolicy": "通关只解释冲突缓冲，不替代调候或扶抑主策略。",
-        },
-        "病药": {
-            "appliesWhen": ["五行偏枯、寒暖燥湿或格局病处可定位", "存在对应药处证据"],
-            "doesNotApplyWhen": ["偏枯不明显", "病处无法回指证据字段", "输出生活处方"],
-            "conflictPolicy": "病药作为解释优先级，不输出现实诊疗、金融或法律决策。",
-        },
-    }
-    scored = [
-        {
-            "strategy": "调候",
-            "score": min(100, 35 + (25 if yong_shen.get("basis") else 0) + (20 if yong_shen.get("tiaohouRaw") else 0)),
-            "evidenceFields": ["yongShen.basis", "yongShen.tiaohouRaw", "climateScores"],
-            "source": strategy_names.get("调候", {}).get("source", ""),
-        },
-        {
-            "strategy": "扶抑",
-            "score": min(
-                100,
-                35
-                + (25 if strength.get("strongScore") is not None else 0)
-                + (15 if strength.get("statusDetail") else 0),
-            ),
-            "evidenceFields": ["dayMaster.strength", "wuxingScores.strongScore", "wuxingScores.statusDetail"],
-            "source": strategy_names.get("扶抑", {}).get("source", ""),
-        },
-        {
-            "strategy": "通关",
-            "score": min(100, 25 + relation_count * 8),
-            "evidenceFields": ["ganzhiRelations", "branchRelations", "baziBenchmark.ganzhiPriority"],
-            "source": strategy_names.get("通关", {}).get("source", ""),
-        },
-        {
-            "strategy": "病药",
-            "score": min(100, 25 + spread * 3 + (15 if climate_band != "balanced_range" else 0)),
-            "evidenceFields": ["wuxingScores.fiveElementScore", "climateScores", "geju"],
-            "source": strategy_names.get("病药", {}).get("source", ""),
-        },
-    ]
-    for item in scored:
-        item.update(strategy_contracts[item["strategy"]])
-    scored.sort(key=lambda item: item["score"], reverse=True)
-    return {
-        "schemaVersion": 1,
-        "primaryStrategy": scored[0]["strategy"] if scored else "",
-        "scoredStrategies": scored,
-        "conflictPolicy": "调候、扶抑、通关、病药按证据完整度排序，但报告必须保留并列策略和风险边界。",
-        "riskBoundary": "用神评分只用于解释优先级，不承诺现实事件结果。",
-    }
-
-
-def _build_topic_profiles(
-    raw: dict[str, Any], ten_god_counts: dict[str, int], fortune_triggers: list[dict[str, Any]]
-) -> list[dict[str, Any]]:
-    families = _ten_god_families(ten_god_counts)
-    relation_order = _relation_order(raw)
-    relation_count = sum(item.get("count", 0) for item in relation_order if isinstance(item.get("count"), int))
-    relation_families = _relation_families(relation_order)
-    spread = _five_element_spread(raw)
-    fortune_type_count = len({item for trigger in fortune_triggers for item in trigger.get("triggerTypes", [])})
-    topic_specs: list[dict[str, Any]] = [
-        {
-            "topic": "事业",
-            "basis": ["格局", "官杀", "印星", "大运流年"],
-            "scoreBasis": [
-                {"factor": "base", "value": 35, "evidenceField": "topicProfiles.defaultBase"},
-                {"factor": "官杀", "value": families.get("官杀", 0) * 8, "evidenceField": "tenGods.官杀"},
-                {"factor": "印星", "value": families.get("印", 0) * 5, "evidenceField": "tenGods.印"},
-                {
-                    "factor": "岁运触发",
-                    "value": fortune_type_count * 3,
-                    "evidenceField": "baziBenchmark.fortuneTriggers",
-                },
-            ],
-            "evidenceFields": [
-                "geju",
-                "tenGods.官杀",
-                "tenGods.印",
-                "baziBenchmark.fortuneTriggers",
-            ],
-            "riskBoundary": "事业 profile 只解释结构重心，不替代职业、雇佣或法律决策。",
-        },
-        {
-            "topic": "财运",
-            "basis": ["财星", "食伤", "用神", "岁运触发"],
-            "scoreBasis": [
-                {"factor": "base", "value": 35, "evidenceField": "topicProfiles.defaultBase"},
-                {"factor": "财星", "value": families.get("财", 0) * 10, "evidenceField": "tenGods.财"},
-                {"factor": "食伤", "value": families.get("食伤", 0) * 5, "evidenceField": "tenGods.食伤"},
-                {
-                    "factor": "岁运触发",
-                    "value": fortune_type_count * 4,
-                    "evidenceField": "baziBenchmark.fortuneTriggers",
-                },
-            ],
-            "evidenceFields": [
-                "tenGods.财",
-                "tenGods.食伤",
-                "yongShen",
-                "baziBenchmark.fortuneTriggers",
-            ],
-            "riskBoundary": "财运 profile 只作结构趋势证据，不替代投资、借贷或资产配置决策。",
-        },
-        {
-            "topic": "婚姻",
-            "basis": ["夫妻宫", "财官星", "合冲刑害", "岁运触发"],
-            "scoreBasis": [
-                {"factor": "base", "value": 30, "evidenceField": "topicProfiles.defaultBase"},
-                {"factor": "财星", "value": families.get("财", 0) * 5, "evidenceField": "tenGods.财"},
-                {"factor": "官杀", "value": families.get("官杀", 0) * 5, "evidenceField": "tenGods.官杀"},
-                {"factor": "关系压力", "value": relation_count * 3, "evidenceField": "baziBenchmark.ganzhiPriority"},
-            ],
-            "evidenceFields": [
-                "tenGods.财",
-                "tenGods.官杀",
-                "branchRelations",
-                "baziBenchmark.fortuneTriggers",
-            ],
-            "riskBoundary": "婚姻 profile 只作关系结构证据，不替代亲密关系、心理或法律决策。",
-        },
-        {
-            "topic": "健康",
-            "basis": ["五行偏枯", "寒暖燥湿"],
-            "scoreBasis": [
-                {"factor": "base", "value": 25, "evidenceField": "topicProfiles.defaultBase"},
-                {"factor": "五行偏枯", "value": spread * 3, "evidenceField": "wuxingScores.fiveElementScore"},
-            ],
-            "evidenceFields": ["wuxingScores.fiveElementScore", "climateScores"],
-            "riskBoundary": "健康 profile 只作五行结构压力证据，不替代诊断、治疗或用药。",
-        },
-        {
-            "topic": "学业",
-            "basis": ["印星", "食伤", "文昌", "大运流年"],
-            "scoreBasis": [
-                {"factor": "base", "value": 35, "evidenceField": "topicProfiles.defaultBase"},
-                {"factor": "印星", "value": families.get("印", 0) * 8, "evidenceField": "tenGods.印"},
-                {"factor": "食伤", "value": families.get("食伤", 0) * 4, "evidenceField": "tenGods.食伤"},
-                {
-                    "factor": "岁运触发",
-                    "value": fortune_type_count * 2,
-                    "evidenceField": "baziBenchmark.fortuneTriggers",
-                },
-            ],
-            "evidenceFields": ["tenGods.印", "tenGods.食伤", "geju", "baziBenchmark.fortuneTriggers"],
-            "riskBoundary": "学业 profile 只作学习结构证据，不替代升学、培训或考试决策。",
-        },
-        {
-            "topic": "迁移",
-            "basis": ["驿马", "冲合", "岁运触发"],
-            "scoreBasis": [
-                {"factor": "base", "value": 30, "evidenceField": "topicProfiles.defaultBase"},
-                {"factor": "冲合关系", "value": relation_count * 4, "evidenceField": "baziBenchmark.ganzhiPriority"},
-                {
-                    "factor": "岁运触发",
-                    "value": len(fortune_triggers) * 3,
-                    "evidenceField": "baziBenchmark.fortuneTriggers",
-                },
-            ],
-            "evidenceFields": ["branchRelations", "ganzhiRelations", "baziBenchmark.fortuneTriggers"],
-            "riskBoundary": "迁移 profile 只作变动结构证据，不替代搬迁、出行或签证决策。",
-        },
-        {
-            "topic": "家庭",
-            "basis": ["印星", "比劫", "合冲刑害", "家庭结构"],
-            "scoreBasis": [
-                {"factor": "base", "value": 30, "evidenceField": "topicProfiles.defaultBase"},
-                {"factor": "印星", "value": families.get("印", 0) * 6, "evidenceField": "tenGods.印"},
-                {"factor": "比劫", "value": families.get("比劫", 0) * 4, "evidenceField": "tenGods.比劫"},
-                {
-                    "factor": "合冲刑害",
-                    "value": relation_families.get("combine", 0) * 2
-                    + relation_families.get("clash", 0) * 3
-                    + relation_families.get("punishment_harm_break", 0) * 3,
-                    "evidenceField": "baziBenchmark.ganzhiPriority",
-                },
-            ],
-            "evidenceFields": ["tenGods.印", "tenGods.比劫", "branchRelations", "baziBenchmark.ganzhiPriority"],
-            "riskBoundary": "家庭 profile 只作亲属结构证据，不替代家庭、法律或心理决策。",
-        },
-    ]
-    profiles: list[dict[str, Any]] = []
-    for spec in topic_specs:
-        score = 0
-        for score_item in spec["scoreBasis"]:
-            value = score_item.get("value") if isinstance(score_item, dict) else None
-            if isinstance(value, int | float):
-                score += int(value)
-        profiles.append(
-            {
-                "topic": spec["topic"],
-                "basis": spec["basis"],
-                "score": max(0, min(100, int(score))),
-                "scoreBasis": spec["scoreBasis"],
-                "status": "evidence_seed",
-                "lifecycle": "beta",
-                "lifecycleGate": "进入 production 需要专题 golden、MingLi 分类回归和报告边界三者同时通过。",
-                "evidenceFields": spec["evidenceFields"],
-                "riskBoundary": spec["riskBoundary"],
-            }
-        )
-    return profiles
-
-
 def _build_bazi_benchmark(raw: dict[str, Any]) -> dict[str, Any]:
-    ten_gods = _ten_god_values(raw.get("tenGods", {}))
+    ten_gods = ten_god_values(raw.get("tenGods", {}))
     ten_god_counts = {name: ten_gods.count(name) for name in sorted(set(ten_gods)) if name}
     geju = raw.get("geju", {}) if isinstance(raw.get("geju"), dict) else {}
     relation_order = _relation_order(raw)
     fortune_triggers = _fortune_triggers(raw)
     yongshen_strategies = _build_yongshen_strategies(raw)
     combine_matrix = _build_combine_transform_matrix(raw)
+    regular_candidates = _build_regular_pattern_candidates(raw)
     special_candidates = _build_special_pattern_candidates(raw, combine_matrix)
+    yongshen_decision = _build_yongshen_decision(raw, yongshen_strategies)
+    fortune_trigger_matrix = build_fortune_trigger_matrix(raw, fortune_triggers)
     return {
         "schemaVersion": 1,
         "boundary": "标杆加固结构层；默认 Markdown 可选择摘要展示，核心事实仍以原始字段为准。",
@@ -935,20 +406,15 @@ def _build_bazi_benchmark(raw: dict[str, Any]) -> dict[str, Any]:
             else {},
             "ruleIds": ["bazi.month_command_priority", "bazi.renyuan_siling_weight"],
         },
-        "strengthScore": {
-            "label": raw.get("dayMaster", {}).get("strength", {}) if isinstance(raw.get("dayMaster"), dict) else "",
-            "weak": raw.get("wuxingScores", {}).get("weak") if isinstance(raw.get("wuxingScores"), dict) else None,
-            "strongScore": raw.get("wuxingScores", {}).get("strongScore")
-            if isinstance(raw.get("wuxingScores"), dict)
-            else None,
-            "statusDetail": raw.get("wuxingScores", {}).get("statusDetail", [])
-            if isinstance(raw.get("wuxingScores"), dict)
-            else [],
-            "fiveElementScore": raw.get("wuxingScores", {}).get("fiveElementScore", {})
-            if isinstance(raw.get("wuxingScores"), dict)
-            else {},
-            "ruleIds": ["bazi.day_master_strength", "bazi.strength_score_golden"],
-        },
+        "strengthScore": build_strength_score(
+            raw,
+            {
+                "siling": raw.get("siling", {}),
+                "monthCommand": raw.get("accuracyGuards", {}).get("solarTermBoundary", {}).get("monthCommand")
+                if isinstance(raw.get("accuracyGuards"), dict)
+                else "",
+            },
+        ),
         "ganzhiPriority": relation_order,
         "combineTransformMatrix": combine_matrix,
         "fortuneTriggers": fortune_triggers,
@@ -956,18 +422,22 @@ def _build_bazi_benchmark(raw: dict[str, Any]) -> dict[str, Any]:
             "main": geju.get("main", ""),
             "patterns": geju.get("patterns", []),
             "status": "seed",
+            "regularPatternCandidates": regular_candidates,
             "specialPatternCandidates": special_candidates,
             "boundary": "格局事实、特殊候选和成败条件分层呈现；从格、化气等高级格局必须逐条补 golden。",
             "ruleIds": ["bazi.pattern_by_month_command", "bazi.pattern_root_transparency"],
         },
         "yongShenStrategies": yongshen_strategies,
-        "yongShenDecision": _build_yongshen_decision(raw, yongshen_strategies),
-        "tenGodStructure": {
-            "counts": ten_god_counts,
-            "basis": "从 tenGods 字段递归统计，仅作结构摘要。",
-            "ruleIds": ["bazi.ten_god_structure"],
-        },
-        "topicProfiles": _build_topic_profiles(raw, ten_god_counts, fortune_triggers),
+        "yongShenDecision": yongshen_decision,
+        "fortuneTriggerMatrix": fortune_trigger_matrix,
+        "tenGodStructure": build_ten_god_structure(raw),
+        "topicProfiles": _build_topic_profiles(
+            raw,
+            ten_god_counts,
+            fortune_triggers,
+            yongshen_decision,
+            fortune_trigger_matrix,
+        ),
     }
 
 
@@ -994,6 +464,9 @@ def _build_bazi_rule_depth(raw: dict[str, Any]) -> dict[str, Any]:
     special_candidates = (
         pattern.get("specialPatternCandidates", {}) if isinstance(pattern.get("specialPatternCandidates"), dict) else {}
     )
+    regular_candidates = (
+        pattern.get("regularPatternCandidates", {}) if isinstance(pattern.get("regularPatternCandidates"), dict) else {}
+    )
     fortune = benchmark.get("fortuneTriggers", [])
     monthly = raw.get("monthlyFortune", [])
     spirits = raw.get("spiritsFull", {})
@@ -1007,6 +480,10 @@ def _build_bazi_rule_depth(raw: dict[str, Any]) -> dict[str, Any]:
             evidence={
                 "strengthLabel": strength.get("label"),
                 "strongScore": strength.get("strongScore"),
+                "score": strength.get("score"),
+                "basis": strength.get("basis", []),
+                "sourceRuleId": strength.get("sourceRuleId", ""),
+                "conflicts": strength.get("conflicts", []),
                 "monthCommand": renyuan.get("monthCommand"),
                 "currentSiling": renyuan.get("siling", {}).get("current")
                 if isinstance(renyuan.get("siling"), dict)
@@ -1022,6 +499,7 @@ def _build_bazi_rule_depth(raw: dict[str, Any]) -> dict[str, Any]:
             evidence={
                 "mainPattern": pattern.get("main"),
                 "patterns": pattern.get("patterns", []),
+                "regularPatternCandidates": regular_candidates,
                 "relationPriorityKeys": [item.get("key") for item in relation if isinstance(item, dict)],
             },
             notes=["候选格局必须结合成败条件继续审查。"],
@@ -1033,6 +511,7 @@ def _build_bazi_rule_depth(raw: dict[str, Any]) -> dict[str, Any]:
             evidence={
                 "mainPattern": pattern.get("main"),
                 "patternStatus": pattern.get("status"),
+                "regularPatternCandidates": regular_candidates,
                 "advancedPatternBoundary": pattern.get("boundary"),
             },
             notes=["正格、变格、从格、化气先走候选和边界登记。"],
@@ -1067,7 +546,7 @@ def _build_bazi_rule_depth(raw: dict[str, Any]) -> dict[str, Any]:
             confidence=0.71 if ten_god.get("counts") and pattern.get("main") else 0.45,
             evidence={
                 "mainPattern": pattern.get("main"),
-                "roleFamilies": _ten_god_families(ten_god.get("counts", {})),
+                "roleFamilies": ten_god_families(ten_god.get("counts", {})),
             },
             notes=["财官印食作为组合矩阵，不替代月令定格和成败条件。"],
         ),
@@ -1119,6 +598,8 @@ def _build_bazi_rule_depth(raw: dict[str, Any]) -> dict[str, Any]:
             evidence={
                 "counts": ten_god.get("counts", {}),
                 "basis": ten_god.get("basis", ""),
+                "basisEvidence": ten_god.get("basisEvidence", []),
+                "sourceRuleId": ten_god.get("sourceRuleId", ""),
             },
             notes=["十神组合以透干、藏干和位置为后续深化方向。"],
         ),
@@ -1130,6 +611,7 @@ def _build_bazi_rule_depth(raw: dict[str, Any]) -> dict[str, Any]:
                 "counts": ten_god.get("counts", {}),
                 "dominantTenGods": _dominant_counts(ten_god.get("counts", {}), limit=3),
                 "basis": ten_god.get("basis", ""),
+                "basisEvidence": ten_god.get("basisEvidence", []),
             },
             notes=["十神重叠只给组合倾向，不把单项十神写成人生定论。"],
         ),
@@ -1138,8 +620,10 @@ def _build_bazi_rule_depth(raw: dict[str, Any]) -> dict[str, Any]:
             status="applied" if ten_god.get("counts") else "partial",
             confidence=0.7 if ten_god.get("counts") else 0.45,
             evidence={
-                "roleFamilies": _ten_god_families(ten_god.get("counts", {})),
+                "roleFamilies": ten_god_families(ten_god.get("counts", {})),
+                "families": ten_god.get("families", {}),
                 "dominantTenGods": _dominant_counts(ten_god.get("counts", {}), limit=5),
+                "basisEvidence": ten_god.get("basisEvidence", []),
             },
             notes=["财官印食、比劫、食伤、官杀等族群只作结构摘要。"],
         ),
@@ -1202,6 +686,7 @@ def _build_bazi_rule_depth(raw: dict[str, Any]) -> dict[str, Any]:
             evidence={
                 "triggerCount": len(fortune) if isinstance(fortune, list) else 0,
                 "sampleTriggers": fortune[:5] if isinstance(fortune, list) else [],
+                "triggerMatrix": benchmark.get("fortuneTriggerMatrix", {}),
                 "majorFortuneAvailable": bool(raw.get("majorFortune")),
                 "annualFortuneCount": len(raw.get("annualFortune", []))
                 if isinstance(raw.get("annualFortune"), list)
@@ -1342,57 +827,6 @@ def _dominant_counts(counts: Any, *, limit: int) -> list[dict[str, Any]]:
     return [{"name": name, "count": count} for name, count in items[:limit]]
 
 
-def _ten_god_families(counts: Any) -> dict[str, int]:
-    if not isinstance(counts, dict):
-        return {}
-    families = {
-        "财": ["正财", "偏财"],
-        "官杀": ["正官", "七杀"],
-        "印": ["正印", "偏印"],
-        "食伤": ["食神", "伤官"],
-        "比劫": ["比肩", "劫财"],
-    }
-    return {
-        family: sum(int(counts.get(name, 0)) for name in names if isinstance(counts.get(name, 0), int | float))
-        for family, names in families.items()
-    }
-
-
-def _temperature_band(climate_scores: Any) -> str:
-    if not isinstance(climate_scores, dict):
-        return "unknown"
-    score = climate_scores.get("temperatureScore")
-    if not isinstance(score, int | float):
-        return "unknown"
-    if score <= -7:
-        return "cold_wet_bias"
-    if score >= 7:
-        return "hot_dry_bias"
-    return "balanced_range"
-
-
-def _relation_families(relation: Any) -> dict[str, int]:
-    if not isinstance(relation, list):
-        return {}
-    families = {"combine": 0, "clash": 0, "punishment_harm_break": 0, "storage": 0, "other": 0}
-    for item in relation:
-        if not isinstance(item, dict):
-            continue
-        text = f"{item.get('key', '')}{item.get('label', '')}"
-        count = int(item.get("count", 1)) if isinstance(item.get("count", 1), int | float) else 1
-        if "合" in text:
-            families["combine"] += count
-        elif "冲" in text:
-            families["clash"] += count
-        elif any(marker in text for marker in ["刑", "害", "破"]):
-            families["punishment_harm_break"] += count
-        elif "库" in text or "墓" in text:
-            families["storage"] += count
-        else:
-            families["other"] += count
-    return families
-
-
 def _build_bazi_combination_statements(raw: dict[str, Any], applied: list[dict[str, Any]]) -> list[dict[str, Any]]:
     benchmark = raw.get("baziBenchmark", {}) if isinstance(raw.get("baziBenchmark"), dict) else {}
     strength = benchmark.get("strengthScore", {}) if isinstance(benchmark.get("strengthScore"), dict) else {}
@@ -1439,7 +873,7 @@ def _build_bazi_combination_statements(raw: dict[str, Any], applied: list[dict[s
             ],
             evidence={
                 "dominantTenGods": _dominant_counts(ten_god.get("counts", {}), limit=3),
-                "roleFamilies": _ten_god_families(ten_god.get("counts", {})),
+                "roleFamilies": ten_god_families(ten_god.get("counts", {})),
             },
             confidence=0.72,
             risk_boundary="不得用单一十神标签替代完整八字判断。",

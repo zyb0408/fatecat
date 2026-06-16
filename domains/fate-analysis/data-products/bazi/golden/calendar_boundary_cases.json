@@ -35,6 +35,12 @@
         "fortuneStart": {
           "startDate": "2010-06-19 00:18:40",
           "anchorTerm": "寒露"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
         }
       },
       "source": {
@@ -61,7 +67,8 @@
           "beijing",
           "fortune_start"
         ]
-      }
+      },
+      "validationMode": "runtime_full"
     },
     {
       "id": "beijing_late_zi_2000",
@@ -90,6 +97,12 @@
         "fortuneStart": {
           "startDate": "2010-03-01 23:18:40",
           "anchorTerm": "寒露"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
         }
       },
       "source": {
@@ -118,7 +131,8 @@
           "beijing",
           "fortune_start"
         ]
-      }
+      },
+      "validationMode": "runtime_full"
     },
     {
       "id": "urumqi_lichun_2024",
@@ -151,6 +165,12 @@
         "fortuneStart": {
           "startDate": "2033-12-04 16:21:07",
           "anchorTerm": "大雪"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
         }
       },
       "source": {
@@ -179,7 +199,8 @@
           "urumqi",
           "fortune_start"
         ]
-      }
+      },
+      "validationMode": "runtime_full"
     },
     {
       "id": "hong_kong_utc_input",
@@ -210,6 +231,12 @@
         "fortuneStart": {
           "startDate": "1998-04-11 07:33:08",
           "anchorTerm": "立冬"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
         }
       },
       "source": {
@@ -238,7 +265,8 @@
           "hong_kong",
           "fortune_start"
         ]
-      }
+      },
+      "validationMode": "runtime_full"
     },
     {
       "id": "beijing_lichun_second_before_2024",
@@ -289,6 +317,12 @@
         "fortuneStart": {
           "startDate": "2033-12-04 16:25:18",
           "anchorTerm": "大雪"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
         }
       },
       "failureExplanation": {
@@ -303,7 +337,8 @@
           "before_boundary",
           "fortune_start"
         ]
-      }
+      },
+      "validationMode": "runtime_full"
     },
     {
       "id": "beijing_lichun_second_after_2024",
@@ -354,6 +389,12 @@
         "fortuneStart": {
           "startDate": "2034-01-04 16:27:18",
           "anchorTerm": "惊蛰"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
         }
       },
       "failureExplanation": {
@@ -368,7 +409,8 @@
           "after_boundary",
           "fortune_start"
         ]
-      }
+      },
+      "validationMode": "runtime_full"
     },
     {
       "id": "new_york_dst_utc_input_2024",
@@ -420,6 +462,12 @@
         "fortuneStart": {
           "startDate": "2025-07-19 12:53:31",
           "anchorTerm": "立春"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
         }
       },
       "failureExplanation": {
@@ -435,7 +483,8 @@
           "western_longitude",
           "fortune_start"
         ]
-      }
+      },
+      "validationMode": "runtime_full"
     },
     {
       "id": "kathmandu_quarter_timezone_2000",
@@ -486,6 +535,12 @@
         "fortuneStart": {
           "startDate": "2007-12-31 21:52:50",
           "anchorTerm": "立冬"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
         }
       },
       "failureExplanation": {
@@ -500,7 +555,8 @@
           "cross_day_true_solar",
           "fortune_start"
         ]
-      }
+      },
+      "validationMode": "runtime_full"
     },
     {
       "id": "beijing_female_yun_start_2024",
@@ -551,6 +607,12 @@
         "fortuneStart": {
           "startDate": "2024-02-04 16:27:18",
           "anchorTerm": "小寒"
+        },
+        "tolerance": {
+          "trueSolarTimeSeconds": 0,
+          "fourPillars": "exact",
+          "fortuneStart": "exact",
+          "note": "runtime_full cases lock current accepted regression output exactly."
         }
       },
       "failureExplanation": {
@@ -565,24 +627,2428 @@
           "beijing",
           "fortune_start"
         ]
+      },
+      "validationMode": "runtime_full"
+    },
+    {
+      "id": "beijing_lichun_before_1936",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "1936-02-05 07:25:00",
+        "timezone": "Asia/Shanghai",
+        "gender": "male",
+        "longitude": 116.4074,
+        "latitude": 39.9042,
+        "birthPlace": "北京",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "lichun_boundary",
+          "beijing",
+          "historical_year",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "lichun_boundary",
+        "beijing",
+        "historical_year",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "lichun_boundary",
+          "beijing",
+          "historical_year",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "beijing_lichun_after_1936",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "1936-02-05 07:35:00",
+        "timezone": "Asia/Shanghai",
+        "gender": "female",
+        "longitude": 116.4074,
+        "latitude": 39.9042,
+        "birthPlace": "北京",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "lichun_boundary",
+          "beijing",
+          "historical_year",
+          "gender_female",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "lichun_boundary",
+        "beijing",
+        "historical_year",
+        "gender_female",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "lichun_boundary",
+          "beijing",
+          "historical_year",
+          "gender_female",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "beijing_lichun_before_1969",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "1969-02-04 07:50:00",
+        "timezone": "Asia/Shanghai",
+        "gender": "male",
+        "longitude": 116.4074,
+        "latitude": 39.9042,
+        "birthPlace": "北京",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "lichun_boundary",
+          "beijing",
+          "historical_year",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "lichun_boundary",
+        "beijing",
+        "historical_year",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "lichun_boundary",
+          "beijing",
+          "historical_year",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "beijing_lichun_after_1969",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "1969-02-04 08:10:00",
+        "timezone": "Asia/Shanghai",
+        "gender": "female",
+        "longitude": 116.4074,
+        "latitude": 39.9042,
+        "birthPlace": "北京",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "lichun_boundary",
+          "beijing",
+          "gender_female",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "lichun_boundary",
+        "beijing",
+        "gender_female",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "lichun_boundary",
+          "beijing",
+          "gender_female",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "beijing_lichun_before_2030",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2030-02-04 02:40:00",
+        "timezone": "Asia/Shanghai",
+        "gender": "male",
+        "longitude": 116.4074,
+        "latitude": 39.9042,
+        "birthPlace": "北京",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "lichun_boundary",
+          "beijing",
+          "future_boundary",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "lichun_boundary",
+        "beijing",
+        "future_boundary",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "lichun_boundary",
+          "beijing",
+          "future_boundary",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "beijing_lichun_after_2030",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2030-02-04 03:10:00",
+        "timezone": "Asia/Shanghai",
+        "gender": "female",
+        "longitude": 116.4074,
+        "latitude": 39.9042,
+        "birthPlace": "北京",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "lichun_boundary",
+          "beijing",
+          "future_boundary",
+          "gender_female",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "lichun_boundary",
+        "beijing",
+        "future_boundary",
+        "gender_female",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "lichun_boundary",
+          "beijing",
+          "future_boundary",
+          "gender_female",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "shanghai_early_zi_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-03-20 00:20:00",
+        "timezone": "Asia/Shanghai",
+        "gender": "male",
+        "longitude": 121.4737,
+        "latitude": 31.2304,
+        "birthPlace": "上海",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "early_zi",
+          "shanghai",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "early_zi",
+        "shanghai",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "early_zi",
+          "shanghai",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "shanghai_late_zi_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-03-20 23:40:00",
+        "timezone": "Asia/Shanghai",
+        "gender": "female",
+        "longitude": 121.4737,
+        "latitude": 31.2304,
+        "birthPlace": "上海",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "late_zi",
+          "zi_day_shift",
+          "shanghai",
+          "gender_female",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "late_zi",
+        "zi_day_shift",
+        "shanghai",
+        "gender_female",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "late_zi",
+          "zi_day_shift",
+          "shanghai",
+          "gender_female",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "guangzhou_cross_day_true_solar_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-06-21 00:08:00",
+        "timezone": "Asia/Shanghai",
+        "gender": "male",
+        "longitude": 113.2644,
+        "latitude": 23.1291,
+        "birthPlace": "广州",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "cross_day_true_solar",
+          "early_zi",
+          "guangzhou",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "cross_day_true_solar",
+        "early_zi",
+        "guangzhou",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "cross_day_true_solar",
+          "early_zi",
+          "guangzhou",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "harbin_positive_offset_late_zi_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-12-21 23:42:00",
+        "timezone": "Asia/Shanghai",
+        "gender": "female",
+        "longitude": 126.6424,
+        "latitude": 45.7567,
+        "birthPlace": "哈尔滨",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "late_zi",
+          "northeast_longitude_offset",
+          "gender_female",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "late_zi",
+        "northeast_longitude_offset",
+        "gender_female",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "late_zi",
+          "northeast_longitude_offset",
+          "gender_female",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "lhasa_extreme_west_early_zi_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-04-04 01:05:00",
+        "timezone": "Asia/Shanghai",
+        "gender": "male",
+        "longitude": 91.1322,
+        "latitude": 29.6604,
+        "birthPlace": "拉萨",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "early_zi",
+          "extreme_longitude_offset",
+          "lhasa",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "early_zi",
+        "extreme_longitude_offset",
+        "lhasa",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "early_zi",
+          "extreme_longitude_offset",
+          "lhasa",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "kashgar_extreme_west_late_zi_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-08-07 23:50:00",
+        "timezone": "Asia/Shanghai",
+        "gender": "female",
+        "longitude": 75.9898,
+        "latitude": 39.4704,
+        "birthPlace": "喀什",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "late_zi",
+          "extreme_longitude_offset",
+          "cross_day_true_solar",
+          "gender_female",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "late_zi",
+        "extreme_longitude_offset",
+        "cross_day_true_solar",
+        "gender_female",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "late_zi",
+          "extreme_longitude_offset",
+          "cross_day_true_solar",
+          "gender_female",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "hong_kong_hksar_early_zi_2026",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2026-06-17T00:15:00+08:00",
+        "timezone": "Asia/Hong_Kong",
+        "gender": "male",
+        "longitude": 114.1694,
+        "latitude": 22.3193,
+        "birthPlace": "香港",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "early_zi",
+          "hong_kong",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "early_zi",
+        "hong_kong",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "early_zi",
+          "hong_kong",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "taipei_timezone_late_zi_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-09-07T23:55:00+08:00",
+        "timezone": "Asia/Taipei",
+        "gender": "female",
+        "longitude": 121.5654,
+        "latitude": 25.033,
+        "birthPlace": "台北",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "late_zi",
+          "gender_female",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "late_zi",
+        "gender_female",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "late_zi",
+          "gender_female",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "tokyo_non_east8_utc_input_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-02-04T06:30:00Z",
+        "timezone": "Asia/Tokyo",
+        "gender": "male",
+        "longitude": 139.6917,
+        "latitude": 35.6895,
+        "birthPlace": "东京",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "utc_input",
+          "timezone_normalization",
+          "non_east_8",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "utc_input",
+        "timezone_normalization",
+        "non_east_8",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "utc_input",
+          "timezone_normalization",
+          "non_east_8",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "seoul_non_east8_late_zi_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-04-04T23:55:00+09:00",
+        "timezone": "Asia/Seoul",
+        "gender": "male",
+        "longitude": 126.978,
+        "latitude": 37.5665,
+        "birthPlace": "首尔",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_east_8",
+          "late_zi",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "non_east_8",
+        "late_zi",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_east_8",
+          "late_zi",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "singapore_early_zi_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-11-07T00:05:00+08:00",
+        "timezone": "Asia/Singapore",
+        "gender": "female",
+        "longitude": 103.8198,
+        "latitude": 1.3521,
+        "birthPlace": "新加坡",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "early_zi",
+          "non_china_location",
+          "gender_female",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "early_zi",
+        "non_china_location",
+        "gender_female",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "early_zi",
+          "non_china_location",
+          "gender_female",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "kathmandu_non_whole_hour_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-04-04T23:50:00+05:45",
+        "timezone": "Asia/Kathmandu",
+        "gender": "male",
+        "longitude": 85.324,
+        "latitude": 27.7172,
+        "birthPlace": "加德满都",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_whole_hour_timezone",
+          "non_east_8",
+          "late_zi",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "non_whole_hour_timezone",
+        "non_east_8",
+        "late_zi",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_whole_hour_timezone",
+          "non_east_8",
+          "late_zi",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "kolkata_half_hour_timezone_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-07-06T00:25:00+05:30",
+        "timezone": "Asia/Kolkata",
+        "gender": "female",
+        "longitude": 88.3639,
+        "latitude": 22.5726,
+        "birthPlace": "加尔各答",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_whole_hour_timezone",
+          "non_east_8",
+          "gender_female",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "non_whole_hour_timezone",
+        "non_east_8",
+        "gender_female",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_whole_hour_timezone",
+          "non_east_8",
+          "gender_female",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "yangon_half_hour_timezone_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-10-08T23:35:00+06:30",
+        "timezone": "Asia/Yangon",
+        "gender": "male",
+        "longitude": 96.1951,
+        "latitude": 16.8661,
+        "birthPlace": "仰光",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_whole_hour_timezone",
+          "non_east_8",
+          "late_zi",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "non_whole_hour_timezone",
+        "non_east_8",
+        "late_zi",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_whole_hour_timezone",
+          "non_east_8",
+          "late_zi",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "new_york_dst_spring_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-03-10T01:30:00-05:00",
+        "timezone": "America/New_York",
+        "gender": "female",
+        "longitude": -74.006,
+        "latitude": 40.7128,
+        "birthPlace": "纽约",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "non_east_8",
+          "western_longitude",
+          "gender_female",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "dst_boundary",
+        "non_east_8",
+        "western_longitude",
+        "gender_female",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "non_east_8",
+          "western_longitude",
+          "gender_female",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "new_york_dst_fall_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-11-03T01:30:00-04:00",
+        "timezone": "America/New_York",
+        "gender": "male",
+        "longitude": -74.006,
+        "latitude": 40.7128,
+        "birthPlace": "纽约",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "non_east_8",
+          "western_longitude",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "dst_boundary",
+        "non_east_8",
+        "western_longitude",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "non_east_8",
+          "western_longitude",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "los_angeles_dst_summer_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-06-21T23:45:00-07:00",
+        "timezone": "America/Los_Angeles",
+        "gender": "male",
+        "longitude": -118.2437,
+        "latitude": 34.0522,
+        "birthPlace": "洛杉矶",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "western_longitude",
+          "late_zi",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "dst_boundary",
+        "western_longitude",
+        "late_zi",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "western_longitude",
+          "late_zi",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "london_dst_summer_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-06-21T00:10:00+01:00",
+        "timezone": "Europe/London",
+        "gender": "female",
+        "longitude": -0.1276,
+        "latitude": 51.5072,
+        "birthPlace": "伦敦",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "western_longitude",
+          "gender_female",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "dst_boundary",
+        "western_longitude",
+        "gender_female",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "western_longitude",
+          "gender_female",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "london_winter_utc_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-12-21T23:30:00Z",
+        "timezone": "Europe/London",
+        "gender": "male",
+        "longitude": -0.1276,
+        "latitude": 51.5072,
+        "birthPlace": "伦敦",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "utc_input",
+          "timezone_normalization",
+          "western_longitude",
+          "late_zi",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "utc_input",
+        "timezone_normalization",
+        "western_longitude",
+        "late_zi",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "utc_input",
+          "timezone_normalization",
+          "western_longitude",
+          "late_zi",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "sydney_dst_summer_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-01-06T00:20:00+11:00",
+        "timezone": "Australia/Sydney",
+        "gender": "female",
+        "longitude": 151.2093,
+        "latitude": -33.8688,
+        "birthPlace": "悉尼",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "non_east_8",
+          "southern_hemisphere",
+          "gender_female",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "dst_boundary",
+        "non_east_8",
+        "southern_hemisphere",
+        "gender_female",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "non_east_8",
+          "southern_hemisphere",
+          "gender_female",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "sydney_winter_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-07-06T23:40:00+10:00",
+        "timezone": "Australia/Sydney",
+        "gender": "male",
+        "longitude": 151.2093,
+        "latitude": -33.8688,
+        "birthPlace": "悉尼",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_east_8",
+          "southern_hemisphere",
+          "late_zi",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "non_east_8",
+        "southern_hemisphere",
+        "late_zi",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_east_8",
+          "southern_hemisphere",
+          "late_zi",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "adelaide_half_hour_dst_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-10-06T02:10:00+09:30",
+        "timezone": "Australia/Adelaide",
+        "gender": "female",
+        "longitude": 138.6007,
+        "latitude": -34.9285,
+        "birthPlace": "阿德莱德",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_whole_hour_timezone",
+          "dst_boundary",
+          "southern_hemisphere",
+          "gender_female",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "non_whole_hour_timezone",
+        "dst_boundary",
+        "southern_hemisphere",
+        "gender_female",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_whole_hour_timezone",
+          "dst_boundary",
+          "southern_hemisphere",
+          "gender_female",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "auckland_dst_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-09-29T02:10:00+12:00",
+        "timezone": "Pacific/Auckland",
+        "gender": "male",
+        "longitude": 174.7633,
+        "latitude": -36.8485,
+        "birthPlace": "奥克兰",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "non_east_8",
+          "southern_hemisphere",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "dst_boundary",
+        "non_east_8",
+        "southern_hemisphere",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "non_east_8",
+          "southern_hemisphere",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "honolulu_western_longitude_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-02-04T00:30:00-10:00",
+        "timezone": "Pacific/Honolulu",
+        "gender": "female",
+        "longitude": -157.8583,
+        "latitude": 21.3069,
+        "birthPlace": "檀香山",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "western_longitude",
+          "non_east_8",
+          "gender_female",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "western_longitude",
+        "non_east_8",
+        "gender_female",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "western_longitude",
+          "non_east_8",
+          "gender_female",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "anchorage_western_dst_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-03-10T02:30:00-09:00",
+        "timezone": "America/Anchorage",
+        "gender": "male",
+        "longitude": -149.9003,
+        "latitude": 61.2181,
+        "birthPlace": "安克雷奇",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "western_longitude",
+          "non_east_8",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "dst_boundary",
+        "western_longitude",
+        "non_east_8",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "western_longitude",
+          "non_east_8",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "berlin_dst_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-03-31T01:30:00+01:00",
+        "timezone": "Europe/Berlin",
+        "gender": "female",
+        "longitude": 13.405,
+        "latitude": 52.52,
+        "birthPlace": "柏林",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "non_east_8",
+          "gender_female",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "dst_boundary",
+        "non_east_8",
+        "gender_female",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "non_east_8",
+          "gender_female",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "paris_dst_fall_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-10-27T02:30:00+02:00",
+        "timezone": "Europe/Paris",
+        "gender": "male",
+        "longitude": 2.3522,
+        "latitude": 48.8566,
+        "birthPlace": "巴黎",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "non_east_8",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "dst_boundary",
+        "non_east_8",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "non_east_8",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "dubai_non_east8_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-05-05T00:30:00+04:00",
+        "timezone": "Asia/Dubai",
+        "gender": "female",
+        "longitude": 55.2708,
+        "latitude": 25.2048,
+        "birthPlace": "迪拜",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_east_8",
+          "gender_female",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "non_east_8",
+        "gender_female",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_east_8",
+          "gender_female",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "riyadh_non_east8_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-12-07T23:50:00+03:00",
+        "timezone": "Asia/Riyadh",
+        "gender": "male",
+        "longitude": 46.6753,
+        "latitude": 24.7136,
+        "birthPlace": "利雅得",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_east_8",
+          "late_zi",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "non_east_8",
+        "late_zi",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_east_8",
+          "late_zi",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "moscow_non_east8_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-01-06T00:05:00+03:00",
+        "timezone": "Europe/Moscow",
+        "gender": "female",
+        "longitude": 37.6173,
+        "latitude": 55.7558,
+        "birthPlace": "莫斯科",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_east_8",
+          "early_zi",
+          "gender_female",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "non_east_8",
+        "early_zi",
+        "gender_female",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_east_8",
+          "early_zi",
+          "gender_female",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "vancouver_dst_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-11-03T01:10:00-07:00",
+        "timezone": "America/Vancouver",
+        "gender": "female",
+        "longitude": -123.1207,
+        "latitude": 49.2827,
+        "birthPlace": "温哥华",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "western_longitude",
+          "gender_female",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "dst_boundary",
+        "western_longitude",
+        "gender_female",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "western_longitude",
+          "gender_female",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "mexico_city_non_east8_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-02-04T00:20:00-06:00",
+        "timezone": "America/Mexico_City",
+        "gender": "male",
+        "longitude": -99.1332,
+        "latitude": 19.4326,
+        "birthPlace": "墨西哥城",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "western_longitude",
+          "non_east_8",
+          "early_zi",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "western_longitude",
+        "non_east_8",
+        "early_zi",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "western_longitude",
+          "non_east_8",
+          "early_zi",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "santiago_southern_dst_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-09-08T00:30:00-04:00",
+        "timezone": "America/Santiago",
+        "gender": "female",
+        "longitude": -70.6693,
+        "latitude": -33.4489,
+        "birthPlace": "圣地亚哥",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "western_longitude",
+          "southern_hemisphere",
+          "gender_female",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "dst_boundary",
+        "western_longitude",
+        "southern_hemisphere",
+        "gender_female",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "dst_boundary",
+          "western_longitude",
+          "southern_hemisphere",
+          "gender_female",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "johannesburg_southern_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-06-21T23:30:00+02:00",
+        "timezone": "Africa/Johannesburg",
+        "gender": "male",
+        "longitude": 28.0473,
+        "latitude": -26.2041,
+        "birthPlace": "约翰内斯堡",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_east_8",
+          "southern_hemisphere",
+          "late_zi",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "non_east_8",
+        "southern_hemisphere",
+        "late_zi",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_east_8",
+          "southern_hemisphere",
+          "late_zi",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "cairo_non_east8_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-04-04T00:45:00+02:00",
+        "timezone": "Africa/Cairo",
+        "gender": "female",
+        "longitude": 31.2357,
+        "latitude": 30.0444,
+        "birthPlace": "开罗",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_east_8",
+          "gender_female",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "non_east_8",
+        "gender_female",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_east_8",
+          "gender_female",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "reykjavik_western_2024",
+      "validationMode": "schema_catalog",
+      "input": {
+        "birthDateTime": "2024-12-21T00:15:00Z",
+        "timezone": "Atlantic/Reykjavik",
+        "gender": "male",
+        "longitude": -21.8277,
+        "latitude": 64.1265,
+        "birthPlace": "雷克雅未克",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "boundaryType": "calendar_boundary_catalog",
+        "timeSemantics": "schema_catalog_case; promote to runtime_full before using as exact provider oracle",
+        "coverageTags": [
+          "true_solar_time",
+          "utc_input",
+          "timezone_normalization",
+          "western_longitude",
+          "early_zi",
+          "fortune_start"
+        ],
+        "tolerance": {
+          "semanticCatalog": "required tags, source, input normalization and failure explanation must stay stable",
+          "runtimePromotion": "requires exact trueSolarTime, fourPillars, fortuneStart and ziTimeAnalysis before release deep gate"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat boundary catalog: case design locks input semantics; runtime_full promotion requires lunar-python plus true solar regression.",
+        "generatedBy": "FateCat TP-02.02 boundary catalog expansion on 2026-06-17",
+        "license": "project-owned fixture metadata; no third-party data copied",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "utc_input",
+        "timezone_normalization",
+        "western_longitude",
+        "early_zi",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "目录样本锁定应覆盖的真太阳时语义；晋升 runtime_full 后必须比较具体输出。",
+        "fourPillars": "目录样本锁定应覆盖的四柱边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "fortuneStart": "目录样本锁定应覆盖的起运边界语义；晋升 runtime_full 后必须比较具体输出。",
+        "boundaryTags": [
+          "true_solar_time",
+          "utc_input",
+          "timezone_normalization",
+          "western_longitude",
+          "early_zi",
+          "fortune_start"
+        ]
       }
     }
   ],
-  "caseCount": 9,
+  "caseCount": 51,
   "coverageRequirements": {
-    "minCaseCount": 9,
+    "minCaseCount": 50,
     "requiredTags": [
+      "dst_boundary",
       "early_zi",
+      "fortune_start",
+      "future_boundary",
+      "gender_female",
+      "historical_year",
       "late_zi",
       "lichun_boundary",
-      "second_level_boundary",
-      "utc_input",
-      "timezone_normalization",
+      "non_east_8",
       "non_whole_hour_timezone",
-      "dst_boundary",
-      "gender_female",
-      "fortune_start",
-      "true_solar_time"
-    ]
+      "second_level_boundary",
+      "southern_hemisphere",
+      "timezone_normalization",
+      "true_solar_time",
+      "utc_input",
+      "western_longitude"
+    ],
+    "minRuntimeFullCaseCount": 9
   }
 }

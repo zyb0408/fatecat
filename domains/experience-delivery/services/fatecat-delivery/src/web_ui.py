@@ -627,6 +627,7 @@ def _render_bazi_workbench(workbench: dict[str, Any]) -> str:
         )
     if not profile_rows:
         profile_rows.append(["-", "-", "-", "-", "-", "当前样本未生成专题 profile"])
+    rule_rows = _rule_depth_summary_rows(rule_depth)
     return "\n".join(
         [
             '<section id="bazi-workbench">',
@@ -684,11 +685,41 @@ def _render_bazi_workbench(workbench: dict[str, Any]) -> str:
             + "</code></pre>",
             "</details>",
             "<details><summary>规则深度 / 冲突策略</summary>",
-            "<pre><code>" + _h(json.dumps(rule_depth, ensure_ascii=False, indent=2)) + "</code></pre>",
+            "<pre><code>"
+            + _h(
+                tabulate(
+                    rule_rows,
+                    headers=["规则", "主题", "状态", "置信度", "证据字段", "风险边界"],
+                    tablefmt="psql",
+                )
+            )
+            + "</code></pre>",
             "</details>",
             "</section>",
         ]
     )
+
+
+def _rule_depth_summary_rows(rule_depth: dict[str, Any]) -> list[list[object]]:
+    """只展示可公开的规则摘要字段，不泄漏 evaluator 生命周期细节。"""
+    rows: list[list[object]] = []
+    applied = rule_depth.get("appliedRules", []) if isinstance(rule_depth.get("appliedRules"), list) else []
+    for item in applied:
+        if not isinstance(item, dict):
+            continue
+        rows.append(
+            [
+                item.get("ruleId", ""),
+                item.get("topic", ""),
+                item.get("status", ""),
+                item.get("confidence", ""),
+                "、".join(str(field) for field in item.get("evidenceFields", []) if str(field).strip()),
+                item.get("riskBoundary", ""),
+            ]
+        )
+    if not rows:
+        rows.append(["-", "-", "-", "-", "-", "当前样本未生成规则深度摘要"])
+    return rows
 
 
 def _render_ziwei_workbench(workbench: dict[str, Any]) -> str:
