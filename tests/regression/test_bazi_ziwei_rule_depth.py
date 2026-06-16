@@ -215,6 +215,15 @@ def test_bazi_gap_closure_benchmark_fields_are_structured():
         rendered = json.dumps(item, ensure_ascii=False)
         assert not any(term in rendered for term in forbidden_profile_terms)
 
+    fortune_triggers = benchmark["fortuneTriggers"]
+    assert fortune_triggers
+    for trigger in fortune_triggers:
+        assert trigger["triggerTypes"]
+        assert trigger["reasons"]
+        assert trigger["riskBoundary"]
+        rendered = json.dumps(trigger, ensure_ascii=False)
+        assert not any(term in rendered for term in {"必然", "一定", "保证", "灾祸"})
+
 
 def test_bazi_pattern_matrix_declares_conditions_counterevidence_and_boundaries():
     rules = _rule_depth_rules()
@@ -270,6 +279,27 @@ def test_bazi_yongshen_strategy_scoring_matrix_has_conflict_policy():
         assert item["doesNotApplyWhen"]
         assert item["scoreBasis"]
         assert item["conflictPolicy"]
+
+
+def test_bazi_fortune_trigger_matrix_declares_dynamic_boundaries():
+    matrix = _rule_depth_rules()["bazi.depth.fortune.trigger_chain"]["triggerMatrix"]
+
+    assert {item["type"] for item in matrix} >= {
+        "major_stage",
+        "annual_trigger",
+        "monthly_refinement",
+        "fu_yin",
+        "fan_yin",
+        "sui_yun_bing_lin",
+        "tian_ke_di_chong",
+    }
+    for item in matrix:
+        assert item["evidenceFields"]
+        assert item["appliesWhen"]
+        assert item["doesNotApplyWhen"]
+        assert item["riskBoundary"]
+        rendered = json.dumps(item, ensure_ascii=False)
+        assert not any(term in rendered for term in {"必然", "一定", "保证"})
 
 
 def test_ziwei_rule_depth_outputs_rule_applications_and_evidence():

@@ -359,16 +359,16 @@
 ### TP-06.01
 - 标题: 岁运触发规则矩阵
 - 验收项:
-  - [ ] `岁运触发规则矩阵` 达到其 objective，且依赖关系保持一致
+  - [x] `岁运触发规则矩阵` 达到其 objective，且依赖关系保持一致
 - Verify: rg '大运|流年|流月|伏吟|反吟|岁运' contracts/fate domains/fate-analysis/services/fate-core/src -n
 - Gate: 动态触发只作趋势证据，不输出确定未来
 - 输出物:
-  - [ ] contracts/fate/rule_depth_registry.json
-  - [ ] fate_core fortune trigger evaluator
+  - [x] contracts/fate/rule_depth_registry.json
+  - [x] fate_core fortune trigger evaluator
 - 标准清单:
-  - [ ] Verify: rg '大运|流年|流月|伏吟|反吟|岁运' contracts/fate domains/fate-analysis/services/fate-core/src -n
-  - [ ] Gate: 动态触发只作趋势证据，不输出确定未来
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: rg '大运|流年|流月|伏吟|反吟|岁运' contracts/fate domains/fate-analysis/services/fate-core/src -n
+  - [x] Gate: 动态触发只作趋势证据，不输出确定未来
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-06.02

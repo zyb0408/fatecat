@@ -214,10 +214,127 @@
         "大运、流年、流月至少一层可用"
       ],
       "conflictPolicy": "动态触发不得覆盖原局结构；只说明何处被引动。",
-      "riskBoundary": "不得输出必然事件、灾祸或高风险决策建议。",
+      "riskBoundary": "不得输出确定事件、恐吓表述或高风险决策建议。",
       "sourceRuleIds": [
         "bazi.fortune_trigger_boundary",
         "bazi.fortune_start_boundary"
+      ],
+      "triggerMatrix": [
+        {
+          "type": "major_stage",
+          "label": "大运阶段",
+          "evidenceFields": [
+            "majorFortune.pillars",
+            "jiaoYun"
+          ],
+          "appliesWhen": [
+            "大运字段可用",
+            "当前年龄落入某一步大运或至少可列出大运序列"
+          ],
+          "doesNotApplyWhen": [
+            "未完成起运计算",
+            "大运字段为空"
+          ],
+          "riskBoundary": "大运只定阶段背景，不直接断事件。"
+        },
+        {
+          "type": "annual_trigger",
+          "label": "流年触发",
+          "evidenceFields": [
+            "annualFortune",
+            "baziBenchmark.fortuneTriggers"
+          ],
+          "appliesWhen": [
+            "流年干支可与原局或大运比较"
+          ],
+          "doesNotApplyWhen": [
+            "流年字段为空",
+            "无法回指触发对象"
+          ],
+          "riskBoundary": "流年只说明结构被引动，不承诺结果。"
+        },
+        {
+          "type": "monthly_refinement",
+          "label": "流月细化",
+          "evidenceFields": [
+            "monthlyFortune",
+            "baziBenchmark.fortuneTriggers"
+          ],
+          "appliesWhen": [
+            "流月字段可用",
+            "存在大运或流年背景"
+          ],
+          "doesNotApplyWhen": [
+            "只有流月而缺少原局/大运/流年上下文"
+          ],
+          "riskBoundary": "流月只能细化窗口，不反向覆盖大运流年。"
+        },
+        {
+          "type": "fu_yin",
+          "label": "伏吟",
+          "evidenceFields": [
+            "fourPillars",
+            "annualFortune",
+            "majorFortune"
+          ],
+          "appliesWhen": [
+            "动态干支与原局或大运干支相同"
+          ],
+          "doesNotApplyWhen": [
+            "只存在地支同气但干支不完全相同"
+          ],
+          "riskBoundary": "伏吟只作重复引动证据，不作灾断。"
+        },
+        {
+          "type": "fan_yin",
+          "label": "反吟",
+          "evidenceFields": [
+            "fourPillars",
+            "annualFortune",
+            "branchClash",
+            "stemControl"
+          ],
+          "appliesWhen": [
+            "动态干支与原局形成天克地冲或强反向关系"
+          ],
+          "doesNotApplyWhen": [
+            "只存在单一冲或单一克且无层级证据"
+          ],
+          "riskBoundary": "反吟只提示结构冲突增强，不输出确定事件。"
+        },
+        {
+          "type": "sui_yun_bing_lin",
+          "label": "岁运并临",
+          "evidenceFields": [
+            "majorFortune",
+            "annualFortune"
+          ],
+          "appliesWhen": [
+            "流年干支与当前大运干支相同"
+          ],
+          "doesNotApplyWhen": [
+            "当前大运不可定位",
+            "只存在同支或同干"
+          ],
+          "riskBoundary": "岁运并临只作层级重叠证据。"
+        },
+        {
+          "type": "tian_ke_di_chong",
+          "label": "天克地冲",
+          "evidenceFields": [
+            "fourPillars",
+            "annualFortune",
+            "stemControl",
+            "branchClash"
+          ],
+          "appliesWhen": [
+            "天干相克且地支相冲"
+          ],
+          "doesNotApplyWhen": [
+            "只有天克或只有地冲"
+          ],
+          "riskBoundary": "天克地冲不得包装成恐吓式断语。"
+        }
       ]
     },
     {

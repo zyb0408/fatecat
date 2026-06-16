@@ -459,8 +459,8 @@
         "TP-04",
         "TP-05"
       ],
-      "status": "Not Started",
-      "evidence": "下一步可执行 TP-06.01。"
+      "status": "In Progress",
+      "evidence": "2026-06-16：TP-06.01 岁运触发规则矩阵完成；专题 profile 与报告边界继续推进。"
     },
     {
       "id": "TP-06.01",
@@ -481,7 +481,8 @@
         "contracts/fate/rule_depth_registry.json",
         "fate_core fortune trigger evaluator"
       ],
-      "status": "Not Started"
+      "status": "Done",
+      "evidence": "2026-06-16：triggerMatrix 覆盖大运/流年/流月/伏吟/反吟/岁运并临/天克地冲；fortuneTriggers 输出 triggerTypes/reasons/riskBoundary；Verify `rg '大运|流年|流月|伏吟|反吟|岁运' contracts/fate domains/fate-analysis/services/fate-core/src -n` 通过；相关 regression 32 passed。"
     },
     {
       "id": "TP-06.02",
@@ -500,7 +501,8 @@
         "topic profile evaluator",
         "MingLi category mapping"
       ],
-      "status": "Not Started"
+      "status": "Not Started",
+      "evidence": "下一步 P0 主线。"
     },
     {
       "id": "TP-06.03",
@@ -689,7 +691,8 @@
       "outputs": [
         "governance/tasks/0003-bazi-system-100/EVALUATOR_BOUNDARIES.md"
       ],
-      "status": "Not Started"
+      "status": "Not Started",
+      "evidence": "依赖已满足，低于 TP-06.02 P0 主线优先级。"
     },
     {
       "id": "TP-10",

@@ -294,6 +294,21 @@ TRANSFORM_ELEMENT_BY_PAIR = {
     frozenset({"丁", "壬"}): "木",
     frozenset({"戊", "癸"}): "火",
 }
+BRANCH_CLASH = {
+    "子": "午",
+    "午": "子",
+    "丑": "未",
+    "未": "丑",
+    "寅": "申",
+    "申": "寅",
+    "卯": "酉",
+    "酉": "卯",
+    "辰": "戌",
+    "戌": "辰",
+    "巳": "亥",
+    "亥": "巳",
+}
+ELEMENT_CONTROLS = {"木": "土", "土": "水", "水": "火", "火": "金", "金": "木"}
 
 
 def _ten_god_values(value: Any) -> list[str]:
@@ -359,18 +374,29 @@ def _fortune_triggers(raw: dict[str, Any]) -> list[dict[str, Any]]:
             continue
         gz = item.get("ganZhi") or item.get("fullName", "")
         reasons = []
+        trigger_types = []
         if gz and gz == day_gz:
             reasons.append("流年与日柱伏吟")
+            trigger_types.append("fu_yin")
         if gz and active_major_gz and gz == active_major_gz:
             reasons.append("岁运并临")
+            trigger_types.append("sui_yun_bing_lin")
         if len(gz) >= 2 and len(day_gz) >= 2 and gz[1] == day_gz[1]:
             reasons.append("流年地支与日支同气")
+            trigger_types.append("annual_trigger")
+        if len(gz) >= 2 and len(day_gz) >= 2 and BRANCH_CLASH.get(gz[1]) == day_gz[1]:
+            annual_controls_day = ELEMENT_CONTROLS.get(GAN_ELEMENT.get(gz[0], "")) == GAN_ELEMENT.get(day_gz[0], "")
+            day_controls_annual = ELEMENT_CONTROLS.get(GAN_ELEMENT.get(day_gz[0], "")) == GAN_ELEMENT.get(gz[0], "")
+            if annual_controls_day or day_controls_annual:
+                reasons.append("流年与日柱天克地冲/反吟")
+                trigger_types.extend(["fan_yin", "tian_ke_di_chong"])
         if reasons:
             triggers.append(
                 {
                     "year": item.get("year"),
                     "ganZhi": gz,
                     "activeMajorFortune": active_major_gz,
+                    "triggerTypes": sorted(set(trigger_types)),
                     "reasons": reasons,
                     "riskBoundary": "只作趋势触发证据，不作确定未来断语。",
                 }
