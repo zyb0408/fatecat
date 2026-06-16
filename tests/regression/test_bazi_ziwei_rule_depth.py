@@ -205,9 +205,16 @@ def test_bazi_gap_closure_benchmark_fields_are_structured():
     assert all(item["conflictPolicy"] for item in decision["scoredStrategies"])
 
     topics = benchmark["topicProfiles"]
-    assert {item["topic"] for item in topics} >= {"事业", "财运", "婚姻", "健康", "学业", "迁移"}
+    assert {item["topic"] for item in topics} >= {"事业", "财运", "婚姻", "健康", "学业", "迁移", "家庭"}
     assert all(item["status"] == "evidence_seed" for item in topics)
     assert all(0 <= item["score"] <= 100 and item["riskBoundary"] for item in topics)
+    assert all(item["lifecycle"] in {"beta", "production"} for item in topics)
+    assert all(item["lifecycleGate"] for item in topics)
+    assert all(item["basis"] and item["scoreBasis"] and item["evidenceFields"] for item in topics)
+    assert all(
+        all(score_item["factor"] and score_item["evidenceField"] for score_item in item["scoreBasis"])
+        for item in topics
+    )
     forbidden_profile_fields = {"statement", "prediction", "judgement", "conclusion", "advice"}
     forbidden_profile_terms = {"必然", "一定", "保证", "灾祸", "疾病", "投资建议", "医疗建议"}
     for item in topics:

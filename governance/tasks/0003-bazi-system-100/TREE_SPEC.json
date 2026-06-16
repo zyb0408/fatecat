@@ -460,7 +460,7 @@
         "TP-05"
       ],
       "status": "In Progress",
-      "evidence": "2026-06-16：TP-06.01 岁运触发规则矩阵完成；专题 profile 与报告边界继续推进。"
+      "evidence": "2026-06-16：TP-06.01 岁运触发规则矩阵、TP-06.02 专题 profile 推理器完成；报告边界继续推进。"
     },
     {
       "id": "TP-06.01",
@@ -501,8 +501,8 @@
         "topic profile evaluator",
         "MingLi category mapping"
       ],
-      "status": "Not Started",
-      "evidence": "下一步 P0 主线。"
+      "status": "Done",
+      "evidence": "2026-06-16：topicProfiles 覆盖事业、财运、婚姻、健康、学业、迁移、家庭；每项有 score、basis、scoreBasis、evidenceFields、riskBoundary、lifecycle=beta；指定 regression 32 passed，ruff check/format PASS。"
     },
     {
       "id": "TP-06.03",
@@ -520,7 +520,8 @@
       "outputs": [
         "report/API/Web evidence boundary"
       ],
-      "status": "Not Started"
+      "status": "Not Started",
+      "evidence": "下一步报告边界任务。"
     },
     {
       "id": "TP-07",

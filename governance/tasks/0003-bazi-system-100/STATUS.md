@@ -2,7 +2,7 @@
 - Overall Status: `In Progress`
 
 # Next Executable Leaves
-- TP-06.02 | Wave 13 | Depends On: TP-03.01, TP-03.02, TP-03.03, TP-04.01, TP-04.02, TP-04.03, TP-05.01, TP-05.02, TP-05.03, TP-06.01 | Gate: 每个专题 profile 有 score、basis、evidenceFields、riskBoundary 和 beta/production lifecycle
+- TP-06.03 | Wave 14 | Depends On: TP-03.01, TP-03.02, TP-03.03, TP-04.01, TP-04.02, TP-04.03, TP-05.01, TP-05.02, TP-05.03, TP-06.02 | Gate: 报告不输出医疗、金融、法律或心理确定建议
 - TP-09.02 | Wave 13 | Depends On: TP-00.01, TP-00.02, TP-00.03, TP-01.01, TP-01.02, TP-03.01, TP-04.01, TP-05.01, TP-06.01 | Gate: evaluation 不进生产 kernel；oracle 不进主链；delivery 不承载领域算法
 
 # Task Package Status Table
@@ -31,10 +31,10 @@
 | TP-05.01 | TP-05 | 2 | TP-01.01, TP-01.02, TP-02.01, TP-02.02, TP-02.03 | No | Done | 2026-06-16：`bazi.depth.yongshen.strategy_matrix.strategyScoringMatrix` 已补 appliesWhen/doesNotApplyWhen/scoreBasis/conflictPolicy；相关 regression 38 passed。 | 无 | 无 |
 | TP-05.02 | TP-05 | 2 | TP-01.01, TP-01.02, TP-02.01, TP-02.02, TP-02.03, TP-05.01 | No | Done | 2026-06-16：yongShenDecision.scoredStrategies 保留 4 种策略，逐项输出 appliesWhen/doesNotApplyWhen/conflictPolicy；38 passed。 | 无 | 无 |
 | TP-05.03 | TP-05 | 2 | TP-01.01, TP-01.02, TP-02.01, TP-02.02, TP-02.03, TP-05.02 | No | Done | 2026-06-16：rule_depth_cases.json 锁定 yongShenStrategyOrder 和 yongShenRiskBoundary；29 passed。 | 无 | 无 |
-| TP-06 | ROOT | 1 | TP-03.01, TP-03.02, TP-03.03, TP-04.01, TP-04.02, TP-04.03, TP-05.01, TP-05.02, TP-05.03 | No | In Progress | 2026-06-16：TP-06.01 岁运触发规则矩阵完成；专题 profile 与报告边界继续推进。 | 无 | 无 |
+| TP-06 | ROOT | 1 | TP-03.01, TP-03.02, TP-03.03, TP-04.01, TP-04.02, TP-04.03, TP-05.01, TP-05.02, TP-05.03 | No | In Progress | 2026-06-16：TP-06.01 岁运触发规则矩阵、TP-06.02 专题 profile 推理器完成；报告边界继续推进。 | 无 | 无 |
 | TP-06.01 | TP-06 | 2 | TP-03.01, TP-03.02, TP-03.03, TP-04.01, TP-04.02, TP-04.03, TP-05.01, TP-05.02, TP-05.03 | No | Done | 2026-06-16：`bazi.depth.fortune.trigger_chain.triggerMatrix` 覆盖大运、流年、流月、伏吟、反吟、岁运并临、天克地冲；fortuneTriggers 输出 triggerTypes、reasons、riskBoundary；相关 rg 检索通过，regression 32 passed。 | 无 | 无 |
-| TP-06.02 | TP-06 | 2 | TP-03.01, TP-03.02, TP-03.03, TP-04.01, TP-04.02, TP-04.03, TP-05.01, TP-05.02, TP-05.03, TP-06.01 | Yes | Not Started | 下一步 P0 主线。 | 无 | 无 |
-| TP-06.03 | TP-06 | 2 | TP-03.01, TP-03.02, TP-03.03, TP-04.01, TP-04.02, TP-04.03, TP-05.01, TP-05.02, TP-05.03, TP-06.02 | No | Not Started | 待回填 | 无 | 无 |
+| TP-06.02 | TP-06 | 2 | TP-03.01, TP-03.02, TP-03.03, TP-04.01, TP-04.02, TP-04.03, TP-05.01, TP-05.02, TP-05.03, TP-06.01 | No | Done | 2026-06-16：topicProfiles 覆盖事业、财运、婚姻、健康、学业、迁移、家庭；每项有 score、basis、scoreBasis、evidenceFields、riskBoundary、lifecycle=beta；指定 regression 32 passed，ruff check/format PASS。 | 无 | 无 |
+| TP-06.03 | TP-06 | 2 | TP-03.01, TP-03.02, TP-03.03, TP-04.01, TP-04.02, TP-04.03, TP-05.01, TP-05.02, TP-05.03, TP-06.02 | Yes | Not Started | 下一步报告边界任务。 | 无 | 无 |
 | TP-07 | ROOT | 1 | TP-06.01, TP-06.02, TP-06.03 | No | Not Started | 待回填 | 无 | 无 |
 | TP-07.01 | TP-07 | 2 | TP-06.01, TP-06.02, TP-06.03 | No | Not Started | 待回填 | 无 | 无 |
 | TP-07.02 | TP-07 | 2 | TP-06.01, TP-06.02, TP-06.03, TP-07.01 | No | Not Started | 待回填 | 无 | 无 |

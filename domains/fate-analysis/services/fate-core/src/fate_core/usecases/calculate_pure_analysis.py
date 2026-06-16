@@ -756,30 +756,145 @@ def _build_topic_profiles(
     raw: dict[str, Any], ten_god_counts: dict[str, int], fortune_triggers: list[dict[str, Any]]
 ) -> list[dict[str, Any]]:
     families = _ten_god_families(ten_god_counts)
-    relation_count = sum(item.get("count", 0) for item in _relation_order(raw) if isinstance(item.get("count"), int))
+    relation_order = _relation_order(raw)
+    relation_count = sum(item.get("count", 0) for item in relation_order if isinstance(item.get("count"), int))
+    relation_families = _relation_families(relation_order)
     spread = _five_element_spread(raw)
+    fortune_type_count = len({item for trigger in fortune_triggers for item in trigger.get("triggerTypes", [])})
     topic_specs = [
-        ("事业", ["格局", "官杀", "印星", "大运流年"], 35 + families.get("官杀", 0) * 8 + families.get("印", 0) * 5),
-        ("财运", ["财星", "食伤", "用神", "岁运触发"], 35 + families.get("财", 0) * 10 + families.get("食伤", 0) * 5),
-        (
-            "婚姻",
-            ["夫妻宫", "财官星", "合冲刑害", "岁运触发"],
-            30 + families.get("财", 0) * 5 + families.get("官杀", 0) * 5 + relation_count * 3,
-        ),
-        ("健康", ["五行偏枯", "寒暖燥湿"], 25 + spread * 3),
-        ("学业", ["印星", "食伤", "文昌", "大运流年"], 35 + families.get("印", 0) * 8 + families.get("食伤", 0) * 4),
-        ("迁移", ["驿马", "冲合", "岁运触发"], 30 + relation_count * 4 + len(fortune_triggers) * 3),
+        {
+            "topic": "事业",
+            "basis": ["格局", "官杀", "印星", "大运流年"],
+            "scoreBasis": [
+                {"factor": "base", "value": 35, "evidenceField": "topicProfiles.defaultBase"},
+                {"factor": "官杀", "value": families.get("官杀", 0) * 8, "evidenceField": "tenGods.官杀"},
+                {"factor": "印星", "value": families.get("印", 0) * 5, "evidenceField": "tenGods.印"},
+                {
+                    "factor": "岁运触发",
+                    "value": fortune_type_count * 3,
+                    "evidenceField": "baziBenchmark.fortuneTriggers",
+                },
+            ],
+            "evidenceFields": [
+                "geju",
+                "tenGods.官杀",
+                "tenGods.印",
+                "baziBenchmark.fortuneTriggers",
+            ],
+            "riskBoundary": "事业 profile 只解释结构重心，不替代职业、雇佣或法律决策。",
+        },
+        {
+            "topic": "财运",
+            "basis": ["财星", "食伤", "用神", "岁运触发"],
+            "scoreBasis": [
+                {"factor": "base", "value": 35, "evidenceField": "topicProfiles.defaultBase"},
+                {"factor": "财星", "value": families.get("财", 0) * 10, "evidenceField": "tenGods.财"},
+                {"factor": "食伤", "value": families.get("食伤", 0) * 5, "evidenceField": "tenGods.食伤"},
+                {
+                    "factor": "岁运触发",
+                    "value": fortune_type_count * 4,
+                    "evidenceField": "baziBenchmark.fortuneTriggers",
+                },
+            ],
+            "evidenceFields": [
+                "tenGods.财",
+                "tenGods.食伤",
+                "yongShen",
+                "baziBenchmark.fortuneTriggers",
+            ],
+            "riskBoundary": "财运 profile 只作结构趋势证据，不替代投资、借贷或资产配置决策。",
+        },
+        {
+            "topic": "婚姻",
+            "basis": ["夫妻宫", "财官星", "合冲刑害", "岁运触发"],
+            "scoreBasis": [
+                {"factor": "base", "value": 30, "evidenceField": "topicProfiles.defaultBase"},
+                {"factor": "财星", "value": families.get("财", 0) * 5, "evidenceField": "tenGods.财"},
+                {"factor": "官杀", "value": families.get("官杀", 0) * 5, "evidenceField": "tenGods.官杀"},
+                {"factor": "关系压力", "value": relation_count * 3, "evidenceField": "baziBenchmark.ganzhiPriority"},
+            ],
+            "evidenceFields": [
+                "tenGods.财",
+                "tenGods.官杀",
+                "branchRelations",
+                "baziBenchmark.fortuneTriggers",
+            ],
+            "riskBoundary": "婚姻 profile 只作关系结构证据，不替代亲密关系、心理或法律决策。",
+        },
+        {
+            "topic": "健康",
+            "basis": ["五行偏枯", "寒暖燥湿"],
+            "scoreBasis": [
+                {"factor": "base", "value": 25, "evidenceField": "topicProfiles.defaultBase"},
+                {"factor": "五行偏枯", "value": spread * 3, "evidenceField": "wuxingScores.fiveElementScore"},
+            ],
+            "evidenceFields": ["wuxingScores.fiveElementScore", "climateScores"],
+            "riskBoundary": "健康 profile 只作五行结构压力证据，不替代诊断、治疗或用药。",
+        },
+        {
+            "topic": "学业",
+            "basis": ["印星", "食伤", "文昌", "大运流年"],
+            "scoreBasis": [
+                {"factor": "base", "value": 35, "evidenceField": "topicProfiles.defaultBase"},
+                {"factor": "印星", "value": families.get("印", 0) * 8, "evidenceField": "tenGods.印"},
+                {"factor": "食伤", "value": families.get("食伤", 0) * 4, "evidenceField": "tenGods.食伤"},
+                {
+                    "factor": "岁运触发",
+                    "value": fortune_type_count * 2,
+                    "evidenceField": "baziBenchmark.fortuneTriggers",
+                },
+            ],
+            "evidenceFields": ["tenGods.印", "tenGods.食伤", "geju", "baziBenchmark.fortuneTriggers"],
+            "riskBoundary": "学业 profile 只作学习结构证据，不替代升学、培训或考试决策。",
+        },
+        {
+            "topic": "迁移",
+            "basis": ["驿马", "冲合", "岁运触发"],
+            "scoreBasis": [
+                {"factor": "base", "value": 30, "evidenceField": "topicProfiles.defaultBase"},
+                {"factor": "冲合关系", "value": relation_count * 4, "evidenceField": "baziBenchmark.ganzhiPriority"},
+                {
+                    "factor": "岁运触发",
+                    "value": len(fortune_triggers) * 3,
+                    "evidenceField": "baziBenchmark.fortuneTriggers",
+                },
+            ],
+            "evidenceFields": ["branchRelations", "ganzhiRelations", "baziBenchmark.fortuneTriggers"],
+            "riskBoundary": "迁移 profile 只作变动结构证据，不替代搬迁、出行或签证决策。",
+        },
+        {
+            "topic": "家庭",
+            "basis": ["印星", "比劫", "合冲刑害", "家庭结构"],
+            "scoreBasis": [
+                {"factor": "base", "value": 30, "evidenceField": "topicProfiles.defaultBase"},
+                {"factor": "印星", "value": families.get("印", 0) * 6, "evidenceField": "tenGods.印"},
+                {"factor": "比劫", "value": families.get("比劫", 0) * 4, "evidenceField": "tenGods.比劫"},
+                {
+                    "factor": "合冲刑害",
+                    "value": relation_families.get("combine", 0) * 2
+                    + relation_families.get("clash", 0) * 3
+                    + relation_families.get("punishment_harm_break", 0) * 3,
+                    "evidenceField": "baziBenchmark.ganzhiPriority",
+                },
+            ],
+            "evidenceFields": ["tenGods.印", "tenGods.比劫", "branchRelations", "baziBenchmark.ganzhiPriority"],
+            "riskBoundary": "家庭 profile 只作亲属结构证据，不替代家庭、法律或心理决策。",
+        },
     ]
     profiles = []
-    for topic, basis, score in topic_specs:
+    for spec in topic_specs:
+        score = sum(int(item["value"]) for item in spec["scoreBasis"] if isinstance(item.get("value"), int | float))
         profiles.append(
             {
-                "topic": topic,
-                "basis": basis,
+                "topic": spec["topic"],
+                "basis": spec["basis"],
                 "score": max(0, min(100, int(score))),
+                "scoreBasis": spec["scoreBasis"],
                 "status": "evidence_seed",
-                "evidenceFields": ["tenGods", "geju", "yongShen", "baziBenchmark.fortuneTriggers"],
-                "riskBoundary": "专题 profile 只作结构化解释入口，需独立 capability 或专门 golden 后才能输出专题断语。",
+                "lifecycle": "beta",
+                "lifecycleGate": "进入 production 需要专题 golden、MingLi 分类回归和报告边界三者同时通过。",
+                "evidenceFields": spec["evidenceFields"],
+                "riskBoundary": spec["riskBoundary"],
             }
         )
     return profiles
@@ -1391,7 +1506,7 @@ def _build_bazi_combination_statements(raw: dict[str, Any], applied: list[dict[s
                 else 0,
             },
             confidence=0.69,
-            risk_boundary="岁运只作趋势触发说明，不保证事件结果。",
+            risk_boundary="岁运只作趋势触发说明，不承诺事件结果。",
         ),
     ]
     return [item for item in statements if set(item["ruleIds"]) <= applied_ids]

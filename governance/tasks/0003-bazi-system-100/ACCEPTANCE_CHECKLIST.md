@@ -374,16 +374,16 @@
 ### TP-06.02
 - 标题: 专题 profile 推理器
 - 验收项:
-  - [ ] `专题 profile 推理器` 达到其 objective，且依赖关系保持一致
+  - [x] `专题 profile 推理器` 达到其 objective，且依赖关系保持一致
 - Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_mingli_bench_gate.py -q
 - Gate: 每个专题 profile 有 score、basis、evidenceFields、riskBoundary 和 beta/production lifecycle
 - 输出物:
-  - [ ] topic profile evaluator
-  - [ ] MingLi category mapping
+  - [x] topic profile evaluator
+  - [x] MingLi category mapping
 - 标准清单:
-  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_mingli_bench_gate.py -q
-  - [ ] Gate: 每个专题 profile 有 score、basis、evidenceFields、riskBoundary 和 beta/production lifecycle
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_mingli_bench_gate.py -q
+  - [x] Gate: 每个专题 profile 有 score、basis、evidenceFields、riskBoundary 和 beta/production lifecycle
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-06.03
