@@ -1,0 +1,1026 @@
+{
+  "schema_version": "1.0.0",
+  "overall_status": "In Progress",
+  "nodes": [
+    {
+      "id": "TP-01",
+      "title": "锁定 100% Scorecard 与资源边界",
+      "priority": "P0",
+      "type": "package",
+      "objective": "把当前完成度表转成不可混淆的工程验收标准、资源角色和禁止路径。",
+      "parent": null,
+      "depends_on": [],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "确认子节点范围、依赖与状态闭环",
+      "gate": "任务目标与上下文已确认",
+      "outputs": [],
+      "acceptance": [],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-01.01",
+      "title": "刷新八字 100% Scorecard",
+      "priority": "P0",
+      "type": "action",
+      "objective": "把 10 个维度的当前值、目标 gate、verify、falsifier、owner 和下一门槛写成任务真相源。",
+      "parent": "TP-01",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "人工核对 SCORECARD 与当前完成度表、MINGLI_FULL_EVALUATION、RULE_SOURCE_GAPS 一致。",
+      "gate": "每个维度都有 current、target、verify、falsifier、owner、next threshold。",
+      "outputs": [
+        "更新后的 SCORECARD / plan evidence"
+      ],
+      "acceptance": [
+        "100% 口径明确写成工程/专业验收成熟度，而不是预测准确率。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-01.02",
+      "title": "刷新资源地图和复用边界",
+      "priority": "P0",
+      "type": "action",
+      "objective": "确认 lunar-python、sxtwl、bazica、sxwnl、paipan、MingLi-Bench、BaziQA、bazi-1 的 usageRole 和禁止用途。",
+      "parent": "TP-01",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "rg 'usageRole|production_dependency|oracle_only|evaluation_only|reference_only' governance/tasks contracts tools -n",
+      "gate": "production/oracle/evaluation/reference/future_candidate 边界不混写。",
+      "outputs": [
+        "RESOURCE_MAP 更新",
+        "新资源审查队列"
+      ],
+      "acceptance": [
+        "无 license 不清资源进入 runtime；MingLi/BaziQA 只作为 evaluation。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-01.03",
+      "title": "建立规则来源缺口台账",
+      "priority": "P0",
+      "type": "action",
+      "objective": "把缺规则、缺反例、缺专家样本、缺 license、缺 evaluator 的能力统一进入 gap ledger。",
+      "parent": "TP-01",
+      "depends_on": [
+        "TP-01.01",
+        "TP-01.02"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "rg 'GAP-BZ-' governance/tasks/0004-bazi-professional-system-100 governance/tasks/0003-bazi-system-100 -n",
+      "gate": "高级格局、合化、用神、岁运、专题、benchmark 均有 gap id。",
+      "outputs": [
+        "RULE_SOURCE_GAPS 增量",
+        "gap id 到任务节点映射"
+      ],
+      "acceptance": [
+        "无来源规则不得进入 evaluator；缺专家样本必须标 beta/HITL。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-02",
+      "title": "基础排盘与历法时间边界 100%",
+      "priority": "P0",
+      "type": "package",
+      "objective": "补齐基础排盘和时间边界的 oracle、golden、依赖升级门禁和差异归因。",
+      "parent": null,
+      "depends_on": [
+        "TP-01.03"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "确认子节点范围、依赖与状态闭环",
+      "gate": "前置步骤已完成: source-gap-ledger",
+      "outputs": [],
+      "acceptance": [],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-02.01",
+      "title": "扩展 calendar boundary matrix",
+      "priority": "P0",
+      "type": "action",
+      "objective": "补节气秒级、立春年界、早晚子时、真太阳时、跨时区、DST、起运边界样本。",
+      "parent": "TP-02",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_calendar_oracle_contract.py tests/regression/test_solar_terms_golden.py -q",
+      "gate": "新增样本都有 source、expected、tolerance、failureExplanation。",
+      "outputs": [
+        "calendar_boundary_cases.json 增量",
+        "oracle mismatch report"
+      ],
+      "acceptance": [
+        "任一 boundary mismatch 都有 root cause 或 tolerance。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-02.02",
+      "title": "锁定 CalendarProvider 升级合同",
+      "priority": "P0",
+      "type": "action",
+      "objective": "明确 lunar-python 是 production provider，oracle 资源只在测试中使用，依赖升级必须跑指定门禁。",
+      "parent": "TP-02",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "rg 'lunar-python|sxtwl|oracle_only|CalendarProvider' requirements*.txt pyproject.toml contracts governance tests -n",
+      "gate": "生产入口不 import oracle；依赖文件声明与锁文件一致。",
+      "outputs": [
+        "CalendarProvider gate 说明",
+        "dependency upgrade checklist"
+      ],
+      "acceptance": [
+        "上游升级必须触发 calendar oracle、solar terms 和 bazi golden。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-02.03",
+      "title": "基础排盘回归矩阵",
+      "priority": "P0",
+      "type": "action",
+      "objective": "把四柱、五行、十神、藏干、起运、真太阳时基础字段纳入稳定回归。",
+      "parent": "TP-02",
+      "depends_on": [
+        "TP-02.01",
+        "TP-02.02"
+      ],
+      "parallelizable": false,
+      "debug_required": true,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_api_contracts.py -q",
+      "gate": "基础字段 schema diff 为零或有迁移说明。",
+      "outputs": [
+        "基础排盘 golden 增量",
+        "API contract evidence"
+      ],
+      "acceptance": [
+        "基础排盘维度可从 93% 提升到 100% gate。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-03",
+      "title": "证据化与可解释 100%",
+      "priority": "P0",
+      "type": "package",
+      "objective": "让 API、Markdown 和 rule-depth 输出的每个专业结论都能追溯到规则、字段、权重和风险边界。",
+      "parent": null,
+      "depends_on": [
+        "TP-01.03"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "确认子节点范围、依赖与状态闭环",
+      "gate": "前置步骤已完成: source-gap-ledger",
+      "outputs": [],
+      "acceptance": [],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-03.01",
+      "title": "补齐 ruleId 覆盖审计",
+      "priority": "P0",
+      "type": "action",
+      "objective": "检查报告/API 中所有专业断语是否都有 sourceRuleId 或明确 unsupported/beta 边界。",
+      "parent": "TP-03",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_fate_policy_assets.py -q",
+      "gate": "未登记断语不能进入 production 报告。",
+      "outputs": [
+        "ruleId coverage audit",
+        "missing rule backlog"
+      ],
+      "acceptance": [
+        "ruleIds 全部能回指 registry/classics。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-03.02",
+      "title": "标准化 evidenceFields 合同",
+      "priority": "P0",
+      "type": "action",
+      "objective": "把 sourceRuleId、evidenceFields、score、weight、doesNotApplyWhen、riskBoundary 做成统一字段契约。",
+      "parent": "TP-03",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_capability_protocol.py -q",
+      "gate": "新增字段不破坏现有 API/Web/Markdown 消费者。",
+      "outputs": [
+        "REPORT_FIELD_CONTRACT 更新",
+        "API schema regression"
+      ],
+      "acceptance": [
+        "报告中不再只有自然语言结论。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-03.03",
+      "title": "高风险输出边界回归",
+      "priority": "P0",
+      "type": "action",
+      "objective": "锁定健康、财运、灾劫、官非等专题不能输出现实处方、恐吓或保证式判断。",
+      "parent": "TP-03",
+      "depends_on": [
+        "TP-03.01",
+        "TP-03.02"
+      ],
+      "parallelizable": false,
+      "debug_required": true,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_fate_policy_assets.py tests/regression/test_bazi_statement_golden.py -q",
+      "gate": "高风险词和保证式话术被 policy regression 拦截。",
+      "outputs": [
+        "policy regression fixtures",
+        "riskBoundary report snippets"
+      ],
+      "acceptance": [
+        "高风险专题只输出趋势和结构证据。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-04",
+      "title": "常规八字分析 100%",
+      "priority": "P0",
+      "type": "package",
+      "objective": "把强弱、月令、十神、藏干、五行、常规格局和干支关系做成稳定 evaluator 与 golden。",
+      "parent": null,
+      "depends_on": [
+        "TP-02.03",
+        "TP-03.02"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "确认子节点范围、依赖与状态闭环",
+      "gate": "前置步骤已完成: base-chart-regression, evidence-field-contract",
+      "outputs": [],
+      "acceptance": [],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-04.01",
+      "title": "强弱与月令 evaluator",
+      "priority": "P0",
+      "type": "action",
+      "objective": "独立强弱评分、月令、人元司令、通根透干和旺衰证据，避免散落在大函数里。",
+      "parent": "TP-04",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_bazi_golden_coverage_matrix.py -q",
+      "gate": "strength 输出包含 score、basis、sourceRuleId、conflicts。",
+      "outputs": [
+        "strength evaluator slice",
+        "strength golden cases"
+      ],
+      "acceptance": [
+        "强弱判断可解释且可被高级格局/用神复用。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-04.02",
+      "title": "十神结构 evaluator",
+      "priority": "P0",
+      "type": "action",
+      "objective": "结构化透干、藏干、十神数量、十神组合和十神族群映射。",
+      "parent": "TP-04",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q",
+      "gate": "十神解释必须引用盘面证据，不输出孤立断语。",
+      "outputs": [
+        "tenGodStructure fields",
+        "topic input mapping"
+      ],
+      "acceptance": [
+        "事业、财运、婚姻、家庭 profile 可消费十神结构。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-04.03",
+      "title": "常规格局 evaluator",
+      "priority": "P0",
+      "type": "action",
+      "objective": "覆盖财官印食等常规格局候选、成立依据、破格条件和不确定原因。",
+      "parent": "TP-04",
+      "depends_on": [
+        "TP-04.01",
+        "TP-04.02"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_bazi_statement_golden.py -q",
+      "gate": "无法稳定判定时输出 uncertainty，不强断。",
+      "outputs": [
+        "regularPatternCandidates",
+        "正破格 golden"
+      ],
+      "acceptance": [
+        "常规分析维度达到 100% gate。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-05",
+      "title": "高级格局 100%",
+      "priority": "P0",
+      "type": "package",
+      "objective": "把从格、假从、化气、专旺、变格等高级格局从 beta 候选推进到 guarded/production 可审查状态。",
+      "parent": null,
+      "depends_on": [
+        "TP-04.03"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "确认子节点范围、依赖与状态闭环",
+      "gate": "前置步骤已完成: regular-pattern-evaluator",
+      "outputs": [],
+      "acceptance": [],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-05.01",
+      "title": "高级格局规则矩阵",
+      "priority": "P0",
+      "type": "action",
+      "objective": "为从格、假从、专旺、化气、变格建立 appliesWhen、doesNotApplyWhen、破格条件和 sourceRuleId。",
+      "parent": "TP-05",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "rg '从格|假从|专旺|化气|specialPattern' contracts/fate domains/fate-analysis -n",
+      "gate": "每类高级格局至少有成立条件和反证条件。",
+      "outputs": [
+        "specialPattern rule matrix",
+        "registry 增量"
+      ],
+      "acceptance": [
+        "缺条件的高级格局只能输出 beta/candidate。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-05.02",
+      "title": "高级格局正反例 golden",
+      "priority": "P0",
+      "type": "action",
+      "objective": "为每个高级格局补正例、反例、边界例和 failureExplanation。",
+      "parent": "TP-05",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_bazi_golden_coverage_matrix.py -q",
+      "gate": "无 golden 的高级格局不能升 production。",
+      "outputs": [
+        "rule_depth_cases 增量",
+        "advanced pattern fixtures"
+      ],
+      "acceptance": [
+        "从格/假从/专旺/化气都有可回归样本。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-05.03",
+      "title": "高级格局 evaluator",
+      "priority": "P0",
+      "type": "action",
+      "objective": "实现或抽取高级格局 evaluator，输出候选、置信度、破格原因和风险边界。",
+      "parent": "TP-05",
+      "depends_on": [
+        "TP-05.01",
+        "TP-05.02"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q",
+      "gate": "evaluator 不依赖 delivery；输出 schema 稳定。",
+      "outputs": [
+        "specialPatternCandidates",
+        "guarded evaluator evidence"
+      ],
+      "acceptance": [
+        "高级格局维度达到 100% gate。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-06",
+      "title": "合化成败 100%",
+      "priority": "P0",
+      "type": "package",
+      "objective": "把干支合化从自然语言关系升级为有条件链、状态机和反例矩阵的 evaluator。",
+      "parent": null,
+      "depends_on": [
+        "TP-04.03"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "确认子节点范围、依赖与状态闭环",
+      "gate": "前置步骤已完成: regular-pattern-evaluator",
+      "outputs": [],
+      "acceptance": [],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-06.01",
+      "title": "干支关系条件目录",
+      "priority": "P0",
+      "type": "action",
+      "objective": "登记天干五合、地支六合、三合、三会、冲刑害破、争合、阻隔、冲破的条件字段。",
+      "parent": "TP-06",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "rg '合化|成化|破化|争合|阻隔|冲破' contracts/fate domains/fate-analysis -n",
+      "gate": "每种关系状态都有 required evidenceFields。",
+      "outputs": [
+        "conditionCatalog",
+        "sourceRuleId mapping"
+      ],
+      "acceptance": [
+        "不再只输出“合”而不区分成败。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-06.02",
+      "title": "合化状态链 evaluator",
+      "priority": "P0",
+      "type": "action",
+      "objective": "输出 structural_relation、transform_candidate、transform_success、transform_broken。",
+      "parent": "TP-06",
+      "depends_on": [
+        "TP-06.01"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q",
+      "gate": "每个 transform state 都有证据和反证条件。",
+      "outputs": [
+        "combineTransformMatrix",
+        "relation evaluator evidence"
+      ],
+      "acceptance": [
+        "合而不化、成化、破化、争合、阻隔可区分。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-06.03",
+      "title": "合化反例矩阵",
+      "priority": "P0",
+      "type": "action",
+      "objective": "补月令、透干、通根、得令、帮扶、冲破、阻隔导致不成化的反例。",
+      "parent": "TP-06",
+      "depends_on": [
+        "TP-06.02"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q",
+      "gate": "反例失败时能定位到具体 condition。",
+      "outputs": [
+        "hehua negative fixtures",
+        "failureExplanation"
+      ],
+      "acceptance": [
+        "合化成败维度达到 100% gate。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-07",
+      "title": "用神裁决 100%",
+      "priority": "P0",
+      "type": "package",
+      "objective": "把调候、扶抑、通关、病药从并列描述升级为可冲突裁决的评分矩阵。",
+      "parent": null,
+      "depends_on": [
+        "TP-04.01",
+        "TP-04.03",
+        "TP-06.03"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "确认子节点范围、依赖与状态闭环",
+      "gate": "前置步骤已完成: strength-evaluator, regular-pattern-evaluator, hehua-negative-golden",
+      "outputs": [],
+      "acceptance": [],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-07.01",
+      "title": "用神策略矩阵",
+      "priority": "P0",
+      "type": "action",
+      "objective": "定义调候、扶抑、通关、病药、格局用神的输入字段、评分、冲突和不适用条件。",
+      "parent": "TP-07",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "rg '调候|扶抑|通关|病药|用神' contracts/fate governance/tasks -n",
+      "gate": "每个 strategy 都有 basis、score、doesNotApplyWhen。",
+      "outputs": [
+        "yongShen strategy matrix",
+        "conflictPolicy"
+      ],
+      "acceptance": [
+        "不能用单一用神覆盖全部策略。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-07.02",
+      "title": "用神决策 evaluator",
+      "priority": "P0",
+      "type": "action",
+      "objective": "输出 scoredStrategies、ranking、conflicts、selectedCandidates、riskBoundary。",
+      "parent": "TP-07",
+      "depends_on": [
+        "TP-07.01"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q",
+      "gate": "冲突裁决可解释，不输出唯一绝对结论。",
+      "outputs": [
+        "yongShenDecision",
+        "decision trace"
+      ],
+      "acceptance": [
+        "用神裁决能被专题 profile 消费。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-07.03",
+      "title": "用神冲突正反例",
+      "priority": "P0",
+      "type": "action",
+      "objective": "补寒暖燥湿、身强身弱、格局优先、通关病药冲突场景的 golden。",
+      "parent": "TP-07",
+      "depends_on": [
+        "TP-07.02"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q",
+      "gate": "冲突 golden 可以解释 ranking 变化。",
+      "outputs": [
+        "yongshen conflict fixtures",
+        "strategy regression"
+      ],
+      "acceptance": [
+        "用神裁决维度达到 100% gate。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-08",
+      "title": "岁运专题 100%",
+      "priority": "P0",
+      "type": "package",
+      "objective": "把大运、流年、流月触发与婚姻、事业、财运、家庭、健康、学业等专题 profile 联动。",
+      "parent": null,
+      "depends_on": [
+        "TP-04.02",
+        "TP-05.03",
+        "TP-07.03"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "确认子节点范围、依赖与状态闭环",
+      "gate": "前置步骤已完成: ten-god-evaluator, special-pattern-evaluator, yongshen-conflict-golden",
+      "outputs": [],
+      "acceptance": [],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-08.01",
+      "title": "岁运触发矩阵",
+      "priority": "P0",
+      "type": "action",
+      "objective": "定义大运、流年、流月、伏吟反吟、天克地冲、刑冲合害与原局关系的 trigger chain。",
+      "parent": "TP-08",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "rg '大运|流年|流月|伏吟|反吟|天克地冲|fortuneTriggers' contracts domains/fate-analysis -n",
+      "gate": "动态触发只作为趋势证据，不输出确定未来。",
+      "outputs": [
+        "fortuneTriggers matrix",
+        "trend-only riskBoundary"
+      ],
+      "acceptance": [
+        "每个 trigger 有 sourceRuleId、evidenceFields、riskBoundary。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-08.02",
+      "title": "专题 profile 联合评分",
+      "priority": "P0",
+      "type": "action",
+      "objective": "为婚姻、事业、财运、家庭、健康、学业、迁移建立 score、basis、scoreBasis、evidenceFields、lifecycle。",
+      "parent": "TP-08",
+      "depends_on": [
+        "TP-08.01"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_bazi_ziwei_rule_depth.py -q",
+      "gate": "topicProfiles.lifecycle=production 之前必须有 golden 和 policy regression。",
+      "outputs": [
+        "topicProfiles",
+        "topic scoring traces"
+      ],
+      "acceptance": [
+        "专题 profile 不再只是 alias 或自然语言拼接。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-08.03",
+      "title": "专题风险边界",
+      "priority": "P0",
+      "type": "action",
+      "objective": "针对健康、财运、灾劫、官非等高风险专题补安全文案和 policy 测试。",
+      "parent": "TP-08",
+      "depends_on": [
+        "TP-08.02"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_fate_policy_assets.py tests/regression/test_bazi_statement_golden.py -q",
+      "gate": "高风险专题不输出现实处方、保证、恐吓或法律金融医疗建议。",
+      "outputs": [
+        "topic risk fixtures",
+        "safe report snippets"
+      ],
+      "acceptance": [
+        "岁运专题维度达到 100% gate。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-09",
+      "title": "Golden 回归与样本外 Benchmark 100%",
+      "priority": "P0",
+      "type": "package",
+      "objective": "把规则样本、deep gate、MingLi/BaziQA 评测和失败归因做成可持续改进系统。",
+      "parent": null,
+      "depends_on": [
+        "TP-08.03"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "确认子节点范围、依赖与状态闭环",
+      "gate": "前置步骤已完成: topic-risk-policy",
+      "outputs": [],
+      "acceptance": [],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-09.01",
+      "title": "Golden shard 与 deep gate",
+      "priority": "P0",
+      "type": "action",
+      "objective": "把 quick 代表集、deep 300+ matrix、rule-depth、calendar boundary 和 topic fixtures 分层。",
+      "parent": "TP-09",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": true,
+      "verify": "FATECAT_RUN_FULL_GOLDEN_MATRIX=1 FATECAT_GOLDEN_SHARD_TOTAL=4 FATECAT_GOLDEN_SHARD_INDEX=0 .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py -q",
+      "gate": "全量慢测不进入日常 quick；deep/release 可分片复现。",
+      "outputs": [
+        "GOLDEN_DEEP_GATE 更新",
+        "shard evidence"
+      ],
+      "acceptance": [
+        "Golden/回归维度达到 100% gate。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-09.02",
+      "title": "MingLi full 评测门禁",
+      "priority": "P0",
+      "type": "action",
+      "objective": "持续生成 160 题 predictions、report、byCategory 和 failure taxonomy，且无答案泄漏。",
+      "parent": "TP-09",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "bash scripts/generate-mingli-predictions.sh --output-jsonl /tmp/fatecat-mingli-full.jsonl && bash scripts/run-mingli-bench.sh --predictions-file /tmp/fatecat-mingli-full.jsonl --output-json /tmp/fatecat-mingli-full.json",
+      "gate": "answered=160；predictions 无 expected/answer/correct/gold/label 字段；accuracy 不低于当前 baseline 或有边界解释。",
+      "outputs": [
+        "MINGLI_FULL_EVALUATION 更新",
+        "MINGLI_FAILURE_TAXONOMY 更新"
+      ],
+      "acceptance": [
+        "下一阶段门槛 overall >= 32%、财运 >= 15%、婚姻 failures <= 25。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-09.03",
+      "title": "BaziQA 纳入评测审查",
+      "priority": "P1",
+      "type": "action",
+      "objective": "审查 BaziQA license、题型、输入输出契约和是否可作为 evaluation_only benchmark。",
+      "parent": "TP-09",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "记录 license、dataset schema、adapter plan 和禁止进入 runtime 的 gate。",
+      "gate": "license/source 不清时不得纳入正式 gate；只允许 future_candidate/evaluation_only。",
+      "outputs": [
+        "BaziQA admission note",
+        "future benchmark backlog"
+      ],
+      "acceptance": [
+        "样本外 benchmark 维度的资源路线清楚。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-09.04",
+      "title": "失败归因回炉到规则任务",
+      "priority": "P0",
+      "type": "action",
+      "objective": "把 MingLi/BaziQA 失败样本按 owner 能力面映射到婚姻、事业、家庭、健康、财运、学业等规则 backlog。",
+      "parent": "TP-09",
+      "depends_on": [
+        "TP-09.02"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "MINGLI_FAILURE_TAXONOMY 中每类 failure 都有 owner、缺口类型、回炉方向和禁止路径。",
+      "gate": "不得按 question_id 或 expected answer 生成规则。",
+      "outputs": [
+        "failure taxonomy backlog",
+        "topic owner queue"
+      ],
+      "acceptance": [
+        "样本外 benchmark 维度达到 100% gate。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-10",
+      "title": "维护性、交付边界与最终发布门禁",
+      "priority": "P0",
+      "type": "package",
+      "objective": "把新增专业能力落到 fate-core 边界，delivery 只负责呈现，并用最终 review/ship gate 收口。",
+      "parent": null,
+      "depends_on": [
+        "TP-09.01",
+        "TP-09.04",
+        "TP-09.03"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "确认子节点范围、依赖与状态闭环",
+      "gate": "前置步骤已完成: golden-shard-policy, failure-backlog-to-rules, baziqa-admission",
+      "outputs": [],
+      "acceptance": [],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-10.01",
+      "title": "evaluator 物理拆分",
+      "priority": "P1",
+      "type": "action",
+      "objective": "按 pattern、hehua、yongshen、fortune、topic 逐切片从大文件抽出纯 evaluator，保持 schema 行为不变。",
+      "parent": "TP-10",
+      "depends_on": [],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py tests/regression/test_bazi_golden_coverage_matrix.py -q",
+      "gate": "每次只抽一个 evaluator；失败只回滚当前切片；delivery 不新增领域算法。",
+      "outputs": [
+        "fate_core/usecases/evaluators/*",
+        "AGENTS.md/边界文档更新"
+      ],
+      "acceptance": [
+        "长期维护性维度达到 100% gate。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-10.02",
+      "title": "报告字段与 Markdown 边界收口",
+      "priority": "P0",
+      "type": "action",
+      "objective": "保证 Web/API/Markdown 只消费结构化结果，不在 delivery 二次推断命理结论。",
+      "parent": "TP-10",
+      "depends_on": [
+        "TP-10.01"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_web_html.py tests/regression/test_api_contracts.py tests/regression/test_bazi_statement_golden.py -q",
+      "gate": "报告所有新增专业段落都有 evidence/riskBoundary；前端不重算规则。",
+      "outputs": [
+        "REPORT_FIELD_CONTRACT final",
+        "Markdown golden"
+      ],
+      "acceptance": [
+        "delivery 交付边界清楚。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-10.03",
+      "title": "最终本地门禁与审查",
+      "priority": "P0",
+      "type": "action",
+      "objective": "运行 quick/full/deep/review，生成最终 PASS/WARN/BLOCK 结论。",
+      "parent": "TP-10",
+      "depends_on": [
+        "TP-10.02"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "bash scripts/local-ci.sh --profile quick && bash scripts/local-ci.sh --profile full",
+      "gate": "final review Active BLOCK=0；WARN 有 owner、证据和下一步；不得伪造公网/live bot。",
+      "outputs": [
+        "FINAL_REVIEW.md",
+        "CLOSEOUT.md",
+        "local-ci evidence"
+      ],
+      "acceptance": [
+        "全部任务节点可进入 closeout，八字体系专业验收 100% 口径成立。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    }
+  ],
+  "document_blocks": {
+    "in_scope": "- 以现有 fate-core、contracts/fate、data-products/bazi、MingLi evaluation 和 regression tests 为主线推进八字专业体系。\n- 把 10 个完成度维度全部转成可执行任务、verify 命令、gate、输出物和失败边界。\n- 保留 lunar-python 为生产历法底座，sxtwl/bazica/sxwnl/paipan 只作为 oracle 或 reference，不进入生产请求链路。\n- 新增或升级规则必须进入 registry/evaluator/golden/report contract，不能只写自然语言报告。\n- MingLi-Bench/BaziQA 只用于离线样本外评测和失败归因，不作为生产规则来源。",
+    "out_of_scope": "- 不宣称预测命中率 100%。本任务的 100% 指工程和专业验收闭环成熟。\n- 不把健康、财务、法律、心理等高风险专题输出成现实处方或确定未来。\n- 不引入单一新开源库替换现有八字主链，除非先通过 license、oracle、golden 和回滚审查。\n- 不做大爆炸重写；每次只迁移一个 evaluator 或规则切片。\n- 不把 benchmark expected answer、question_id 或选项文本硬编码进预测逻辑。",
+    "requirement_alignment": "- 目标: 把 FateCat 八字体系从当前工程可验收状态推进到专业八字体系 100% 验收口径：基础排盘、历法时间、证据解释、常规分析、高级格局、合化成败、用神裁决、岁运专题、Golden 回归和样本外 benchmark 全部具备可追溯规则、可验证测试、失败边界和发布门禁。\n- approved plan 顶层步骤数: 10\n- 编译后节点总数: 41\n- 编译后叶子节点数: 31\n- 对齐项: 用户要求使用 auto-tasks 设计把八字体系推进到 100% 的落地计划，并以任务树作为执行框架。\n- 对齐项: 当前口径来自上一轮汇报：基础排盘 93%、历法/时间边界 90%、证据化 88%、常规分析 84%、高级格局 72%、合化成败 76%、用神裁决 78%、岁运专题 70%、Golden/回归 86%、样本外 benchmark 45%。\n- 对齐项: 本计划把百分比转成可执行 gate，不把聊天评分当成完成证据。\n- 计划摘要: 按终态倒推：先锁定 100% scorecard 和资源边界，再补基础历法、证据契约、常规分析、高级格局、合化、用神、岁运专题、golden benchmark，最后做维护性拆分和 release review。",
+    "repo_evidence": "- 现有任务 `governance/tasks/0003-bazi-system-100` 已 closeout，结论是工程验收 PASS with WARN，不是专业推理 100%。\n- `contracts/fate/rule_depth_registry.json` 当前八字 rule-depth 规则约 22 条。\n- `contracts/fate/classics_rule_index.json` 当前八字 classics 规则约 43 条。\n- `domains/fate-analysis/data-products/bazi/golden/coverage_matrix_cases.json` 当前有 300 个覆盖样本。\n- `MINGLI_FULL_EVALUATION.md` 记录 MingLi full：160 answered / 45 correct / 28.12% accuracy。\n- `MINGLI_FAILURE_TAXONOMY.md` 显示失败集中在婚姻、事业、家庭、健康、财运、学业等专题。\n- `EVALUATOR_BOUNDARIES.md` 已明确 kernel/usecase/evaluation/oracle/delivery 边界。\n- `CORE_FILE_BURNDOWN.md` 显示 bazi_calculator.py、calculate_pure_analysis.py、report_generator.py 仍是主要维护风险。",
+    "constraints_matrix": "- 不能伪造 100%，不能把工程验收 100% 写成预测准确率 100%。\n- 不能把 oracle/evaluation/reference 资源引入生产请求链路。\n- 不能跳过 sourceRuleId、evidenceFields、riskBoundary 和反证条件。\n- 不能输出医疗、金融、法律、心理替代建议或确定未来。\n- 不能因大文件拆分破坏现有 API/Web/Bot/Markdown 行为。",
+    "change_boundary": "- 本计划阶段只新增 `governance/tasks/0004-bazi-professional-system-100` 和更新 `governance/tasks/INDEX.md`。\n- 后续执行按任务树叶子节点逐项修改 contracts、fate-core、data-products、tests、reports 和 governance evidence。\n- 每个叶子任务只允许处理其对应能力面，不顺手扩散到 UI、营销文案或无关生产部署。",
+    "risk_matrix": "- high：高级格局、用神、岁运专题涉及专业规则裁决，错误强断会制造假专业能力。\n- high：benchmark 提升容易被误做成答案硬编码，必须有防泄漏门禁。\n- medium：历法/时间边界变更可能影响历史输出，需要 oracle 和 golden 解释。\n- medium：大文件拆分可能造成 schema drift 或 import 循环。\n- medium：真实专家命例和经典资料有 license/source 边界，需要 HITL 审查。",
+    "assumptions_and_falsification": "- 本任务的 100% 是专业体系验收成熟度，不是命理预测绝对正确。\n- 真实专家命例不足时允许标记 HITL/WARN，不允许编造样本补数。\n- MingLi 下一阶段先以 overall >= 32%、财运 >= 15%、婚姻 failures <= 25 作为增量门槛，而不是一次要求高不可证的命中率。",
+    "critical_ambiguities": "- 专业命例来源、版权、专家标注流程仍需后续 HITL 确认。\n- BaziQA 是否纳入正式评测需要 license、数据质量和题型适配审查。\n- 高级断法升 production 的阈值需要结合专家评审和 benchmark 分类表现，不由单次代码实现决定。",
+    "debug_evidence_contract": "- 调试模式: Required\n- 若任务属于 bugfix / regression / flaky / crash / CI-only failure，必须切到 `Required`\n- `Required` 时必须在当前任务目录创建并维护 `DEBUG.md`\n- `DEBUG.md` 必须覆盖复现、观察、假设、实验、根因、修复、回归证据\n- 调试关注点: calendar/oracle mismatch\n- 调试关注点: golden regression drift\n- 调试关注点: benchmark answer leakage\n- 调试关注点: topic profile unsafe output\n- 调试关注点: schema drift after evaluator extraction\n- 强制调试叶子节点: TP-02.03, TP-03.03, TP-09.01",
+    "runtime_workflow_contract": "- workflow artifact 必须存入任务目录，而不是只留在聊天上下文。\n- worker 只能消费当前 packet 的最小上下文、允许工具、禁止动作、证据要求和停止条件。\n- verifier / 自审必须独立挑战关键发现，不能把 worker 自评当作验收。\n- integrator / closeout 必须报告 verified、rejected、unresolved、failed、not-covered。\n- 全局停止条件: 发现 benchmark answer leakage，立即停止 benchmark 提升任务并回滚泄漏路径。\n- 全局停止条件: 核心排盘结果与 oracle/golden 不一致且无法解释，停止相关 evaluator 迁移。\n- 全局停止条件: 专家样本或资料 license 不清，相关规则只能停在 reference/beta，不得 production 化。\n- 全局停止条件: 高风险专题出现现实处方或保证式话术，停止报告发布并补 policy regression。\n- 需要审批: 引入新的生产依赖。\n- 需要审批: 删除旧 public facade 或兼容入口。\n- 需要审批: 把 beta topic profile 升级为 production。\n- 需要审批: 纳入外部专家命例或未确认版权资料。",
+    "runtime_verification_gate": "- [ ] 每个 tool/action 结果都有可回指证据或明确未执行原因。\n- [ ] 高风险动作没有由 worker/agent 自我批准；审批状态可追踪。\n- [ ] compaction / resume 后目标、计划、修改文件、审批状态和验证项未丢失。\n- [ ] verifier / 自审已检查关键发现是否有证据支持。\n- [ ] closeout 明确 coverage gaps、failed packets 和 unresolved questions。\n- [ ] TP-01.01: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-01.02: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-01.03: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-02.01: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-02.02: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-02.03: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-03.01: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-03.02: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-03.03: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-04.01: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-04.02: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-04.03: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-05.01: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-05.02: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-05.03: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-06.01: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-06.02: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-06.03: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-07.01: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-07.02: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-07.03: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-08.01: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-08.02: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-08.03: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-09.01: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-09.02: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-09.03: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-09.04: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-10.01: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-10.02: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-10.03: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据",
+    "runtime_state": "- Active workflow state: 以 `TASK_PACKAGE_SET.json` / `TASK_EXECUTION_WAVE_PACKET.json` 为准。\n- Approval state: 未记录即视为未授权。\n- Resume rule: 继续任务前重新读取当前 packet、Recent Evidence、Blockers、Runtime State。\n- Stop condition: 发现 benchmark answer leakage，立即停止 benchmark 提升任务并回滚泄漏路径。\n- Stop condition: 核心排盘结果与 oracle/golden 不一致且无法解释，停止相关 evaluator 迁移。\n- Stop condition: 专家样本或资料 license 不清，相关规则只能停在 reference/beta，不得 production 化。\n- Stop condition: 高风险专题出现现实处方或保证式话术，停止报告发布并补 policy regression。\n- TP-01.01: status=Not Started; verifier_context=自审\n- TP-01.02: status=Not Started; verifier_context=自审\n- TP-01.03: status=Not Started; verifier_context=自审\n- TP-02.01: status=Not Started; verifier_context=自审\n- TP-02.02: status=Not Started; verifier_context=自审\n- TP-02.03: status=Not Started; verifier_context=自审\n- TP-03.01: status=Not Started; verifier_context=自审\n- TP-03.02: status=Not Started; verifier_context=自审\n- TP-03.03: status=Not Started; verifier_context=自审\n- TP-04.01: status=Not Started; verifier_context=自审\n- TP-04.02: status=Not Started; verifier_context=自审\n- TP-04.03: status=Not Started; verifier_context=自审\n- TP-05.01: status=Not Started; verifier_context=自审\n- TP-05.02: status=Not Started; verifier_context=自审\n- TP-05.03: status=Not Started; verifier_context=自审\n- TP-06.01: status=Not Started; verifier_context=自审\n- TP-06.02: status=Not Started; verifier_context=自审\n- TP-06.03: status=Not Started; verifier_context=自审\n- TP-07.01: status=Not Started; verifier_context=自审\n- TP-07.02: status=Not Started; verifier_context=自审\n- TP-07.03: status=Not Started; verifier_context=自审\n- TP-08.01: status=Not Started; verifier_context=自审\n- TP-08.02: status=Not Started; verifier_context=自审\n- TP-08.03: status=Not Started; verifier_context=自审\n- TP-09.01: status=Not Started; verifier_context=自审\n- TP-09.02: status=Not Started; verifier_context=自审\n- TP-09.03: status=Not Started; verifier_context=自审\n- TP-09.04: status=Not Started; verifier_context=自审\n- TP-10.01: status=Not Started; verifier_context=自审\n- TP-10.02: status=Not Started; verifier_context=自审\n- TP-10.03: status=Not Started; verifier_context=自审",
+    "task_level_acceptance": "- 10 个维度均达到本任务定义的 100% gate，且每个 gate 有本地命令或明确 HITL evidence。\n- 每个专业结论都能追溯到 sourceRuleId、evidenceFields、riskBoundary 和反证条件。\n- 高级格局、合化、用神、岁运和专题 profile 均有正例、反例、边界例和失败解释。\n- MingLi 全量评测链路持续可跑，预测文件无答案泄漏，分类失败有 owner 和回炉队列。\n- fate-core 拥有领域算法，delivery 只做 API/Web/Bot/Markdown 交付。\n- approved plan 已成功编译为递归任务树\n- 叶子节点数量: 31\n- 当前可立即执行叶子节点: TP-01.01, TP-01.02",
+    "validation_plan": "- 使用 auto-tasks 编译并校验任务树。\n- 每个执行波次结束后更新 STATUS.md 的 Recent Evidence。\n- P0/P1 能力由 pytest、local-ci、golden shard、MingLi full evaluation 和 auto-review 共同验收。\n- 最终 closeout 前运行 local-ci quick/full、deep golden shard、MingLi full、source/privacy hygiene 和 release review。\n- 任何生产能力升级必须同步 contracts、tests、report contract 和 governance evidence。\n- bugfix / regression / flaky 任务必须把 DEBUG.md 的回归证据串到 Recent Evidence\n- TP-01.01 | Verify: 人工核对 SCORECARD 与当前完成度表、MINGLI_FULL_EVALUATION、RULE_SOURCE_GAPS 一致。 | Gate: 每个维度都有 current、target、verify、falsifier、owner、next threshold。\n- TP-01.02 | Verify: rg 'usageRole|production_dependency|oracle_only|evaluation_only|reference_only' governance/tasks contracts tools -n | Gate: production/oracle/evaluation/reference/future_candidate 边界不混写。\n- TP-01.03 | Verify: rg 'GAP-BZ-' governance/tasks/0004-bazi-professional-system-100 governance/tasks/0003-bazi-system-100 -n | Gate: 高级格局、合化、用神、岁运、专题、benchmark 均有 gap id。\n- TP-02.01 | Verify: .venv/bin/python -m pytest tests/regression/test_calendar_oracle_contract.py tests/regression/test_solar_terms_golden.py -q | Gate: 新增样本都有 source、expected、tolerance、failureExplanation。\n- TP-02.02 | Verify: rg 'lunar-python|sxtwl|oracle_only|CalendarProvider' requirements*.txt pyproject.toml contracts governance tests -n | Gate: 生产入口不 import oracle；依赖文件声明与锁文件一致。\n- TP-02.03 | Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_api_contracts.py -q | Gate: 基础字段 schema diff 为零或有迁移说明。\n- TP-03.01 | Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_fate_policy_assets.py -q | Gate: 未登记断语不能进入 production 报告。\n- TP-03.02 | Verify: .venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_capability_protocol.py -q | Gate: 新增字段不破坏现有 API/Web/Markdown 消费者。\n- TP-03.03 | Verify: .venv/bin/python -m pytest tests/regression/test_fate_policy_assets.py tests/regression/test_bazi_statement_golden.py -q | Gate: 高风险词和保证式话术被 policy regression 拦截。\n- TP-04.01 | Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_bazi_golden_coverage_matrix.py -q | Gate: strength 输出包含 score、basis、sourceRuleId、conflicts。\n- TP-04.02 | Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q | Gate: 十神解释必须引用盘面证据，不输出孤立断语。\n- TP-04.03 | Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_bazi_statement_golden.py -q | Gate: 无法稳定判定时输出 uncertainty，不强断。\n- TP-05.01 | Verify: rg '从格|假从|专旺|化气|specialPattern' contracts/fate domains/fate-analysis -n | Gate: 每类高级格局至少有成立条件和反证条件。\n- TP-05.02 | Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_bazi_golden_coverage_matrix.py -q | Gate: 无 golden 的高级格局不能升 production。\n- TP-05.03 | Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q | Gate: evaluator 不依赖 delivery；输出 schema 稳定。\n- TP-06.01 | Verify: rg '合化|成化|破化|争合|阻隔|冲破' contracts/fate domains/fate-analysis -n | Gate: 每种关系状态都有 required evidenceFields。\n- TP-06.02 | Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q | Gate: 每个 transform state 都有证据和反证条件。\n- TP-06.03 | Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q | Gate: 反例失败时能定位到具体 condition。\n- TP-07.01 | Verify: rg '调候|扶抑|通关|病药|用神' contracts/fate governance/tasks -n | Gate: 每个 strategy 都有 basis、score、doesNotApplyWhen。\n- TP-07.02 | Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q | Gate: 冲突裁决可解释，不输出唯一绝对结论。\n- TP-07.03 | Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q | Gate: 冲突 golden 可以解释 ranking 变化。\n- TP-08.01 | Verify: rg '大运|流年|流月|伏吟|反吟|天克地冲|fortuneTriggers' contracts domains/fate-analysis -n | Gate: 动态触发只作为趋势证据，不输出确定未来。\n- TP-08.02 | Verify: .venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_bazi_ziwei_rule_depth.py -q | Gate: topicProfiles.lifecycle=production 之前必须有 golden 和 policy regression。\n- TP-08.03 | Verify: .venv/bin/python -m pytest tests/regression/test_fate_policy_assets.py tests/regression/test_bazi_statement_golden.py -q | Gate: 高风险专题不输出现实处方、保证、恐吓或法律金融医疗建议。\n- TP-09.01 | Verify: FATECAT_RUN_FULL_GOLDEN_MATRIX=1 FATECAT_GOLDEN_SHARD_TOTAL=4 FATECAT_GOLDEN_SHARD_INDEX=0 .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py -q | Gate: 全量慢测不进入日常 quick；deep/release 可分片复现。\n- TP-09.02 | Verify: bash scripts/generate-mingli-predictions.sh --output-jsonl /tmp/fatecat-mingli-full.jsonl && bash scripts/run-mingli-bench.sh --predictions-file /tmp/fatecat-mingli-full.jsonl --output-json /tmp/fatecat-mingli-full.json | Gate: answered=160；predictions 无 expected/answer/correct/gold/label 字段；accuracy 不低于当前 baseline 或有边界解释。\n- TP-09.03 | Verify: 记录 license、dataset schema、adapter plan 和禁止进入 runtime 的 gate。 | Gate: license/source 不清时不得纳入正式 gate；只允许 future_candidate/evaluation_only。\n- TP-09.04 | Verify: MINGLI_FAILURE_TAXONOMY 中每类 failure 都有 owner、缺口类型、回炉方向和禁止路径。 | Gate: 不得按 question_id 或 expected answer 生成规则。\n- TP-10.01 | Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py tests/regression/test_bazi_golden_coverage_matrix.py -q | Gate: 每次只抽一个 evaluator；失败只回滚当前切片；delivery 不新增领域算法。\n- TP-10.02 | Verify: .venv/bin/python -m pytest tests/regression/test_web_html.py tests/regression/test_api_contracts.py tests/regression/test_bazi_statement_golden.py -q | Gate: 报告所有新增专业段落都有 evidence/riskBoundary；前端不重算规则。\n- TP-10.03 | Verify: bash scripts/local-ci.sh --profile quick && bash scripts/local-ci.sh --profile full | Gate: final review Active BLOCK=0；WARN 有 owner、证据和下一步；不得伪造公网/live bot。",
+    "review_gate": "- 检查是否把 benchmark 答案写入生产逻辑。\n- 检查是否出现无 sourceRuleId 的专业断语。\n- 检查 oracle/evaluation/reference 资源是否进入生产主链。\n- 检查新增 evaluator 是否有消费者、测试和回滚路径。\n- 检查 delivery 是否新增命理领域算法。",
+    "ship_readiness": "- task docs decompose 校验通过。\n- local-ci quick/full 通过。\n- calendar oracle、golden coverage、rule-depth、API contract、web/report policy 通过。\n- MingLi full evaluation 生成 predictions/report/taxonomy 且无答案泄漏。\n- final review Active BLOCK = 0，WARN 有 owner、证据和下一步。",
+    "global_acceptance_standards": "- [ ] 基础排盘 100%：四柱、节气换月、立春年界、起运、真太阳时、早晚子时和跨时区边界都有 oracle 或 golden。\n- [ ] 历法时间 100%：production provider、oracle 对照、依赖升级门禁和差异归因齐备。\n- [ ] 证据化 100%：报告/API 不出现无 ruleId 的专业断语。\n- [ ] 常规分析 100%：强弱、月令、藏干、十神、五行、常规格局、干支关系和喜忌策略都有结构化字段和 golden。\n- [ ] 高级格局 100%：正格、变格、从格、假从、专旺、化气均有成立条件、破格条件和反例矩阵。\n- [ ] 合化成败 100%：合象、合而不化、成化、破化、争合、阻隔、冲破状态链明确。\n- [ ] 用神裁决 100%：调候、扶抑、通关、病药并列评分，冲突裁决可解释。\n- [ ] 岁运专题 100%：大运、流年、流月触发与婚姻、事业、财运、家庭、健康、学业等 profile 联动。\n- [ ] Golden 回归 100%：新增规则均有正例、反例、边界例、failureExplanation 和 shard/deep gate。\n- [ ] 样本外 benchmark 100%：MingLi/BaziQA 评测链路成熟、分类门槛明确、无答案泄漏、失败归因可回炉。",
+    "package_context_blocks": "## TP-01\n- Step Key: `scorecard-contract`\n- 标题: 锁定 100% Scorecard 与资源边界\n- 类型: `package`\n- 目标: 把当前完成度表转成不可混淆的工程验收标准、资源角色和禁止路径。\n- 父节点: `ROOT`\n- 子节点: TP-01.01, TP-01.02, TP-01.03\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: 无\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-01.01\n- Step Key: `scorecard-refresh`\n- 标题: 刷新八字 100% Scorecard\n- 类型: `action`\n- 目标: 把 10 个维度的当前值、目标 gate、verify、falsifier、owner 和下一门槛写成任务真相源。\n- 父节点: `TP-01`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: 更新后的 SCORECARD / plan evidence\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: Target end state: Scorecard 是八字专业体系的单一完成度口径。；Falsifier: 任一维度没有 verify 或 falsifier 时，不能进入实现波次。\n\n### TP-01.02\n- Step Key: `resource-boundary-refresh`\n- 标题: 刷新资源地图和复用边界\n- 类型: `action`\n- 目标: 确认 lunar-python、sxtwl、bazica、sxwnl、paipan、MingLi-Bench、BaziQA、bazi-1 的 usageRole 和禁止用途。\n- 父节点: `TP-01`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: RESOURCE_MAP 更新；新资源审查队列\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: Existence check: 资源边界防止把开源库误当专业能力捷径。；Selected ladder rung: project-native governance resource map。\n\n### TP-01.03\n- Step Key: `source-gap-ledger`\n- 标题: 建立规则来源缺口台账\n- 类型: `action`\n- 目标: 把缺规则、缺反例、缺专家样本、缺 license、缺 evaluator 的能力统一进入 gap ledger。\n- 父节点: `TP-01`\n- 子节点: 无\n- 依赖步骤 Key: scorecard-refresh, resource-boundary-refresh\n- 依赖节点 ID: TP-01.01, TP-01.02\n- 输入: 无\n- 输出: RULE_SOURCE_GAPS 增量；gap id 到任务节点映射\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n## TP-02\n- Step Key: `calendar-base-chart`\n- 标题: 基础排盘与历法时间边界 100%\n- 类型: `package`\n- 目标: 补齐基础排盘和时间边界的 oracle、golden、依赖升级门禁和差异归因。\n- 父节点: `ROOT`\n- 子节点: TP-02.01, TP-02.02, TP-02.03\n- 依赖步骤 Key: source-gap-ledger\n- 依赖节点 ID: TP-01.03\n- 输入: 无\n- 输出: 无\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-02.01\n- Step Key: `calendar-boundary-matrix`\n- 标题: 扩展 calendar boundary matrix\n- 类型: `action`\n- 目标: 补节气秒级、立春年界、早晚子时、真太阳时、跨时区、DST、起运边界样本。\n- 父节点: `TP-02`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: calendar_boundary_cases.json 增量；oracle mismatch report\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-02.02\n- Step Key: `calendar-provider-contract`\n- 标题: 锁定 CalendarProvider 升级合同\n- 类型: `action`\n- 目标: 明确 lunar-python 是 production provider，oracle 资源只在测试中使用，依赖升级必须跑指定门禁。\n- 父节点: `TP-02`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: CalendarProvider gate 说明；dependency upgrade checklist\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-02.03\n- Step Key: `base-chart-regression`\n- 标题: 基础排盘回归矩阵\n- 类型: `action`\n- 目标: 把四柱、五行、十神、藏干、起运、真太阳时基础字段纳入稳定回归。\n- 父节点: `TP-02`\n- 子节点: 无\n- 依赖步骤 Key: calendar-boundary-matrix, calendar-provider-contract\n- 依赖节点 ID: TP-02.01, TP-02.02\n- 输入: 无\n- 输出: 基础排盘 golden 增量；API contract evidence\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n## TP-03\n- Step Key: `evidence-contract`\n- 标题: 证据化与可解释 100%\n- 类型: `package`\n- 目标: 让 API、Markdown 和 rule-depth 输出的每个专业结论都能追溯到规则、字段、权重和风险边界。\n- 父节点: `ROOT`\n- 子节点: TP-03.01, TP-03.02, TP-03.03\n- 依赖步骤 Key: source-gap-ledger\n- 依赖节点 ID: TP-01.03\n- 输入: 无\n- 输出: 无\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-03.01\n- Step Key: `rule-id-coverage`\n- 标题: 补齐 ruleId 覆盖审计\n- 类型: `action`\n- 目标: 检查报告/API 中所有专业断语是否都有 sourceRuleId 或明确 unsupported/beta 边界。\n- 父节点: `TP-03`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: ruleId coverage audit；missing rule backlog\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-03.02\n- Step Key: `evidence-field-contract`\n- 标题: 标准化 evidenceFields 合同\n- 类型: `action`\n- 目标: 把 sourceRuleId、evidenceFields、score、weight、doesNotApplyWhen、riskBoundary 做成统一字段契约。\n- 父节点: `TP-03`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: REPORT_FIELD_CONTRACT 更新；API schema regression\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-03.03\n- Step Key: `unsafe-output-regression`\n- 标题: 高风险输出边界回归\n- 类型: `action`\n- 目标: 锁定健康、财运、灾劫、官非等专题不能输出现实处方、恐吓或保证式判断。\n- 父节点: `TP-03`\n- 子节点: 无\n- 依赖步骤 Key: rule-id-coverage, evidence-field-contract\n- 依赖节点 ID: TP-03.01, TP-03.02\n- 输入: 无\n- 输出: policy regression fixtures；riskBoundary report snippets\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n## TP-04\n- Step Key: `regular-analysis`\n- 标题: 常规八字分析 100%\n- 类型: `package`\n- 目标: 把强弱、月令、十神、藏干、五行、常规格局和干支关系做成稳定 evaluator 与 golden。\n- 父节点: `ROOT`\n- 子节点: TP-04.01, TP-04.02, TP-04.03\n- 依赖步骤 Key: base-chart-regression, evidence-field-contract\n- 依赖节点 ID: TP-02.03, TP-03.02\n- 输入: 无\n- 输出: 无\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-04.01\n- Step Key: `strength-evaluator`\n- 标题: 强弱与月令 evaluator\n- 类型: `action`\n- 目标: 独立强弱评分、月令、人元司令、通根透干和旺衰证据，避免散落在大函数里。\n- 父节点: `TP-04`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: strength evaluator slice；strength golden cases\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-04.02\n- Step Key: `ten-god-evaluator`\n- 标题: 十神结构 evaluator\n- 类型: `action`\n- 目标: 结构化透干、藏干、十神数量、十神组合和十神族群映射。\n- 父节点: `TP-04`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: tenGodStructure fields；topic input mapping\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-04.03\n- Step Key: `regular-pattern-evaluator`\n- 标题: 常规格局 evaluator\n- 类型: `action`\n- 目标: 覆盖财官印食等常规格局候选、成立依据、破格条件和不确定原因。\n- 父节点: `TP-04`\n- 子节点: 无\n- 依赖步骤 Key: strength-evaluator, ten-god-evaluator\n- 依赖节点 ID: TP-04.01, TP-04.02\n- 输入: 无\n- 输出: regularPatternCandidates；正破格 golden\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n## TP-05\n- Step Key: `advanced-patterns`\n- 标题: 高级格局 100%\n- 类型: `package`\n- 目标: 把从格、假从、化气、专旺、变格等高级格局从 beta 候选推进到 guarded/production 可审查状态。\n- 父节点: `ROOT`\n- 子节点: TP-05.01, TP-05.02, TP-05.03\n- 依赖步骤 Key: regular-pattern-evaluator\n- 依赖节点 ID: TP-04.03\n- 输入: 无\n- 输出: 无\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-05.01\n- Step Key: `special-pattern-rule-matrix`\n- 标题: 高级格局规则矩阵\n- 类型: `action`\n- 目标: 为从格、假从、专旺、化气、变格建立 appliesWhen、doesNotApplyWhen、破格条件和 sourceRuleId。\n- 父节点: `TP-05`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: specialPattern rule matrix；registry 增量\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-05.02\n- Step Key: `special-pattern-golden`\n- 标题: 高级格局正反例 golden\n- 类型: `action`\n- 目标: 为每个高级格局补正例、反例、边界例和 failureExplanation。\n- 父节点: `TP-05`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: rule_depth_cases 增量；advanced pattern fixtures\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-05.03\n- Step Key: `special-pattern-evaluator`\n- 标题: 高级格局 evaluator\n- 类型: `action`\n- 目标: 实现或抽取高级格局 evaluator，输出候选、置信度、破格原因和风险边界。\n- 父节点: `TP-05`\n- 子节点: 无\n- 依赖步骤 Key: special-pattern-rule-matrix, special-pattern-golden\n- 依赖节点 ID: TP-05.01, TP-05.02\n- 输入: 无\n- 输出: specialPatternCandidates；guarded evaluator evidence\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n## TP-06\n- Step Key: `hehua-transform`\n- 标题: 合化成败 100%\n- 类型: `package`\n- 目标: 把干支合化从自然语言关系升级为有条件链、状态机和反例矩阵的 evaluator。\n- 父节点: `ROOT`\n- 子节点: TP-06.01, TP-06.02, TP-06.03\n- 依赖步骤 Key: regular-pattern-evaluator\n- 依赖节点 ID: TP-04.03\n- 输入: 无\n- 输出: 无\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-06.01\n- Step Key: `relation-condition-catalog`\n- 标题: 干支关系条件目录\n- 类型: `action`\n- 目标: 登记天干五合、地支六合、三合、三会、冲刑害破、争合、阻隔、冲破的条件字段。\n- 父节点: `TP-06`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: conditionCatalog；sourceRuleId mapping\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-06.02\n- Step Key: `combine-transform-state-machine`\n- 标题: 合化状态链 evaluator\n- 类型: `action`\n- 目标: 输出 structural_relation、transform_candidate、transform_success、transform_broken。\n- 父节点: `TP-06`\n- 子节点: 无\n- 依赖步骤 Key: relation-condition-catalog\n- 依赖节点 ID: TP-06.01\n- 输入: 无\n- 输出: combineTransformMatrix；relation evaluator evidence\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-06.03\n- Step Key: `hehua-negative-golden`\n- 标题: 合化反例矩阵\n- 类型: `action`\n- 目标: 补月令、透干、通根、得令、帮扶、冲破、阻隔导致不成化的反例。\n- 父节点: `TP-06`\n- 子节点: 无\n- 依赖步骤 Key: combine-transform-state-machine\n- 依赖节点 ID: TP-06.02\n- 输入: 无\n- 输出: hehua negative fixtures；failureExplanation\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n## TP-07\n- Step Key: `yongshen-arbitration`\n- 标题: 用神裁决 100%\n- 类型: `package`\n- 目标: 把调候、扶抑、通关、病药从并列描述升级为可冲突裁决的评分矩阵。\n- 父节点: `ROOT`\n- 子节点: TP-07.01, TP-07.02, TP-07.03\n- 依赖步骤 Key: strength-evaluator, regular-pattern-evaluator, hehua-negative-golden\n- 依赖节点 ID: TP-04.01, TP-04.03, TP-06.03\n- 输入: 无\n- 输出: 无\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-07.01\n- Step Key: `yongshen-strategy-matrix`\n- 标题: 用神策略矩阵\n- 类型: `action`\n- 目标: 定义调候、扶抑、通关、病药、格局用神的输入字段、评分、冲突和不适用条件。\n- 父节点: `TP-07`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: yongShen strategy matrix；conflictPolicy\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-07.02\n- Step Key: `yongshen-decision-evaluator`\n- 标题: 用神决策 evaluator\n- 类型: `action`\n- 目标: 输出 scoredStrategies、ranking、conflicts、selectedCandidates、riskBoundary。\n- 父节点: `TP-07`\n- 子节点: 无\n- 依赖步骤 Key: yongshen-strategy-matrix\n- 依赖节点 ID: TP-07.01\n- 输入: 无\n- 输出: yongShenDecision；decision trace\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-07.03\n- Step Key: `yongshen-conflict-golden`\n- 标题: 用神冲突正反例\n- 类型: `action`\n- 目标: 补寒暖燥湿、身强身弱、格局优先、通关病药冲突场景的 golden。\n- 父节点: `TP-07`\n- 子节点: 无\n- 依赖步骤 Key: yongshen-decision-evaluator\n- 依赖节点 ID: TP-07.02\n- 输入: 无\n- 输出: yongshen conflict fixtures；strategy regression\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n## TP-08\n- Step Key: `fortune-topic-profiles`\n- 标题: 岁运专题 100%\n- 类型: `package`\n- 目标: 把大运、流年、流月触发与婚姻、事业、财运、家庭、健康、学业等专题 profile 联动。\n- 父节点: `ROOT`\n- 子节点: TP-08.01, TP-08.02, TP-08.03\n- 依赖步骤 Key: ten-god-evaluator, special-pattern-evaluator, yongshen-conflict-golden\n- 依赖节点 ID: TP-04.02, TP-05.03, TP-07.03\n- 输入: 无\n- 输出: 无\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-08.01\n- Step Key: `fortune-trigger-matrix`\n- 标题: 岁运触发矩阵\n- 类型: `action`\n- 目标: 定义大运、流年、流月、伏吟反吟、天克地冲、刑冲合害与原局关系的 trigger chain。\n- 父节点: `TP-08`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: fortuneTriggers matrix；trend-only riskBoundary\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-08.02\n- Step Key: `topic-profile-scoring`\n- 标题: 专题 profile 联合评分\n- 类型: `action`\n- 目标: 为婚姻、事业、财运、家庭、健康、学业、迁移建立 score、basis、scoreBasis、evidenceFields、lifecycle。\n- 父节点: `TP-08`\n- 子节点: 无\n- 依赖步骤 Key: fortune-trigger-matrix\n- 依赖节点 ID: TP-08.01\n- 输入: 无\n- 输出: topicProfiles；topic scoring traces\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-08.03\n- Step Key: `topic-risk-policy`\n- 标题: 专题风险边界\n- 类型: `action`\n- 目标: 针对健康、财运、灾劫、官非等高风险专题补安全文案和 policy 测试。\n- 父节点: `TP-08`\n- 子节点: 无\n- 依赖步骤 Key: topic-profile-scoring\n- 依赖节点 ID: TP-08.02\n- 输入: 无\n- 输出: topic risk fixtures；safe report snippets\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n## TP-09\n- Step Key: `golden-and-benchmark`\n- 标题: Golden 回归与样本外 Benchmark 100%\n- 类型: `package`\n- 目标: 把规则样本、deep gate、MingLi/BaziQA 评测和失败归因做成可持续改进系统。\n- 父节点: `ROOT`\n- 子节点: TP-09.01, TP-09.02, TP-09.03, TP-09.04\n- 依赖步骤 Key: topic-risk-policy\n- 依赖节点 ID: TP-08.03\n- 输入: 无\n- 输出: 无\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-09.01\n- Step Key: `golden-shard-policy`\n- 标题: Golden shard 与 deep gate\n- 类型: `action`\n- 目标: 把 quick 代表集、deep 300+ matrix、rule-depth、calendar boundary 和 topic fixtures 分层。\n- 父节点: `TP-09`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: GOLDEN_DEEP_GATE 更新；shard evidence\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-09.02\n- Step Key: `mingli-full-gate`\n- 标题: MingLi full 评测门禁\n- 类型: `action`\n- 目标: 持续生成 160 题 predictions、report、byCategory 和 failure taxonomy，且无答案泄漏。\n- 父节点: `TP-09`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: MINGLI_FULL_EVALUATION 更新；MINGLI_FAILURE_TAXONOMY 更新\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-09.03\n- Step Key: `baziqa-admission`\n- 标题: BaziQA 纳入评测审查\n- 类型: `action`\n- 目标: 审查 BaziQA license、题型、输入输出契约和是否可作为 evaluation_only benchmark。\n- 父节点: `TP-09`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: BaziQA admission note；future benchmark backlog\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-09.04\n- Step Key: `failure-backlog-to-rules`\n- 标题: 失败归因回炉到规则任务\n- 类型: `action`\n- 目标: 把 MingLi/BaziQA 失败样本按 owner 能力面映射到婚姻、事业、家庭、健康、财运、学业等规则 backlog。\n- 父节点: `TP-09`\n- 子节点: 无\n- 依赖步骤 Key: mingli-full-gate\n- 依赖节点 ID: TP-09.02\n- 输入: 无\n- 输出: failure taxonomy backlog；topic owner queue\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n## TP-10\n- Step Key: `maintainability-and-delivery`\n- 标题: 维护性、交付边界与最终发布门禁\n- 类型: `package`\n- 目标: 把新增专业能力落到 fate-core 边界，delivery 只负责呈现，并用最终 review/ship gate 收口。\n- 父节点: `ROOT`\n- 子节点: TP-10.01, TP-10.02, TP-10.03\n- 依赖步骤 Key: golden-shard-policy, failure-backlog-to-rules, baziqa-admission\n- 依赖节点 ID: TP-09.01, TP-09.04, TP-09.03\n- 输入: 无\n- 输出: 无\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-10.01\n- Step Key: `evaluator-physical-extraction`\n- 标题: evaluator 物理拆分\n- 类型: `action`\n- 目标: 按 pattern、hehua、yongshen、fortune、topic 逐切片从大文件抽出纯 evaluator，保持 schema 行为不变。\n- 父节点: `TP-10`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: fate_core/usecases/evaluators/*；AGENTS.md/边界文档更新\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-10.02\n- Step Key: `report-contract-finalize`\n- 标题: 报告字段与 Markdown 边界收口\n- 类型: `action`\n- 目标: 保证 Web/API/Markdown 只消费结构化结果，不在 delivery 二次推断命理结论。\n- 父节点: `TP-10`\n- 子节点: 无\n- 依赖步骤 Key: evaluator-physical-extraction\n- 依赖节点 ID: TP-10.01\n- 输入: 无\n- 输出: REPORT_FIELD_CONTRACT final；Markdown golden\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-10.03\n- Step Key: `final-local-and-review-gates`\n- 标题: 最终本地门禁与审查\n- 类型: `action`\n- 目标: 运行 quick/full/deep/review，生成最终 PASS/WARN/BLOCK 结论。\n- 父节点: `TP-10`\n- 子节点: 无\n- 依赖步骤 Key: report-contract-finalize\n- 依赖节点 ID: TP-10.02\n- 输入: 无\n- 输出: FINAL_REVIEW.md；CLOSEOUT.md；local-ci evidence\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无",
+    "package_acceptance_blocks": "## TP-01\n- 标题: 锁定 100% Scorecard 与资源边界\n- 验收标准:\n  - 达成当前节点 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 任务目标与上下文已确认\n- 输出物: 无\n\n### TP-01.01\n- 标题: 刷新八字 100% Scorecard\n- 验收标准:\n  - 100% 口径明确写成工程/专业验收成熟度，而不是预测准确率。\n- Verify: 人工核对 SCORECARD 与当前完成度表、MINGLI_FULL_EVALUATION、RULE_SOURCE_GAPS 一致。\n- Gate: 每个维度都有 current、target、verify、falsifier、owner、next threshold。\n- 输出物: 更新后的 SCORECARD / plan evidence\n\n### TP-01.02\n- 标题: 刷新资源地图和复用边界\n- 验收标准:\n  - 无 license 不清资源进入 runtime；MingLi/BaziQA 只作为 evaluation。\n- Verify: rg 'usageRole|production_dependency|oracle_only|evaluation_only|reference_only' governance/tasks contracts tools -n\n- Gate: production/oracle/evaluation/reference/future_candidate 边界不混写。\n- 输出物: RESOURCE_MAP 更新；新资源审查队列\n\n### TP-01.03\n- 标题: 建立规则来源缺口台账\n- 验收标准:\n  - 无来源规则不得进入 evaluator；缺专家样本必须标 beta/HITL。\n- Verify: rg 'GAP-BZ-' governance/tasks/0004-bazi-professional-system-100 governance/tasks/0003-bazi-system-100 -n\n- Gate: 高级格局、合化、用神、岁运、专题、benchmark 均有 gap id。\n- 输出物: RULE_SOURCE_GAPS 增量；gap id 到任务节点映射\n\n## TP-02\n- 标题: 基础排盘与历法时间边界 100%\n- 验收标准:\n  - 达成当前节点 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: source-gap-ledger\n- 输出物: 无\n\n### TP-02.01\n- 标题: 扩展 calendar boundary matrix\n- 验收标准:\n  - 任一 boundary mismatch 都有 root cause 或 tolerance。\n- Verify: .venv/bin/python -m pytest tests/regression/test_calendar_oracle_contract.py tests/regression/test_solar_terms_golden.py -q\n- Gate: 新增样本都有 source、expected、tolerance、failureExplanation。\n- 输出物: calendar_boundary_cases.json 增量；oracle mismatch report\n\n### TP-02.02\n- 标题: 锁定 CalendarProvider 升级合同\n- 验收标准:\n  - 上游升级必须触发 calendar oracle、solar terms 和 bazi golden。\n- Verify: rg 'lunar-python|sxtwl|oracle_only|CalendarProvider' requirements*.txt pyproject.toml contracts governance tests -n\n- Gate: 生产入口不 import oracle；依赖文件声明与锁文件一致。\n- 输出物: CalendarProvider gate 说明；dependency upgrade checklist\n\n### TP-02.03\n- 标题: 基础排盘回归矩阵\n- 验收标准:\n  - 基础排盘维度可从 93% 提升到 100% gate。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_api_contracts.py -q\n- Gate: 基础字段 schema diff 为零或有迁移说明。\n- 输出物: 基础排盘 golden 增量；API contract evidence\n\n## TP-03\n- 标题: 证据化与可解释 100%\n- 验收标准:\n  - 达成当前节点 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: source-gap-ledger\n- 输出物: 无\n\n### TP-03.01\n- 标题: 补齐 ruleId 覆盖审计\n- 验收标准:\n  - ruleIds 全部能回指 registry/classics。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_fate_policy_assets.py -q\n- Gate: 未登记断语不能进入 production 报告。\n- 输出物: ruleId coverage audit；missing rule backlog\n\n### TP-03.02\n- 标题: 标准化 evidenceFields 合同\n- 验收标准:\n  - 报告中不再只有自然语言结论。\n- Verify: .venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_capability_protocol.py -q\n- Gate: 新增字段不破坏现有 API/Web/Markdown 消费者。\n- 输出物: REPORT_FIELD_CONTRACT 更新；API schema regression\n\n### TP-03.03\n- 标题: 高风险输出边界回归\n- 验收标准:\n  - 高风险专题只输出趋势和结构证据。\n- Verify: .venv/bin/python -m pytest tests/regression/test_fate_policy_assets.py tests/regression/test_bazi_statement_golden.py -q\n- Gate: 高风险词和保证式话术被 policy regression 拦截。\n- 输出物: policy regression fixtures；riskBoundary report snippets\n\n## TP-04\n- 标题: 常规八字分析 100%\n- 验收标准:\n  - 达成当前节点 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: base-chart-regression, evidence-field-contract\n- 输出物: 无\n\n### TP-04.01\n- 标题: 强弱与月令 evaluator\n- 验收标准:\n  - 强弱判断可解释且可被高级格局/用神复用。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_bazi_golden_coverage_matrix.py -q\n- Gate: strength 输出包含 score、basis、sourceRuleId、conflicts。\n- 输出物: strength evaluator slice；strength golden cases\n\n### TP-04.02\n- 标题: 十神结构 evaluator\n- 验收标准:\n  - 事业、财运、婚姻、家庭 profile 可消费十神结构。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q\n- Gate: 十神解释必须引用盘面证据，不输出孤立断语。\n- 输出物: tenGodStructure fields；topic input mapping\n\n### TP-04.03\n- 标题: 常规格局 evaluator\n- 验收标准:\n  - 常规分析维度达到 100% gate。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_bazi_statement_golden.py -q\n- Gate: 无法稳定判定时输出 uncertainty，不强断。\n- 输出物: regularPatternCandidates；正破格 golden\n\n## TP-05\n- 标题: 高级格局 100%\n- 验收标准:\n  - 达成当前节点 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: regular-pattern-evaluator\n- 输出物: 无\n\n### TP-05.01\n- 标题: 高级格局规则矩阵\n- 验收标准:\n  - 缺条件的高级格局只能输出 beta/candidate。\n- Verify: rg '从格|假从|专旺|化气|specialPattern' contracts/fate domains/fate-analysis -n\n- Gate: 每类高级格局至少有成立条件和反证条件。\n- 输出物: specialPattern rule matrix；registry 增量\n\n### TP-05.02\n- 标题: 高级格局正反例 golden\n- 验收标准:\n  - 从格/假从/专旺/化气都有可回归样本。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_bazi_golden_coverage_matrix.py -q\n- Gate: 无 golden 的高级格局不能升 production。\n- 输出物: rule_depth_cases 增量；advanced pattern fixtures\n\n### TP-05.03\n- 标题: 高级格局 evaluator\n- 验收标准:\n  - 高级格局维度达到 100% gate。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q\n- Gate: evaluator 不依赖 delivery；输出 schema 稳定。\n- 输出物: specialPatternCandidates；guarded evaluator evidence\n\n## TP-06\n- 标题: 合化成败 100%\n- 验收标准:\n  - 达成当前节点 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: regular-pattern-evaluator\n- 输出物: 无\n\n### TP-06.01\n- 标题: 干支关系条件目录\n- 验收标准:\n  - 不再只输出“合”而不区分成败。\n- Verify: rg '合化|成化|破化|争合|阻隔|冲破' contracts/fate domains/fate-analysis -n\n- Gate: 每种关系状态都有 required evidenceFields。\n- 输出物: conditionCatalog；sourceRuleId mapping\n\n### TP-06.02\n- 标题: 合化状态链 evaluator\n- 验收标准:\n  - 合而不化、成化、破化、争合、阻隔可区分。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q\n- Gate: 每个 transform state 都有证据和反证条件。\n- 输出物: combineTransformMatrix；relation evaluator evidence\n\n### TP-06.03\n- 标题: 合化反例矩阵\n- 验收标准:\n  - 合化成败维度达到 100% gate。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q\n- Gate: 反例失败时能定位到具体 condition。\n- 输出物: hehua negative fixtures；failureExplanation\n\n## TP-07\n- 标题: 用神裁决 100%\n- 验收标准:\n  - 达成当前节点 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: strength-evaluator, regular-pattern-evaluator, hehua-negative-golden\n- 输出物: 无\n\n### TP-07.01\n- 标题: 用神策略矩阵\n- 验收标准:\n  - 不能用单一用神覆盖全部策略。\n- Verify: rg '调候|扶抑|通关|病药|用神' contracts/fate governance/tasks -n\n- Gate: 每个 strategy 都有 basis、score、doesNotApplyWhen。\n- 输出物: yongShen strategy matrix；conflictPolicy\n\n### TP-07.02\n- 标题: 用神决策 evaluator\n- 验收标准:\n  - 用神裁决能被专题 profile 消费。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q\n- Gate: 冲突裁决可解释，不输出唯一绝对结论。\n- 输出物: yongShenDecision；decision trace\n\n### TP-07.03\n- 标题: 用神冲突正反例\n- 验收标准:\n  - 用神裁决维度达到 100% gate。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q\n- Gate: 冲突 golden 可以解释 ranking 变化。\n- 输出物: yongshen conflict fixtures；strategy regression\n\n## TP-08\n- 标题: 岁运专题 100%\n- 验收标准:\n  - 达成当前节点 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: ten-god-evaluator, special-pattern-evaluator, yongshen-conflict-golden\n- 输出物: 无\n\n### TP-08.01\n- 标题: 岁运触发矩阵\n- 验收标准:\n  - 每个 trigger 有 sourceRuleId、evidenceFields、riskBoundary。\n- Verify: rg '大运|流年|流月|伏吟|反吟|天克地冲|fortuneTriggers' contracts domains/fate-analysis -n\n- Gate: 动态触发只作为趋势证据，不输出确定未来。\n- 输出物: fortuneTriggers matrix；trend-only riskBoundary\n\n### TP-08.02\n- 标题: 专题 profile 联合评分\n- 验收标准:\n  - 专题 profile 不再只是 alias 或自然语言拼接。\n- Verify: .venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_bazi_ziwei_rule_depth.py -q\n- Gate: topicProfiles.lifecycle=production 之前必须有 golden 和 policy regression。\n- 输出物: topicProfiles；topic scoring traces\n\n### TP-08.03\n- 标题: 专题风险边界\n- 验收标准:\n  - 岁运专题维度达到 100% gate。\n- Verify: .venv/bin/python -m pytest tests/regression/test_fate_policy_assets.py tests/regression/test_bazi_statement_golden.py -q\n- Gate: 高风险专题不输出现实处方、保证、恐吓或法律金融医疗建议。\n- 输出物: topic risk fixtures；safe report snippets\n\n## TP-09\n- 标题: Golden 回归与样本外 Benchmark 100%\n- 验收标准:\n  - 达成当前节点 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: topic-risk-policy\n- 输出物: 无\n\n### TP-09.01\n- 标题: Golden shard 与 deep gate\n- 验收标准:\n  - Golden/回归维度达到 100% gate。\n- Verify: FATECAT_RUN_FULL_GOLDEN_MATRIX=1 FATECAT_GOLDEN_SHARD_TOTAL=4 FATECAT_GOLDEN_SHARD_INDEX=0 .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py -q\n- Gate: 全量慢测不进入日常 quick；deep/release 可分片复现。\n- 输出物: GOLDEN_DEEP_GATE 更新；shard evidence\n\n### TP-09.02\n- 标题: MingLi full 评测门禁\n- 验收标准:\n  - 下一阶段门槛 overall >= 32%、财运 >= 15%、婚姻 failures <= 25。\n- Verify: bash scripts/generate-mingli-predictions.sh --output-jsonl /tmp/fatecat-mingli-full.jsonl && bash scripts/run-mingli-bench.sh --predictions-file /tmp/fatecat-mingli-full.jsonl --output-json /tmp/fatecat-mingli-full.json\n- Gate: answered=160；predictions 无 expected/answer/correct/gold/label 字段；accuracy 不低于当前 baseline 或有边界解释。\n- 输出物: MINGLI_FULL_EVALUATION 更新；MINGLI_FAILURE_TAXONOMY 更新\n\n### TP-09.03\n- 标题: BaziQA 纳入评测审查\n- 验收标准:\n  - 样本外 benchmark 维度的资源路线清楚。\n- Verify: 记录 license、dataset schema、adapter plan 和禁止进入 runtime 的 gate。\n- Gate: license/source 不清时不得纳入正式 gate；只允许 future_candidate/evaluation_only。\n- 输出物: BaziQA admission note；future benchmark backlog\n\n### TP-09.04\n- 标题: 失败归因回炉到规则任务\n- 验收标准:\n  - 样本外 benchmark 维度达到 100% gate。\n- Verify: MINGLI_FAILURE_TAXONOMY 中每类 failure 都有 owner、缺口类型、回炉方向和禁止路径。\n- Gate: 不得按 question_id 或 expected answer 生成规则。\n- 输出物: failure taxonomy backlog；topic owner queue\n\n## TP-10\n- 标题: 维护性、交付边界与最终发布门禁\n- 验收标准:\n  - 达成当前节点 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: golden-shard-policy, failure-backlog-to-rules, baziqa-admission\n- 输出物: 无\n\n### TP-10.01\n- 标题: evaluator 物理拆分\n- 验收标准:\n  - 长期维护性维度达到 100% gate。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py tests/regression/test_bazi_golden_coverage_matrix.py -q\n- Gate: 每次只抽一个 evaluator；失败只回滚当前切片；delivery 不新增领域算法。\n- 输出物: fate_core/usecases/evaluators/*；AGENTS.md/边界文档更新\n\n### TP-10.02\n- 标题: 报告字段与 Markdown 边界收口\n- 验收标准:\n  - delivery 交付边界清楚。\n- Verify: .venv/bin/python -m pytest tests/regression/test_web_html.py tests/regression/test_api_contracts.py tests/regression/test_bazi_statement_golden.py -q\n- Gate: 报告所有新增专业段落都有 evidence/riskBoundary；前端不重算规则。\n- 输出物: REPORT_FIELD_CONTRACT final；Markdown golden\n\n### TP-10.03\n- 标题: 最终本地门禁与审查\n- 验收标准:\n  - 全部任务节点可进入 closeout，八字体系专业验收 100% 口径成立。\n- Verify: bash scripts/local-ci.sh --profile quick && bash scripts/local-ci.sh --profile full\n- Gate: final review Active BLOCK=0；WARN 有 owner、证据和下一步；不得伪造公网/live bot。\n- 输出物: FINAL_REVIEW.md；CLOSEOUT.md；local-ci evidence",
+    "package_acceptance_checklists": "## TP-01\n- 标题: 锁定 100% Scorecard 与资源边界\n- 验收项:\n  - [ ] 达成 `锁定 100% Scorecard 与资源边界` 的 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 任务目标与上下文已确认\n- 输出物:\n  - [ ] 把当前完成度表转成不可混淆的工程验收标准、资源角色和禁止路径。\n- 标准清单:\n  - [ ] Verify: 确认子节点范围、依赖与状态闭环\n  - [ ] Gate: 任务目标与上下文已确认\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-01.01\n- 标题: 刷新八字 100% Scorecard\n- 验收项:\n  - [ ] 100% 口径明确写成工程/专业验收成熟度，而不是预测准确率。\n- Verify: 人工核对 SCORECARD 与当前完成度表、MINGLI_FULL_EVALUATION、RULE_SOURCE_GAPS 一致。\n- Gate: 每个维度都有 current、target、verify、falsifier、owner、next threshold。\n- 输出物:\n  - [ ] 更新后的 SCORECARD / plan evidence\n- 标准清单:\n  - [ ] Verify: 人工核对 SCORECARD 与当前完成度表、MINGLI_FULL_EVALUATION、RULE_SOURCE_GAPS 一致。\n  - [ ] Gate: 每个维度都有 current、target、verify、falsifier、owner、next threshold。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-01.02\n- 标题: 刷新资源地图和复用边界\n- 验收项:\n  - [ ] 无 license 不清资源进入 runtime；MingLi/BaziQA 只作为 evaluation。\n- Verify: rg 'usageRole|production_dependency|oracle_only|evaluation_only|reference_only' governance/tasks contracts tools -n\n- Gate: production/oracle/evaluation/reference/future_candidate 边界不混写。\n- 输出物:\n  - [ ] RESOURCE_MAP 更新\n  - [ ] 新资源审查队列\n- 标准清单:\n  - [ ] Verify: rg 'usageRole|production_dependency|oracle_only|evaluation_only|reference_only' governance/tasks contracts tools -n\n  - [ ] Gate: production/oracle/evaluation/reference/future_candidate 边界不混写。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-01.03\n- 标题: 建立规则来源缺口台账\n- 验收项:\n  - [ ] 无来源规则不得进入 evaluator；缺专家样本必须标 beta/HITL。\n- Verify: rg 'GAP-BZ-' governance/tasks/0004-bazi-professional-system-100 governance/tasks/0003-bazi-system-100 -n\n- Gate: 高级格局、合化、用神、岁运、专题、benchmark 均有 gap id。\n- 输出物:\n  - [ ] RULE_SOURCE_GAPS 增量\n  - [ ] gap id 到任务节点映射\n- 标准清单:\n  - [ ] Verify: rg 'GAP-BZ-' governance/tasks/0004-bazi-professional-system-100 governance/tasks/0003-bazi-system-100 -n\n  - [ ] Gate: 高级格局、合化、用神、岁运、专题、benchmark 均有 gap id。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n## TP-02\n- 标题: 基础排盘与历法时间边界 100%\n- 验收项:\n  - [ ] 达成 `基础排盘与历法时间边界 100%` 的 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: source-gap-ledger\n- 输出物:\n  - [ ] 补齐基础排盘和时间边界的 oracle、golden、依赖升级门禁和差异归因。\n- 标准清单:\n  - [ ] Verify: 确认子节点范围、依赖与状态闭环\n  - [ ] Gate: 前置步骤已完成: source-gap-ledger\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-02.01\n- 标题: 扩展 calendar boundary matrix\n- 验收项:\n  - [ ] 任一 boundary mismatch 都有 root cause 或 tolerance。\n- Verify: .venv/bin/python -m pytest tests/regression/test_calendar_oracle_contract.py tests/regression/test_solar_terms_golden.py -q\n- Gate: 新增样本都有 source、expected、tolerance、failureExplanation。\n- 输出物:\n  - [ ] calendar_boundary_cases.json 增量\n  - [ ] oracle mismatch report\n- 标准清单:\n  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_calendar_oracle_contract.py tests/regression/test_solar_terms_golden.py -q\n  - [ ] Gate: 新增样本都有 source、expected、tolerance、failureExplanation。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-02.02\n- 标题: 锁定 CalendarProvider 升级合同\n- 验收项:\n  - [ ] 上游升级必须触发 calendar oracle、solar terms 和 bazi golden。\n- Verify: rg 'lunar-python|sxtwl|oracle_only|CalendarProvider' requirements*.txt pyproject.toml contracts governance tests -n\n- Gate: 生产入口不 import oracle；依赖文件声明与锁文件一致。\n- 输出物:\n  - [ ] CalendarProvider gate 说明\n  - [ ] dependency upgrade checklist\n- 标准清单:\n  - [ ] Verify: rg 'lunar-python|sxtwl|oracle_only|CalendarProvider' requirements*.txt pyproject.toml contracts governance tests -n\n  - [ ] Gate: 生产入口不 import oracle；依赖文件声明与锁文件一致。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-02.03\n- 标题: 基础排盘回归矩阵\n- 验收项:\n  - [ ] 基础排盘维度可从 93% 提升到 100% gate。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_api_contracts.py -q\n- Gate: 基础字段 schema diff 为零或有迁移说明。\n- 输出物:\n  - [ ] 基础排盘 golden 增量\n  - [ ] API contract evidence\n- 标准清单:\n  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_api_contracts.py -q\n  - [ ] Gate: 基础字段 schema diff 为零或有迁移说明。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n  - [ ] 维护 `DEBUG.md` 并保留回归证据\n\n## TP-03\n- 标题: 证据化与可解释 100%\n- 验收项:\n  - [ ] 达成 `证据化与可解释 100%` 的 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: source-gap-ledger\n- 输出物:\n  - [ ] 让 API、Markdown 和 rule-depth 输出的每个专业结论都能追溯到规则、字段、权重和风险边界。\n- 标准清单:\n  - [ ] Verify: 确认子节点范围、依赖与状态闭环\n  - [ ] Gate: 前置步骤已完成: source-gap-ledger\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-03.01\n- 标题: 补齐 ruleId 覆盖审计\n- 验收项:\n  - [ ] ruleIds 全部能回指 registry/classics。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_fate_policy_assets.py -q\n- Gate: 未登记断语不能进入 production 报告。\n- 输出物:\n  - [ ] ruleId coverage audit\n  - [ ] missing rule backlog\n- 标准清单:\n  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_fate_policy_assets.py -q\n  - [ ] Gate: 未登记断语不能进入 production 报告。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-03.02\n- 标题: 标准化 evidenceFields 合同\n- 验收项:\n  - [ ] 报告中不再只有自然语言结论。\n- Verify: .venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_capability_protocol.py -q\n- Gate: 新增字段不破坏现有 API/Web/Markdown 消费者。\n- 输出物:\n  - [ ] REPORT_FIELD_CONTRACT 更新\n  - [ ] API schema regression\n- 标准清单:\n  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_capability_protocol.py -q\n  - [ ] Gate: 新增字段不破坏现有 API/Web/Markdown 消费者。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-03.03\n- 标题: 高风险输出边界回归\n- 验收项:\n  - [ ] 高风险专题只输出趋势和结构证据。\n- Verify: .venv/bin/python -m pytest tests/regression/test_fate_policy_assets.py tests/regression/test_bazi_statement_golden.py -q\n- Gate: 高风险词和保证式话术被 policy regression 拦截。\n- 输出物:\n  - [ ] policy regression fixtures\n  - [ ] riskBoundary report snippets\n- 标准清单:\n  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_fate_policy_assets.py tests/regression/test_bazi_statement_golden.py -q\n  - [ ] Gate: 高风险词和保证式话术被 policy regression 拦截。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n  - [ ] 维护 `DEBUG.md` 并保留回归证据\n\n## TP-04\n- 标题: 常规八字分析 100%\n- 验收项:\n  - [ ] 达成 `常规八字分析 100%` 的 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: base-chart-regression, evidence-field-contract\n- 输出物:\n  - [ ] 把强弱、月令、十神、藏干、五行、常规格局和干支关系做成稳定 evaluator 与 golden。\n- 标准清单:\n  - [ ] Verify: 确认子节点范围、依赖与状态闭环\n  - [ ] Gate: 前置步骤已完成: base-chart-regression, evidence-field-contract\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-04.01\n- 标题: 强弱与月令 evaluator\n- 验收项:\n  - [ ] 强弱判断可解释且可被高级格局/用神复用。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_bazi_golden_coverage_matrix.py -q\n- Gate: strength 输出包含 score、basis、sourceRuleId、conflicts。\n- 输出物:\n  - [ ] strength evaluator slice\n  - [ ] strength golden cases\n- 标准清单:\n  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_bazi_golden_coverage_matrix.py -q\n  - [ ] Gate: strength 输出包含 score、basis、sourceRuleId、conflicts。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-04.02\n- 标题: 十神结构 evaluator\n- 验收项:\n  - [ ] 事业、财运、婚姻、家庭 profile 可消费十神结构。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q\n- Gate: 十神解释必须引用盘面证据，不输出孤立断语。\n- 输出物:\n  - [ ] tenGodStructure fields\n  - [ ] topic input mapping\n- 标准清单:\n  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q\n  - [ ] Gate: 十神解释必须引用盘面证据，不输出孤立断语。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-04.03\n- 标题: 常规格局 evaluator\n- 验收项:\n  - [ ] 常规分析维度达到 100% gate。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_bazi_statement_golden.py -q\n- Gate: 无法稳定判定时输出 uncertainty，不强断。\n- 输出物:\n  - [ ] regularPatternCandidates\n  - [ ] 正破格 golden\n- 标准清单:\n  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_bazi_statement_golden.py -q\n  - [ ] Gate: 无法稳定判定时输出 uncertainty，不强断。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n## TP-05\n- 标题: 高级格局 100%\n- 验收项:\n  - [ ] 达成 `高级格局 100%` 的 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: regular-pattern-evaluator\n- 输出物:\n  - [ ] 把从格、假从、化气、专旺、变格等高级格局从 beta 候选推进到 guarded/production 可审查状态。\n- 标准清单:\n  - [ ] Verify: 确认子节点范围、依赖与状态闭环\n  - [ ] Gate: 前置步骤已完成: regular-pattern-evaluator\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-05.01\n- 标题: 高级格局规则矩阵\n- 验收项:\n  - [ ] 缺条件的高级格局只能输出 beta/candidate。\n- Verify: rg '从格|假从|专旺|化气|specialPattern' contracts/fate domains/fate-analysis -n\n- Gate: 每类高级格局至少有成立条件和反证条件。\n- 输出物:\n  - [ ] specialPattern rule matrix\n  - [ ] registry 增量\n- 标准清单:\n  - [ ] Verify: rg '从格|假从|专旺|化气|specialPattern' contracts/fate domains/fate-analysis -n\n  - [ ] Gate: 每类高级格局至少有成立条件和反证条件。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-05.02\n- 标题: 高级格局正反例 golden\n- 验收项:\n  - [ ] 从格/假从/专旺/化气都有可回归样本。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_bazi_golden_coverage_matrix.py -q\n- Gate: 无 golden 的高级格局不能升 production。\n- 输出物:\n  - [ ] rule_depth_cases 增量\n  - [ ] advanced pattern fixtures\n- 标准清单:\n  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_bazi_golden_coverage_matrix.py -q\n  - [ ] Gate: 无 golden 的高级格局不能升 production。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-05.03\n- 标题: 高级格局 evaluator\n- 验收项:\n  - [ ] 高级格局维度达到 100% gate。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q\n- Gate: evaluator 不依赖 delivery；输出 schema 稳定。\n- 输出物:\n  - [ ] specialPatternCandidates\n  - [ ] guarded evaluator evidence\n- 标准清单:\n  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q\n  - [ ] Gate: evaluator 不依赖 delivery；输出 schema 稳定。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n## TP-06\n- 标题: 合化成败 100%\n- 验收项:\n  - [ ] 达成 `合化成败 100%` 的 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: regular-pattern-evaluator\n- 输出物:\n  - [ ] 把干支合化从自然语言关系升级为有条件链、状态机和反例矩阵的 evaluator。\n- 标准清单:\n  - [ ] Verify: 确认子节点范围、依赖与状态闭环\n  - [ ] Gate: 前置步骤已完成: regular-pattern-evaluator\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-06.01\n- 标题: 干支关系条件目录\n- 验收项:\n  - [ ] 不再只输出“合”而不区分成败。\n- Verify: rg '合化|成化|破化|争合|阻隔|冲破' contracts/fate domains/fate-analysis -n\n- Gate: 每种关系状态都有 required evidenceFields。\n- 输出物:\n  - [ ] conditionCatalog\n  - [ ] sourceRuleId mapping\n- 标准清单:\n  - [ ] Verify: rg '合化|成化|破化|争合|阻隔|冲破' contracts/fate domains/fate-analysis -n\n  - [ ] Gate: 每种关系状态都有 required evidenceFields。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-06.02\n- 标题: 合化状态链 evaluator\n- 验收项:\n  - [ ] 合而不化、成化、破化、争合、阻隔可区分。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q\n- Gate: 每个 transform state 都有证据和反证条件。\n- 输出物:\n  - [ ] combineTransformMatrix\n  - [ ] relation evaluator evidence\n- 标准清单:\n  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q\n  - [ ] Gate: 每个 transform state 都有证据和反证条件。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-06.03\n- 标题: 合化反例矩阵\n- 验收项:\n  - [ ] 合化成败维度达到 100% gate。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q\n- Gate: 反例失败时能定位到具体 condition。\n- 输出物:\n  - [ ] hehua negative fixtures\n  - [ ] failureExplanation\n- 标准清单:\n  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q\n  - [ ] Gate: 反例失败时能定位到具体 condition。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n## TP-07\n- 标题: 用神裁决 100%\n- 验收项:\n  - [ ] 达成 `用神裁决 100%` 的 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: strength-evaluator, regular-pattern-evaluator, hehua-negative-golden\n- 输出物:\n  - [ ] 把调候、扶抑、通关、病药从并列描述升级为可冲突裁决的评分矩阵。\n- 标准清单:\n  - [ ] Verify: 确认子节点范围、依赖与状态闭环\n  - [ ] Gate: 前置步骤已完成: strength-evaluator, regular-pattern-evaluator, hehua-negative-golden\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-07.01\n- 标题: 用神策略矩阵\n- 验收项:\n  - [ ] 不能用单一用神覆盖全部策略。\n- Verify: rg '调候|扶抑|通关|病药|用神' contracts/fate governance/tasks -n\n- Gate: 每个 strategy 都有 basis、score、doesNotApplyWhen。\n- 输出物:\n  - [ ] yongShen strategy matrix\n  - [ ] conflictPolicy\n- 标准清单:\n  - [ ] Verify: rg '调候|扶抑|通关|病药|用神' contracts/fate governance/tasks -n\n  - [ ] Gate: 每个 strategy 都有 basis、score、doesNotApplyWhen。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-07.02\n- 标题: 用神决策 evaluator\n- 验收项:\n  - [ ] 用神裁决能被专题 profile 消费。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q\n- Gate: 冲突裁决可解释，不输出唯一绝对结论。\n- 输出物:\n  - [ ] yongShenDecision\n  - [ ] decision trace\n- 标准清单:\n  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q\n  - [ ] Gate: 冲突裁决可解释，不输出唯一绝对结论。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-07.03\n- 标题: 用神冲突正反例\n- 验收项:\n  - [ ] 用神裁决维度达到 100% gate。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q\n- Gate: 冲突 golden 可以解释 ranking 变化。\n- 输出物:\n  - [ ] yongshen conflict fixtures\n  - [ ] strategy regression\n- 标准清单:\n  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q\n  - [ ] Gate: 冲突 golden 可以解释 ranking 变化。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n## TP-08\n- 标题: 岁运专题 100%\n- 验收项:\n  - [ ] 达成 `岁运专题 100%` 的 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: ten-god-evaluator, special-pattern-evaluator, yongshen-conflict-golden\n- 输出物:\n  - [ ] 把大运、流年、流月触发与婚姻、事业、财运、家庭、健康、学业等专题 profile 联动。\n- 标准清单:\n  - [ ] Verify: 确认子节点范围、依赖与状态闭环\n  - [ ] Gate: 前置步骤已完成: ten-god-evaluator, special-pattern-evaluator, yongshen-conflict-golden\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-08.01\n- 标题: 岁运触发矩阵\n- 验收项:\n  - [ ] 每个 trigger 有 sourceRuleId、evidenceFields、riskBoundary。\n- Verify: rg '大运|流年|流月|伏吟|反吟|天克地冲|fortuneTriggers' contracts domains/fate-analysis -n\n- Gate: 动态触发只作为趋势证据，不输出确定未来。\n- 输出物:\n  - [ ] fortuneTriggers matrix\n  - [ ] trend-only riskBoundary\n- 标准清单:\n  - [ ] Verify: rg '大运|流年|流月|伏吟|反吟|天克地冲|fortuneTriggers' contracts domains/fate-analysis -n\n  - [ ] Gate: 动态触发只作为趋势证据，不输出确定未来。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-08.02\n- 标题: 专题 profile 联合评分\n- 验收项:\n  - [ ] 专题 profile 不再只是 alias 或自然语言拼接。\n- Verify: .venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_bazi_ziwei_rule_depth.py -q\n- Gate: topicProfiles.lifecycle=production 之前必须有 golden 和 policy regression。\n- 输出物:\n  - [ ] topicProfiles\n  - [ ] topic scoring traces\n- 标准清单:\n  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_bazi_ziwei_rule_depth.py -q\n  - [ ] Gate: topicProfiles.lifecycle=production 之前必须有 golden 和 policy regression。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-08.03\n- 标题: 专题风险边界\n- 验收项:\n  - [ ] 岁运专题维度达到 100% gate。\n- Verify: .venv/bin/python -m pytest tests/regression/test_fate_policy_assets.py tests/regression/test_bazi_statement_golden.py -q\n- Gate: 高风险专题不输出现实处方、保证、恐吓或法律金融医疗建议。\n- 输出物:\n  - [ ] topic risk fixtures\n  - [ ] safe report snippets\n- 标准清单:\n  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_fate_policy_assets.py tests/regression/test_bazi_statement_golden.py -q\n  - [ ] Gate: 高风险专题不输出现实处方、保证、恐吓或法律金融医疗建议。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n## TP-09\n- 标题: Golden 回归与样本外 Benchmark 100%\n- 验收项:\n  - [ ] 达成 `Golden 回归与样本外 Benchmark 100%` 的 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: topic-risk-policy\n- 输出物:\n  - [ ] 把规则样本、deep gate、MingLi/BaziQA 评测和失败归因做成可持续改进系统。\n- 标准清单:\n  - [ ] Verify: 确认子节点范围、依赖与状态闭环\n  - [ ] Gate: 前置步骤已完成: topic-risk-policy\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-09.01\n- 标题: Golden shard 与 deep gate\n- 验收项:\n  - [ ] Golden/回归维度达到 100% gate。\n- Verify: FATECAT_RUN_FULL_GOLDEN_MATRIX=1 FATECAT_GOLDEN_SHARD_TOTAL=4 FATECAT_GOLDEN_SHARD_INDEX=0 .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py -q\n- Gate: 全量慢测不进入日常 quick；deep/release 可分片复现。\n- 输出物:\n  - [ ] GOLDEN_DEEP_GATE 更新\n  - [ ] shard evidence\n- 标准清单:\n  - [ ] Verify: FATECAT_RUN_FULL_GOLDEN_MATRIX=1 FATECAT_GOLDEN_SHARD_TOTAL=4 FATECAT_GOLDEN_SHARD_INDEX=0 .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py -q\n  - [ ] Gate: 全量慢测不进入日常 quick；deep/release 可分片复现。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n  - [ ] 维护 `DEBUG.md` 并保留回归证据\n\n### TP-09.02\n- 标题: MingLi full 评测门禁\n- 验收项:\n  - [ ] 下一阶段门槛 overall >= 32%、财运 >= 15%、婚姻 failures <= 25。\n- Verify: bash scripts/generate-mingli-predictions.sh --output-jsonl /tmp/fatecat-mingli-full.jsonl && bash scripts/run-mingli-bench.sh --predictions-file /tmp/fatecat-mingli-full.jsonl --output-json /tmp/fatecat-mingli-full.json\n- Gate: answered=160；predictions 无 expected/answer/correct/gold/label 字段；accuracy 不低于当前 baseline 或有边界解释。\n- 输出物:\n  - [ ] MINGLI_FULL_EVALUATION 更新\n  - [ ] MINGLI_FAILURE_TAXONOMY 更新\n- 标准清单:\n  - [ ] Verify: bash scripts/generate-mingli-predictions.sh --output-jsonl /tmp/fatecat-mingli-full.jsonl && bash scripts/run-mingli-bench.sh --predictions-file /tmp/fatecat-mingli-full.jsonl --output-json /tmp/fatecat-mingli-full.json\n  - [ ] Gate: answered=160；predictions 无 expected/answer/correct/gold/label 字段；accuracy 不低于当前 baseline 或有边界解释。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-09.03\n- 标题: BaziQA 纳入评测审查\n- 验收项:\n  - [ ] 样本外 benchmark 维度的资源路线清楚。\n- Verify: 记录 license、dataset schema、adapter plan 和禁止进入 runtime 的 gate。\n- Gate: license/source 不清时不得纳入正式 gate；只允许 future_candidate/evaluation_only。\n- 输出物:\n  - [ ] BaziQA admission note\n  - [ ] future benchmark backlog\n- 标准清单:\n  - [ ] Verify: 记录 license、dataset schema、adapter plan 和禁止进入 runtime 的 gate。\n  - [ ] Gate: license/source 不清时不得纳入正式 gate；只允许 future_candidate/evaluation_only。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-09.04\n- 标题: 失败归因回炉到规则任务\n- 验收项:\n  - [ ] 样本外 benchmark 维度达到 100% gate。\n- Verify: MINGLI_FAILURE_TAXONOMY 中每类 failure 都有 owner、缺口类型、回炉方向和禁止路径。\n- Gate: 不得按 question_id 或 expected answer 生成规则。\n- 输出物:\n  - [ ] failure taxonomy backlog\n  - [ ] topic owner queue\n- 标准清单:\n  - [ ] Verify: MINGLI_FAILURE_TAXONOMY 中每类 failure 都有 owner、缺口类型、回炉方向和禁止路径。\n  - [ ] Gate: 不得按 question_id 或 expected answer 生成规则。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n## TP-10\n- 标题: 维护性、交付边界与最终发布门禁\n- 验收项:\n  - [ ] 达成 `维护性、交付边界与最终发布门禁` 的 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: golden-shard-policy, failure-backlog-to-rules, baziqa-admission\n- 输出物:\n  - [ ] 把新增专业能力落到 fate-core 边界，delivery 只负责呈现，并用最终 review/ship gate 收口。\n- 标准清单:\n  - [ ] Verify: 确认子节点范围、依赖与状态闭环\n  - [ ] Gate: 前置步骤已完成: golden-shard-policy, failure-backlog-to-rules, baziqa-admission\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-10.01\n- 标题: evaluator 物理拆分\n- 验收项:\n  - [ ] 长期维护性维度达到 100% gate。\n- Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py tests/regression/test_bazi_golden_coverage_matrix.py -q\n- Gate: 每次只抽一个 evaluator；失败只回滚当前切片；delivery 不新增领域算法。\n- 输出物:\n  - [ ] fate_core/usecases/evaluators/*\n  - [ ] AGENTS.md/边界文档更新\n- 标准清单:\n  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py tests/regression/test_bazi_golden_coverage_matrix.py -q\n  - [ ] Gate: 每次只抽一个 evaluator；失败只回滚当前切片；delivery 不新增领域算法。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-10.02\n- 标题: 报告字段与 Markdown 边界收口\n- 验收项:\n  - [ ] delivery 交付边界清楚。\n- Verify: .venv/bin/python -m pytest tests/regression/test_web_html.py tests/regression/test_api_contracts.py tests/regression/test_bazi_statement_golden.py -q\n- Gate: 报告所有新增专业段落都有 evidence/riskBoundary；前端不重算规则。\n- 输出物:\n  - [ ] REPORT_FIELD_CONTRACT final\n  - [ ] Markdown golden\n- 标准清单:\n  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_web_html.py tests/regression/test_api_contracts.py tests/regression/test_bazi_statement_golden.py -q\n  - [ ] Gate: 报告所有新增专业段落都有 evidence/riskBoundary；前端不重算规则。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-10.03\n- 标题: 最终本地门禁与审查\n- 验收项:\n  - [ ] 全部任务节点可进入 closeout，八字体系专业验收 100% 口径成立。\n- Verify: bash scripts/local-ci.sh --profile quick && bash scripts/local-ci.sh --profile full\n- Gate: final review Active BLOCK=0；WARN 有 owner、证据和下一步；不得伪造公网/live bot。\n- 输出物:\n  - [ ] FINAL_REVIEW.md\n  - [ ] CLOSEOUT.md\n  - [ ] local-ci evidence\n- 标准清单:\n  - [ ] Verify: bash scripts/local-ci.sh --profile quick && bash scripts/local-ci.sh --profile full\n  - [ ] Gate: final review Active BLOCK=0；WARN 有 owner、证据和下一步；不得伪造公网/live bot。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检",
+    "planning_summary": "按终态倒推：先锁定 100% scorecard 和资源边界，再补基础历法、证据契约、常规分析、高级格局、合化、用神、岁运专题、golden benchmark，最后做维护性拆分和 release review。\n- 编译节点总数: 41\n- 叶子执行项: 31\n- 执行波次数: 20\n- 当前任务必须遵守 `SPEC -> PLAN -> BUILD -> TEST -> REVIEW -> SHIP`",
+    "lifecycle_gates": "- SPEC：锁定 100% 定义、真实约束、惯性约束和禁止伪装口径。\n- PLAN：任务树、依赖、执行波次、验收标准和 next executable leaves 全部落盘。\n- BUILD：按叶子节点逐项执行，不能跳到后续 package 先做结果包装。\n- TEST：每个叶子节点必须有命令、样本、diff 或 HITL evidence。\n- REVIEW：每个 package 完成后做 auto-review，重点检查 future-optimal-drift、ponytail-complexity、benchmark leakage 和 unsafe output。\n- SHIP：只有全部 P0/P1 gate 关闭且 final review 无 BLOCK，才允许把专业体系验收标为 100%。",
+    "simplest_path": "不换主链、不引入重型规则引擎；优先复用现有 lunar-python、contracts registry、fate-core evaluator、golden matrix、MingLi evaluation，并按缺口逐项补规则、测试和证据。",
+    "split_strategy": "按 10 个完成度维度拆顶层 package；每个 package 下面只保留可直接执行的 vertical slice 叶子任务；所有 leaf 都有 verify、gate、输出物和依赖。",
+    "blockers": "- 无"
+  }
+}

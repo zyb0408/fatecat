@@ -1,0 +1,538 @@
+{
+  "schema_version": "1.0.0",
+  "task_meta": {
+    "objective": "把 FateCat 八字体系从当前工程可验收状态推进到专业八字体系 100% 验收口径：基础排盘、历法时间、证据解释、常规分析、高级格局、合化成败、用神裁决、岁运专题、Golden 回归和样本外 benchmark 全部具备可追溯规则、可验证测试、失败边界和发布门禁。",
+    "overall_status": "In Progress",
+    "task_dir": "governance/tasks/0004-bazi-professional-system-100"
+  },
+  "source_plan": {
+    "schema_version": "1.0.0",
+    "plan_path": "governance/tasks/0004-bazi-professional-system-100/APPROVED_PLAN.json"
+  },
+  "generated_assets": [
+    {
+      "id": "tree-spec",
+      "type": "task-tree-spec",
+      "path": "governance/tasks/0004-bazi-professional-system-100/TREE_SPEC.json",
+      "description": "approved plan 编译后的递归任务树规格",
+      "source_step_keys": [
+        "scorecard-contract",
+        "scorecard-refresh",
+        "resource-boundary-refresh",
+        "source-gap-ledger",
+        "calendar-base-chart",
+        "calendar-boundary-matrix",
+        "calendar-provider-contract",
+        "base-chart-regression",
+        "evidence-contract",
+        "rule-id-coverage",
+        "evidence-field-contract",
+        "unsafe-output-regression",
+        "regular-analysis",
+        "strength-evaluator",
+        "ten-god-evaluator",
+        "regular-pattern-evaluator",
+        "advanced-patterns",
+        "special-pattern-rule-matrix",
+        "special-pattern-golden",
+        "special-pattern-evaluator",
+        "hehua-transform",
+        "relation-condition-catalog",
+        "combine-transform-state-machine",
+        "hehua-negative-golden",
+        "yongshen-arbitration",
+        "yongshen-strategy-matrix",
+        "yongshen-decision-evaluator",
+        "yongshen-conflict-golden",
+        "fortune-topic-profiles",
+        "fortune-trigger-matrix",
+        "topic-profile-scoring",
+        "topic-risk-policy",
+        "golden-and-benchmark",
+        "golden-shard-policy",
+        "mingli-full-gate",
+        "baziqa-admission",
+        "failure-backlog-to-rules",
+        "maintainability-and-delivery",
+        "evaluator-physical-extraction",
+        "report-contract-finalize",
+        "final-local-and-review-gates"
+      ]
+    },
+    {
+      "id": "asset-bundle",
+      "type": "asset-bundle-manifest",
+      "path": "governance/tasks/0004-bazi-professional-system-100/ASSET_BUNDLE.json",
+      "description": "编译输出的资产包 manifest",
+      "source_step_keys": [
+        "scorecard-contract",
+        "scorecard-refresh",
+        "resource-boundary-refresh",
+        "source-gap-ledger",
+        "calendar-base-chart",
+        "calendar-boundary-matrix",
+        "calendar-provider-contract",
+        "base-chart-regression",
+        "evidence-contract",
+        "rule-id-coverage",
+        "evidence-field-contract",
+        "unsafe-output-regression",
+        "regular-analysis",
+        "strength-evaluator",
+        "ten-god-evaluator",
+        "regular-pattern-evaluator",
+        "advanced-patterns",
+        "special-pattern-rule-matrix",
+        "special-pattern-golden",
+        "special-pattern-evaluator",
+        "hehua-transform",
+        "relation-condition-catalog",
+        "combine-transform-state-machine",
+        "hehua-negative-golden",
+        "yongshen-arbitration",
+        "yongshen-strategy-matrix",
+        "yongshen-decision-evaluator",
+        "yongshen-conflict-golden",
+        "fortune-topic-profiles",
+        "fortune-trigger-matrix",
+        "topic-profile-scoring",
+        "topic-risk-policy",
+        "golden-and-benchmark",
+        "golden-shard-policy",
+        "mingli-full-gate",
+        "baziqa-admission",
+        "failure-backlog-to-rules",
+        "maintainability-and-delivery",
+        "evaluator-physical-extraction",
+        "report-contract-finalize",
+        "final-local-and-review-gates"
+      ]
+    },
+    {
+      "id": "task-package-set",
+      "type": "task-package-set",
+      "path": "governance/tasks/0004-bazi-professional-system-100/TASK_PACKAGE_SET.json",
+      "description": "编译输出的结构化任务包集合",
+      "source_step_keys": [
+        "scorecard-contract",
+        "scorecard-refresh",
+        "resource-boundary-refresh",
+        "source-gap-ledger",
+        "calendar-base-chart",
+        "calendar-boundary-matrix",
+        "calendar-provider-contract",
+        "base-chart-regression",
+        "evidence-contract",
+        "rule-id-coverage",
+        "evidence-field-contract",
+        "unsafe-output-regression",
+        "regular-analysis",
+        "strength-evaluator",
+        "ten-god-evaluator",
+        "regular-pattern-evaluator",
+        "advanced-patterns",
+        "special-pattern-rule-matrix",
+        "special-pattern-golden",
+        "special-pattern-evaluator",
+        "hehua-transform",
+        "relation-condition-catalog",
+        "combine-transform-state-machine",
+        "hehua-negative-golden",
+        "yongshen-arbitration",
+        "yongshen-strategy-matrix",
+        "yongshen-decision-evaluator",
+        "yongshen-conflict-golden",
+        "fortune-topic-profiles",
+        "fortune-trigger-matrix",
+        "topic-profile-scoring",
+        "topic-risk-policy",
+        "golden-and-benchmark",
+        "golden-shard-policy",
+        "mingli-full-gate",
+        "baziqa-admission",
+        "failure-backlog-to-rules",
+        "maintainability-and-delivery",
+        "evaluator-physical-extraction",
+        "report-contract-finalize",
+        "final-local-and-review-gates"
+      ]
+    },
+    {
+      "id": "task-doc-set",
+      "type": "task-docs",
+      "description": "README/CONTEXT/ACCEPTANCE/PLAN/TODO/STATUS 任务文档集合",
+      "source_step_keys": [
+        "scorecard-contract",
+        "scorecard-refresh",
+        "resource-boundary-refresh",
+        "source-gap-ledger",
+        "calendar-base-chart",
+        "calendar-boundary-matrix",
+        "calendar-provider-contract",
+        "base-chart-regression",
+        "evidence-contract",
+        "rule-id-coverage",
+        "evidence-field-contract",
+        "unsafe-output-regression",
+        "regular-analysis",
+        "strength-evaluator",
+        "ten-god-evaluator",
+        "regular-pattern-evaluator",
+        "advanced-patterns",
+        "special-pattern-rule-matrix",
+        "special-pattern-golden",
+        "special-pattern-evaluator",
+        "hehua-transform",
+        "relation-condition-catalog",
+        "combine-transform-state-machine",
+        "hehua-negative-golden",
+        "yongshen-arbitration",
+        "yongshen-strategy-matrix",
+        "yongshen-decision-evaluator",
+        "yongshen-conflict-golden",
+        "fortune-topic-profiles",
+        "fortune-trigger-matrix",
+        "topic-profile-scoring",
+        "topic-risk-policy",
+        "golden-and-benchmark",
+        "golden-shard-policy",
+        "mingli-full-gate",
+        "baziqa-admission",
+        "failure-backlog-to-rules",
+        "maintainability-and-delivery",
+        "evaluator-physical-extraction",
+        "report-contract-finalize",
+        "final-local-and-review-gates"
+      ],
+      "path": "governance/tasks/0004-bazi-professional-system-100"
+    }
+  ],
+  "logical_deliverables": [
+    {
+      "step_key": "scorecard-contract",
+      "step_id": "TP-01",
+      "outputs": [
+        "把当前完成度表转成不可混淆的工程验收标准、资源角色和禁止路径。"
+      ]
+    },
+    {
+      "step_key": "scorecard-refresh",
+      "step_id": "TP-01.01",
+      "outputs": [
+        "更新后的 SCORECARD / plan evidence"
+      ]
+    },
+    {
+      "step_key": "resource-boundary-refresh",
+      "step_id": "TP-01.02",
+      "outputs": [
+        "RESOURCE_MAP 更新",
+        "新资源审查队列"
+      ]
+    },
+    {
+      "step_key": "source-gap-ledger",
+      "step_id": "TP-01.03",
+      "outputs": [
+        "RULE_SOURCE_GAPS 增量",
+        "gap id 到任务节点映射"
+      ]
+    },
+    {
+      "step_key": "calendar-base-chart",
+      "step_id": "TP-02",
+      "outputs": [
+        "补齐基础排盘和时间边界的 oracle、golden、依赖升级门禁和差异归因。"
+      ]
+    },
+    {
+      "step_key": "calendar-boundary-matrix",
+      "step_id": "TP-02.01",
+      "outputs": [
+        "calendar_boundary_cases.json 增量",
+        "oracle mismatch report"
+      ]
+    },
+    {
+      "step_key": "calendar-provider-contract",
+      "step_id": "TP-02.02",
+      "outputs": [
+        "CalendarProvider gate 说明",
+        "dependency upgrade checklist"
+      ]
+    },
+    {
+      "step_key": "base-chart-regression",
+      "step_id": "TP-02.03",
+      "outputs": [
+        "基础排盘 golden 增量",
+        "API contract evidence"
+      ]
+    },
+    {
+      "step_key": "evidence-contract",
+      "step_id": "TP-03",
+      "outputs": [
+        "让 API、Markdown 和 rule-depth 输出的每个专业结论都能追溯到规则、字段、权重和风险边界。"
+      ]
+    },
+    {
+      "step_key": "rule-id-coverage",
+      "step_id": "TP-03.01",
+      "outputs": [
+        "ruleId coverage audit",
+        "missing rule backlog"
+      ]
+    },
+    {
+      "step_key": "evidence-field-contract",
+      "step_id": "TP-03.02",
+      "outputs": [
+        "REPORT_FIELD_CONTRACT 更新",
+        "API schema regression"
+      ]
+    },
+    {
+      "step_key": "unsafe-output-regression",
+      "step_id": "TP-03.03",
+      "outputs": [
+        "policy regression fixtures",
+        "riskBoundary report snippets"
+      ]
+    },
+    {
+      "step_key": "regular-analysis",
+      "step_id": "TP-04",
+      "outputs": [
+        "把强弱、月令、十神、藏干、五行、常规格局和干支关系做成稳定 evaluator 与 golden。"
+      ]
+    },
+    {
+      "step_key": "strength-evaluator",
+      "step_id": "TP-04.01",
+      "outputs": [
+        "strength evaluator slice",
+        "strength golden cases"
+      ]
+    },
+    {
+      "step_key": "ten-god-evaluator",
+      "step_id": "TP-04.02",
+      "outputs": [
+        "tenGodStructure fields",
+        "topic input mapping"
+      ]
+    },
+    {
+      "step_key": "regular-pattern-evaluator",
+      "step_id": "TP-04.03",
+      "outputs": [
+        "regularPatternCandidates",
+        "正破格 golden"
+      ]
+    },
+    {
+      "step_key": "advanced-patterns",
+      "step_id": "TP-05",
+      "outputs": [
+        "把从格、假从、化气、专旺、变格等高级格局从 beta 候选推进到 guarded/production 可审查状态。"
+      ]
+    },
+    {
+      "step_key": "special-pattern-rule-matrix",
+      "step_id": "TP-05.01",
+      "outputs": [
+        "specialPattern rule matrix",
+        "registry 增量"
+      ]
+    },
+    {
+      "step_key": "special-pattern-golden",
+      "step_id": "TP-05.02",
+      "outputs": [
+        "rule_depth_cases 增量",
+        "advanced pattern fixtures"
+      ]
+    },
+    {
+      "step_key": "special-pattern-evaluator",
+      "step_id": "TP-05.03",
+      "outputs": [
+        "specialPatternCandidates",
+        "guarded evaluator evidence"
+      ]
+    },
+    {
+      "step_key": "hehua-transform",
+      "step_id": "TP-06",
+      "outputs": [
+        "把干支合化从自然语言关系升级为有条件链、状态机和反例矩阵的 evaluator。"
+      ]
+    },
+    {
+      "step_key": "relation-condition-catalog",
+      "step_id": "TP-06.01",
+      "outputs": [
+        "conditionCatalog",
+        "sourceRuleId mapping"
+      ]
+    },
+    {
+      "step_key": "combine-transform-state-machine",
+      "step_id": "TP-06.02",
+      "outputs": [
+        "combineTransformMatrix",
+        "relation evaluator evidence"
+      ]
+    },
+    {
+      "step_key": "hehua-negative-golden",
+      "step_id": "TP-06.03",
+      "outputs": [
+        "hehua negative fixtures",
+        "failureExplanation"
+      ]
+    },
+    {
+      "step_key": "yongshen-arbitration",
+      "step_id": "TP-07",
+      "outputs": [
+        "把调候、扶抑、通关、病药从并列描述升级为可冲突裁决的评分矩阵。"
+      ]
+    },
+    {
+      "step_key": "yongshen-strategy-matrix",
+      "step_id": "TP-07.01",
+      "outputs": [
+        "yongShen strategy matrix",
+        "conflictPolicy"
+      ]
+    },
+    {
+      "step_key": "yongshen-decision-evaluator",
+      "step_id": "TP-07.02",
+      "outputs": [
+        "yongShenDecision",
+        "decision trace"
+      ]
+    },
+    {
+      "step_key": "yongshen-conflict-golden",
+      "step_id": "TP-07.03",
+      "outputs": [
+        "yongshen conflict fixtures",
+        "strategy regression"
+      ]
+    },
+    {
+      "step_key": "fortune-topic-profiles",
+      "step_id": "TP-08",
+      "outputs": [
+        "把大运、流年、流月触发与婚姻、事业、财运、家庭、健康、学业等专题 profile 联动。"
+      ]
+    },
+    {
+      "step_key": "fortune-trigger-matrix",
+      "step_id": "TP-08.01",
+      "outputs": [
+        "fortuneTriggers matrix",
+        "trend-only riskBoundary"
+      ]
+    },
+    {
+      "step_key": "topic-profile-scoring",
+      "step_id": "TP-08.02",
+      "outputs": [
+        "topicProfiles",
+        "topic scoring traces"
+      ]
+    },
+    {
+      "step_key": "topic-risk-policy",
+      "step_id": "TP-08.03",
+      "outputs": [
+        "topic risk fixtures",
+        "safe report snippets"
+      ]
+    },
+    {
+      "step_key": "golden-and-benchmark",
+      "step_id": "TP-09",
+      "outputs": [
+        "把规则样本、deep gate、MingLi/BaziQA 评测和失败归因做成可持续改进系统。"
+      ]
+    },
+    {
+      "step_key": "golden-shard-policy",
+      "step_id": "TP-09.01",
+      "outputs": [
+        "GOLDEN_DEEP_GATE 更新",
+        "shard evidence"
+      ]
+    },
+    {
+      "step_key": "mingli-full-gate",
+      "step_id": "TP-09.02",
+      "outputs": [
+        "MINGLI_FULL_EVALUATION 更新",
+        "MINGLI_FAILURE_TAXONOMY 更新"
+      ]
+    },
+    {
+      "step_key": "baziqa-admission",
+      "step_id": "TP-09.03",
+      "outputs": [
+        "BaziQA admission note",
+        "future benchmark backlog"
+      ]
+    },
+    {
+      "step_key": "failure-backlog-to-rules",
+      "step_id": "TP-09.04",
+      "outputs": [
+        "failure taxonomy backlog",
+        "topic owner queue"
+      ]
+    },
+    {
+      "step_key": "maintainability-and-delivery",
+      "step_id": "TP-10",
+      "outputs": [
+        "把新增专业能力落到 fate-core 边界，delivery 只负责呈现，并用最终 review/ship gate 收口。"
+      ]
+    },
+    {
+      "step_key": "evaluator-physical-extraction",
+      "step_id": "TP-10.01",
+      "outputs": [
+        "fate_core/usecases/evaluators/*",
+        "AGENTS.md/边界文档更新"
+      ]
+    },
+    {
+      "step_key": "report-contract-finalize",
+      "step_id": "TP-10.02",
+      "outputs": [
+        "REPORT_FIELD_CONTRACT final",
+        "Markdown golden"
+      ]
+    },
+    {
+      "step_key": "final-local-and-review-gates",
+      "step_id": "TP-10.03",
+      "outputs": [
+        "FINAL_REVIEW.md",
+        "CLOSEOUT.md",
+        "local-ci evidence"
+      ]
+    }
+  ],
+  "execution_snapshot": {
+    "total_nodes": 41,
+    "total_leaf_nodes": 31,
+    "ready_leaf_ids": [
+      "TP-01.01",
+      "TP-01.02"
+    ]
+  }
+}

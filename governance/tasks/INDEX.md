@@ -8,3 +8,7 @@
 | 0002 | quality-completion-to-100 | In Progress | P0 | 把 FateCat 当前质量完善度从本地可用状态推进到本地工程 100%、八字专业能力 100%、公共生产 HITL 100% 的可审查交付状态 | 0002-quality-completion-to-100/ |
 
 | 0003 | bazi-system-100 | In Progress | P0 | 把 FateCat 八字体系从当前综合 76% 推进到基础排盘、专业规则、专题推理、样本外评测和报告证据均可验收的 100% 状态 | 0003-bazi-system-100/ |
+
+| 0004 | bazi-professional-system-100 | Done | P0 | 把 FateCat 八字体系从当前工程可验收状态推进到专业八字体系 100% 验收口径：基础排盘、历法时间、证据解释、常规分析、高级格局、合化成败、用神裁决、岁运专题、Golden 回归和样本外 benchmark 全部具备可追溯规则、可验证测试、失败边界和发布门禁。 | 0004-bazi-professional-system-100/ |
+
+| 0005 | bazi-capability-100-roadmap | Blocked | P0 | 调研并设计把八字功能十个完善度维度从当前基线推进到100%的任务树、验收门禁和执行波次计划。当前被真实 corpus 数量门禁阻塞。 | 0005-bazi-capability-100-roadmap/ |

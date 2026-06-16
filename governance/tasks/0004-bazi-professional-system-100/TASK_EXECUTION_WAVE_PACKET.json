@@ -1,0 +1,155 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-16T23:50:05+08:00",
+  "meta": {
+    "task_id": "0004",
+    "slug": "bazi-professional-system-100",
+    "phase": "EXECUTE_WAVE",
+    "source_task_package_set": "governance/tasks/0004-bazi-professional-system-100/TASK_PACKAGE_SET.json",
+    "selection": "current"
+  },
+  "overview": {
+    "overall_status": "Done",
+    "leaf_total": 31,
+    "ready_leaf_count": 0,
+    "selected_leaf_count": 0,
+    "selected_wave_numbers": []
+  },
+  "ready_leaf_ids": [],
+  "selected_leaf_ids": [],
+  "execution_waves": [
+    {
+      "wave": 1,
+      "leaf_ids": [
+        "TP-01.01",
+        "TP-01.02"
+      ]
+    },
+    {
+      "wave": 2,
+      "leaf_ids": [
+        "TP-01.03"
+      ]
+    },
+    {
+      "wave": 3,
+      "leaf_ids": [
+        "TP-02.01",
+        "TP-02.02",
+        "TP-03.01",
+        "TP-03.02"
+      ]
+    },
+    {
+      "wave": 4,
+      "leaf_ids": [
+        "TP-02.03",
+        "TP-03.03"
+      ]
+    },
+    {
+      "wave": 5,
+      "leaf_ids": [
+        "TP-04.01",
+        "TP-04.02"
+      ]
+    },
+    {
+      "wave": 6,
+      "leaf_ids": [
+        "TP-04.03"
+      ]
+    },
+    {
+      "wave": 7,
+      "leaf_ids": [
+        "TP-05.01",
+        "TP-05.02",
+        "TP-06.01"
+      ]
+    },
+    {
+      "wave": 8,
+      "leaf_ids": [
+        "TP-05.03",
+        "TP-06.02"
+      ]
+    },
+    {
+      "wave": 9,
+      "leaf_ids": [
+        "TP-06.03"
+      ]
+    },
+    {
+      "wave": 10,
+      "leaf_ids": [
+        "TP-07.01"
+      ]
+    },
+    {
+      "wave": 11,
+      "leaf_ids": [
+        "TP-07.02"
+      ]
+    },
+    {
+      "wave": 12,
+      "leaf_ids": [
+        "TP-07.03"
+      ]
+    },
+    {
+      "wave": 13,
+      "leaf_ids": [
+        "TP-08.01"
+      ]
+    },
+    {
+      "wave": 14,
+      "leaf_ids": [
+        "TP-08.02"
+      ]
+    },
+    {
+      "wave": 15,
+      "leaf_ids": [
+        "TP-08.03"
+      ]
+    },
+    {
+      "wave": 16,
+      "leaf_ids": [
+        "TP-09.01",
+        "TP-09.02",
+        "TP-09.03"
+      ]
+    },
+    {
+      "wave": 17,
+      "leaf_ids": [
+        "TP-09.04"
+      ]
+    },
+    {
+      "wave": 18,
+      "leaf_ids": [
+        "TP-10.01"
+      ]
+    },
+    {
+      "wave": 19,
+      "leaf_ids": [
+        "TP-10.02"
+      ]
+    },
+    {
+      "wave": 20,
+      "leaf_ids": [
+        "TP-10.03"
+      ]
+    }
+  ],
+  "execution_batch": [],
+  "blocked_leafs": []
+}
