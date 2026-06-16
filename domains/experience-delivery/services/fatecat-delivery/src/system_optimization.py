@@ -1,145 +1,78 @@
 #!/usr/bin/env python3
-"""
-系统优化与集成 - 性能优化和缓存管理
+"""本地系统诊断与缓存工具。
 
-外部库依赖注入: 无 (纯原生Python实现)
-功能: 多线程并行计算、缓存管理、性能监控
-
-纯净性声明: 原生算法实现，失败即抛异常终止
+该模块只报告已经由当前进程真实提供的能力。未实现的 GraphQL、WebSocket、
+批处理、覆盖率和生产就绪结论不得在这里声明为已启用。
 """
+
+# Principle gate evidence:
+# target end state: diagnostics report only real single-process capabilities.
+# real constraints: old callers still import cache stats during local smoke and debugging.
+# inertia constraints: previous optimization labels must not imply platform features are enabled.
+# kill list: fake GraphQL/WebSocket/batch claims and cross-process cache promises.
+# proof point: API contract tests cover diagnostics and nonexistent feature claims.
+# falsifier: diagnostics returns enabled status for an endpoint or feature not implemented.
+# migration slice: keep callable aliases while callers move to explicit diagnostics methods.
+# existence: current consumer is local operability; owner is fatecat-delivery; verification is pytest.
+
+from __future__ import annotations
 
 import hashlib
 import json
 import sys
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from collections.abc import Callable
 from typing import Any
 
 from utils.timezone import now_cn
 
 
 class SystemOptimization:
-    """系统优化与集成 - 性能优化和缓存管理"""
+    """单进程诊断缓存；用于开发调试，不作为跨进程生产缓存。"""
 
-    def __init__(self):
-        self.cache = {}
-        self.performance_metrics = {}
+    def __init__(self) -> None:
+        self.cache: dict[str, dict[str, Any]] = {}
+        self.performance_metrics: dict[str, Any] = {}
 
-    def optimize_calculation_performance(self, calc_func, *args, **kwargs) -> dict[str, Any]:
-        """
-        计算性能优化 - 多线程并行计算
-        """
+    def optimize_calculation_performance(
+        self, calc_func: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> dict[str, Any]:
+        """在当前进程内直接调用并缓存结果。"""
         start_time = time.time()
+        cache_key = self._generate_cache_key(args, kwargs)
 
-        try:
-            # 生成缓存键
-            cache_key = self._generate_cache_key(args, kwargs)
-
-            # 检查缓存
-            if cache_key in self.cache:
-                cached_result = self.cache[cache_key]
-                return {
-                    "result": cached_result["data"],
-                    "performance": {"cached": True, "executionTime": time.time() - start_time, "cacheHit": True},
-                }
-
-            # 并行计算
-            result = self._parallel_calculation(calc_func, *args, **kwargs)
-
-            # 缓存结果
-            self.cache[cache_key] = {"data": result, "timestamp": now_cn(), "access_count": 1}
-
-            execution_time = time.time() - start_time
-
+        if cache_key in self.cache:
+            cached_result = self.cache[cache_key]
+            cached_result["access_count"] += 1
             return {
-                "result": result,
-                "performance": {"cached": False, "executionTime": execution_time, "cacheHit": False, "optimized": True},
+                "result": cached_result["data"],
+                "performance": {
+                    "cached": True,
+                    "executionTime": time.time() - start_time,
+                    "cacheHit": True,
+                    "scope": "single_process",
+                },
             }
 
-        except Exception as e:
-            return {
-                "error": f"性能优化错误: {str(e)}",
-                "performance": {"executionTime": time.time() - start_time, "failed": True},
-            }
+        result = calc_func(*args, **kwargs)
+        execution_time = time.time() - start_time
+        self.cache[cache_key] = {"data": result, "timestamp": now_cn(), "access_count": 1}
+        self.performance_metrics["lastExecutionSeconds"] = execution_time
 
-    def _parallel_calculation(self, calc_func, *args, **kwargs):
-        """并行计算实现"""
-        # 将计算任务分解为可并行的部分
-        tasks = self._decompose_calculation_tasks(calc_func, *args, **kwargs)
+        return {
+            "result": result,
+            "performance": {
+                "cached": False,
+                "executionTime": execution_time,
+                "cacheHit": False,
+                "scope": "single_process",
+            },
+        }
 
-        if len(tasks) <= 1:
-            # 单任务直接执行
-            return calc_func(*args, **kwargs)
-
-        # 多线程并行执行
-        results = {}
-        with ThreadPoolExecutor(max_workers=min(4, len(tasks))) as executor:
-            future_to_task = {
-                executor.submit(task["func"], *task["args"], **task["kwargs"]): task["name"] for task in tasks
-            }
-
-            for future in as_completed(future_to_task):
-                task_name = future_to_task[future]
-                try:
-                    results[task_name] = future.result()
-                except Exception as e:
-                    results[task_name] = {"error": str(e)}
-
-        # 合并结果
-        return self._merge_parallel_results(results)
-
-    def _decompose_calculation_tasks(self, calc_func, *args, **kwargs) -> list[dict]:
-        """分解计算任务"""
-        # 根据计算类型分解任务
-        tasks = []
-
-        # 基础八字计算
-        tasks.append({"name": "basic_bazi", "func": self._calculate_basic_bazi, "args": args, "kwargs": kwargs})
-
-        # 神煞计算
-        tasks.append({"name": "spirits", "func": self._calculate_spirits, "args": args, "kwargs": kwargs})
-
-        # 运势计算
-        tasks.append({"name": "fortune", "func": self._calculate_fortune, "args": args, "kwargs": kwargs})
-
-        return tasks
-
-    def _calculate_basic_bazi(self, *args, **kwargs):
-        """基础八字计算任务"""
-        # 模拟基础计算
-        return {"fourPillars": "计算结果", "fiveElements": "五行统计"}
-
-    def _calculate_spirits(self, *args, **kwargs):
-        """神煞计算任务"""
-        # 模拟神煞计算
-        return {"spirits": "神煞结果"}
-
-    def _calculate_fortune(self, *args, **kwargs):
-        """运势计算任务"""
-        # 模拟运势计算
-        return {"fortune": "运势结果"}
-
-    def _merge_parallel_results(self, results: dict) -> dict:
-        """合并并行计算结果"""
-        merged = {}
-        for task_name, result in results.items():
-            if isinstance(result, dict) and "error" not in result:
-                merged.update(result)
-            else:
-                merged[f"{task_name}_error"] = result
-        return merged
-
-    def _generate_cache_key(self, args, kwargs) -> str:
-        """生成缓存键"""
-        # 将参数序列化为字符串
-        key_data = {"args": str(args), "kwargs": str(sorted(kwargs.items()))}
-        key_string = json.dumps(key_data, sort_keys=True)
-        return hashlib.md5(key_string.encode()).hexdigest()
-
-    def get_cache_statistics(self) -> dict:
-        """获取缓存统计"""
+    def get_cache_statistics(self) -> dict[str, Any]:
+        """获取当前进程缓存统计。"""
         total_entries = len(self.cache)
-        total_access = sum(entry["access_count"] for entry in self.cache.values())
+        total_access = sum(int(entry["access_count"]) for entry in self.cache.values())
 
         return {
             "totalEntries": total_entries,
@@ -147,10 +80,15 @@ class SystemOptimization:
             "hitRate": total_access / max(total_entries, 1),
             "memoryUsage": sys.getsizeof(self.cache),
             "oldestEntry": min((entry["timestamp"] for entry in self.cache.values()), default=None),
+            "scope": "single_process",
         }
 
-    def clear_cache(self, older_than_hours: int = 24):
-        """清理缓存"""
+    def get_cache_stats(self) -> dict[str, Any]:
+        """兼容旧调用方的真实缓存统计入口。"""
+        return self.get_cache_statistics()
+
+    def clear_cache(self, older_than_hours: int = 24) -> dict[str, int]:
+        """清理当前进程中过期缓存。"""
         current_time = now_cn()
         keys_to_remove = []
 
@@ -164,147 +102,62 @@ class SystemOptimization:
 
         return {"removedEntries": len(keys_to_remove), "remainingEntries": len(self.cache)}
 
-    def get_performance_report(self) -> dict:
-        """获取性能报告"""
+    def get_performance_metrics(self) -> dict[str, Any]:
+        """返回真实实现范围；不输出未接入能力。"""
+        return {
+            "status": "diagnostic_only",
+            "scope": "single_process",
+            "implementedFeatures": ["direct_call_cache", "cache_statistics"],
+            "productionReadinessClaim": False,
+            "metrics": self.performance_metrics,
+        }
+
+    def get_performance_report(self) -> dict[str, Any]:
+        """获取本地诊断报告。"""
         return {
             "systemOptimization": {
                 "cacheStatistics": self.get_cache_statistics(),
-                "performanceMetrics": self.performance_metrics,
-                "optimizationFeatures": ["多线程并行计算", "智能缓存系统", "内存使用优化", "响应时间优化"],
+                "performanceMetrics": self.get_performance_metrics(),
                 "recommendations": self._get_optimization_recommendations(),
             }
         }
 
     def _get_optimization_recommendations(self) -> list[str]:
-        """获取优化建议"""
         recommendations = []
-
         cache_stats = self.get_cache_statistics()
 
         if cache_stats["totalEntries"] > 1000:
-            recommendations.append("建议清理缓存以释放内存")
+            recommendations.append("当前进程缓存条目较多，建议清理或缩短进程生命周期。")
+        if cache_stats["memoryUsage"] > 100 * 1024 * 1024:
+            recommendations.append("当前进程缓存内存使用偏高，建议关闭诊断缓存或迁移到外部缓存。")
 
-        if cache_stats["hitRate"] < 0.5:
-            recommendations.append("缓存命中率较低，建议优化缓存策略")
+        return recommendations or ["当前进程诊断缓存未发现异常。"]
 
-        if cache_stats["memoryUsage"] > 100 * 1024 * 1024:  # 100MB
-            recommendations.append("缓存内存使用过高，建议设置内存限制")
-
-        return recommendations or ["系统运行良好，无需优化"]
-
-
-class APIEnhancement:
-    """API增强功能"""
-
-    def __init__(self):
-        self.request_count = 0
-        self.response_times = []
-
-    def add_graphql_support(self) -> dict:
-        """添加GraphQL接口支持"""
-        return {
-            "graphqlSupport": {
-                "enabled": True,
-                "endpoint": "/graphql",
-                "features": ["灵活查询", "类型安全", "实时订阅", "批量请求"],
-                "schema": {
-                    "Query": ["bazi", "fortune", "spirits"],
-                    "Mutation": ["calculate", "save"],
-                    "Subscription": ["realtime_calculation"],
-                },
-            }
-        }
-
-    def add_websocket_support(self) -> dict:
-        """添加WebSocket实时计算"""
-        return {
-            "websocketSupport": {
-                "enabled": True,
-                "endpoint": "/ws",
-                "features": ["实时计算", "进度推送", "双向通信", "连接管理"],
-                "events": ["calculation_start", "calculation_progress", "calculation_complete", "calculation_error"],
-            }
-        }
-
-    def add_batch_processing(self) -> dict:
-        """添加批量处理接口"""
-        return {
-            "batchProcessing": {
-                "enabled": True,
-                "endpoint": "/api/v1/batch",
-                "maxBatchSize": 100,
-                "features": ["批量八字计算", "异步处理", "进度跟踪", "结果下载"],
-                "formats": ["JSON", "CSV", "Excel"],
-            }
-        }
-
-    def get_api_enhancement_report(self) -> dict:
-        """获取API增强报告"""
-        return {
-            "apiEnhancements": {
-                **self.add_graphql_support(),
-                **self.add_websocket_support(),
-                **self.add_batch_processing(),
-                "statistics": {
-                    "requestCount": self.request_count,
-                    "averageResponseTime": sum(self.response_times) / max(len(self.response_times), 1),
-                    "uptime": "99.9%",
-                },
-            }
-        }
-
-
-class DocumentationAndTesting:
-    """文档与测试系统"""
-
-    def generate_api_documentation(self) -> dict:
-        """生成API文档"""
-        return {
-            "apiDocumentation": {
-                "format": "OpenAPI 3.0",
-                "interactive": True,
-                "endpoints": 25,
-                "examples": 50,
-                "features": ["交互式测试", "代码生成", "多语言示例", "实时验证"],
-                "url": "/docs",
-            }
-        }
-
-    def generate_test_coverage(self) -> dict:
-        """生成测试覆盖率"""
-        return {
-            "testCoverage": {
-                "unitTests": {"coverage": "95%", "totalTests": 150, "passedTests": 148, "failedTests": 2},
-                "integrationTests": {"coverage": "90%", "totalTests": 50, "passedTests": 48, "failedTests": 2},
-                "performanceTests": {"coverage": "85%", "benchmarks": 20, "passed": 18, "failed": 2},
-            }
-        }
-
-    def get_documentation_report(self) -> dict:
-        """获取文档报告"""
-        return {
-            "documentationAndTesting": {
-                **self.generate_api_documentation(),
-                **self.generate_test_coverage(),
-                "qualityMetrics": {"codeQuality": "A+", "maintainability": "A", "reliability": "A+", "security": "A"},
-            }
-        }
+    def _generate_cache_key(self, args: tuple[Any, ...], kwargs: dict[str, Any]) -> str:
+        key_data = {"args": repr(args), "kwargs": sorted((str(key), repr(value)) for key, value in kwargs.items())}
+        key_string = json.dumps(key_data, ensure_ascii=False, sort_keys=True)
+        return hashlib.sha256(key_string.encode("utf-8")).hexdigest()
 
 
 def get_complete_system_optimization() -> dict[str, Any]:
-    """获取完整系统优化报告"""
+    """获取完整本地诊断报告；不声明未实现的生产能力。"""
     optimizer = SystemOptimization()
-    api_enhancer = APIEnhancement()
-    doc_tester = DocumentationAndTesting()
 
     return {
         **optimizer.get_performance_report(),
-        **api_enhancer.get_api_enhancement_report(),
-        **doc_tester.get_documentation_report(),
+        "apiEnhancements": {
+            "implementedEndpoints": ["/health", "/live", "/ready", "/metrics", "/web", "/api/v1/*"],
+            "plannedNotAdvertisedAsEnabled": ["/graphql", "/ws", "/api/v1/batch"],
+        },
+        "documentationAndTesting": {
+            "coverageSource": "pytest/coverage artifacts only",
+            "syntheticCoverageClaims": False,
+            "note": "覆盖率、测试数量和生产就绪结论必须来自真实命令产物。",
+        },
         "systemInfo": {
-            "optimizationLevel": "企业级",
-            "readyForProduction": True,
-            "scalability": "高",
-            "performance": "优秀",
+            "optimizationLevel": "local_diagnostic",
+            "readyForProduction": False,
+            "runtimeScope": "single_process",
+            "productionReadinessSource": "scripts/production-readiness.sh",
         },
     }

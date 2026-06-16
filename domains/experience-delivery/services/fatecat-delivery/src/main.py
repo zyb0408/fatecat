@@ -7,9 +7,11 @@ import sys
 import time
 import uuid
 from collections import defaultdict, deque
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass
 from datetime import datetime
-from threading import Lock
+from threading import BoundedSemaphore, Lock
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -21,6 +23,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, Res
 
 from _paths import FATE_CORE_SRC_DIR, get_env_file
 from branding import attach_branding, get_branding_payload, get_disclaimer_payload
+from service_config import cors_allow_origins, env_flag, env_int
 from utils.timezone import now_cn
 
 if str(FATE_CORE_SRC_DIR) not in sys.path:
@@ -34,24 +37,12 @@ except FileNotFoundError:
 SERVICE_HOST = os.getenv("FATE_SERVICE_HOST", "127.0.0.1")
 SERVICE_PORT = int(os.getenv("FATE_SERVICE_PORT", "8001"))
 API_TOKEN = os.getenv("FATE_API_TOKEN", "").strip()
-
-
-def _env_int(name: str, default: int, *, minimum: int = 0) -> int:
-    raw = os.getenv(name, "").strip()
-    if not raw:
-        return default
-    try:
-        value = int(raw)
-    except ValueError:
-        return default
-    return max(value, minimum)
-
-
-MAX_REQUEST_BYTES = _env_int("FATE_MAX_REQUEST_BYTES", 1_048_576, minimum=1024)
-REQUEST_TIMEOUT_SECONDS = _env_int("FATE_REQUEST_TIMEOUT_SECONDS", 30, minimum=1)
-RATE_LIMIT_PER_MINUTE = _env_int("FATE_RATE_LIMIT_PER_MINUTE", 120, minimum=0)
-TRUST_PROXY_HEADERS = os.getenv("FATE_TRUST_PROXY_HEADERS", "").strip().lower() in {"1", "true", "yes"}
-ENABLE_HSTS = os.getenv("FATE_ENABLE_HSTS", "").strip().lower() in {"1", "true", "yes"}
+MAX_REQUEST_BYTES = env_int("FATE_MAX_REQUEST_BYTES", 1_048_576, minimum=1024)
+REQUEST_TIMEOUT_SECONDS = env_int("FATE_REQUEST_TIMEOUT_SECONDS", 30, minimum=1)
+RATE_LIMIT_PER_MINUTE = env_int("FATE_RATE_LIMIT_PER_MINUTE", 120, minimum=0)
+MAX_INFLIGHT_CALCULATIONS = env_int("FATE_MAX_INFLIGHT_CALCULATIONS", 2, minimum=1)
+TRUST_PROXY_HEADERS = env_flag("FATE_TRUST_PROXY_HEADERS")
+ENABLE_HSTS = env_flag("FATE_ENABLE_HSTS")
 
 import db_v2 as db  # noqa: E402
 from bazi_calculator import BaziCalculator  # noqa: E402
@@ -69,7 +60,8 @@ from models import (  # noqa: E402
     Meta,
     TimeInfo,
 )
-from prediction_systems import prediction_systems_payload  # noqa: E402
+from prediction_systems import enabled_report_system_ids, prediction_systems_payload  # noqa: E402
+from rate_limiter import get_queue_status  # noqa: E402
 from report_generator import (  # noqa: E402
     build_report_hide,
     generate_full_report,
@@ -79,12 +71,16 @@ from report_generator import (  # noqa: E402
 from web_ui import render_web_report_page  # noqa: E402
 
 logger = logging.getLogger(__name__)
+_request_id_context: ContextVar[str | None] = ContextVar("fatecat_request_id", default=None)
 _metrics_lock = Lock()
 _request_counts: dict[tuple[str, str, int], int] = defaultdict(int)
 _request_latency_seconds: dict[tuple[str, str, int], float] = defaultdict(float)
 _request_latency_buckets: dict[tuple[str, str, int, str], int] = defaultdict(int)
 _request_error_counts: dict[tuple[str, str, int, str], int] = defaultdict(int)
 _inflight_requests = 0
+_calculation_slots = BoundedSemaphore(MAX_INFLIGHT_CALCULATIONS)
+_calculation_slots_lock = Lock()
+_calculation_slots_in_use = 0
 _rate_limit_lock = Lock()
 _rate_limit_windows: dict[str, deque[float]] = defaultdict(deque)
 _RATE_LIMIT_EXEMPT_PATHS = {"/health", "/live", "/ready", "/metrics"}
@@ -112,13 +108,6 @@ class ApiPrincipal:
 
 class RequestBodyTooLarge(Exception):
     """请求体超过公网服务允许的最大字节数。"""
-
-
-def _cors_allow_origins() -> list[str]:
-    raw = os.getenv("FATE_CORS_ALLOW_ORIGINS", "").strip()
-    if not raw:
-        return []
-    return [item.strip() for item in raw.split(",") if item.strip()]
 
 
 def _extract_auth_token(x_api_key: str | None, authorization: str | None) -> str:
@@ -177,7 +166,7 @@ def _require_owner_or_admin(principal: ApiPrincipal, user_id: str) -> None:
 
 
 app = FastAPI(title="八字排盘服务", version="1.0.0")
-app.add_middleware(CORSMiddleware, allow_origins=_cors_allow_origins(), allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(CORSMiddleware, allow_origins=cors_allow_origins(), allow_methods=["*"], allow_headers=["*"])
 
 
 def _client_key(request: Request) -> str:
@@ -273,6 +262,54 @@ def _escape_metric_label(value: str) -> str:
     return value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
 
 
+def _current_request_id() -> str:
+    return _request_id_context.get() or "-"
+
+
+def _request_id_from_request(request: Request) -> str:
+    value = getattr(request.state, "request_id", None)
+    if isinstance(value, str) and value:
+        return value
+    return _current_request_id()
+
+
+def _log_structured(level: str, payload: dict[str, Any]) -> None:
+    message = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    getattr(logger, level)(message)
+
+
+def _log_business_exception(message: str, *, error_type: str | None = None) -> None:
+    payload = {
+        "event": "business_error",
+        "requestId": _current_request_id(),
+        "message": message,
+    }
+    if error_type:
+        payload["errorType"] = error_type
+    logger.exception(json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")))
+
+
+@contextmanager
+def _calculation_slot():
+    """限制同步命理计算并发，避免超时请求继续堆积计算线程。"""
+    global _calculation_slots_in_use
+    if not _calculation_slots.acquire(blocking=False):
+        raise HTTPException(status_code=503, detail="服务繁忙，请稍后再试")
+    with _calculation_slots_lock:
+        _calculation_slots_in_use += 1
+    try:
+        yield
+    finally:
+        with _calculation_slots_lock:
+            _calculation_slots_in_use = max(0, _calculation_slots_in_use - 1)
+        _calculation_slots.release()
+
+
+def _run_with_calculation_slot(fn):
+    with _calculation_slot():
+        return fn()
+
+
 async def _buffer_limited_body(request: Request) -> None:
     if request.method not in _BODY_LIMIT_METHODS:
         return
@@ -362,52 +399,57 @@ def _log_request(
 @app.middleware("http")
 async def production_guardrails(request: Request, call_next):
     request_id = request.headers.get("x-request-id") or uuid.uuid4().hex
+    request.state.request_id = request_id
+    request_id_token = _request_id_context.set(request_id)
     started = time.perf_counter()
-    content_length = request.headers.get("content-length")
-    if content_length:
+    try:
+        content_length = request.headers.get("content-length")
+        if content_length:
+            try:
+                if int(content_length) > MAX_REQUEST_BYTES:
+                    response = _json_error(413, "请求体过大")
+                    return _finalize_early_response(request, response, request_id, 413, started, "body_too_large")
+            except ValueError:
+                response = _json_error(400, "Content-Length 无效")
+                return _finalize_early_response(request, response, request_id, 400, started, "bad_request")
+
+        allowed, retry_after = _check_rate_limit(request)
+        if not allowed:
+            response = _json_error(429, "请求过于频繁")
+            response.headers["Retry-After"] = str(retry_after)
+            return _finalize_early_response(request, response, request_id, 429, started, "rate_limited")
+
         try:
-            if int(content_length) > MAX_REQUEST_BYTES:
-                response = _json_error(413, "请求体过大")
-                return _finalize_early_response(request, response, request_id, 413, started, "body_too_large")
-        except ValueError:
-            response = _json_error(400, "Content-Length 无效")
-            return _finalize_early_response(request, response, request_id, 400, started, "bad_request")
+            await _buffer_limited_body(request)
+        except RequestBodyTooLarge:
+            response = _json_error(413, "请求体过大")
+            return _finalize_early_response(request, response, request_id, 413, started, "body_too_large")
 
-    allowed, retry_after = _check_rate_limit(request)
-    if not allowed:
-        response = _json_error(429, "请求过于频繁")
-        response.headers["Retry-After"] = str(retry_after)
-        return _finalize_early_response(request, response, request_id, 429, started, "rate_limited")
-
-    try:
-        await _buffer_limited_body(request)
-    except RequestBodyTooLarge:
-        response = _json_error(413, "请求体过大")
-        return _finalize_early_response(request, response, request_id, 413, started, "body_too_large")
-
-    global _inflight_requests
-    with _metrics_lock:
-        _inflight_requests += 1
-
-    status_code = 500
-    error_class: str | None = None
-    try:
-        response = await asyncio.wait_for(call_next(request), timeout=REQUEST_TIMEOUT_SECONDS)
-        status_code = response.status_code
-        error_class = _classify_error(status_code)
-    except TimeoutError:
-        response = _json_error(504, "请求处理超时")
-        status_code = 504
-        error_class = "timeout"
-    finally:
-        elapsed = time.perf_counter() - started
-        route = _route_label(request)
-        _record_request_metric(request.method, route, status_code, elapsed, error_class=error_class)
-        _log_request(request, request_id, route, status_code, elapsed, error_class=error_class)
+        global _inflight_requests
         with _metrics_lock:
-            _inflight_requests -= 1
+            _inflight_requests += 1
 
-    return _apply_public_response_headers(response, request_id)
+        status_code = 500
+        error_class: str | None = None
+        try:
+            response = await asyncio.wait_for(call_next(request), timeout=REQUEST_TIMEOUT_SECONDS)
+            status_code = response.status_code
+            error_class = _classify_error(status_code)
+        except TimeoutError:
+            response = _json_error(504, "请求处理超时")
+            status_code = 504
+            error_class = "timeout"
+        finally:
+            elapsed = time.perf_counter() - started
+            route = _route_label(request)
+            _record_request_metric(request.method, route, status_code, elapsed, error_class=error_class)
+            _log_request(request, request_id, route, status_code, elapsed, error_class=error_class)
+            with _metrics_lock:
+                _inflight_requests -= 1
+
+        return _apply_public_response_headers(response, request_id)
+    finally:
+        _request_id_context.reset(request_id_token)
 
 
 def _branding_model() -> BrandingInfo:
@@ -433,8 +475,15 @@ async def branded_http_exception_handler(_request, exc: HTTPException):
 
 
 @app.exception_handler(RequestValidationError)
-async def branded_validation_exception_handler(_request, exc: RequestValidationError):
-    logger.info("API 请求参数校验失败: %s", exc.errors())
+async def branded_validation_exception_handler(request: Request, exc: RequestValidationError):
+    _log_structured(
+        "info",
+        {
+            "event": "validation_error",
+            "requestId": _request_id_from_request(request),
+            "errorCount": len(exc.errors()),
+        },
+    )
     return JSONResponse(
         status_code=422,
         content=attach_branding(
@@ -448,8 +497,15 @@ async def branded_validation_exception_handler(_request, exc: RequestValidationE
 
 
 @app.exception_handler(Exception)
-async def branded_exception_handler(_request, exc: Exception):
-    logger.exception("未处理 API 异常")
+async def branded_exception_handler(request: Request, exc: Exception):
+    _log_structured(
+        "error",
+        {
+            "event": "unhandled_exception",
+            "requestId": _request_id_from_request(request),
+            "errorType": type(exc).__name__,
+        },
+    )
     return JSONResponse(
         status_code=500,
         content=attach_branding(
@@ -480,7 +536,7 @@ def ready():
             db.ensure_db()
         list_capabilities()
     except Exception as exc:
-        logger.exception("readiness 检查失败")
+        _log_business_exception("readiness 检查失败", error_type=type(exc).__name__)
         return JSONResponse(
             status_code=503,
             content=attach_branding({"status": "not_ready", "checks": checks, "error": str(exc)}),
@@ -500,6 +556,9 @@ def metrics():
         latency_buckets = dict(_request_latency_buckets)
         error_counts = dict(_request_error_counts)
         inflight = _inflight_requests
+    with _calculation_slots_lock:
+        calculation_slots_in_use = _calculation_slots_in_use
+    bot_queue_status = get_queue_status()
 
     for (method, route, status_code), count in sorted(counts.items()):
         labels = f'method="{_escape_metric_label(method)}",route="{_escape_metric_label(route)}",status="{status_code}"'
@@ -542,6 +601,40 @@ def metrics():
             "# HELP fatecat_inflight_requests Current in-flight HTTP requests.",
             "# TYPE fatecat_inflight_requests gauge",
             f"fatecat_inflight_requests {inflight}",
+            "# HELP fatecat_calculation_slots_in_use Current synchronous calculation slots in use.",
+            "# TYPE fatecat_calculation_slots_in_use gauge",
+            f"fatecat_calculation_slots_in_use {calculation_slots_in_use}",
+            "# HELP fatecat_calculation_slots_max Configured synchronous calculation slot ceiling.",
+            "# TYPE fatecat_calculation_slots_max gauge",
+            f"fatecat_calculation_slots_max {MAX_INFLIGHT_CALCULATIONS}",
+        ]
+    )
+    lines.extend(
+        [
+            "# HELP fatecat_bot_queue_size Current Telegram Bot calculation queue size.",
+            "# TYPE fatecat_bot_queue_size gauge",
+            f"fatecat_bot_queue_size {bot_queue_status['queue_size']}",
+            "# HELP fatecat_bot_queue_scope_info Telegram Bot queue backend and scope info.",
+            "# TYPE fatecat_bot_queue_scope_info gauge",
+            "fatecat_bot_queue_scope_info{"
+            f'backend="{_escape_metric_label(str(bot_queue_status["backend"]))}",'
+            f'scope="{_escape_metric_label(str(bot_queue_status["scope"]))}"'
+            "} 1",
+            "# HELP fatecat_bot_queue_max_size Configured Telegram Bot queue capacity.",
+            "# TYPE fatecat_bot_queue_max_size gauge",
+            f"fatecat_bot_queue_max_size {bot_queue_status['queue_max']}",
+            "# HELP fatecat_bot_concurrent_requests Current Telegram Bot concurrent calculations.",
+            "# TYPE fatecat_bot_concurrent_requests gauge",
+            f"fatecat_bot_concurrent_requests {bot_queue_status['concurrent']}",
+            "# HELP fatecat_bot_max_concurrent_requests Configured Telegram Bot concurrency ceiling.",
+            "# TYPE fatecat_bot_max_concurrent_requests gauge",
+            f"fatecat_bot_max_concurrent_requests {bot_queue_status['max_concurrent']}",
+            "# HELP fatecat_bot_user_cooldown_seconds Configured per-user Bot cooldown seconds.",
+            "# TYPE fatecat_bot_user_cooldown_seconds gauge",
+            f"fatecat_bot_user_cooldown_seconds {bot_queue_status['user_cooldown_seconds']}",
+            "# HELP fatecat_bot_user_daily_limit Configured per-user Bot daily request limit.",
+            "# TYPE fatecat_bot_user_daily_limit gauge",
+            f"fatecat_bot_user_daily_limit {bot_queue_status['user_daily_limit']}",
         ]
     )
     return PlainTextResponse("\n".join(lines) + "\n", media_type="text/plain; version=0.0.4")
@@ -578,6 +671,7 @@ def list_report_systems():
 @app.get("/api/v1/capabilities")
 def list_prediction_capabilities():
     """列出统一预测 capability 注册表。"""
+    markdown_enabled_ids = set(enabled_report_system_ids())
     capabilities = [
         {
             "capabilityId": item.capability_id,
@@ -586,6 +680,14 @@ def list_prediction_capabilities():
             "status": item.status,
             "defaultVisibility": item.default_visibility,
             "reportProfile": item.report_profile,
+            "markdownDefault": item.markdown_default,
+            "capabilityApiEnabled": item.status == "production",
+            "markdownReportEnabled": item.capability_id in markdown_enabled_ids,
+            "surfaces": {
+                "capabilityApi": item.status == "production",
+                "markdownReport": item.capability_id in markdown_enabled_ids,
+                "webForm": item.capability_id in markdown_enabled_ids,
+            },
             "riskLevel": item.risk_level,
         }
         for item in list_capabilities()
@@ -597,7 +699,9 @@ def list_prediction_capabilities():
 def execute_prediction_capability(capability_id: str, payload: dict[str, Any]):
     """执行已生产化的独立 capability。"""
     try:
-        result = CapabilityExecutor().execute(CapabilityInput(capability_id=capability_id, payload=payload))
+        result = _run_with_calculation_slot(
+            lambda: CapabilityExecutor().execute(CapabilityInput(capability_id=capability_id, payload=payload))
+        )
         return attach_branding(
             {
                 "success": True,
@@ -615,7 +719,16 @@ def execute_prediction_capability(capability_id: str, payload: dict[str, Any]):
 
 
 def _parse_bazi_request(req: BaziRequest) -> tuple[datetime, float, float]:
-    birth_dt = datetime.strptime(f"{req.birthDate} {req.birthTime}", "%Y-%m-%d %H:%M:%S")
+    birth_time = req.birthTime.strip()
+    if len(birth_time) == 5:
+        birth_time = f"{birth_time}:00"
+    try:
+        birth_dt = datetime.strptime(f"{req.birthDate.strip()} {birth_time}", "%Y-%m-%d %H:%M:%S")
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail="出生日期或出生时间格式无效；日期使用 YYYY-MM-DD，时间使用 HH:MM 或 HH:MM:SS。",
+        ) from exc
     if not req.birthPlace:
         raise HTTPException(status_code=400, detail="birthPlace 必填（经纬度用于真太阳时/风水/占星）")
     return birth_dt, req.birthPlace.longitude, req.birthPlace.latitude
@@ -692,13 +805,15 @@ def _calculate_ziwei_capability(req: BaziRequest) -> dict[str, Any]:
 def calculate_bazi_simple(req: BaziRequest):
     """简化八字计算 - 直接返回原始结果"""
     try:
-        result, _calculator, _birth_dt = _calculate_bazi_raw(req, report_system="bazi")
+        result, _calculator, _birth_dt = _run_with_calculation_slot(
+            lambda: _calculate_bazi_raw(req, report_system="bazi")
+        )
 
         return attach_branding({"success": True, "data": result})
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("简化八字计算失败")
+        _log_business_exception("简化八字计算失败", error_type=type(e).__name__)
         raise HTTPException(status_code=500, detail="服务器内部错误") from e
 
 
@@ -716,7 +831,7 @@ def calculate_bazi_pure_analysis(req: BaziRequest):
             birth_place=req.birthPlace.name,
             use_true_solar_time=req.options.useTrueSolarTime,
         )
-        result = calculate_pure_analysis(payload)
+        result = _run_with_calculation_slot(lambda: calculate_pure_analysis(payload))
         return attach_branding(
             {
                 "success": True,
@@ -730,7 +845,7 @@ def calculate_bazi_pure_analysis(req: BaziRequest):
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("纯分析计算失败")
+        _log_business_exception("纯分析计算失败", error_type=type(e).__name__)
         raise HTTPException(status_code=500, detail="服务器内部错误") from e
 
 
@@ -746,7 +861,9 @@ def calculate_bazi(
         if user_id:
             principal = _require_record_access(x_fatecat_api_key, authorization)
             _require_owner_or_admin(principal, user_id)
-        result, calculator, birth_dt = _calculate_bazi_raw(req, report_system="bazi")
+        result, calculator, birth_dt = _run_with_calculation_slot(
+            lambda: _calculate_bazi_raw(req, report_system="bazi")
+        )
 
         ts_dt = calculator.true_solar_time if req.options.useTrueSolarTime else birth_dt
         data = _build_bazi_data(
@@ -785,15 +902,9 @@ def calculate_bazi(
         )
     except HTTPException:
         raise
-    except Exception:
-        logger.exception("八字 API 计算失败")
-        return BaziResponse(
-            disclaimer=_disclaimer_model(),
-            success=False,
-            error="八字计算失败",
-            meta=Meta(calculatedAt=now_cn().isoformat()),
-            branding=_branding_model(),
-        )
+    except Exception as e:
+        _log_business_exception("八字 API 计算失败", error_type=type(e).__name__)
+        raise HTTPException(status_code=500, detail="服务器内部错误") from e
 
 
 @app.post("/api/v1/report/markdown")
@@ -802,9 +913,11 @@ def generate_markdown_report(req: BaziRequest):
     try:
         report_system = normalize_report_system(req.options.reportSystem)
         if report_system == "ziwei":
-            result = _calculate_ziwei_capability(req)
+            result = _run_with_calculation_slot(lambda: _calculate_ziwei_capability(req))
         else:
-            result, _calculator, _birth_dt = _calculate_bazi_raw(req, report_system=report_system)
+            result, _calculator, _birth_dt = _run_with_calculation_slot(
+                lambda: _calculate_bazi_raw(req, report_system=report_system)
+            )
         report_hide = build_report_hide(report_system)
         markdown = generate_full_report(result, hide=report_hide, report_system=report_system)
         return attach_branding(
@@ -820,7 +933,7 @@ def generate_markdown_report(req: BaziRequest):
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("Markdown 报告生成失败")
+        _log_business_exception("Markdown 报告生成失败", error_type=type(e).__name__)
         raise HTTPException(status_code=500, detail="服务器内部错误") from e
 
 
@@ -844,15 +957,9 @@ def calculate_liuyao_factor(req: LiuyaoFactorRequest):
             meta=Meta(calculatedAt=now_cn().isoformat(), algorithm="liuyao-divicast", version="1.0.0"),
             branding=_branding_model(),
         )
-    except Exception:
-        logger.exception("六爻因子计算失败")
-        return LiuyaoFactorResponse(
-            disclaimer=_disclaimer_model(),
-            success=False,
-            error="六爻因子计算失败",
-            meta=Meta(calculatedAt=now_cn().isoformat(), algorithm="liuyao-divicast", version="1.0.0"),
-            branding=_branding_model(),
-        )
+    except Exception as e:
+        _log_business_exception("六爻因子计算失败", error_type=type(e).__name__)
+        raise HTTPException(status_code=500, detail="服务器内部错误") from e
 
 
 @app.get("/api/v1/records/{record_id}")

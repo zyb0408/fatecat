@@ -5,10 +5,12 @@ from typing import Any
 
 from fate_core.support.paths import LUNAR_PYTHON_DIR
 
-if str(LUNAR_PYTHON_DIR) not in sys.path:
-    sys.path.insert(0, str(LUNAR_PYTHON_DIR))
-
-from lunar_python import Solar  # type: ignore[import-untyped]  # noqa: E402
+try:
+    from lunar_python import Solar  # type: ignore[import-untyped]
+except ModuleNotFoundError:
+    if str(LUNAR_PYTHON_DIR) not in sys.path:
+        sys.path.insert(0, str(LUNAR_PYTHON_DIR))
+    from lunar_python import Solar  # type: ignore[import-untyped]  # noqa: E402
 
 __all__ = ["Solar", "build_lunar_day", "build_lunar_datetime"]
 

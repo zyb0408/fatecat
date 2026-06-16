@@ -3,12 +3,31 @@
 依赖: bazi_calculator.py 的计算结果
 """
 
+# Principle gate evidence:
+# target end state: report layer renders structured evidence without recalculating fate rules.
+# real constraints: existing Markdown/API consumers still expect stable section names and fields.
+# inertia constraints: old field names reflect payload history, not ownership of new report semantics.
+# kill list: report-owned命理计算、无来源断语、重复兼容字段扩张。
+# proof point: report/API/Web regressions validate output shape and risk boundaries.
+# falsifier: report code creates new rule conclusions without ruleId/source evidence.
+# migration slice: retain read-only field expansion while canonical evidence fields converge.
+# existence: current consumer is Markdown delivery; owner is fatecat-delivery; verification is pytest.
+
 import re
 from datetime import datetime
 from typing import Any
 
 from branding import build_brand_footer_text, build_disclaimer_text, load_branding
 from prediction_systems import REPORT_SYSTEM_LABELS, report_system_allowed_text
+from report_markdown import (
+    compact_inline_text as _compact_inline_text,
+)
+from report_markdown import (
+    normalize_present_text as _normalize_present_text,
+)
+from report_markdown import (
+    render_markdown_table as _render_table,
+)
 
 
 def public_birth_place(value: str | None) -> str:
@@ -22,51 +41,6 @@ def public_birth_place(value: str | None) -> str:
     if "北京" in text:
         return text
     return "已填写（非北京地区已隐藏）"
-
-
-def _normalize_present_text(text: str) -> str:
-    """统一清理“呈现层”文案中的提示词。
-
-    说明：
-    - 仅影响 TXT 呈现，不影响计算与字段完整性。
-    - 用户要求：不显示“（展开）”等提示词。
-    """
-    if not text:
-        return text
-    return (
-        text.replace("（依据，展开）", "（依据）")
-        .replace("（全展开）", "")
-        .replace("（全量）", "")
-        .replace("（展开）", "")
-    )
-
-
-def _tbl_escape(v: object) -> str:
-    s = "" if v is None else str(v)
-    # Markdown 表格分隔符保护
-    return s.replace("|", "｜")
-
-
-def _render_table(headers: list[str], rows: list[list[object]]) -> list[str]:
-    """渲染 Markdown 表格（不减少信息，只压缩呈现）。"""
-    if not headers:
-        return []
-    out: list[str] = []
-    out.append("| " + " | ".join(_tbl_escape(h) for h in headers) + " |")
-    out.append("| " + " | ".join([":--"] * len(headers)) + " |")
-    for r in rows:
-        cells = r if isinstance(r, list) else [r]
-        cells = list(cells) + [""] * (len(headers) - len(cells))
-        out.append("| " + " | ".join(_tbl_escape(c) for c in cells[: len(headers)]) + " |")
-    out.append("")
-    return out
-
-
-def _compact_inline_text(s: str) -> str:
-    """将多行文本压成单行，便于表格呈现（不丢信息，仅改变换行）。"""
-    if not s:
-        return ""
-    return " ".join(x.strip() for x in str(s).splitlines() if x.strip())
 
 
 def _rule_depth_narrative(result: dict[str, Any], key: str) -> str:

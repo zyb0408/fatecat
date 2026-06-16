@@ -35,6 +35,16 @@ ERROR: Failed to build 'file:///home/lenovo/.projects/fatecat' when installing b
 - `pip install -e .` used build isolation, so pip tried to fetch `hatchling` from PyPI inside a temporary build environment.
 - Network access to PyPI returned `ReadTimeoutError` / `SSLEOFError`, making the release gate flaky.
 
+## Principle Gate Evidence
+
+- target end state: bootstrap installs declared build/runtime requirements before local editable install.
+- real constraints: local CI/CD must work in fresh venvs and offline-prone developer networks.
+- inertia constraints: older venvs can hide missing build tools and make failures look transient.
+- kill list: nested build backend fetches during delivery smoke and acceptance gates.
+- proof point: bootstrap plus acceptance passes from a rebuilt `.venv`.
+- falsifier: a fresh venv still fetches build backends during local project install.
+- migration slice: seed build tools, install dependencies normally, then install FateCat with `--no-deps`.
+
 ## Hypotheses
 
 1. Build isolation is the root cause because editable install fetches build backend from PyPI during test execution.
@@ -165,6 +175,73 @@ Result:
 
 - `vendor-health` passed with `required=5 optionalFutureFeatures=10 hashed=15 licenseAuditRequired=5`.
 - The same CI-parity acceptance passed end to end after the manifest correction.
+
+## 2026-06-15 production audit follow-up: false readiness claims and false-green tests
+
+### Bug
+
+生产级审计发现 3 类阻塞问题：
+
+- `system_optimization.py` 声称 GraphQL、WebSocket、batch、测试覆盖率和 `readyForProduction=True`，但 `/graphql`、`/ws`、`/api/v1/batch` 实测均为 404。
+- `test_all_features.py`、`test_complete_integration.py`、`test_extended.py` 捕获计算异常后 `return`，导致 `dantalion-core` 缺构建时报错仍显示 pytest passed。
+- API 出生日期格式错误会在多个端点变成 500；`/api/v1/bazi/calculate` 还会以 HTTP 200 返回 `success=false`。
+
+### Reproduction
+
+```bash
+.venv/bin/python -m pytest domains/experience-delivery/services/fatecat-delivery/tests/test_all_features.py domains/experience-delivery/services/fatecat-delivery/tests/test_complete_integration.py domains/experience-delivery/services/fatecat-delivery/tests/test_extended.py -q -s
+PYTHONPATH=domains/experience-delivery/services/fatecat-delivery/src:domains/fate-analysis/services/fate-core/src .venv/bin/python - <<'PY'
+from fastapi.testclient import TestClient
+from main import app
+payload = {
+    "name": "bad",
+    "gender": "male",
+    "birthDate": "bad-date",
+    "birthTime": "08:00:00",
+    "birthPlace": {"name": "北京市", "longitude": 116.4074, "latitude": 39.9042, "timezone": "Asia/Shanghai"},
+    "options": {"useTrueSolarTime": True, "daylightSaving": "auto", "midnightMode": "early", "calendarType": "solar"},
+}
+client = TestClient(app, raise_server_exceptions=False)
+for path in ["/api/v1/bazi/simple", "/api/v1/bazi/pure-analysis", "/api/v1/bazi/calculate", "/api/v1/report/markdown"]:
+    r = client.post(path, json=payload)
+    print(path, r.status_code, r.json().get("success"), r.json().get("error"))
+PY
+```
+
+Observed:
+
+- 3 个 legacy 测试打印 `dantalion-core 未构建（缺少 dist/index.js）`，但 pytest 显示 `3 passed`。
+- 非法日期触发：`/simple` 500、`/pure-analysis` 500、`/calculate` 200 + `success=false`、`/report/markdown` 500。
+
+### Hypotheses
+
+1. 形式工程声明来自 `system_optimization.py` 的硬编码报告，而非 FastAPI 路由或测试产物。
+   - Supports: 诊断报告内直接硬编码 enabled 和覆盖率；真实路由 404。
+2. 假绿来自测试吞异常。
+   - Supports: 三个测试文件的 `except Exception: print(...); return`。
+3. 500/200 错误语义来自 `BaziRequest` 没有日期时间校验，且 endpoint 直接 catch generic exception。
+   - Supports: 栈在 `datetime.strptime`；`calculate_bazi` generic except 返回 `BaziResponse(success=False)`。
+
+### Root Cause
+
+仓库把“未来/诊断/legacy 全量链路”混进生产质量口径：未实现能力被硬编码为 enabled，测试失败被打印后吞掉，API 输入边界靠内部解析而不是公开请求模型。
+
+### Fix
+
+- 将 `system_optimization.py` 收缩为真实单进程诊断报告，未实现路由只列入 `plannedNotAdvertisedAsEnabled`，不再伪造覆盖率或生产 ready。
+- `BaziRequest` 增加日期、时间、时区校验；`_parse_bazi_request` 增加 422 兜底；内部计算失败改为 HTTP 500。
+- 假绿测试改为标准生产报告链路，失败时 `pytest.fail()`，输出文件改到 `tmp_path`。
+- Bot 本地补发队列改成本地 outbox：稳定任务 ID、重复入队去重、原子保存、成功 ACK 删除。
+- `/metrics` 增加 `fatecat_bot_queue_scope_info{backend="memory",scope="single_process"}`，明确单实例语义。
+
+### Regression Evidence
+
+Required before close:
+
+```bash
+.venv/bin/python -m pytest domains/experience-delivery/services/fatecat-delivery/tests/test_all_features.py domains/experience-delivery/services/fatecat-delivery/tests/test_complete_integration.py domains/experience-delivery/services/fatecat-delivery/tests/test_extended.py domains/experience-delivery/services/fatecat-delivery/tests/test_calculator.py domains/experience-delivery/services/fatecat-delivery/tests/test_bot_send_queue.py tests/regression/test_api_contracts.py tests/regression/test_mingli_bench_gate.py
+bash scripts/local-ci.sh --profile quick
+```
 
 ## 2026-06-15 CI follow-up: production env example ignored
 
@@ -434,3 +511,48 @@ Result:
 - `/web` contains `web-production-report-header` and the right-top `生成 Markdown 报告` submit button.
 - Full submit still renders `Markdown 输出` / `report-markdown` and keeps `当前输入` in the bottom parameter panel.
 - Headless Chrome screenshot written to `/tmp/fatecat-web-workbench-v2.png`; visible first screen is three workbench panels matching the pdf workbench structure.
+
+## 2026-06-15 production audit follow-up: false readiness claims and false-green tests
+
+### Bug
+
+生产级审计发现仓库存在声明、测试和协议语义不一致：
+
+- `system_optimization.py` 声称 GraphQL、WebSocket、batch 等能力已启用，但真实路由不存在。
+- 旧 smoke 测试捕获异常后直接返回，依赖或实现失败时仍可能 pytest passed。
+- 八字 API 输入错误可能被打成 500；部分内部失败可能以 HTTP 200 + `success=false` 返回。
+- 单实例自托管口径下，限流、Bot 补发、监控、timeout 和 capability 暴露边界需要明确进入代码和测试。
+
+### Root Cause
+
+仓库此前把“未来能力”和“当前真实启用能力”混在一个优化报告里，同时部分测试承担的是人工 smoke 角色，不是严格回归门禁。API 层也缺少统一输入校验和错误状态码边界，导致客户端无法可靠区分输入错误、资源繁忙和服务端故障。
+
+### Fix
+
+- `system_optimization.py` 改为只报告当前进程真实实现能力；未实现的 `/graphql`、`/ws`、`/api/v1/batch` 进入 planned-not-enabled 列表，不再声明 ready for production。
+- `test_all_features.py`、`test_complete_integration.py`、`test_extended.py`、`test_calculator.py` 捕获异常后改为 `pytest.fail()`，输出文件进入 `tmp_path`。
+- `models.py` 增加日期、时间和 IANA timezone 校验；`main.py` 统一非法输入 422，内部异常 500，资源背压 503。
+- `main.py` 增加 `FATE_MAX_INFLIGHT_CALCULATIONS` 同步计算槽位，指标暴露 `fatecat_calculation_slots_in_use` / `fatecat_calculation_slots_max`，避免 timeout 后底层同步计算无限堆积。
+- Bot 本地补发队列增加稳定幂等键、去重、原子写入和 ACK 删除；指标显式声明 `backend="memory",scope="single_process"`。
+- capability registry 增加 `markdownDefault` 和 surfaces，区分 capability API、Markdown report 和 Web form 暴露面。
+- MingLi-Bench 接入预测文件 gate；八字 300+ golden matrix 默认跑 requiredTags representative，完整矩阵由 `FATECAT_RUN_FULL_GOLDEN_MATRIX=1` 显式开启。
+- 项目 classifier 从 Alpha 调整为 Beta，保持不声明 Production/Stable。
+
+### Regression Evidence
+
+Completed:
+
+```bash
+.venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_operability_docs.py -q
+.venv/bin/python -m ruff check domains/experience-delivery/services/fatecat-delivery/src/main.py tests/regression/test_api_contracts.py tests/regression/test_operability_docs.py
+bash scripts/local-ci.sh --profile all
+```
+
+Result:
+
+- Targeted regression: `30 passed in 4.04s`.
+- Ruff targeted check: `All checks passed!`.
+- Full local CI: `profile=all` completed with evidence at `/tmp/fatecat-local-ci-20260615235920`.
+- Full acceptance pytest: `168 passed, 1 skipped in 232.48s`.
+- Docker container smoke: `ok image=fatecat-delivery:local url=http://127.0.0.1:8002/web`.
+- Production-readiness static gate passed; live API URL and live Telegram Bot verification intentionally skipped because no real `--api-url` / `--require-live-bot` input was provided.

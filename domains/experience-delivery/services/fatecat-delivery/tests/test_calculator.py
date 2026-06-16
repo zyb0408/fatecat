@@ -5,22 +5,24 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from bazi_calculator import BaziCalculator
 from location import get as get_loc
+from report_generator import build_report_hide
 
 
-def test():
+def test_calculator_smoke():
     print("🔮 测试八字计算器\n" + "=" * 50)
 
     dt = datetime(1990, 5, 15, 14, 30)
     lng, lat = get_loc("北京")
     calc = BaziCalculator(dt, "male", longitude=lng, latitude=lat, name="测试用户", birth_place="北京")
     try:
-        r = calc.calculate()
+        r = calc.calculate(hide=build_report_hide("bazi"))
     except Exception as e:
-        print(f"❌ 计算失败: {e}")
-        return
+        pytest.fail(f"八字计算器生产链路失败: {e}")
 
     fp = r["fourPillars"]
     print(f"四柱: {fp['year']['fullName']} {fp['month']['fullName']} {fp['day']['fullName']} {fp['hour']['fullName']}")
@@ -53,4 +55,4 @@ def test():
 
 
 if __name__ == "__main__":
-    test()
+    test_calculator_smoke()

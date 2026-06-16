@@ -9,6 +9,7 @@ from types import SimpleNamespace
 import fate_core.cli as fate_cli
 from fate_core.cli import _build_pure_analysis_input, _load_json_payload, _normalize_payload, main
 from fate_core.support import get_branding_payload
+from fate_core.usecases.calculate_pure_analysis import parse_datetime
 
 
 def test_normalize_payload_supports_api_request_shape():
@@ -53,6 +54,33 @@ def test_build_pure_analysis_input_accepts_flat_aliases():
     assert pure_input.latitude == 31.2304
     assert pure_input.birth_place == "上海市"
     assert pure_input.use_true_solar_time is True
+
+
+def test_parse_datetime_converts_aware_input_to_default_local_time():
+    assert parse_datetime("1990-01-01T00:00:00Z").isoformat() == "1990-01-01T08:00:00"
+    assert parse_datetime("1990-01-01T08:00:00+08:00").isoformat() == "1990-01-01T08:00:00"
+
+
+def test_parse_datetime_respects_explicit_target_timezone():
+    assert parse_datetime("1990-01-01T00:00:00Z", target_timezone="UTC").isoformat() == "1990-01-01T00:00:00"
+    assert parse_datetime("1990-01-01T00:00:00Z", target_timezone="Asia/Hong_Kong").isoformat() == "1990-01-01T08:00:00"
+
+
+def test_build_pure_analysis_input_uses_birth_place_timezone_for_aware_input():
+    pure_input = _build_pure_analysis_input(
+        {
+            "birthDateTime": "1990-01-01T00:00:00Z",
+            "gender": "男",
+            "birthPlace": {
+                "name": "UTC测试地",
+                "longitude": 0,
+                "latitude": 0,
+                "timezone": "UTC",
+            },
+        }
+    )
+
+    assert pure_input.birth_dt.isoformat() == "1990-01-01T00:00:00"
 
 
 def test_build_pure_analysis_input_normalizes_chinese_gender():

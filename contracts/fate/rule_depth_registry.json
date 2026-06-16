@@ -1,8 +1,37 @@
 {
   "schemaVersion": 1,
   "registryVersion": "2026-05-09.rule-depth.4",
+  "owner": "tradecatlabs/fate-core",
   "description": "八字与紫微规则深度 registry。这里只保存规则条件、证据字段、权重、冲突策略和风险边界，不保存商业产品文案或大段典籍原文。",
   "copyrightBoundary": "summary_only_no_commercial_copy",
+  "governance": {
+    "owner": "tradecatlabs/fate-core",
+    "changeControl": "新增或修改规则必须先登记短规则来源，再补 evidence 字段、冲突策略、风险边界和回归测试。",
+    "extensionPolicy": {
+      "requiredRuleFields": [
+        "id",
+        "system",
+        "layer",
+        "topic",
+        "priority",
+        "weight",
+        "evidenceFields",
+        "conditions",
+        "conflictPolicy",
+        "riskBoundary",
+        "sourceRuleIds"
+      ],
+      "forbiddenRuleFields": [
+        "statement",
+        "prediction",
+        "judgement",
+        "conclusion",
+        "advice"
+      ],
+      "sourceRuleIdPolicy": "sourceRuleIds 必须全部存在于 classics_rule_index.json；无法追溯的规则不得进入生产输出。",
+      "riskBoundaryRequired": true
+    }
+  },
   "rules": [
     {
       "id": "bazi.depth.strength.month_root_transparency",

@@ -1,7 +1,40 @@
 {
   "schemaVersion": 1,
+  "owner": "tradecatlabs/fate-core",
   "description": "综合八字证据层的典籍规则索引种子。这里只登记短规则和来源，不收录大段原文。",
   "copyrightBoundary": "public_domain_or_local_research_index_only",
+  "governance": {
+    "owner": "tradecatlabs/fate-core",
+    "changeControl": "新增典籍规则只能登记短摘要、来源、适用条件和不适用条件；不得复制大段原文或商业产品文案。",
+    "principleGate": {
+      "target end state": "生产报告只从可追溯规则、成熟库和 capability 证据层取解释依据。",
+      "real constraints": "历史紫微材料只能解释迁移来源，生产紫微口径由 iztro provider 承担。",
+      "inertia constraints": "旧类名和旧规则文本不能决定新 capability 边界。",
+      "kill list": "无来源规则、无风险边界断语、无许可证大段文本和默认报告旧实现。",
+      "proof point": "test_fate_policy_assets.py 校验 requiredRuleFields 与 forbiddenRuleFields。",
+      "falsifier": "生产输出依赖未登记规则或旧紫微实现重新进入默认报告。",
+      "migration slice": "保留短摘要与来源，新增规则先进入 registry/evidence gate。"
+    },
+    "extensionPolicy": {
+      "requiredRuleFields": [
+        "id",
+        "system",
+        "topic",
+        "summary",
+        "sources",
+        "appliesWhen",
+        "doesNotApplyWhen"
+      ],
+      "forbiddenRuleFields": [
+        "statement",
+        "prediction",
+        "judgement",
+        "conclusion",
+        "advice"
+      ],
+      "copyrightBoundaryRequired": true
+    }
+  },
   "rules": [
     {
       "id": "bazi.month_command_priority",

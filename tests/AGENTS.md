@@ -12,12 +12,22 @@ tests/
 └── regression/
     ├── conftest.py
     ├── fate_core/
-    └── test_*.py
+	    ├── test_bazi_golden_coverage_matrix.py
+	    ├── test_calendar_oracle_contract.py
+	    ├── test_catalog_contracts.py
+	    ├── test_mingli_bench_gate.py
+	    ├── test_operability_docs.py
+	    └── test_*.py
 ```
 
 ## 职责边界
 
 - `regression/`：原项目行为回归测试，路径已切到 canonical roots。
+- `regression/test_bazi_golden_coverage_matrix.py`：300+ 八字匿名结构 golden 矩阵合同、requiredTags 代表集回放，以及 `FATECAT_RUN_FULL_GOLDEN_MATRIX=1` 全量 release gate；全量可用 `FATECAT_GOLDEN_SHARD_TOTAL` / `FATECAT_GOLDEN_SHARD_INDEX` 分片。
+- `regression/test_calendar_oracle_contract.py`：历法/四柱 oracle 对照测试；只服务开发门禁，不允许 oracle 库进入生产源码路径。
+- `regression/test_catalog_contracts.py`：组件 catalog canonical root 与 compatibility box 退役防回潮测试。
+- `regression/test_mingli_bench_gate.py`：MingLi-Bench 离线 predictions evaluator smoke 与 FateCat scored baseline 产物合同；准确率只作为评测输出，不宣称模型已专业。
+- `regression/test_operability_docs.py`：公共服务 SLO、指标、告警和 runbook 的文档合同测试。
 - 服务私有测试可以留在服务根，但必须被根 `scripts/acceptance.sh` 覆盖。
 - 不在这里写入运行态、golden 原始资料或外部 vendor 源码。
 

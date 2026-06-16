@@ -1,0 +1,654 @@
+{
+  "schema_version": "1.0.0",
+  "task": {
+    "objective": "把 FateCat 项目质量标准从当前 72% 推进到可审查、可验证、可维护、可生产运行的 100% 状态。",
+    "overall_status": "In Progress",
+    "in_scope": [
+      "修复当前阻塞级质量门禁：ruff format、本地 local-ci、REVIEW.md 过期、production-readiness 配置失败。",
+      "把六项质量标准分别推进到可验证 100%：满足约束、可解释、可测试、可维护、处理特殊情况、复用建立在理解上。",
+      "补齐公共生产服务稳定性所需的配置、限流、边界输入、Bot 背压、观测和外部验收任务。",
+      "把八字证据层、golden case、规则索引和复用边界继续推进到专业命理项目可审查状态。",
+      "把长期维护债拆成可执行重构切片，逐步从 delivery legacy 大类迁移到 fate-core 的稳定边界。"
+    ],
+    "out_of_scope": [
+      "本计划阶段不直接修改业务代码；业务实现由后续执行波次逐叶子任务完成。",
+      "不运行 GitHub Acceptance，不把远端 CI 当作本地计划设计前置条件。",
+      "不伪造公网生产结果；真实域名、TLS、Bot token、生产 URL 缺失时必须标记为 HITL 阻塞。",
+      "不以追求行数为目标做大爆炸重写；重构必须保持行为和 golden case 可验证。"
+    ],
+    "task_level_acceptance": [
+      "六项质量标准都有明确 100% gate、验证命令、剩余 blocker 和执行任务。",
+      "任务树所有叶子节点都有 verify、gate、依赖和输出物。",
+      "当前可执行 wave 与需要人类输入的 HITL wave 清晰分离。",
+      "最终 closeout 只能在 local-ci、full acceptance、container smoke、production readiness、review gate 全部闭合后进入 Done。"
+    ],
+    "validation_plan": [
+      "使用 auto-tasks 编译并校验任务文档。",
+      "执行阶段每个叶子节点必须记录 Recent Evidence。",
+      "质量完成度以本地命令、生产 readiness、review findings 和外部 live smoke 证据计算，不靠主观评分。",
+      "最终运行 auto-review full/release gate 后无 BLOCK finding。"
+    ],
+    "acceptance_standards": [
+      "满足约束 100%：format、lint、typecheck、pytest、structure、source hygiene、privacy、local-ci quick/full 均 PASS，REVIEW.md 与当前 HEAD 一致。",
+      "可解释 100%：生产输出的核心判断都有 evidence、ruleIds、source、weight、risk boundary，ruleIds 全部能回指 classics/rule registry。",
+      "可测试 100%：关键能力、特殊时间边界、生产 guardrails、Bot 背压、容器、public-service readiness 和外部 live smoke 都有测试或验收证据。",
+      "可维护 100%：核心 legacy 边界被收敛，fate-core 与 delivery 职责清晰，大文件不再继续承担新增领域规则。",
+      "处理特殊情况 100%：时区、真太阳时、节气边界、早晚子时、异常输入、超大请求、多副本限流、Bot 高峰队列都有明确行为。",
+      "复用建立在理解上 100%：lunar-python、sxtwl、iztro、bazi-1、MingLi-Bench 的角色、许可、生产/评测边界和回归 oracle 均明确。"
+    ]
+  },
+  "context_packet": {
+    "requirement_alignment": [
+      "用户要求使用 auto-tasks 设计完整计划，把当前质量标准百分比全部推进到 100%。",
+      "当前基线综合质量约 72%；本计划把百分比拆成可验证 gate，而不是继续使用主观评分。",
+      "本计划是任务容器和执行波次设计，不直接等同于已完成实现。"
+    ],
+    "repo_evidence": [
+      "当前仓库：/home/lenovo/.projects/fatecat。",
+      "当前 HEAD：787111d592be。",
+      "git 状态：main 本地领先 origin/main 7 个提交，远端无新提交。",
+      "最近审查证据：pytest 123 passed；ruff check PASS；mypy fate_core PASS；structure/source/privacy/governance PASS。",
+      "当前阻塞证据：ruff format --check 会重格式化 calculate_pure_analysis.py 和 test_bazi_ziwei_rule_depth.py。",
+      "当前阻塞证据：production-readiness.sh 在缺少 FATE_CORS_ALLOW_ORIGINS 时 FAIL。",
+      "当前警告证据：REVIEW.md 记录旧 HEAD、旧测试数量和过期生产门禁结论。",
+      "当前维护风险：bazi_calculator.py 2775 行、report_generator.py 1967 行、calculate_pure_analysis.py 1463 行、bot.py 1145 行、main.py 908 行、web_ui.py 830 行。",
+      "当前运行态干扰：infra/runtime/local-state 下有未跟踪 vendor-build 和 bazi.db，未入 Git 但影响搜索和本地审查。"
+    ],
+    "constraints": [
+      "禁止运行 GitHub Acceptance；只使用本地 CI/CD 技术工具方案。",
+      "执行阶段不得伪造公网生产或 Bot live 结果。",
+      "业务代码改动必须小步、可回滚、带测试。",
+      "公共生产验收必须用真实域名、TLS、反向代理、生产 URL 和真实 Bot token。",
+      "架构变更必须同步对应 AGENTS.md 或治理资产。"
+    ],
+    "risks": [
+      "high：生产发布涉及公网配置、限流、真实 token、反向代理、TLS 和观测。",
+      "high：legacy BaziCalculator 迁移涉及核心命理结果，必须用 golden case 和 oracle 防回归。",
+      "medium：时区/真太阳时语义修正可能改变输出，需要显式兼容边界。",
+      "medium：Bot 背压和限流会改变用户体验，需要错误态和队列行为测试。",
+      "medium：大文件拆分可能引入 import/path 循环，需要逐切片验证。"
+    ],
+    "assumptions": [
+      "100% 不是代码覆盖率 100%，而是六项质量标准对应 gate 全部闭合。",
+      "可维护性 100% 不要求一次性删除全部 legacy，而要求新增领域规则不再进入错误边界，且迁移路径和 kill list 被执行到可审查状态。",
+      "真实公网验收需要用户提供外部 URL、域名、TLS、Bot token 或部署权限；缺失时对应叶子节点保持 Blocked/HITL。"
+    ],
+    "change_boundary": [
+      "本轮只写 governance/tasks/0001-quality-standards-100/ 任务包和 governance/tasks/INDEX.md。",
+      "后续实现波次按叶子节点修改代码、测试、文档和治理资产。",
+      "不把 unrelated refactor、无关 UI 改造、营销文案和远端推送混入计划阶段。"
+    ],
+    "critical_ambiguities": [
+      "真实生产域名、TLS 和 Bot token 是否已可用；没有这些信息不能关闭 public-service live gate。",
+      "可维护性 100% 对大文件拆分的硬阈值需在执行中用 review gate 校准，避免为行数牺牲正确性。",
+      "八字 golden case 扩展到 100+ 的样本来源、版权和专业可信度需要治理确认。"
+    ],
+    "debug_mode": "Required",
+    "debug_focus": [
+      "format gate failure",
+      "production-readiness env failure",
+      "timezone semantic edge cases",
+      "Bot queue/backpressure correctness"
+    ]
+  },
+  "plan": {
+    "planning_summary": "以 gate-first 方式推进：先修当前本地阻塞，再补生产准入，再扩测试和边界，再推进八字解释与维护性，最后用 full review 和 ship gate 收口。",
+    "simplest_path": "第一波只修格式、REVIEW 和本地 quick gate；第二波补 production readiness 配置与 Bot/API 边界；后续按可验证 vertical slice 推进核心质量。",
+    "split_strategy": "按质量标准和发布路径拆成八个 package；叶子任务优先 vertical slice，每个都绑定 verify 和 gate；外部生产验收单独隔离为 HITL。",
+    "lifecycle_gates": [
+      "SPEC：当前质量缺口、目标 100% gate、真实/惯性约束已记录。",
+      "PLAN：任务树、依赖、执行波次和 next executable leaves 由 auto-tasks 生成。",
+      "BUILD：后续只按当前 wave 的叶子节点执行，不混入无关重构。",
+      "TEST：每个叶子节点必须记录命令输出或明确未执行原因。",
+      "REVIEW：每个 package 结束后运行对应 auto-review profile；最终执行 full/release gate。",
+      "SHIP：只有全部 BLOCK 为零、外部 HITL 关闭或明确豁免，才允许宣称 100%。",
+      "不得跳过 gate；未闭合当前 gate 前不得进入后续阶段或宣称质量 100%。"
+    ],
+    "review_gate": [
+      "auto-review correctness/security/reliability/performance/architecture/contract/operability/build-release/repo-hygiene。",
+      "future-optimal-drift：检查是否又把 legacy 兼容当目标结构。",
+      "ponytail-complexity：检查是否新增无必要所有权面。",
+      "feature-change-safety：覆盖 API、Bot、生产配置、限流、外部 token 和运行副作用。"
+    ],
+    "ship_readiness": [
+      "local-ci quick PASS。",
+      "local-ci full PASS。",
+      "container smoke PASS。",
+      "production-readiness PASS。",
+      "如果要求真实公共服务：production-readiness --api-url <real-url> --require-live-bot PASS。",
+      "REVIEW.md 更新到当前 HEAD 和真实证据。",
+      "auto-review 最终结论无 BLOCK。"
+    ],
+    "workflow_budget": [
+      "优先 P0/P1 阻塞项；P2 长期优化不得阻塞本地质量 100%。",
+      "每个执行波次结束必须保留 git diff、测试输出、review evidence。"
+    ],
+    "workflow_stop_conditions": [
+      "需要真实公网 URL 或 Bot token 但未提供时，停止对应 HITL 叶子，不伪造通过。",
+      "命理核心输出变化但 golden/oracle 无法解释时，停止迁移，进入 debug/review。",
+      "local-ci 或 full acceptance 出现未知失败时，转 auto-debug。"
+    ],
+    "approval_required_for": [
+      "真实生产部署、真实 Bot token 使用、push 远端、公开域名配置、删除 legacy 兼容入口。"
+    ],
+    "steps": [
+      {
+        "key": "baseline-gates",
+        "title": "修复当前本地质量阻塞",
+        "objective": "先把当前已知 BLOCK 清零，恢复本地 CI 可信度。",
+        "priority": "P0",
+        "type": "package",
+        "parallelizable": false,
+        "children": [
+          {
+            "key": "format-gate",
+            "title": "修复 ruff format gate",
+            "objective": "格式化当前失败文件，让 ruff format --check 全仓通过。",
+            "priority": "P0",
+            "type": "action",
+            "parallelizable": true,
+            "verify": ".venv/bin/python -m ruff format --check .",
+            "gate": "format check 0 退出码，git diff 只包含格式化变更。",
+            "outputs": ["格式化后的 calculate_pure_analysis.py", "格式化后的 test_bazi_ziwei_rule_depth.py"],
+            "acceptance": ["ruff check 和 format check 均 PASS。"],
+            "risks": ["low：纯格式化，但仍需确认无业务 diff。"],
+            "notes": [
+              "Existence check: 当前 local-ci quick 会执行 format check，因此必须修。",
+              "Selected ladder rung: project-native ruff format。",
+              "Minimal runnable check: ruff format --check ."
+            ]
+          },
+          {
+            "key": "review-refresh",
+            "title": "刷新 REVIEW.md 质量真相源",
+            "objective": "把 REVIEW.md 更新到当前 HEAD、当前测试数量、当前 production-readiness 真实状态。",
+            "priority": "P0",
+            "type": "action",
+            "depends_on": ["format-gate"],
+            "parallelizable": true,
+            "verify": "人工核对 REVIEW.md 中 HEAD、测试数量、门禁状态与命令输出一致。",
+            "gate": "REVIEW.md 不再写旧 HEAD、旧 120 passed 或无 env 的 production-readiness PASS。",
+            "outputs": ["REVIEW.md 当前质量记录"],
+            "acceptance": ["REVIEW.md 明确区分本地 PASS、生产配置 FAIL、外部 live 未执行。"],
+            "risks": ["low：文档修正，但错误结论会误导后续 agent。"],
+            "notes": [
+              "Target end state: REVIEW.md 是当前审查结果真相源，不保留过期乐观口径。",
+              "Rejected short-term patches: 不只追加新段落掩盖旧结论。"
+            ]
+          },
+          {
+            "key": "quick-local-ci",
+            "title": "恢复 local-ci quick 绿色",
+            "objective": "用本地 CI 快速入口证明基础质量门禁闭合。",
+            "priority": "P0",
+            "type": "action",
+            "depends_on": ["format-gate", "review-refresh"],
+            "parallelizable": false,
+            "verify": "bash scripts/local-ci.sh --profile quick",
+            "gate": "quick profile PASS，summary/evidence 目录存在。",
+            "outputs": ["local-ci quick evidence"],
+            "acceptance": ["shell、preflight、structure、source hygiene、privacy、ruff、format、mypy、focused tests、diff check 全通过。"],
+            "risks": ["medium：会暴露更多本地门禁失败，失败时转 auto-debug。"]
+          }
+        ]
+      },
+      {
+        "key": "production-constraints",
+        "title": "关闭生产准入约束缺口",
+        "objective": "让公共服务发布前的静态和真实环境门禁可执行、可失败、可追溯。",
+        "priority": "P0",
+        "type": "package",
+        "depends_on": ["quick-local-ci"],
+        "parallelizable": false,
+        "children": [
+          {
+            "key": "production-env-contract",
+            "title": "固化生产 env 合同",
+            "objective": "把 CORS、records、rate limit backend、edge body limit、proxy headers、HSTS 的生产配置要求写成可验证合同。",
+            "priority": "P0",
+            "type": "action",
+            "parallelizable": true,
+            "verify": "bash scripts/production-readiness.sh --skip-bootstrap 在生产等价 env 下通过。",
+            "gate": "无生产等价 env 时保持 FAIL；有 env 时 PASS 且 WARN 项有明确归属。",
+            "outputs": ["production env checklist", "readiness evidence"],
+            "acceptance": ["FATE_CORS_ALLOW_ORIGINS 非空且非 *；多副本不使用 memory 限流；edge/proxy/HSTS 口径清楚。"],
+            "risks": ["high：生产配置错误会暴露公共服务。"],
+            "notes": [
+              "risk_level: high",
+              "affected_flows: public API, web, bot delivery",
+              "rollout: env-driven no code deployment first",
+              "rollback: revert env to previous known-good values"
+            ]
+          },
+          {
+            "key": "public-service-local-ci",
+            "title": "恢复 local-ci public-service 绿色",
+            "objective": "使用 scripts/local-ci.sh --profile public-service 验证生产静态准入路径。",
+            "priority": "P0",
+            "type": "action",
+            "depends_on": ["production-env-contract"],
+            "parallelizable": false,
+            "verify": "bash scripts/local-ci.sh --profile public-service",
+            "gate": "public-service profile PASS，且没有伪造外部 URL/Bot live 通过。",
+            "outputs": ["public-service local CI evidence"],
+            "acceptance": ["本地 public-service readiness PASS；外部 live 项清晰 SKIP 或 HITL。"],
+            "risks": ["medium：环境默认值可能掩盖真实部署，需要 REVIEW 标明。"]
+          },
+          {
+            "key": "external-live-readiness",
+            "title": "真实公网 API 与 Bot live 验收",
+            "objective": "在真实域名/TLS/反向代理/生产 URL/真实 Bot token 下执行 live readiness。",
+            "priority": "P0",
+            "type": "action",
+            "depends_on": ["public-service-local-ci"],
+            "parallelizable": false,
+            "verify": "bash scripts/production-readiness.sh --api-url <real-url> --require-live-bot",
+            "gate": "真实 /health、/ready、/metrics 和 Telegram get_me 通过；无 placeholder token。",
+            "outputs": ["live API readiness evidence", "live Bot evidence"],
+            "acceptance": ["真实公网验收 PASS 后，公共生产服务稳定性才可从 55% 提升到 100%。"],
+            "risks": ["high：需要外部凭证和真实基础设施；缺失时 Blocked/HITL。"],
+            "approval_required_for": ["使用真实 Bot token", "访问真实生产 URL"],
+            "stop_conditions": ["缺少 real-url 或 real bot token 时停止，不伪造证据。"]
+          }
+        ]
+      },
+      {
+        "key": "edge-case-hardening",
+        "title": "补齐特殊情况与韧性",
+        "objective": "把时区、真太阳时、节气、早晚子时、Bot 背压、多副本限流和异常输入变成测试化契约。",
+        "priority": "P0",
+        "type": "package",
+        "depends_on": ["quick-local-ci"],
+        "parallelizable": true,
+        "children": [
+          {
+            "key": "timezone-contract",
+            "title": "定义并测试出生时间时区语义",
+            "objective": "明确 naive、Z、+08:00、出生地时区和真太阳时之间的输入语义。",
+            "priority": "P0",
+            "type": "action",
+            "parallelizable": true,
+            "verify": "pytest 覆盖 parse_datetime、CLI、API、pure-analysis 的时区边界。",
+            "gate": "带时区输入不会被静默 replace 成错误本地时间，文档说明清楚。",
+            "outputs": ["时区语义契约", "时区边界测试"],
+            "acceptance": ["Z/+08:00/无时区输入各自有明确预期。"],
+            "risks": ["medium：可能改变当前解释，需要兼容说明。"]
+          },
+          {
+            "key": "bot-backpressure",
+            "title": "Bot 背压与滥用保护",
+            "objective": "把 Bot 队列从近似无限等待改成有界并发、有界队列、用户级反馈和测试。",
+            "priority": "P0",
+            "type": "action",
+            "parallelizable": true,
+            "verify": "pytest domains/experience-delivery/services/fatecat-delivery/tests/test_rate_limiter.py",
+            "gate": "高峰请求不会无限排队；用户冷却/每日限额是否启用有明确产品口径。",
+            "outputs": ["Bot rate limiter contract", "rate limiter tests"],
+            "acceptance": ["QUEUE_MAX_SIZE 有生产合理默认值；拒绝原因可测试。"],
+            "risks": ["high：公共 Bot 滥用会影响可用性。"]
+          },
+          {
+            "key": "api-guardrail-tests",
+            "title": "API guardrails 特殊输入回归",
+            "objective": "补齐请求体超限、无 Content-Length、超时、429、错误分类、安全头的回归测试。",
+            "priority": "P0",
+            "type": "action",
+            "parallelizable": true,
+            "verify": "pytest tests/regression/test_api_contracts.py tests/regression/test_web_html.py",
+            "gate": "公共 API 护栏行为被测试锁住。",
+            "outputs": ["API guardrail regression tests"],
+            "acceptance": ["413/429/504/安全头/metrics error_class 均有可验证路径。"],
+            "risks": ["medium：测试可能暴露 middleware 行为缺陷。"]
+          },
+          {
+            "key": "calendar-boundary-golden",
+            "title": "历法边界 golden 扩展",
+            "objective": "扩展节气边界、早晚子时、真太阳时、地域经纬度边界 golden case。",
+            "priority": "P1",
+            "type": "action",
+            "depends_on": ["timezone-contract"],
+            "parallelizable": true,
+            "verify": "pytest tests/regression/test_solar_terms_golden.py tests/regression/test_bazi_statement_golden.py",
+            "gate": "关键历法边界至少有项目 golden 和 oracle 来源。",
+            "outputs": ["calendar/bazi boundary golden cases"],
+            "acceptance": ["边界样本来源、预期结果、oracle 说明齐全。"],
+            "risks": ["medium：样本来源必须可追溯。"]
+          }
+        ]
+      },
+      {
+        "key": "explainability-bazi",
+        "title": "八字解释性与证据化补齐",
+        "objective": "让核心命理判断具备可追溯 evidence、ruleIds、权重和风险边界。",
+        "priority": "P1",
+        "type": "package",
+        "depends_on": ["quick-local-ci"],
+        "parallelizable": true,
+        "children": [
+          {
+            "key": "evidence-coverage",
+            "title": "核心字段 evidence 覆盖审计",
+            "objective": "审计 baziBenchmark、baziRuleDepth、analysisEvidence 的核心字段覆盖率。",
+            "priority": "P1",
+            "type": "action",
+            "parallelizable": true,
+            "verify": "新增或运行 evidence coverage 测试，确认核心字段均有 ruleIds/source/risk。",
+            "gate": "无孤儿 ruleId，无核心判断缺 evidence。",
+            "outputs": ["evidence coverage report", "regression tests"],
+            "acceptance": ["ruleIds 全部能回指 contracts/fate/classics_rule_index.json 或 rule_depth_registry.json。"],
+            "risks": ["medium：证据覆盖不足会阻塞可解释 100%。"]
+          },
+          {
+            "key": "bazi-golden-expand",
+            "title": "八字 golden case 扩展到 100+",
+            "objective": "优先覆盖节气边界、早晚子时、特殊格局、合化、从格、岁运触发。",
+            "priority": "P1",
+            "type": "action",
+            "depends_on": ["calendar-boundary-golden", "evidence-coverage"],
+            "parallelizable": false,
+            "verify": "pytest 运行新增 golden suite；样本 manifest 通过许可和来源审查。",
+            "gate": "100+ 样本都有来源、预期、覆盖标签和失败解释路径。",
+            "outputs": ["100+ golden case manifest", "golden regression suite"],
+            "acceptance": ["八字证据化能力从 70% 提升到可审查 100%。"],
+            "risks": ["high：样本版权和专业可信度必须治理。"]
+          },
+          {
+            "key": "topic-profile-validation",
+            "title": "专题 profile 评分验证",
+            "objective": "验证事业、财运、婚姻、健康、学业、迁移 profile 不输出确定性断语。",
+            "priority": "P1",
+            "type": "action",
+            "depends_on": ["evidence-coverage"],
+            "parallelizable": true,
+            "verify": "pytest tests/regression/test_bazi_ziwei_rule_depth.py",
+            "gate": "profile 只作为 evidence_seed，输出有 riskBoundary。",
+            "outputs": ["topic profile tests", "risk wording checks"],
+            "acceptance": ["报告透明但不恐吓、不替代现实决策。"],
+            "risks": ["medium：解释性增强不能越界成预测承诺。"]
+          },
+          {
+            "key": "mingli-bench-gate",
+            "title": "MingLi-Bench 评测门禁接入",
+            "objective": "把 MingLi-Bench 作为报告/推理质量评测层，不作为生产排盘层。",
+            "priority": "P2",
+            "type": "action",
+            "parallelizable": true,
+            "verify": "bash scripts/run-mingli-bench.sh --stats 和离线 sample evaluation。",
+            "gate": "评测结果进入 REVIEW/quality report，且不调用外部模型 API。",
+            "outputs": ["MingLi-Bench local evaluation evidence"],
+            "acceptance": ["评测层和生产层边界清晰。"],
+            "risks": ["low：评测数据不应污染生产计算。"]
+          }
+        ]
+      },
+      {
+        "key": "maintainability-architecture",
+        "title": "长期维护性与 legacy 边界治理",
+        "objective": "从大文件和 delivery legacy 中迁出领域核心，让 fate-core 成为命理能力真相源。",
+        "priority": "P1",
+        "type": "package",
+        "depends_on": ["quick-local-ci"],
+        "parallelizable": false,
+        "children": [
+          {
+            "key": "boundary-map",
+            "title": "绘制核心大文件职责边界图",
+            "objective": "给 bazi_calculator、report_generator、calculate_pure_analysis、bot、main、web_ui 建立职责地图和迁移 kill list。",
+            "priority": "P1",
+            "type": "action",
+            "parallelizable": false,
+            "verify": "生成边界文档并通过 auto-review architecture/ponytail 审查。",
+            "gate": "每个大文件都有保留职责、迁出职责、禁止新增职责。",
+            "outputs": ["module boundary map", "legacy kill list"],
+            "acceptance": ["后续任务不再靠猜测拆大文件。"],
+            "risks": ["medium：错误边界会导致重构方向错误。"],
+            "notes": [
+              "Target end state: fate-core owns calculation/rules/evidence; delivery owns API/Web/Bot/report presentation.",
+              "Inertia constraints: existing import paths and legacy names must not define terminal architecture.",
+              "Kill list: scattered sys.path, delivery-owned domain rules, compatibility-only wrappers without public contract."
+            ]
+          },
+          {
+            "key": "split-pure-analysis",
+            "title": "拆分 calculate_pure_analysis 证据构建模块",
+            "objective": "把输入归一化、benchmark、rule depth、topic profile 和 evidence append 拆到 fate-core 内部清晰模块。",
+            "priority": "P1",
+            "type": "action",
+            "depends_on": ["boundary-map", "evidence-coverage"],
+            "parallelizable": false,
+            "verify": "pytest tests/regression/fate_core/test_pure_analysis_usecase.py tests/regression/test_bazi_ziwei_rule_depth.py",
+            "gate": "外部 API 输出不变，模块边界变清楚。",
+            "outputs": ["fate-core pure_analysis submodules", "updated AGENTS.md"],
+            "acceptance": ["新增八字规则不必继续堆进单一 1400+ 行文件。"],
+            "risks": ["medium：拆分可能引入循环 import。"]
+          },
+          {
+            "key": "migrate-bazi-core",
+            "title": "迁移 BaziCalculator 领域核心到 fate-core",
+            "objective": "逐步把历法、四柱、旺衰、格局、用神、岁运从 delivery 大类迁入 fate-core。",
+            "priority": "P1",
+            "type": "action",
+            "depends_on": ["boundary-map", "bazi-golden-expand"],
+            "parallelizable": false,
+            "verify": "golden suite、API contracts、web html、pure-analysis smoke 全通过。",
+            "gate": "delivery 不再是八字领域算法真相源；legacy adapter 只剩迁移窗口和删除条件。",
+            "outputs": ["fate-core bazi providers/evaluators", "legacy adapter shrink plan"],
+            "acceptance": ["长期维护性从 58% 提升到可审查 100% 的核心切片。"],
+            "risks": ["high：命理核心行为变化必须由 golden/oracle 解释。"],
+            "approval_required_for": ["删除 legacy adapter 或改变公开输出字段。"]
+          },
+          {
+            "key": "split-delivery-surfaces",
+            "title": "收敛 delivery 层 API/Web/Bot/报告边界",
+            "objective": "把 main、web_ui、bot、report_generator 的交付职责分层，避免继续混入领域算法。",
+            "priority": "P1",
+            "type": "action",
+            "depends_on": ["boundary-map", "bot-backpressure", "api-guardrail-tests"],
+            "parallelizable": false,
+            "verify": "pytest delivery tests + tests/regression/test_web_html.py + API contract tests。",
+            "gate": "交付层只负责编排、渲染和传输，不新增命理规则。",
+            "outputs": ["delivery boundary refactor slices", "updated AGENTS.md"],
+            "acceptance": ["Web/Bot/API 改动不会迫使领域算法同文件变更。"],
+            "risks": ["medium：UI/报告输出必须保持契约。"]
+          },
+          {
+            "key": "remove-legacy-shims",
+            "title": "清退无真实外部契约的 legacy/compat shim",
+            "objective": "删除或收缩无真实公共 API、持久化数据、外部集成支撑的兼容层。",
+            "priority": "P1",
+            "type": "action",
+            "depends_on": ["migrate-bazi-core", "split-delivery-surfaces"],
+            "parallelizable": false,
+            "verify": "scan_principle_gates 过滤源码后无真实 BLOCK；structure gate 无 legacy_source_root。",
+            "gate": "保留的 compat 都有 owner、移除条件和真实 contract。",
+            "outputs": ["legacy removal diff", "migration ledger update"],
+            "acceptance": ["future-optimal-drift 不再因 active legacy 边界触发真实 BLOCK。"],
+            "risks": ["high：删除前必须确认无外部调用方。"],
+            "approval_required_for": ["删除公开兼容入口。"]
+          }
+        ]
+      },
+      {
+        "key": "reuse-supply-chain",
+        "title": "复用与供应链理解闭环",
+        "objective": "确保外部库、参考仓、oracle 和规则材料都在正确边界内被复用。",
+        "priority": "P1",
+        "type": "package",
+        "depends_on": ["quick-local-ci"],
+        "parallelizable": true,
+        "children": [
+          {
+            "key": "calendar-provider-contract",
+            "title": "CalendarProvider 生产依赖合同",
+            "objective": "明确 lunar-python 为主生产历法底座，sxtwl/bazica/其他项目只作为 oracle 或参考。",
+            "priority": "P1",
+            "type": "action",
+            "parallelizable": true,
+            "verify": "依赖文件、adapter、文档和测试一致声明 lunar-python 生产角色。",
+            "gate": "没有隐式 vendor 依赖或重复自研历法算法。",
+            "outputs": ["CalendarProvider contract", "dependency tests"],
+            "acceptance": ["复用建立在理解上：生产、oracle、参考三类边界清晰。"],
+            "risks": ["medium：错误替换历法库会影响核心结果。"]
+          },
+          {
+            "key": "reference-license-manifest",
+            "title": "参考源许可和用途 manifest",
+            "objective": "为 bazi-1、MingLi-Bench、sxtwl、iztro、lunar-python 等建立许可/用途/风险清单。",
+            "priority": "P1",
+            "type": "action",
+            "parallelizable": true,
+            "verify": "vendor/reference manifest 通过治理审查。",
+            "gate": "无明确 LICENSE 的材料不得作为生产依赖扩散。",
+            "outputs": ["reference source manifest", "license risk notes"],
+            "acceptance": ["参考材料和生产代码边界可审计。"],
+            "risks": ["high：许可不清会影响公共发布。"]
+          },
+          {
+            "key": "oracle-harness",
+            "title": "历法/四柱 oracle 对照框架",
+            "objective": "保留 sxtwl、bazica、alvamind 等作为对照 oracle，不进入主运行链。",
+            "priority": "P2",
+            "type": "action",
+            "depends_on": ["calendar-provider-contract", "reference-license-manifest"],
+            "parallelizable": true,
+            "verify": "oracle 对照测试只在评测/开发门禁运行，不污染生产路径。",
+            "gate": "生产路径仍以 CalendarProvider 为单一入口。",
+            "outputs": ["oracle comparison harness"],
+            "acceptance": ["复用不变成多主链或重复造轮子。"],
+            "risks": ["medium：多 oracle 冲突需要记录裁决规则。"]
+          },
+          {
+            "key": "rule-registry-governance",
+            "title": "规则 registry owner 和扩展规则",
+            "objective": "明确 rule_depth_registry、classics_rule_index、future_features 的 owner、字段、升级 gate。",
+            "priority": "P1",
+            "type": "action",
+            "depends_on": ["evidence-coverage"],
+            "parallelizable": true,
+            "verify": "policy asset tests 覆盖新增规则字段和禁止项。",
+            "gate": "新增规则必须有 source、appliesWhen、doesNotApplyWhen、risk boundary。",
+            "outputs": ["rule registry governance note", "policy tests"],
+            "acceptance": ["规则扩展不靠散落代码或口头解释。"],
+            "risks": ["medium：规则膨胀会降低可解释性。"]
+          }
+        ]
+      },
+      {
+        "key": "observability-operations",
+        "title": "公共服务观测和运行闭环",
+        "objective": "把当前应用内 metrics/logs/readiness 扩展到真实运行平台可用的 SLO、告警和排障包。",
+        "priority": "P1",
+        "type": "package",
+        "depends_on": ["production-env-contract", "api-guardrail-tests"],
+        "parallelizable": true,
+        "children": [
+          {
+            "key": "metrics-dashboard",
+            "title": "Prometheus/Grafana 指标和告警计划",
+            "objective": "定义 p95/p99、错误率、429、413、504、inflight、Bot 队列等指标和告警阈值。",
+            "priority": "P1",
+            "type": "action",
+            "parallelizable": true,
+            "verify": "metrics 输出包含必要 label，runbook 说明告警触发和处理。",
+            "gate": "公共服务可从指标判断健康，而不是只看 /health。",
+            "outputs": ["metrics dashboard spec", "alert runbook"],
+            "acceptance": ["生产稳定性有可观测证据。"],
+            "risks": ["medium：没有外部 Prometheus 时只能保留平台接入待办。"]
+          },
+          {
+            "key": "trace-log-correlation",
+            "title": "请求 ID 与业务日志贯穿",
+            "objective": "确保 X-Request-ID 能关联 HTTP 日志、错误分类、业务计算失败和 Bot 交付。",
+            "priority": "P1",
+            "type": "action",
+            "parallelizable": true,
+            "verify": "API/Bot 错误路径日志包含 requestId 或等价 trace id。",
+            "gate": "出现 5xx/timeout 时可定位到请求和错误类型。",
+            "outputs": ["trace/log correlation tests or runbook"],
+            "acceptance": ["排障不依赖猜测。"],
+            "risks": ["medium：日志不得泄漏用户隐私。"]
+          },
+          {
+            "key": "slo-runbook",
+            "title": "SLO 与运维 runbook",
+            "objective": "定义公共服务 SLO、降级策略、恢复步骤、清理本地 runtime 的流程。",
+            "priority": "P1",
+            "type": "action",
+            "parallelizable": true,
+            "verify": "runbook 被 REVIEW.md 和 references/ops-pack.md 引用。",
+            "gate": "上线、回滚、降级、清理 runtime 都有可执行命令。",
+            "outputs": ["SLO/runbook update"],
+            "acceptance": ["生产故障有操作路径。"],
+            "risks": ["low：文档必须跟脚本一致。"]
+          },
+          {
+            "key": "run-local-ci-all",
+            "title": "本地全链路 CI/CD 汇总",
+            "objective": "运行 quick/full/container/public-service 的本地 all profile，作为最终本地质量证据。",
+            "priority": "P0",
+            "type": "action",
+            "depends_on": ["public-service-local-ci", "bot-backpressure", "api-guardrail-tests", "metrics-dashboard", "slo-runbook"],
+            "parallelizable": false,
+            "verify": "bash scripts/local-ci.sh --profile all",
+            "gate": "all profile PASS；若 Docker 或外部凭证缺失，必须拆分记录真实 blocker。",
+            "outputs": ["local-ci all evidence"],
+            "acceptance": ["本地开发质量、结构治理、公共服务静态门禁达到 100%。"],
+            "risks": ["high：container/public-service 失败会阻塞最终 100%。"]
+          }
+        ]
+      },
+      {
+        "key": "final-review-ship",
+        "title": "最终审查和交付收口",
+        "objective": "用 auto-review 和任务 closeout 证明六项质量标准全部达到 100% gate。",
+        "priority": "P0",
+        "type": "package",
+        "depends_on": ["run-local-ci-all", "remove-legacy-shims", "bazi-golden-expand", "oracle-harness", "external-live-readiness"],
+        "parallelizable": false,
+        "children": [
+          {
+            "key": "full-quality-review",
+            "title": "执行全仓质量审查",
+            "objective": "按 correctness/security/reliability/performance/architecture/operability/repo-hygiene 做最终 review。",
+            "priority": "P0",
+            "type": "action",
+            "parallelizable": false,
+            "verify": "auto-review 输出无 BLOCK，WARN 有 owner 和后续任务。",
+            "gate": "六项质量标准都有 PASS 证据。",
+            "outputs": ["final REVIEW.md", "quality score matrix"],
+            "acceptance": ["综合质量从 72% 提升到 100% 的证据闭环。"],
+            "risks": ["high：review 发现 BLOCK 时不得 ship。"]
+          },
+          {
+            "key": "fix-review-findings",
+            "title": "处理最终 review findings",
+            "objective": "修复 full-quality-review 发现的 BLOCK，记录无法关闭的外部 blocker。",
+            "priority": "P0",
+            "type": "action",
+            "depends_on": ["full-quality-review"],
+            "parallelizable": false,
+            "verify": "复跑触发 finding 的最小验证命令。",
+            "gate": "所有 BLOCK=0；WARN 不影响 100% gate 或被显式排除。",
+            "outputs": ["review finding fix evidence"],
+            "acceptance": ["无阻塞风险进入最终 closeout。"],
+            "risks": ["medium：不得为了通过 review 删除必要保护。"]
+          },
+          {
+            "key": "task-closeout",
+            "title": "生成任务 closeout 和交付证据",
+            "objective": "把任务树、执行证据、质量矩阵、review 结论和剩余 HITL 状态收口。",
+            "priority": "P0",
+            "type": "action",
+            "depends_on": ["fix-review-findings"],
+            "parallelizable": false,
+            "verify": "validate_task_docs.py --phase closeout；必要时 build_task_closeout.py。",
+            "gate": "TODO 全部完成，STATUS 全部 Done 或外部 HITL 明确 Blocked，质量 100% 不含伪证。",
+            "outputs": ["Task Closeout Packet", "handoff to auto-github/auto-assets/auto-governance"],
+            "acceptance": ["任务级 closeout 可交接，可恢复，可审计。"],
+            "risks": ["low：closeout 不等于 push，push 需 auto-github。"]
+          }
+        ]
+      }
+    ]
+  }
+}

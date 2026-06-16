@@ -3,14 +3,21 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from fate_core.adapters import LegacyBaziInput
-from fate_core.kernel import project_by_profile
+from fate_core.kernel.projector import project_by_profile
 from fate_core.providers import (
     build_base_chart_section,
     build_classical_section,
     build_fortune_section,
     build_pure_analysis_runtime,
+)
+from fate_core.usecases.evidence_builder import (
+    append_accuracy_evidence,
+    append_bazi_benchmark_evidence,
+    append_bazi_rule_depth_evidence,
+    ensure_evidence_risk_boundaries,
 )
 from fate_core.usecases.rule_depth import (
     build_combination_statement,
@@ -22,6 +29,16 @@ from fate_core.usecases.rule_depth import (
     registry_version,
     rules_for_system,
 )
+
+# Principle gate evidence:
+# target end state: pure-analysis composes providers and evidence without owning transport.
+# real constraints: CLI/API users pass ISO and wall-time strings today.
+# inertia constraints: accepted input formats are contract migration, not parser proliferation.
+# kill list: report rendering, Bot/Web coupling, and unregistered rule conclusions.
+# proof point: API contracts, service contracts, and bazi rule-depth tests pass.
+# falsifier: usecase imports delivery modules or emits unsupported deterministic claims.
+# migration slice: normalize input here until public callers move to one canonical schema.
+# existence: current consumer is pure analysis; owner is fate-core; verification is pytest.
 
 
 @dataclass(frozen=True)
@@ -59,7 +76,24 @@ def _parse_bool(value: Any, default: bool = True) -> bool:
     raise ValueError(f"无法解析布尔值: {value}")
 
 
-def parse_datetime(value: str) -> datetime:
+DEFAULT_INPUT_TIMEZONE = "Asia/Shanghai"
+
+
+def _parse_zoneinfo(value: str | None) -> ZoneInfo:
+    zone_name = (value or DEFAULT_INPUT_TIMEZONE).strip() or DEFAULT_INPUT_TIMEZONE
+    try:
+        return ZoneInfo(zone_name)
+    except ZoneInfoNotFoundError as exc:
+        raise ValueError(f"无法识别时区: {zone_name}") from exc
+
+
+def _strip_to_target_wall_time(parsed: datetime, target_timezone: str | None = None) -> datetime:
+    if parsed.tzinfo is None:
+        return parsed
+    return parsed.astimezone(_parse_zoneinfo(target_timezone)).replace(tzinfo=None)
+
+
+def parse_datetime(value: str, target_timezone: str | None = None) -> datetime:
     """解析出生时间，兼容 CLI/API 常见输入格式。"""
     normalized = value.strip()
     if not normalized:
@@ -68,7 +102,7 @@ def parse_datetime(value: str) -> datetime:
         normalized = normalized[:-1] + "+00:00"
     try:
         parsed = datetime.fromisoformat(normalized)
-        return parsed.replace(tzinfo=None) if parsed.tzinfo else parsed
+        return _strip_to_target_wall_time(parsed, target_timezone)
     except ValueError:
         pass
     for time_format in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y/%m/%d %H:%M:%S", "%Y/%m/%d %H:%M"):
@@ -128,6 +162,13 @@ def normalize_pure_analysis_payload(raw_payload: dict[str, Any]) -> dict[str, An
         raw_payload.get("use_true_solar_time"),
         options.get("useTrueSolarTime"),
     )
+    input_timezone = _first_non_empty(
+        raw_payload.get("timezone"),
+        raw_payload.get("inputTimezone"),
+        birth_place_object.get("timezone"),
+        options.get("timezone"),
+        DEFAULT_INPUT_TIMEZONE,
+    )
 
     normalized = {
         "birthDateTime": birth_datetime,
@@ -137,6 +178,7 @@ def normalize_pure_analysis_payload(raw_payload: dict[str, Any]) -> dict[str, An
         "name": raw_payload.get("name"),
         "birthPlace": birth_place_name or "",
         "useTrueSolarTime": _parse_bool(use_true_solar_time, default=True),
+        "inputTimezone": str(input_timezone),
     }
     missing = [
         field for field in ("birthDateTime", "gender", "longitude", "latitude") if normalized[field] in (None, "")
@@ -153,7 +195,7 @@ def build_pure_analysis_input_from_payload(raw_payload: dict[str, Any]) -> PureA
     """从统一 payload 构造纯分析输入。"""
     normalized = normalize_pure_analysis_payload(raw_payload)
     return PureAnalysisInput(
-        birth_dt=parse_datetime(str(normalized["birthDateTime"])),
+        birth_dt=parse_datetime(str(normalized["birthDateTime"]), target_timezone=str(normalized["inputTimezone"])),
         gender=str(normalized["gender"]),
         longitude=normalized["longitude"],
         latitude=normalized["latitude"],
@@ -161,24 +203,6 @@ def build_pure_analysis_input_from_payload(raw_payload: dict[str, Any]) -> PureA
         birth_place=str(normalized["birthPlace"]),
         use_true_solar_time=normalized["useTrueSolarTime"],
     )
-
-
-def _evidence_item(
-    *,
-    conclusion: dict[str, Any],
-    basis: list[str],
-    sources: list[str],
-    rule_ids: list[str],
-    weight: str = "core",
-) -> dict[str, Any]:
-    return {
-        "conclusion": conclusion,
-        "basis": basis,
-        "sources": sources,
-        "ruleIds": rule_ids,
-        "weight": weight,
-        "visibility": "audit",
-    }
 
 
 def _build_accuracy_guards(runtime: Any, raw: dict[str, Any]) -> dict[str, Any]:
@@ -228,75 +252,6 @@ def _build_accuracy_guards(runtime: Any, raw: dict[str, Any]) -> dict[str, Any]:
             "tiaohouRaw": yong_shen.get("tiaohouRaw", "") if isinstance(yong_shen, dict) else "",
         },
     }
-
-
-def _append_accuracy_evidence(runtime: Any, raw: dict[str, Any]) -> None:
-    evidence = raw.get("analysisEvidence")
-    if not isinstance(evidence, dict):
-        return
-    items = evidence.setdefault("items", {})
-    if not isinstance(items, dict):
-        return
-
-    guards = raw.get("accuracyGuards", {})
-    time_pipeline = guards.get("timePipeline", {}) if isinstance(guards, dict) else {}
-    solar_term = guards.get("solarTermBoundary", {}) if isinstance(guards, dict) else {}
-    fortune_start = guards.get("fortuneStartBoundary", {}) if isinstance(guards, dict) else {}
-    pattern_trace = guards.get("patternUseGodTrace", {}) if isinstance(guards, dict) else {}
-
-    zi_time_analysis = time_pipeline.get("ziTimeAnalysis", {})
-    items["timePipeline"] = _evidence_item(
-        conclusion={
-            "trueSolarTime": time_pipeline.get("trueSolarTime"),
-            "totalOffsetMinutes": time_pipeline.get("totalOffsetMinutes"),
-            "ziTimeShift": zi_time_analysis.get("zwzShift") if isinstance(zi_time_analysis, dict) else None,
-        },
-        basis=[
-            f"输入时间={time_pipeline.get('inputLocalTime', '')}",
-            f"经度={runtime.payload.longitude}",
-            f"纬度={runtime.payload.latitude}",
-            f"真太阳时={time_pipeline.get('trueSolarTime', '')}",
-        ],
-        sources=["paipan-master 真太阳时算法", "lunar-python"],
-        rule_ids=["bazi.true_solar_time_pipeline", "bazi.zi_time_boundary"],
-    )
-    items["solarTermBoundary"] = _evidence_item(
-        conclusion={
-            "yearPillar": solar_term.get("yearPillar"),
-            "monthPillar": solar_term.get("monthPillar"),
-            "monthCommand": solar_term.get("monthCommand"),
-        },
-        basis=[
-            f"上一节气={solar_term.get('previousTerm', {})}",
-            f"下一节气={solar_term.get('nextTerm', {})}",
-            f"说明={solar_term.get('description', '')}",
-        ],
-        sources=["lunar-python", "1900-2030 交节时间 golden fixture"],
-        rule_ids=["bazi.solar_term_month_boundary", "bazi.lichun_year_boundary"],
-    )
-    items["fortuneStartBoundary"] = _evidence_item(
-        conclusion={
-            "startDate": fortune_start.get("startDate"),
-            "anchorTerm": fortune_start.get("anchorTerm"),
-        },
-        basis=[f"性别={runtime.payload.gender}", f"起运说明={fortune_start.get('description', '')}"],
-        sources=["lunar-python EightChar.getYun", "项目起运边界回归"],
-        rule_ids=["bazi.fortune_start_boundary"],
-        weight="fortune",
-    )
-    items["patternUseGodTrace"] = _evidence_item(
-        conclusion={
-            "mainPattern": pattern_trace.get("mainPattern"),
-            "yongShenBasisSource": pattern_trace.get("yongShenBasisSource"),
-        },
-        basis=[
-            f"月柱={pattern_trace.get('monthPillar', '')}",
-            f"月支藏干={pattern_trace.get('monthHiddenStems', [])}",
-            f"调候原始={pattern_trace.get('tiaohouRaw', '')}",
-        ],
-        sources=["bazi-1", "项目格局/调候规则索引"],
-        rule_ids=["bazi.pattern_use_god_trace"],
-    )
 
 
 GAN_ELEMENT = {
@@ -543,7 +498,13 @@ def _build_combine_transform_matrix(raw: dict[str, Any]) -> dict[str, Any]:
             score = sum([20, 25 if month_support else 0, 20 if stem_transparent else 0, 20 if rooted_positions else 0])
             if blockers:
                 score -= 15
-            status = "formed_candidate" if score >= 75 and not blockers else "guarded_candidate" if score >= 45 else "weak_candidate"
+            status = (
+                "formed_candidate"
+                if score >= 75 and not blockers
+                else "guarded_candidate"
+                if score >= 45
+                else "weak_candidate"
+            )
             candidates.append(
                 {
                     "pair": [left["stem"], right["stem"]],
@@ -607,8 +568,14 @@ def _build_special_pattern_candidates(raw: dict[str, Any], combine_matrix: dict[
         (
             "化气",
             [
-                _condition("combine_transform_candidate_exists", has_transform_candidate, combine_matrix.get("candidates", [])),
-                _condition("candidate_has_condition_chain", bool(combine_matrix.get("conditionCatalog")), combine_matrix.get("conditionCatalog")),
+                _condition(
+                    "combine_transform_candidate_exists", has_transform_candidate, combine_matrix.get("candidates", [])
+                ),
+                _condition(
+                    "candidate_has_condition_chain",
+                    bool(combine_matrix.get("conditionCatalog")),
+                    combine_matrix.get("conditionCatalog"),
+                ),
             ],
         ),
         (
@@ -664,7 +631,9 @@ def _build_special_pattern_candidates(raw: dict[str, Any], combine_matrix: dict[
 
 
 def _five_element_spread(raw: dict[str, Any]) -> int:
-    scores = raw.get("wuxingScores", {}).get("fiveElementScore", {}) if isinstance(raw.get("wuxingScores"), dict) else {}
+    scores = (
+        raw.get("wuxingScores", {}).get("fiveElementScore", {}) if isinstance(raw.get("wuxingScores"), dict) else {}
+    )
     values = [int(value) for value in scores.values() if isinstance(value, int | float)]
     return max(values) - min(values) if values else 0
 
@@ -685,7 +654,12 @@ def _build_yongshen_decision(raw: dict[str, Any], strategies: list[dict[str, Any
         },
         {
             "strategy": "扶抑",
-            "score": min(100, 35 + (25 if strength.get("strongScore") is not None else 0) + (15 if strength.get("statusDetail") else 0)),
+            "score": min(
+                100,
+                35
+                + (25 if strength.get("strongScore") is not None else 0)
+                + (15 if strength.get("statusDetail") else 0),
+            ),
             "evidenceFields": ["dayMaster.strength", "wuxingScores.strongScore", "wuxingScores.statusDetail"],
             "source": strategy_names.get("扶抑", {}).get("source", ""),
         },
@@ -712,14 +686,20 @@ def _build_yongshen_decision(raw: dict[str, Any], strategies: list[dict[str, Any
     }
 
 
-def _build_topic_profiles(raw: dict[str, Any], ten_god_counts: dict[str, int], fortune_triggers: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _build_topic_profiles(
+    raw: dict[str, Any], ten_god_counts: dict[str, int], fortune_triggers: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
     families = _ten_god_families(ten_god_counts)
     relation_count = sum(item.get("count", 0) for item in _relation_order(raw) if isinstance(item.get("count"), int))
     spread = _five_element_spread(raw)
     topic_specs = [
         ("事业", ["格局", "官杀", "印星", "大运流年"], 35 + families.get("官杀", 0) * 8 + families.get("印", 0) * 5),
         ("财运", ["财星", "食伤", "用神", "岁运触发"], 35 + families.get("财", 0) * 10 + families.get("食伤", 0) * 5),
-        ("婚姻", ["夫妻宫", "财官星", "合冲刑害", "岁运触发"], 30 + families.get("财", 0) * 5 + families.get("官杀", 0) * 5 + relation_count * 3),
+        (
+            "婚姻",
+            ["夫妻宫", "财官星", "合冲刑害", "岁运触发"],
+            30 + families.get("财", 0) * 5 + families.get("官杀", 0) * 5 + relation_count * 3,
+        ),
         ("健康", ["五行偏枯", "寒暖燥湿"], 25 + spread * 3),
         ("学业", ["印星", "食伤", "文昌", "大运流年"], 35 + families.get("印", 0) * 8 + families.get("食伤", 0) * 4),
         ("迁移", ["驿马", "冲合", "岁运触发"], 30 + relation_count * 4 + len(fortune_triggers) * 3),
@@ -806,52 +786,6 @@ def _build_bazi_benchmark(raw: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _append_bazi_benchmark_evidence(raw: dict[str, Any]) -> None:
-    evidence = raw.get("analysisEvidence")
-    benchmark = raw.get("baziBenchmark")
-    if not isinstance(evidence, dict) or not isinstance(benchmark, dict):
-        return
-    items = evidence.setdefault("items", {})
-    if not isinstance(items, dict):
-        return
-    items["baziBenchmark"] = _evidence_item(
-        conclusion={
-            "hasTimeBoundary": bool(benchmark.get("timeBoundaryGolden")),
-            "hasRenyuan": bool(benchmark.get("renYuanSiling")),
-            "hasStrengthScore": bool(benchmark.get("strengthScore")),
-            "hasCombineTransformMatrix": bool(benchmark.get("combineTransformMatrix")),
-            "hasYongShenDecision": bool(benchmark.get("yongShenDecision")),
-            "topicProfileCount": len(benchmark.get("topicProfiles", []))
-            if isinstance(benchmark.get("topicProfiles"), list)
-            else 0,
-            "fortuneTriggerCount": len(benchmark.get("fortuneTriggers", []))
-            if isinstance(benchmark.get("fortuneTriggers"), list)
-            else 0,
-        },
-        basis=[
-            "baziBenchmark.timeBoundaryGolden",
-            "baziBenchmark.renYuanSiling",
-            "baziBenchmark.strengthScore",
-            "baziBenchmark.ganzhiPriority",
-            "baziBenchmark.combineTransformMatrix",
-            "baziBenchmark.fortuneTriggers",
-            "baziBenchmark.yongShenStrategies",
-            "baziBenchmark.yongShenDecision",
-            "baziBenchmark.topicProfiles",
-        ],
-        sources=["lunar-python", "bazi-1", "项目标杆加固规则"],
-        rule_ids=[
-            "bazi.renyuan_siling_weight",
-            "bazi.strength_score_golden",
-            "bazi.ganzhi_priority",
-            "bazi.fortune_trigger_boundary",
-            "bazi.yongshen_strategy",
-            "bazi.ten_god_structure",
-            "bazi.topic_profile_boundary",
-        ],
-    )
-
-
 def _rule_map(system: str) -> dict[str, dict[str, Any]]:
     return {str(rule.get("id", "")): rule for rule in rules_for_system(system)}
 
@@ -864,10 +798,14 @@ def _build_bazi_rule_depth(raw: dict[str, Any]) -> dict[str, Any]:
     renyuan = benchmark.get("renYuanSiling", {}) if isinstance(benchmark.get("renYuanSiling"), dict) else {}
     pattern = benchmark.get("patternRegistry", {}) if isinstance(benchmark.get("patternRegistry"), dict) else {}
     yongshen = benchmark.get("yongShenStrategies", [])
-    yongshen_decision = benchmark.get("yongShenDecision", {}) if isinstance(benchmark.get("yongShenDecision"), dict) else {}
+    yongshen_decision = (
+        benchmark.get("yongShenDecision", {}) if isinstance(benchmark.get("yongShenDecision"), dict) else {}
+    )
     ten_god = benchmark.get("tenGodStructure", {}) if isinstance(benchmark.get("tenGodStructure"), dict) else {}
     relation = benchmark.get("ganzhiPriority", [])
-    combine_matrix = benchmark.get("combineTransformMatrix", {}) if isinstance(benchmark.get("combineTransformMatrix"), dict) else {}
+    combine_matrix = (
+        benchmark.get("combineTransformMatrix", {}) if isinstance(benchmark.get("combineTransformMatrix"), dict) else {}
+    )
     special_candidates = (
         pattern.get("specialPatternCandidates", {}) if isinstance(pattern.get("specialPatternCandidates"), dict) else {}
     )
@@ -1276,9 +1214,13 @@ def _build_bazi_combination_statements(raw: dict[str, Any], applied: list[dict[s
     pattern = benchmark.get("patternRegistry", {}) if isinstance(benchmark.get("patternRegistry"), dict) else {}
     ten_god = benchmark.get("tenGodStructure", {}) if isinstance(benchmark.get("tenGodStructure"), dict) else {}
     yongshen = benchmark.get("yongShenStrategies", [])
-    yongshen_decision = benchmark.get("yongShenDecision", {}) if isinstance(benchmark.get("yongShenDecision"), dict) else {}
+    yongshen_decision = (
+        benchmark.get("yongShenDecision", {}) if isinstance(benchmark.get("yongShenDecision"), dict) else {}
+    )
     relation = benchmark.get("ganzhiPriority", [])
-    combine_matrix = benchmark.get("combineTransformMatrix", {}) if isinstance(benchmark.get("combineTransformMatrix"), dict) else {}
+    combine_matrix = (
+        benchmark.get("combineTransformMatrix", {}) if isinstance(benchmark.get("combineTransformMatrix"), dict) else {}
+    )
     special_candidates = (
         pattern.get("specialPatternCandidates", {}) if isinstance(pattern.get("specialPatternCandidates"), dict) else {}
     )
@@ -1389,37 +1331,6 @@ def _build_bazi_combination_statements(raw: dict[str, Any], applied: list[dict[s
     return [item for item in statements if set(item["ruleIds"]) <= applied_ids]
 
 
-def _append_bazi_rule_depth_evidence(raw: dict[str, Any]) -> None:
-    evidence = raw.get("analysisEvidence")
-    rule_depth = raw.get("baziRuleDepth")
-    if not isinstance(evidence, dict) or not isinstance(rule_depth, dict):
-        return
-    items = evidence.setdefault("items", {})
-    if not isinstance(items, dict):
-        return
-    applied = rule_depth.get("appliedRules", [])
-    items["baziRuleDepth"] = _evidence_item(
-        conclusion={
-            "appliedRuleCount": len(applied) if isinstance(applied, list) else 0,
-            "registryVersion": rule_depth.get("registryVersion"),
-            "conflictCount": len(rule_depth.get("conflictMatrix", []))
-            if isinstance(rule_depth.get("conflictMatrix"), list)
-            else 0,
-            "primaryRuleIds": rule_depth.get("conflictResolution", {}).get("primaryRuleIds", [])
-            if isinstance(rule_depth.get("conflictResolution"), dict)
-            else [],
-        },
-        basis=[
-            "baziRuleDepth.appliedRules",
-            "baziRuleDepth.conflictMatrix",
-            "baziBenchmark",
-            "accuracyGuards",
-        ],
-        sources=["rule_depth_registry.json", "classics_rule_index.json", "项目八字规则深度层"],
-        rule_ids=rule_depth.get("sourceRuleIds", []),
-    )
-
-
 def calculate_pure_analysis(payload: PureAnalysisInput) -> dict[str, Any]:
     """计算纯命理分析字段集合。"""
     runtime = build_pure_analysis_runtime(
@@ -1450,11 +1361,12 @@ def calculate_pure_analysis(payload: PureAnalysisInput) -> dict[str, Any]:
         bone_weight=raw.get("boneWeight", {}),
     )
     raw["accuracyGuards"] = _build_accuracy_guards(runtime, raw)
-    _append_accuracy_evidence(runtime, raw)
+    append_accuracy_evidence(runtime, raw)
     raw["baziBenchmark"] = _build_bazi_benchmark(raw)
-    _append_bazi_benchmark_evidence(raw)
+    append_bazi_benchmark_evidence(raw)
     raw["baziRuleDepth"] = _build_bazi_rule_depth(raw)
-    _append_bazi_rule_depth_evidence(raw)
+    append_bazi_rule_depth_evidence(raw)
+    ensure_evidence_risk_boundaries(raw)
     projected = project_by_profile(raw, "pure_analysis")
     translated = runtime.calculator._translate_to_chinese(projected)
     safe_result = runtime.calculator._json_safe(translated)

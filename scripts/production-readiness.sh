@@ -153,6 +153,7 @@ else:
 
 assert_int_setting("FATE_MAX_REQUEST_BYTES", 1_048_576, 1024, 10 * 1024 * 1024)
 assert_int_setting("FATE_REQUEST_TIMEOUT_SECONDS", 30, 1, 120)
+assert_int_setting("FATE_MAX_INFLIGHT_CALCULATIONS", 2, 1, 64)
 rate_limit = assert_int_setting("FATE_RATE_LIMIT_PER_MINUTE", 120, 0, 10_000)
 if rate_limit == 0:
     fail("FATE_RATE_LIMIT_PER_MINUTE=0 会关闭公网限流")

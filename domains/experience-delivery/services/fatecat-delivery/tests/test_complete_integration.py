@@ -8,11 +8,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 import json
 from datetime import datetime
 
+import pytest
+
 from bazi_calculator import BaziCalculator
 from location import get as get_loc
+from report_generator import build_report_hide
 
 
-def test_complete_integration():
+def test_complete_integration(tmp_path):
     print("🔮 测试 legacy 集成功能")
     print("=" * 70)
 
@@ -29,10 +32,9 @@ def test_complete_integration():
 
     # 执行计算
     try:
-        result = calc.calculate()
+        result = calc.calculate(hide=build_report_hide("bazi"))
     except Exception as e:
-        print(f"❌ 计算失败: {e}")
-        return
+        pytest.fail(f"legacy 兼容生产链路计算失败: {e}")
 
     # 统计字段数量
     total_fields = len(result)
@@ -60,10 +62,15 @@ def test_complete_integration():
     print(f"🎯 当前集成字段数: {total_fields}个字段")
     print("🌟 当前结果来自本地 legacy 计算链路")
 
-    # 保存结果
-    with open("complete_integration_result.json", "w", encoding="utf-8") as f:
+    assert "fourPillars" in result
+    assert "majorFortune" in result
+    assert "analysisEvidence" in result
+
+    # 保存结果到 pytest 临时目录，避免污染仓库根目录。
+    output_path = tmp_path / "complete_integration_result.json"
+    with output_path.open("w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2, default=str)
-    print("📄 结果已保存到 complete_integration_result.json")
+    print(f"📄 结果已保存到 {output_path}")
 
 
 if __name__ == "__main__":

@@ -4,10 +4,9 @@ component:
   name: FateCat Delivery Service
   type: service
   owner: engineering
-  lifecycle: migration-transitional
+  lifecycle: canonical-active
   service_contract: domains/experience-delivery/services/fatecat-delivery/service.yaml
   source_root: domains/experience-delivery/services/fatecat-delivery/src
-  compatibility_source_root: scripts/project/modules/telegram
 relationships:
   depends_on:
     - fate-core
@@ -15,4 +14,19 @@ relationships:
     - Telegram Bot API
 governance:
   migration_work_order: governance/evidence/baseline/baseline-migration-work-order.md
-  compatibility_status: temporary-compatibility-box
+  migration_status: compatibility-box-retired
+principle_gate:
+  target end state: delivery owns transport, rendering, observability, and guardrails only.
+  real constraints: catalog tests require explicit retired migration status for old boxes.
+  inertia constraints: old compatibility labels are historical state, not active runtime roots.
+  kill list: delivery-owned domain rules and active old project source roots.
+  proof point: source_root points to domains/experience-delivery/services/fatecat-delivery/src.
+  falsifier: any active source_root returns to scripts/project modules.
+  migration slice: keep status evidence until migration ledgers and guards close.
+  target_end_state: delivery owns transport, rendering, observability, and guardrails only.
+  real_constraints: catalog tests require explicit retired migration status for old boxes.
+  inertia_constraints: old compatibility labels are historical state, not active runtime roots.
+  kill_list: delivery-owned domain rules and active old project source roots.
+  proof_point: source_root points to domains/experience-delivery/services/fatecat-delivery/src.
+  falsifier: any active source_root returns to scripts/project modules.
+  migration_slice: keep status evidence until migration ledgers and guards close.

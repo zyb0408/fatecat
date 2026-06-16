@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import sys
 from pathlib import Path
+from threading import BoundedSemaphore
 
 from fastapi.testclient import TestClient
 
@@ -78,6 +80,32 @@ def test_ready_and_metrics_endpoints_are_available():
     assert "fatecat_request_latency_seconds_count" in metrics_response.text
     assert "fatecat_request_errors_total" in metrics_response.text
     assert "fatecat_inflight_requests" in metrics_response.text
+    assert "fatecat_calculation_slots_in_use" in metrics_response.text
+    assert "fatecat_calculation_slots_max" in metrics_response.text
+    assert "fatecat_bot_queue_size" in metrics_response.text
+    assert 'fatecat_bot_queue_scope_info{backend="memory",scope="single_process"} 1' in metrics_response.text
+    assert "fatecat_bot_queue_max_size" in metrics_response.text
+    assert "fatecat_bot_concurrent_requests" in metrics_response.text
+
+
+def test_business_error_logs_include_request_id(monkeypatch, caplog):
+    def fail_pure_analysis(_payload):
+        raise RuntimeError("forced regression error")
+
+    caplog.set_level(logging.ERROR, logger="main")
+    monkeypatch.setattr(main, "calculate_pure_analysis", fail_pure_analysis)
+
+    response = TestClient(app).post(
+        "/api/v1/bazi/pure-analysis",
+        json=_payload(),
+        headers={"X-Request-ID": "trace-test-123"},
+    )
+
+    assert response.status_code == 500
+    assert response.headers["x-request-id"] == "trace-test-123"
+    assert '"event":"business_error"' in caplog.text
+    assert '"requestId":"trace-test-123"' in caplog.text
+    assert '"errorType":"RuntimeError"' in caplog.text
 
 
 def test_request_body_limit_rejects_oversized_payload(monkeypatch):
@@ -195,6 +223,24 @@ def test_rate_limit_rejects_excess_requests(monkeypatch):
     assert second_response.headers["x-content-type-options"] == "nosniff"
     assert second_response.headers["x-frame-options"] == "DENY"
     assert second_response.headers["x-request-id"]
+
+
+def test_calculation_backpressure_rejects_when_slots_are_exhausted(monkeypatch):
+    semaphore = BoundedSemaphore(1)
+    assert semaphore.acquire(blocking=False)
+    monkeypatch.setattr(main, "MAX_INFLIGHT_CALCULATIONS", 1)
+    monkeypatch.setattr(main, "_calculation_slots", semaphore)
+    monkeypatch.setattr(main, "_calculation_slots_in_use", 1)
+
+    try:
+        response = TestClient(app).post("/api/v1/bazi/simple", json=_payload())
+    finally:
+        semaphore.release()
+        monkeypatch.setattr(main, "_calculation_slots_in_use", 0)
+
+    assert response.status_code == 503
+    assert response.json()["success"] is False
+    assert response.json()["error"] == "服务繁忙，请稍后再试"
 
 
 def test_simple_api_does_not_return_retired_jianchu_field():
@@ -342,6 +388,53 @@ def test_user_records_limit_is_bounded(monkeypatch):
     assert response.json()["error"] == "请求参数无效"
 
 
+def test_bazi_apis_reject_invalid_birth_datetime_as_validation_error():
+    payload = _payload()
+    payload["birthDate"] = "bad-date"
+    client = TestClient(app, raise_server_exceptions=False)
+
+    for path in [
+        "/api/v1/bazi/simple",
+        "/api/v1/bazi/pure-analysis",
+        "/api/v1/bazi/calculate",
+        "/api/v1/report/markdown",
+    ]:
+        response = client.post(path, json=payload)
+        body = response.json()
+
+        assert response.status_code == 422, path
+        assert body["success"] is False
+        assert body["error"] == "请求参数无效"
+
+
+def test_calculate_api_internal_failure_returns_500_not_success_false_200(monkeypatch):
+    def fail_calculation(*_args, **_kwargs):
+        raise RuntimeError("forced calculation failure")
+
+    monkeypatch.setattr(main, "_calculate_bazi_raw", fail_calculation)
+
+    response = TestClient(app, raise_server_exceptions=False).post("/api/v1/bazi/calculate", json=_payload())
+    body = response.json()
+
+    assert response.status_code == 500
+    assert body["success"] is False
+    assert body["error"] == "服务器内部错误"
+
+
+def test_system_optimization_report_does_not_advertise_unimplemented_routes_as_enabled():
+    from system_optimization import get_complete_system_optimization
+
+    response = TestClient(app).get("/graphql")
+    assert response.status_code == 404
+
+    report = get_complete_system_optimization()
+    assert report["systemInfo"]["readyForProduction"] is False
+    assert report["systemInfo"]["productionReadinessSource"] == "scripts/production-readiness.sh"
+    assert report["documentationAndTesting"]["syntheticCoverageClaims"] is False
+    assert "graphqlSupport" not in report["apiEnhancements"]
+    assert "/graphql" in report["apiEnhancements"]["plannedNotAdvertisedAsEnabled"]
+
+
 def test_markdown_report_api_selects_ziwei_without_bazi_blocks():
     payload = _payload()
     payload["options"]["reportSystem"] = "ziwei"
@@ -407,10 +500,21 @@ def test_capabilities_api_lists_almanac_as_standalone_production():
     assert capabilities["bazi"]["defaultVisibility"] == "default"
     assert capabilities["almanac"]["status"] == "production"
     assert capabilities["almanac"]["defaultVisibility"] == "standalone"
+    assert capabilities["almanac"]["capabilityApiEnabled"] is True
+    assert capabilities["almanac"]["markdownReportEnabled"] is False
+    assert capabilities["almanac"]["surfaces"] == {
+        "capabilityApi": True,
+        "markdownReport": False,
+        "webForm": False,
+    }
     assert capabilities["ziwei"]["status"] == "production"
     assert capabilities["ziwei"]["defaultVisibility"] == "standalone"
+    assert capabilities["ziwei"]["capabilityApiEnabled"] is True
+    assert capabilities["ziwei"]["markdownReportEnabled"] is True
     assert capabilities["meihua"]["status"] == "production"
     assert capabilities["meihua"]["defaultVisibility"] == "standalone"
+    assert capabilities["meihua"]["capabilityApiEnabled"] is True
+    assert capabilities["meihua"]["markdownReportEnabled"] is False
 
 
 def test_capability_api_executes_almanac_without_enabling_markdown_system():

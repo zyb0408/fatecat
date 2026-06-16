@@ -1,6 +1,30 @@
 {
   "version": 1,
+  "owner": "tradecatlabs/fate-core",
   "purpose": "记录已经从标准报告退役、后续需要以独立新功能重新设计输入契约与输出结构的候选能力。",
+  "governance": {
+    "owner": "tradecatlabs/fate-core",
+    "changeControl": "候选能力进入生产前必须先成为独立 capability 或 profile，并补齐输入契约、输出模板、风险边界和回归测试。",
+    "extensionPolicy": {
+      "requiredFeatureFields": [
+        "id",
+        "title",
+        "previousReportBlock",
+        "requiredBeforeProduction"
+      ],
+      "productionPromotionGate": [
+        "独立输入契约",
+        "独立输出模板",
+        "风险边界",
+        "字段级测试",
+        "标准报告不自动恢复"
+      ],
+      "forbiddenFeatureFields": [
+        "enabledByDefault",
+        "standardReportAutoEnable"
+      ]
+    }
+  },
   "standardReportContract": {
     "status": "locked",
     "sections": [

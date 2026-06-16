@@ -101,6 +101,14 @@ GET /ready    # 数据库/能力注册表 readiness
 GET /metrics  # Prometheus text 指标
 ```
 
+最小指标检查：
+
+```bash
+curl -fsS http://127.0.0.1:8001/metrics | rg 'fatecat_request_latency_seconds|fatecat_request_errors_total|fatecat_bot_queue_size|fatecat_bot_queue_scope_info'
+```
+
+`/metrics` 至少应暴露 HTTP 请求量、延迟 histogram、错误分类、inflight 请求、Bot 队列 gauge 和队列 scope；告警与 SLO 口径见 `references/ops-pack.md`。
+
 ### Docker 容器构建与 smoke
 
 ```bash
@@ -116,6 +124,8 @@ FATECAT_HOST_PORT=8001 docker compose up --build delivery
 
 ### Docker 容器发布
 
+Principle gate evidence：target end state 是容器 smoke 只证明镜像自托管可启动；real constraints 是公网 live 需要真实 URL/TLS/Bot token；inertia constraints 是本地容器通过不能替代托管公网验收；kill list 是把 dry-run 说成 live PASS；proof point 是 `container-smoke.sh` 与 `production-readiness.sh` 分开；falsifier 是缺真实输入却宣称公网通过；migration slice 是先本地镜像，再外部 live gate。
+
 ```bash
 echo "$GHCR_TOKEN" | docker login ghcr.io -u <user> --password-stdin
 bash scripts/container-release.sh \
@@ -128,19 +138,34 @@ bash scripts/container-release.sh \
 
 ### 无状态公共服务配置
 
-如果只提供公开排盘/报告能力，不保存用户记录，生产环境推荐：
+如果用户独立部署单实例，只提供公开排盘/报告能力且不保存用户记录，推荐：
 
 ```bash
 FATE_RECORDS_ENABLED=0
 FATE_CORS_ALLOW_ORIGINS=https://your-domain.example
 FATE_MAX_REQUEST_BYTES=1048576
 FATE_REQUEST_TIMEOUT_SECONDS=30
+FATE_MAX_INFLIGHT_CALCULATIONS=2
 FATE_RATE_LIMIT_PER_MINUTE=120
-FATE_TRUST_PROXY_HEADERS=1
-FATE_ENABLE_HSTS=1
+FATE_DEPLOYMENT_REPLICAS=1
+FATE_RATE_LIMIT_BACKEND=memory
+FATE_EDGE_BODY_LIMIT_ENABLED=
+FATE_TRUST_PROXY_HEADERS=
+FATE_ENABLE_HSTS=
 ```
 
 启用记录接口时，必须配置 `FATE_API_ADMIN_TOKEN` 或 `FATE_API_USER_TOKENS`，并补持久化数据库、备份、删除和数据保留策略。
+
+托管公网、多副本或反向代理部署时，再把 `FATE_RATE_LIMIT_BACKEND` 改为 `gateway`、`redis`、`waf` 或 `external`，并按真实代理/TLS 配置打开 `FATE_EDGE_BODY_LIMIT_ENABLED`、`FATE_TRUST_PROXY_HEADERS` 和 `FATE_ENABLE_HSTS`。
+
+生产等价静态验收必须同时满足：
+
+- `FATE_CORS_ALLOW_ORIGINS` 使用真实 HTTPS origin，禁止为空或 `*`。
+- `FATE_RECORDS_ENABLED=0` 表示无状态公共排盘服务；如果设为 `1`，必须配置真实 API token。
+- `FATE_DEPLOYMENT_REPLICAS>1` 时，`FATE_RATE_LIMIT_BACKEND` 必须是 `gateway`、`redis`、`waf` 或 `external`，不能使用单进程 `memory`。
+- `FATE_EDGE_BODY_LIMIT_ENABLED=1` 只表示反向代理/CDN 层 body limit 已配置，不能替代真实网关配置。
+- `FATE_TRUST_PROXY_HEADERS=1` 只能在服务直连端口被可信代理隔离时启用。
+- `FATE_ENABLE_HSTS=1` 只在 HTTPS 生产域名确认后启用。
 
 ### 启动 Bot
 

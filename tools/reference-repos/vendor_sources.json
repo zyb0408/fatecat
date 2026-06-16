@@ -1,7 +1,7 @@
 {
-  "version": 2,
-  "snapshotRecordedAt": "2026-05-07",
-  "distributionPolicy": "当前仓库保留 vendor 快照以保证离线 smoke 与 skill 导出可复现；vendor-health 会校验路径、元数据与快照 sha256。licenseStatus=NOASSERTION 的条目必须人工复核，不能据此宣称许可已完成。",
+  "version": 3,
+  "snapshotRecordedAt": "2026-06-15",
+  "distributionPolicy": "当前仓库保留 vendor 快照以保证离线 smoke、评测和 skill 导出可复现；vendor-health 会校验路径、元数据与快照 sha256。usageRole=production_dependency 只允许 licenseStatus=spdx 且 productionUseAllowed=true 的条目；licenseStatus=missing_upstream_license 或缺少独立 LICENSE 文件的条目必须人工复核，不得作为生产依赖扩散。",
   "required": [
     {
       "id": "lunar-python",
@@ -15,7 +15,11 @@
       "revision": "unknown",
       "retrievedAt": "unknown",
       "revisionStatus": "legacy_snapshot_no_git_metadata",
-      "snapshotSha256": "317c6743be75b504e8cd994fedaf9e07876b3a482e3d149ac2a2913130ab2127"
+      "snapshotSha256": "317c6743be75b504e8cd994fedaf9e07876b3a482e3d149ac2a2913130ab2127",
+      "usageRole": "production_dependency",
+      "productionUseAllowed": true,
+      "licenseEvidence": "tools/reference-repos/github/lunar-python-master/LICENSE",
+      "riskNote": "FateCat 主历法底座；生产依赖已在 pyproject.toml、requirements.txt 和 lock 文件显式声明。"
     },
     {
       "id": "bazi-1",
@@ -30,7 +34,11 @@
       "revision": "unknown",
       "retrievedAt": "unknown",
       "revisionStatus": "legacy_snapshot_no_git_metadata",
-      "snapshotSha256": "d5b1977d47e56daf5d3d2329df95c058fff1d5a51fa947532aa1905d5f6d2ce9"
+      "snapshotSha256": "d5b1977d47e56daf5d3d2329df95c058fff1d5a51fa947532aa1905d5f6d2ce9",
+      "usageRole": "reference_only",
+      "productionUseAllowed": false,
+      "licenseEvidence": null,
+      "riskNote": "本地快照缺少上游 LICENSE；只允许作为已登记的规则/资料参考，不能作为新增生产依赖扩散。"
     },
     {
       "id": "sxwnl",
@@ -45,7 +53,11 @@
       "revision": "unknown",
       "retrievedAt": "unknown",
       "revisionStatus": "legacy_snapshot_no_git_metadata",
-      "snapshotSha256": "a4f3bb30ba6e8de7dfe3241678bd81f2f7fdac147655b9f5bebee31212aba8ff"
+      "snapshotSha256": "a4f3bb30ba6e8de7dfe3241678bd81f2f7fdac147655b9f5bebee31212aba8ff",
+      "usageRole": "oracle_only",
+      "productionUseAllowed": false,
+      "licenseEvidence": null,
+      "riskNote": "本地快照缺少上游 LICENSE；只允许作为历法/节气离线对照，不进入主生产链。"
     },
     {
       "id": "iztro",
@@ -59,7 +71,11 @@
       "revision": "unknown",
       "retrievedAt": "unknown",
       "revisionStatus": "legacy_snapshot_no_git_metadata",
-      "snapshotSha256": "3817f93a677e0c63b353a94fa7275199f21582a36397edc2f90685b58aae9325"
+      "snapshotSha256": "3817f93a677e0c63b353a94fa7275199f21582a36397edc2f90685b58aae9325",
+      "usageRole": "future_candidate",
+      "productionUseAllowed": false,
+      "licenseEvidence": "tools/reference-repos/github/iztro-main/LICENSE",
+      "riskNote": "MIT 快照；当前不作为 FateCat 主生产八字链路，启用紫微生产能力前需单独架构与验收。"
     },
     {
       "id": "paipan",
@@ -73,7 +89,11 @@
       "revision": "unknown",
       "retrievedAt": "unknown",
       "revisionStatus": "legacy_snapshot_no_git_metadata",
-      "snapshotSha256": "244a203241e278eebe5ccc9c58bf7bd9a58ff9ac76ccbcfea39d1637bdea5a41"
+      "snapshotSha256": "244a203241e278eebe5ccc9c58bf7bd9a58ff9ac76ccbcfea39d1637bdea5a41",
+      "usageRole": "oracle_only",
+      "productionUseAllowed": false,
+      "licenseEvidence": "tools/reference-repos/github/paipan-master/LICENSE",
+      "riskNote": "真太阳时/早晚子时参考实现；线上使用前需 adapter 级测试和 license 复核。"
     }
   ],
   "optionalFutureFeatures": [
@@ -89,7 +109,11 @@
       "revision": "dd45b4d45516dfb657fce8c56d03f9653cc33dfc",
       "retrievedAt": "2026-05-07",
       "revisionStatus": "git_shallow_clone_head",
-      "snapshotSha256": "72a96b6edcee068ec9d93c9c306ae2e78bc611509fd5f8c8fae12d7469ed6c8f"
+      "snapshotSha256": "72a96b6edcee068ec9d93c9c306ae2e78bc611509fd5f8c8fae12d7469ed6c8f",
+      "usageRole": "evaluation_only",
+      "productionUseAllowed": false,
+      "licenseEvidence": "tools/reference-repos/github/MingLi-Bench-main/LICENSE",
+      "riskNote": "只作为离线评测数据和统计入口；默认不调用多模型 API runner。"
     },
     {
       "id": "fortel-ziweidoushu",
@@ -103,7 +127,11 @@
       "revision": "unknown",
       "retrievedAt": "unknown",
       "revisionStatus": "legacy_snapshot_no_git_metadata",
-      "snapshotSha256": "8ffc561f728448284480d4a8de3a8ab9b4678b2233ef98ae89b831fa09feaf5a"
+      "snapshotSha256": "8ffc561f728448284480d4a8de3a8ab9b4678b2233ef98ae89b831fa09feaf5a",
+      "usageRole": "future_candidate",
+      "productionUseAllowed": false,
+      "licenseEvidence": "tools/reference-repos/github/fortel-ziweidoushu-main/LICENSE",
+      "riskNote": "未来候选材料；进入生产链路前必须重新完成架构、许可和验收。"
     },
     {
       "id": "mikaboshi",
@@ -117,7 +145,11 @@
       "revision": "unknown",
       "retrievedAt": "unknown",
       "revisionStatus": "legacy_snapshot_no_git_metadata",
-      "snapshotSha256": "d452977f14b7456918ab038892aa07f01a6d4ccdd1b44fea852a29fc7532e9a3"
+      "snapshotSha256": "d452977f14b7456918ab038892aa07f01a6d4ccdd1b44fea852a29fc7532e9a3",
+      "usageRole": "future_candidate",
+      "productionUseAllowed": false,
+      "licenseEvidence": "tools/reference-repos/github/mikaboshi-main/LICENSE",
+      "riskNote": "未来候选材料；进入生产链路前必须重新完成架构、许可和验收。"
     },
     {
       "id": "Chinese-Divination",
@@ -132,7 +164,11 @@
       "revision": "unknown",
       "retrievedAt": "unknown",
       "revisionStatus": "legacy_snapshot_no_git_metadata",
-      "snapshotSha256": "d55a73cb33583a21fda4ee5e43892c45528eedf04e73bad62a794216b936a20b"
+      "snapshotSha256": "d55a73cb33583a21fda4ee5e43892c45528eedf04e73bad62a794216b936a20b",
+      "usageRole": "future_candidate",
+      "productionUseAllowed": false,
+      "licenseEvidence": null,
+      "riskNote": "本地快照缺少上游 LICENSE；启用或扩大用途前必须完成人工许可复核。"
     },
     {
       "id": "Iching",
@@ -147,7 +183,11 @@
       "revision": "unknown",
       "retrievedAt": "unknown",
       "revisionStatus": "legacy_snapshot_no_git_metadata",
-      "snapshotSha256": "a7797136b00a8463d4d0f04e654b78212c52ae3604ff797343286325faec0518"
+      "snapshotSha256": "a7797136b00a8463d4d0f04e654b78212c52ae3604ff797343286325faec0518",
+      "usageRole": "future_candidate",
+      "productionUseAllowed": false,
+      "licenseEvidence": null,
+      "riskNote": "本地快照缺少上游 LICENSE；启用或扩大用途前必须完成人工许可复核。"
     },
     {
       "id": "holiday-calendar",
@@ -161,7 +201,11 @@
       "revision": "unknown",
       "retrievedAt": "unknown",
       "revisionStatus": "legacy_snapshot_no_git_metadata",
-      "snapshotSha256": "62442df3e776e5f14a32f2c60dcbe8228162ca3850555235cd8a097f268a9d46"
+      "snapshotSha256": "62442df3e776e5f14a32f2c60dcbe8228162ca3850555235cd8a097f268a9d46",
+      "usageRole": "future_candidate",
+      "productionUseAllowed": false,
+      "licenseEvidence": "tools/reference-repos/github/holiday-and-chinese-almanac-calendar-main/LICENSE",
+      "riskNote": "未来候选材料；进入生产链路前必须重新完成架构、许可和验收。"
     },
     {
       "id": "chinese-calendar",
@@ -175,7 +219,11 @@
       "revision": "unknown",
       "retrievedAt": "unknown",
       "revisionStatus": "legacy_snapshot_no_git_metadata",
-      "snapshotSha256": "63bd2e9d0ed9e4acc76df0317e6a4515760c649e7780e5a773e1151fefdf1cb3"
+      "snapshotSha256": "63bd2e9d0ed9e4acc76df0317e6a4515760c649e7780e5a773e1151fefdf1cb3",
+      "usageRole": "future_candidate",
+      "productionUseAllowed": false,
+      "licenseEvidence": "tools/reference-repos/github/chinese-calendar-master/LICENSE",
+      "riskNote": "未来候选材料；进入生产链路前必须重新完成架构、许可和验收。"
     },
     {
       "id": "js_astro",
@@ -189,7 +237,11 @@
       "revision": "unknown",
       "retrievedAt": "unknown",
       "revisionStatus": "legacy_snapshot_no_git_metadata",
-      "snapshotSha256": "ae545158a8919165d12fbfd2d93ee4b619b373b3509679701924cc73a8436e7a"
+      "snapshotSha256": "ae545158a8919165d12fbfd2d93ee4b619b373b3509679701924cc73a8436e7a",
+      "usageRole": "future_candidate",
+      "productionUseAllowed": false,
+      "licenseEvidence": "tools/reference-repos/github/js_astro-master/LICENSE",
+      "riskNote": "未来候选材料；进入生产链路前必须重新完成架构、许可和验收。"
     },
     {
       "id": "dantalion",
@@ -203,7 +255,11 @@
       "revision": "unknown",
       "retrievedAt": "unknown",
       "revisionStatus": "legacy_snapshot_no_git_metadata",
-      "snapshotSha256": "4accbb5d5eaef7e0e1f3a38690f97ed833cc99743bb9435950bfd93aea9361a0"
+      "snapshotSha256": "4accbb5d5eaef7e0e1f3a38690f97ed833cc99743bb9435950bfd93aea9361a0",
+      "usageRole": "future_candidate",
+      "productionUseAllowed": false,
+      "licenseEvidence": "tools/reference-repos/github/dantalion-master/LICENSE",
+      "riskNote": "MIT 快照；定位偏现代占卜/娱乐化候选，不作为正宗八字核心补齐主线。"
     },
     {
       "id": "bazi-name",
@@ -218,7 +274,55 @@
       "revision": "unknown",
       "retrievedAt": "unknown",
       "revisionStatus": "legacy_snapshot_no_git_metadata",
-      "snapshotSha256": "7f3d882e063105590f586531626958f6d721b25756b06560949fc29e9f354edc"
+      "snapshotSha256": "7f3d882e063105590f586531626958f6d721b25756b06560949fc29e9f354edc",
+      "usageRole": "future_candidate",
+      "productionUseAllowed": false,
+      "licenseEvidence": null,
+      "riskNote": "本地快照缺少上游 LICENSE；启用或扩大用途前必须完成人工许可复核。"
+    },
+    {
+      "id": "bazica",
+      "path": "github/bazica-master",
+      "source": "https://github.com/tommitoan/bazica",
+      "purpose": "Go 八字排盘实现，可作为四柱/大运离线对照 oracle",
+      "usageRole": "oracle_only",
+      "productionUseAllowed": false,
+      "licenseEvidence": "tools/reference-repos/github/bazica-master/LICENSE",
+      "riskNote": "MIT 快照；语言栈为 Go，不进入 Python 主生产链，适合作为交叉校验 oracle。",
+      "license": "MIT",
+      "licenseStatus": "spdx",
+      "licenseFile": "LICENSE",
+      "distributionAllowed": true,
+      "revision": "unknown",
+      "retrievedAt": "unknown",
+      "revisionStatus": "legacy_snapshot_no_git_metadata",
+      "snapshotSha256": "769286a528680bf47d0d5c055f1cff356861a4b096da8a402277286ebf25dbf6"
+    },
+    {
+      "id": "bazi-calculator-by-alvamind",
+      "path": "github/bazi-calculator-by-alvamind-master",
+      "source": "https://github.com/alvamind/bazi-calculator-by-alvamind",
+      "purpose": "Node/TypeScript 八字计算器，可参考基础分析结构和 CLI/API 边界",
+      "usageRole": "reference_only",
+      "productionUseAllowed": false,
+      "licenseEvidence": "package.json license field: MIT; local snapshot has no standalone LICENSE file",
+      "riskNote": "本地快照缺少独立 LICENSE 文件；只作结构参考，不作为生产依赖扩散。",
+      "license": "MIT",
+      "licenseStatus": "spdx",
+      "licenseFile": null,
+      "distributionAllowed": true,
+      "auditRequired": true,
+      "revision": "unknown",
+      "retrievedAt": "unknown",
+      "revisionStatus": "legacy_snapshot_no_git_metadata",
+      "snapshotSha256": "f62b720c467392f59a95d3d2ba8966aca949b64fdfb132ec3cbffe7b3ef06da0"
     }
-  ]
+  ],
+  "usagePolicy": {
+    "production_dependency": "可被运行链路直接依赖；必须具备明确 SPDX 许可证、生产用途说明和可复核快照。",
+    "oracle_only": "只用于离线对照、golden case 或回归校验，不进入线上请求链路。",
+    "evaluation_only": "只用于 benchmark / eval / 质量门禁，不调用外部模型或生产 API。",
+    "reference_only": "只作规则、文本或实现思路参考；不能把无许可证材料当生产依赖分发。",
+    "future_candidate": "未来候选材料；启用前必须重新完成 license、架构和验证审查。"
+  }
 }

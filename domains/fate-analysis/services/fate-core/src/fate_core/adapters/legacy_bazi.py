@@ -1,17 +1,30 @@
 from __future__ import annotations
 
-import sys
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from fate_core.support.paths import TELEGRAM_SRC_DIR
+from fate_core.kernel.bazi_calculator import (
+    ELEM_CN,
+    STEM_ELEM,
+    BaziCalculator,
+    LunarUtil,
+    calc_bone_weight,
+    calc_ming_gua,
+)
+from fate_core.support.timezone import now_cn
 
-if str(TELEGRAM_SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(TELEGRAM_SRC_DIR))
-
-from bazi_calculator import ELEM_CN, STEM_ELEM, BaziCalculator, LunarUtil, calc_bone_weight, calc_ming_gua
-from utils.timezone import now_cn
+# Principle gate evidence:
+# target end state: fate-core owns bazi calculation contracts, providers, and evidence.
+# real constraints: pure-analysis still needs stable BaziCalculator output during migration.
+# inertia constraints: legacy function names describe source history, not future module shape.
+# kill list: delivery imports, unregistered rule expansion, and hidden behavior forks.
+# proof point: golden/oracle/API/service-contract regressions pass through this adapter.
+# falsifier: adapter reads delivery source or adds new domain rules here.
+# migration slice: shrink adapter as calendar/pillars/strength/yongshen providers mature.
+# existence: current consumer is pure-analysis during provider extraction.
+# owner: tradecatlabs/fate-core.
+# verification: domains/fate-analysis/services/fate-core/tests/test_service_contract.py.
 
 __all__ = [
     "BaziCalculator",

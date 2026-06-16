@@ -7,11 +7,24 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 FATE_DIR = ROOT / "contracts" / "fate"
+REFERENCE_MANIFEST = ROOT / "tools" / "reference-repos" / "vendor_sources.json"
+FORBIDDEN_RULE_FIELDS = {"statement", "prediction", "judgement", "conclusion", "advice"}
 
 
 def _load_json(name: str) -> dict:
     with (FATE_DIR / name).open("r", encoding="utf-8") as fh:
         return json.load(fh)
+
+
+def _load_reference_manifest() -> dict:
+    with REFERENCE_MANIFEST.open("r", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def _reference_entries() -> dict[str, dict]:
+    manifest = _load_reference_manifest()
+    entries = manifest["required"] + manifest["optionalFutureFeatures"]
+    return {entry["id"]: entry for entry in entries}
 
 
 def test_evidence_schema_declares_hidden_default_visibility():
@@ -20,6 +33,7 @@ def test_evidence_schema_declares_hidden_default_visibility():
     assert schema["schemaVersion"] == 1
     assert schema["visibilityPolicy"]["default"] == "hidden"
     assert "ruleIds" in schema["itemFields"]
+    assert "riskBoundary" in schema["itemFields"]
 
 
 def test_weight_policy_keeps_auxiliary_and_folk_out_of_core_judgement():
@@ -34,6 +48,7 @@ def test_weight_policy_keeps_auxiliary_and_folk_out_of_core_judgement():
 def test_classics_rule_index_is_traceable_and_bounded():
     index = _load_json("classics_rule_index.json")
     rules = {rule["id"]: rule for rule in index["rules"]}
+    policy = index["governance"]["extensionPolicy"]
 
     required = {
         "bazi.month_command_priority",
@@ -43,11 +58,75 @@ def test_classics_rule_index_is_traceable_and_bounded():
         "bazi.spirits_auxiliary_only",
         "folk.bone_weight_appendix_only",
     }
+    assert index["owner"] == "tradecatlabs/fate-core"
+    assert set(policy["requiredRuleFields"]) >= {
+        "id",
+        "system",
+        "topic",
+        "summary",
+        "sources",
+        "appliesWhen",
+        "doesNotApplyWhen",
+    }
+    assert set(policy["forbiddenRuleFields"]) == FORBIDDEN_RULE_FIELDS
     assert required <= set(rules)
     for rule in rules.values():
+        assert set(policy["requiredRuleFields"]) <= set(rule)
+        assert FORBIDDEN_RULE_FIELDS.isdisjoint(rule)
         assert rule["sources"]
         assert rule["appliesWhen"]
         assert rule["doesNotApplyWhen"]
+
+
+def test_rule_depth_registry_declares_owner_and_extension_gate():
+    registry = _load_json("rule_depth_registry.json")
+    classics = {rule["id"] for rule in _load_json("classics_rule_index.json")["rules"]}
+    policy = registry["governance"]["extensionPolicy"]
+
+    assert registry["owner"] == "tradecatlabs/fate-core"
+    assert policy["riskBoundaryRequired"] is True
+    assert set(policy["requiredRuleFields"]) >= {
+        "id",
+        "system",
+        "layer",
+        "topic",
+        "priority",
+        "weight",
+        "evidenceFields",
+        "conditions",
+        "conflictPolicy",
+        "riskBoundary",
+        "sourceRuleIds",
+    }
+    assert set(policy["forbiddenRuleFields"]) == FORBIDDEN_RULE_FIELDS
+
+    for rule in registry["rules"]:
+        assert set(policy["requiredRuleFields"]) <= set(rule)
+        assert FORBIDDEN_RULE_FIELDS.isdisjoint(rule)
+        assert rule["riskBoundary"]
+        assert rule["conditions"]
+        assert rule["evidenceFields"]
+        assert set(rule["sourceRuleIds"]) <= classics
+
+
+def test_future_features_have_owner_and_cannot_auto_return_to_standard_report():
+    registry = _load_json("future_features.json")
+    policy = registry["governance"]["extensionPolicy"]
+    forbidden = set(policy["forbiddenFeatureFields"])
+
+    assert registry["owner"] == "tradecatlabs/fate-core"
+    assert set(policy["requiredFeatureFields"]) >= {
+        "id",
+        "title",
+        "previousReportBlock",
+        "requiredBeforeProduction",
+    }
+    assert "标准报告不自动恢复" in policy["productionPromotionGate"]
+
+    for feature in registry["futureFeatures"]:
+        assert set(policy["requiredFeatureFields"]) <= set(feature)
+        assert forbidden.isdisjoint(feature)
+        assert feature["requiredBeforeProduction"]
 
 
 def test_lunar_python_is_declared_as_runtime_dependency():
@@ -59,6 +138,82 @@ def test_lunar_python_is_declared_as_runtime_dependency():
     assert "lunar-python>=1.4.8" in dependencies
     assert "lunar-python>=1.4.8" in requirements
     assert "lunar-python==1.4.8" in locked
+
+
+def test_project_classifier_matches_independent_deployment_beta_status():
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+
+    assert "Development Status :: 4 - Beta" in pyproject["project"]["classifiers"]
+    assert "Development Status :: 3 - Alpha" not in pyproject["project"]["classifiers"]
+    assert "Development Status :: 5 - Production/Stable" not in pyproject["project"]["classifiers"]
+
+
+def test_lunar_calendar_adapter_prefers_declared_dependency_over_vendor_path():
+    adapter = ROOT / "domains/fate-analysis/services/fate-core/src/fate_core/adapters/lunar_calendar.py"
+    source = adapter.read_text(encoding="utf-8")
+
+    assert "from lunar_python import Solar" in source
+    assert "except ModuleNotFoundError" in source
+    assert "sys.path.insert(0, str(LUNAR_PYTHON_DIR))" in source
+    assert source.index("from lunar_python import Solar") < source.index("except ModuleNotFoundError")
+
+
+def test_bazi_kernel_prefers_declared_lunar_python_dependency_over_vendor_path():
+    kernel = ROOT / "domains/fate-analysis/services/fate-core/src/fate_core/kernel/bazi_calculator.py"
+    source = kernel.read_text(encoding="utf-8")
+
+    assert "from lunar_python import Solar" in source
+    assert "except ModuleNotFoundError" in source
+    assert "sys.path.insert(0, str(LUNAR_PYTHON_DIR))" in source
+    assert source.index("from lunar_python import Solar") < source.index("except ModuleNotFoundError")
+
+
+def test_reference_manifest_declares_bazi_source_roles_and_risks():
+    entries = _reference_entries()
+    required_ids = {
+        "lunar-python",
+        "bazi-1",
+        "sxwnl",
+        "iztro",
+        "MingLi-Bench",
+        "bazica",
+        "bazi-calculator-by-alvamind",
+        "dantalion",
+    }
+
+    assert required_ids <= set(entries)
+    assert entries["lunar-python"]["usageRole"] == "production_dependency"
+    assert entries["lunar-python"]["productionUseAllowed"] is True
+    assert entries["MingLi-Bench"]["usageRole"] == "evaluation_only"
+    assert entries["bazica"]["usageRole"] == "oracle_only"
+    assert entries["bazi-calculator-by-alvamind"]["usageRole"] == "reference_only"
+
+
+def test_reference_manifest_entries_have_usage_contract_fields():
+    for entry in _reference_entries().values():
+        assert entry["usageRole"] in {
+            "production_dependency",
+            "oracle_only",
+            "evaluation_only",
+            "reference_only",
+            "future_candidate",
+        }
+        assert isinstance(entry["productionUseAllowed"], bool)
+        assert "riskNote" in entry
+
+
+def test_reference_manifest_blocks_missing_license_materials_from_production_role():
+    for entry in _reference_entries().values():
+        missing_license = entry["licenseStatus"] == "missing_upstream_license"
+        if missing_license:
+            assert entry.get("auditRequired") is True
+            assert entry["distributionAllowed"] is False
+            assert entry["usageRole"] != "production_dependency"
+            assert entry["productionUseAllowed"] is False
+        if entry["id"] == "bazi-calculator-by-alvamind":
+            assert entry.get("auditRequired") is True
+            assert entry["usageRole"] == "reference_only"
+            assert entry["productionUseAllowed"] is False
 
 
 def test_emitted_analysis_evidence_rule_ids_exist_in_classics_index():

@@ -131,10 +131,10 @@ if [[ "${with_mingli_bench}" == "1" ]]; then
     --year 2025 \
     --sample 2 \
     --prompt-out "${mingli_dir}/prompts.jsonl"
-  cat > "${mingli_dir}/predictions.jsonl" <<'EOF'
-{"question_id":"ftb_0121","predicted_answer":"A"}
-{"question_id":"ftb_0122","response":"答案：B"}
-EOF
+  bash "${runtime_root}/scripts/generate-mingli-predictions.sh" \
+    --year 2025 \
+    --sample 2 \
+    --output-jsonl "${mingli_dir}/predictions.jsonl"
   bash "${runtime_root}/scripts/run-mingli-bench.sh" \
     --year 2025 \
     --sample 2 \

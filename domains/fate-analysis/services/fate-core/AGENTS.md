@@ -13,6 +13,10 @@ fate-core/
 ├── service.yaml
 ├── src/
 │   └── fate_core/
+│       ├── evaluation/
+│       ├── kernel/
+│       ├── providers/
+│       └── usecases/
 └── tests/
     └── test_service_contract.py
 ```
@@ -20,6 +24,7 @@ fate-core/
 ## 职责边界
 
 - 负责纯命理分析内核、capability registry 执行、字段契约加载、provider/usecase 编排。
+- `src/fate_core/evaluation/` 负责离线 benchmark 与预测 baseline；只能读取领域用例输出，不反向影响生产排盘。
 - 保持 CLI `fatecat pure-analysis`、`fatecat capability` 和 `fatecat health` 外部行为不变。
 - 不新增旧路径 fallback；行为保持验证先于大规模重构。
 

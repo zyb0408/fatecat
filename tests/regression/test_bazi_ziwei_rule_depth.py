@@ -128,6 +128,29 @@ def test_bazi_rule_depth_outputs_rule_applications_and_evidence():
     assert set(evidence["ruleIds"]) <= _classics_rule_ids()
 
 
+def test_bazi_core_evidence_items_have_trace_and_risk_boundary():
+    result = _bazi_result()
+    evidence_items = result["analysisEvidence"]["items"]
+    required_items = {
+        "dayMaster",
+        "wuxingPreference",
+        "pattern",
+        "ganzhiRelations",
+        "timePipeline",
+        "solarTermBoundary",
+        "patternUseGodTrace",
+        "baziBenchmark",
+        "baziRuleDepth",
+    }
+
+    assert required_items <= set(evidence_items)
+    for item_id in required_items:
+        item = evidence_items[item_id]
+        assert item["ruleIds"], item_id
+        assert item["sources"], item_id
+        assert item["riskBoundary"], item_id
+
+
 def test_bazi_gap_closure_benchmark_fields_are_structured():
     result = _bazi_result()
     benchmark = result["baziBenchmark"]
@@ -148,7 +171,14 @@ def test_bazi_gap_closure_benchmark_fields_are_structured():
         assert candidate["status"] in {"formed_candidate", "guarded_candidate", "weak_candidate"}
 
     special = benchmark["patternRegistry"]["specialPatternCandidates"]
-    assert {candidate["name"] for candidate in special["candidates"]} >= {"从格", "化气", "专旺", "假从", "从杀", "从财"}
+    assert {candidate["name"] for candidate in special["candidates"]} >= {
+        "从格",
+        "化气",
+        "专旺",
+        "假从",
+        "从杀",
+        "从财",
+    }
     assert all(candidate["conditions"] and candidate["boundary"] for candidate in special["candidates"])
     assert all(candidate["status"] in {"candidate", "guarded", "not_supported"} for candidate in special["candidates"])
 
@@ -165,6 +195,12 @@ def test_bazi_gap_closure_benchmark_fields_are_structured():
     assert {item["topic"] for item in topics} >= {"事业", "财运", "婚姻", "健康", "学业", "迁移"}
     assert all(item["status"] == "evidence_seed" for item in topics)
     assert all(0 <= item["score"] <= 100 and item["riskBoundary"] for item in topics)
+    forbidden_profile_fields = {"statement", "prediction", "judgement", "conclusion", "advice"}
+    forbidden_profile_terms = {"必然", "一定", "保证", "灾祸", "疾病", "投资建议", "医疗建议"}
+    for item in topics:
+        assert not (forbidden_profile_fields & set(item))
+        rendered = json.dumps(item, ensure_ascii=False)
+        assert not any(term in rendered for term in forbidden_profile_terms)
 
 
 def test_ziwei_rule_depth_outputs_rule_applications_and_evidence():

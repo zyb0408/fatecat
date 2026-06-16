@@ -26,7 +26,9 @@ from .paths import (
     FATE_VENDOR_ROOT,
     TELEGRAM_SRC_DIR,
     TELEGRAM_START_SCRIPT,
+    TELEGRAM_TRUE_SOLAR_TIME_JS,
 )
+from .timezone import CN_TZ, ensure_cn, fmt_cn, now_cn
 
 __all__ = [
     "append_branding_markdown",
@@ -49,7 +51,12 @@ __all__ = [
     "FATE_VENDOR_ROOT",
     "TELEGRAM_SRC_DIR",
     "TELEGRAM_START_SCRIPT",
+    "TELEGRAM_TRUE_SOLAR_TIME_JS",
+    "CN_TZ",
+    "ensure_cn",
+    "fmt_cn",
     "get_branding_payload",
     "get_disclaimer_payload",
     "load_branding",
+    "now_cn",
 ]

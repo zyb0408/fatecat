@@ -3,6 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal
 
+# Ponytail existence: capability contracts are consumed by registry, executor, and tests.
+# Owner: tradecatlabs/fate-core. Verification: test_capability_protocol.py.
+
 CapabilityStatus = Literal["planned", "experimental", "production"]
 Visibility = Literal["default", "optional", "standalone", "hidden"]
 RiskLevel = Literal["folk_reference", "entertainment", "requires_disclaimer"]
@@ -21,6 +24,7 @@ class Capability:
     input_optional: tuple[str, ...]
     provider: str
     report_profile: str
+    markdown_default: bool
     evidence_required: bool
     risk_level: RiskLevel
     disclaimer_required: bool

@@ -1,14 +1,22 @@
 """八字排盘 Telegram Bot"""
 
+# Principle gate evidence:
+# target end state: Bot only collects input, calls delivery/core services, and sends reports.
+# real constraints: Telegram commands and current report wording remain user-facing contracts.
+# inertia constraints: mixed English/Chinese result keys are historical payload shape, not new design.
+# kill list: Bot-owned命理规则、无界重试、无 owner 的兼容分支。
+# proof point: Bot dry-run, queue tests, and API/report regressions pass.
+# falsifier: Bot adds domain calculation logic or bypasses fate-core evidence output.
+# migration slice: keep payload adapters, then remove them when upstream emits one canonical schema.
+# existence: current consumer is Telegram delivery; owner is fatecat-delivery; verification is pytest.
+
 import asyncio
+import hashlib
 import json
-import logging
 import os
 import re
-import sys
 import time
 from datetime import datetime
-from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -44,9 +52,10 @@ BOT_DRY_RUN = (os.getenv("FATE_BOT_DRY_RUN") or "").strip().lower() in {"1", "tr
 
 import db_v2 as db  # noqa: E402
 from bazi_calculator import BaziCalculator  # noqa: E402
+from bot_logging import setup_bot_logger  # noqa: E402
 from location import get as get_location  # noqa: E402
 from location import get_coords  # noqa: E402
-from rate_limiter import acquire_slot, get_queue_status, release_slot  # noqa: E402
+from rate_limiter import QueueFullError, acquire_slot, get_queue_status, record_request, release_slot  # noqa: E402
 from report_generator import (  # noqa: E402
     REPORT_SYSTEM_LABELS,
     build_report_hide,
@@ -59,54 +68,9 @@ db.ensure_db()
 
 INPUT, CONFIRM = range(2)
 
-# 进度展示配置
-PROGRESS_ITEMS = [
-    "基础四柱",
-    "五行能量 + 五行分数",
-    "神煞系统（全量）",
-    "干支合克与入库",
-    "地支关系扩展",
-    "格局用神",
-    "大运流年",
-    "流月小运",
-    "节气司令",
-    "真太阳时",
-    "报告体系装配",
-    "温湿度与拱神",
-    "袁天罡称骨",
-]
-PROGRESS_TIPS = [
-    "五行平衡往往胜过单一旺相。",
-    "神煞只是参考，核心看格局与大运。",
-    "真太阳时会影响子时划分，不能省略。",
-    "大运看趋势，流月小运看细节。",
-    "用神取法先看日主，再看季节寒暖燥湿。",
-    "格局不怕破，怕无根；有根则有解。",
-    "紫微解读重宫位组合，别孤立看单星。",
-    "称骨只作民俗参考，不能替代现实选择。",
-]
 
-
-# ==================== 日志配置 ====================
-def _setup_logger():
-    ensure_dirs()  # 确保目录存在
-    LOGS_DIR.mkdir(parents=True, exist_ok=True)
-    logger = logging.getLogger("fate.bot")
-    logger.setLevel(logging.INFO)
-    if logger.handlers:
-        return logger
-    fmt = logging.Formatter("%(asctime)s %(levelname)s %(name)s - %(message)s")
-    fh = RotatingFileHandler(LOGS_DIR / "bot.log", maxBytes=5 * 1024 * 1024, backupCount=3, encoding="utf-8")
-    fh.setFormatter(fmt)
-    sh = logging.StreamHandler(sys.stdout)
-    sh.setFormatter(fmt)
-    logger.addHandler(fh)
-    logger.addHandler(sh)
-    logger.propagate = False
-    return logger
-
-
-logger = _setup_logger()
+ensure_dirs()
+logger = setup_bot_logger(LOGS_DIR)
 QUEUE_PATH = (QUEUE_DIR / "send_queue.jsonl").resolve()
 BRANDING = get_branding_payload()
 
@@ -635,11 +599,37 @@ async def progress_loop(state, context: ContextTypes.DEFAULT_TYPE):
 
 
 # ==================== 发送失败补偿队列 ====================
+def _send_task_id(task: dict) -> str:
+    """生成补发任务幂等键；排除运行态重试字段。"""
+    stable_task = {
+        key: value
+        for key, value in task.items()
+        if key not in {"id", "queued_at", "attempts", "last_error", "last_failed_at"}
+    }
+    payload = json.dumps(stable_task, ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _normalize_send_task(task: dict) -> dict:
+    normalized = dict(task)
+    normalized.setdefault("id", _send_task_id(normalized))
+    normalized.setdefault("queued_at", now_cn().isoformat())
+    normalized.setdefault("attempts", 0)
+    return normalized
+
+
 def _enqueue_send_task(task: dict):
     QUEUE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with QUEUE_PATH.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(task, ensure_ascii=False) + "\n")
-    logger.warning(f"[QUEUE] 入队补发任务 type={task.get('type')} chat_id={task.get('chat_id')}")
+    normalized = _normalize_send_task(task)
+    tasks = _load_queue()
+    if any(item.get("id") == normalized["id"] for item in tasks):
+        logger.warning(f"[QUEUE] 跳过重复补发任务 id={normalized['id']} chat_id={normalized.get('chat_id')}")
+        return
+    tasks.append(normalized)
+    _save_queue(tasks)
+    logger.warning(
+        f"[QUEUE] 入队补发任务 id={normalized['id']} type={normalized.get('type')} chat_id={normalized.get('chat_id')}"
+    )
 
 
 def _load_queue():
@@ -652,19 +642,25 @@ def _load_queue():
             if not line:
                 continue
             try:
-                tasks.append(json.loads(line))
+                tasks.append(_normalize_send_task(json.loads(line)))
             except Exception as e:
                 logger.warning(f"[QUEUE] 解析失败跳过: {e}")
-    return tasks
+    deduped = {}
+    for task in tasks:
+        deduped[task["id"]] = task
+    return list(deduped.values())
 
 
 def _save_queue(tasks):
     if not tasks:
         QUEUE_PATH.unlink(missing_ok=True)
         return
-    with QUEUE_PATH.open("w", encoding="utf-8") as f:
+    QUEUE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = QUEUE_PATH.with_suffix(f"{QUEUE_PATH.suffix}.tmp")
+    with tmp_path.open("w", encoding="utf-8") as f:
         for t in tasks:
-            f.write(json.dumps(t, ensure_ascii=False) + "\n")
+            f.write(json.dumps(_normalize_send_task(t), ensure_ascii=False, sort_keys=True) + "\n")
+    tmp_path.replace(QUEUE_PATH)
 
 
 async def _process_send_queue(context: ContextTypes.DEFAULT_TYPE):
@@ -709,6 +705,9 @@ async def _process_send_queue(context: ContextTypes.DEFAULT_TYPE):
             logger.info(f"[QUEUE] 补发成功 type={task.get('type')} chat_id={task.get('chat_id')}")
         except Exception as e:
             logger.warning(f"[QUEUE] 补发失败保留队列: {e}")
+            task["attempts"] = int(task.get("attempts", 0)) + 1
+            task["last_error"] = str(e)
+            task["last_failed_at"] = now_cn().isoformat()
             remaining.append(task)
     _save_queue(remaining)
 
@@ -823,7 +822,15 @@ async def handle_confirm_callback(update: Update, context: ContextTypes.DEFAULT_
                     reply_markup=result_kb(),
                 )
                 return ConversationHandler.END
-            await acquire_slot()
+            try:
+                await acquire_slot()
+            except QueueFullError as e:
+                await query.edit_message_text(
+                    _with_branding_text(f"⏳ {e}\n\n发送 /paipan 重试", compact=True),
+                    reply_markup=result_kb(),
+                )
+                return ConversationHandler.END
+            record_request(user_id)
         # ========== 槽位获取结束 ==========
 
         report_label = REPORT_SYSTEM_LABELS.get(d.get("report_system", "bazi"), REPORT_SYSTEM_LABELS["bazi"])

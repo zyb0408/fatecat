@@ -8,11 +8,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 import json
 from datetime import datetime
 
+import pytest
+
 from bazi_calculator import BaziCalculator
 from location import get as get_loc
+from report_generator import build_report_hide
 
 
-def test_all_features():
+def test_all_features(tmp_path):
     print("🔮 测试所有功能")
     print("=" * 60)
 
@@ -29,10 +32,9 @@ def test_all_features():
 
     # 执行计算
     try:
-        result = calc.calculate()
+        result = calc.calculate(hide=build_report_hide("bazi"))
     except Exception as e:
-        print(f"❌ 计算失败: {e}")
-        return
+        pytest.fail(f"生产八字链路计算失败: {e}")
 
     # 统计字段数量
     total_fields = len(result)
@@ -61,10 +63,15 @@ def test_all_features():
     print("=" * 60)
     print(f"🎯 功能完成度: {total_fields}个字段")
 
-    # 保存结果到文件
-    with open("complete_result.json", "w", encoding="utf-8") as f:
+    assert "fourPillars" in result
+    assert "dayMaster" in result
+    assert "analysisEvidence" in result
+
+    # 保存结果到 pytest 临时目录，避免污染仓库根目录。
+    output_path = tmp_path / "complete_result.json"
+    with output_path.open("w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
-    print("📄 结果已保存到 complete_result.json")
+    print(f"📄 结果已保存到 {output_path}")
 
 
 if __name__ == "__main__":

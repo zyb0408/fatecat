@@ -7,8 +7,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from datetime import datetime
 
+import pytest
+
 from bazi_calculator import BaziCalculator
 from location import get as get_loc
+from report_generator import build_report_hide
 
 
 def test_extended_features():
@@ -28,10 +31,9 @@ def test_extended_features():
 
     # 执行计算
     try:
-        result = calc.calculate()
+        result = calc.calculate(hide=build_report_hide("ziwei"))
     except Exception as e:
-        print(f"❌ 计算失败: {e}")
-        return
+        pytest.fail(f"已接入扩展链路计算失败: {e}")
 
     # 显示基础信息
     fp = result["fourPillars"]
@@ -42,10 +44,10 @@ def test_extended_features():
     if qm:
         print("🎯 奇门遁甲: 已计算")
     zw = result.get("ziweiBasic", {})
-    if zw:
-        mg = zw.get("mingGong", {})
-        if isinstance(mg, dict) and mg.get("dizhi"):
-            print(f"⭐ 紫微斗数: 命宫{mg.get('dizhi')}")
+    assert zw
+    mg = zw.get("mingGong", {})
+    if isinstance(mg, dict) and mg.get("dizhi"):
+        print(f"⭐ 紫微斗数: 命宫{mg.get('dizhi')}")
     lr = result.get("liurenDivination", {})
     if lr:
         print("🔢 大六壬: 已计算")

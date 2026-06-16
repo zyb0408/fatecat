@@ -19,3 +19,4 @@ infra/environments/production/
 - 公共服务可设置 `FATE_RECORDS_ENABLED=0` 进入无状态模式；启用记录服务时必须配置 token 和持久化策略。
 - 多副本公网服务必须把限流真相源放在 gateway、Redis、WAF 或云平台侧；应用内 memory 限流只作为单副本兜底。
 - 请求体大小限制应在反向代理/CDN 与应用层同时配置；`FATE_EDGE_BODY_LIMIT_ENABLED` 只记录外部层已落地，不替代真实网关配置。
+- Bot 交付必须使用有界队列；`FATE_BOT_QUEUE_MAX_SIZE` 不得设置成近似无限等待，用户冷却和每日限额默认关闭但必须显式保留配置口径。

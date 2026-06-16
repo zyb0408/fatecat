@@ -16,6 +16,7 @@ scripts/
 ├── local-ci.sh
 ├── preflight.sh
 ├── export-runtime.sh
+├── generate-mingli-predictions.sh
 ├── run-mingli-bench.sh
 └── ...
 ```
@@ -28,10 +29,22 @@ scripts/
 - `container-release.sh`：构建、smoke，并在显式 `--push` 时推送 registry。
 - `local-ci.sh`：本地 CI/CD 调度入口；只编排本仓脚本，不调用 GitHub Actions。
 - `common.sh` 负责解析 runtime root；只允许已就绪的企业根作为运行根。
+- `generate-mingli-predictions.sh` 是 `fate_core.evaluation.mingli_baseline` 的薄封装，不承载领域评测规则。
 - `run-mingli-bench.sh` 负责离线 FortuneTellingBench 统计、提示词生成和预测结果评估，不调用外部模型 API。
 - 脚本不得保活退役路径；任何旧路径只能出现在防回潮门禁、历史证据或迁移账本中。
+
+## Principle Gate Evidence
+
+- target end state: scripts are thin local CI/CD and runtime entrypoints around canonical roots.
+- real constraints: container smoke uses short-lived containers and local ports for self-host checks.
+- inertia constraints: historical script names and smoke helpers must not become alternate platforms.
+- kill list: hidden old root fallback, secret persistence, and live-production claims without inputs.
+- proof point: `local-ci.sh --profile all` passes through shell, pytest, export, Docker, and readiness.
+- falsifier: any script writes secrets, hides runtime state, or claims live API/Bot without real inputs.
+- migration slice: keep root scripts as stable wrappers while domains/contracts own implementation logic.
 
 ## 依赖方向
 
 - `scripts -> domains + contracts + infra + governance`
+- `scripts/generate-mingli-predictions.sh -> fate_core.evaluation.mingli_baseline`
 - 禁止脚本直接隐藏 secret、运行态或旧路径 fallback。

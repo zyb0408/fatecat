@@ -1,0 +1,492 @@
+{
+  "schema_version": "1.0.0",
+  "task_meta": {
+    "objective": "把 FateCat 项目质量标准从当前 72% 推进到可审查、可验证、可维护、可生产运行的 100% 状态。",
+    "overall_status": "In Progress",
+    "task_dir": "governance/tasks/0001-quality-standards-100"
+  },
+  "source_plan": {
+    "schema_version": "1.0.0",
+    "plan_path": "governance/tasks/0001-quality-standards-100/APPROVED_PLAN.json"
+  },
+  "generated_assets": [
+    {
+      "id": "tree-spec",
+      "type": "task-tree-spec",
+      "path": "governance/tasks/0001-quality-standards-100/TREE_SPEC.json",
+      "description": "approved plan 编译后的递归任务树规格",
+      "source_step_keys": [
+        "baseline-gates",
+        "format-gate",
+        "review-refresh",
+        "quick-local-ci",
+        "production-constraints",
+        "production-env-contract",
+        "public-service-local-ci",
+        "external-live-readiness",
+        "edge-case-hardening",
+        "timezone-contract",
+        "bot-backpressure",
+        "api-guardrail-tests",
+        "calendar-boundary-golden",
+        "explainability-bazi",
+        "evidence-coverage",
+        "bazi-golden-expand",
+        "topic-profile-validation",
+        "mingli-bench-gate",
+        "maintainability-architecture",
+        "boundary-map",
+        "split-pure-analysis",
+        "migrate-bazi-core",
+        "split-delivery-surfaces",
+        "remove-legacy-shims",
+        "reuse-supply-chain",
+        "calendar-provider-contract",
+        "reference-license-manifest",
+        "oracle-harness",
+        "rule-registry-governance",
+        "observability-operations",
+        "metrics-dashboard",
+        "trace-log-correlation",
+        "slo-runbook",
+        "run-local-ci-all",
+        "final-review-ship",
+        "full-quality-review",
+        "fix-review-findings",
+        "task-closeout"
+      ]
+    },
+    {
+      "id": "asset-bundle",
+      "type": "asset-bundle-manifest",
+      "path": "governance/tasks/0001-quality-standards-100/ASSET_BUNDLE.json",
+      "description": "编译输出的资产包 manifest",
+      "source_step_keys": [
+        "baseline-gates",
+        "format-gate",
+        "review-refresh",
+        "quick-local-ci",
+        "production-constraints",
+        "production-env-contract",
+        "public-service-local-ci",
+        "external-live-readiness",
+        "edge-case-hardening",
+        "timezone-contract",
+        "bot-backpressure",
+        "api-guardrail-tests",
+        "calendar-boundary-golden",
+        "explainability-bazi",
+        "evidence-coverage",
+        "bazi-golden-expand",
+        "topic-profile-validation",
+        "mingli-bench-gate",
+        "maintainability-architecture",
+        "boundary-map",
+        "split-pure-analysis",
+        "migrate-bazi-core",
+        "split-delivery-surfaces",
+        "remove-legacy-shims",
+        "reuse-supply-chain",
+        "calendar-provider-contract",
+        "reference-license-manifest",
+        "oracle-harness",
+        "rule-registry-governance",
+        "observability-operations",
+        "metrics-dashboard",
+        "trace-log-correlation",
+        "slo-runbook",
+        "run-local-ci-all",
+        "final-review-ship",
+        "full-quality-review",
+        "fix-review-findings",
+        "task-closeout"
+      ]
+    },
+    {
+      "id": "task-package-set",
+      "type": "task-package-set",
+      "path": "governance/tasks/0001-quality-standards-100/TASK_PACKAGE_SET.json",
+      "description": "编译输出的结构化任务包集合",
+      "source_step_keys": [
+        "baseline-gates",
+        "format-gate",
+        "review-refresh",
+        "quick-local-ci",
+        "production-constraints",
+        "production-env-contract",
+        "public-service-local-ci",
+        "external-live-readiness",
+        "edge-case-hardening",
+        "timezone-contract",
+        "bot-backpressure",
+        "api-guardrail-tests",
+        "calendar-boundary-golden",
+        "explainability-bazi",
+        "evidence-coverage",
+        "bazi-golden-expand",
+        "topic-profile-validation",
+        "mingli-bench-gate",
+        "maintainability-architecture",
+        "boundary-map",
+        "split-pure-analysis",
+        "migrate-bazi-core",
+        "split-delivery-surfaces",
+        "remove-legacy-shims",
+        "reuse-supply-chain",
+        "calendar-provider-contract",
+        "reference-license-manifest",
+        "oracle-harness",
+        "rule-registry-governance",
+        "observability-operations",
+        "metrics-dashboard",
+        "trace-log-correlation",
+        "slo-runbook",
+        "run-local-ci-all",
+        "final-review-ship",
+        "full-quality-review",
+        "fix-review-findings",
+        "task-closeout"
+      ]
+    },
+    {
+      "id": "task-doc-set",
+      "type": "task-docs",
+      "description": "README/CONTEXT/ACCEPTANCE/PLAN/TODO/STATUS 任务文档集合",
+      "source_step_keys": [
+        "baseline-gates",
+        "format-gate",
+        "review-refresh",
+        "quick-local-ci",
+        "production-constraints",
+        "production-env-contract",
+        "public-service-local-ci",
+        "external-live-readiness",
+        "edge-case-hardening",
+        "timezone-contract",
+        "bot-backpressure",
+        "api-guardrail-tests",
+        "calendar-boundary-golden",
+        "explainability-bazi",
+        "evidence-coverage",
+        "bazi-golden-expand",
+        "topic-profile-validation",
+        "mingli-bench-gate",
+        "maintainability-architecture",
+        "boundary-map",
+        "split-pure-analysis",
+        "migrate-bazi-core",
+        "split-delivery-surfaces",
+        "remove-legacy-shims",
+        "reuse-supply-chain",
+        "calendar-provider-contract",
+        "reference-license-manifest",
+        "oracle-harness",
+        "rule-registry-governance",
+        "observability-operations",
+        "metrics-dashboard",
+        "trace-log-correlation",
+        "slo-runbook",
+        "run-local-ci-all",
+        "final-review-ship",
+        "full-quality-review",
+        "fix-review-findings",
+        "task-closeout"
+      ],
+      "path": "governance/tasks/0001-quality-standards-100"
+    }
+  ],
+  "logical_deliverables": [
+    {
+      "step_key": "baseline-gates",
+      "step_id": "TP-01",
+      "outputs": [
+        "先把当前已知 BLOCK 清零，恢复本地 CI 可信度。"
+      ]
+    },
+    {
+      "step_key": "format-gate",
+      "step_id": "TP-01.01",
+      "outputs": [
+        "格式化后的 calculate_pure_analysis.py",
+        "格式化后的 test_bazi_ziwei_rule_depth.py"
+      ]
+    },
+    {
+      "step_key": "review-refresh",
+      "step_id": "TP-01.02",
+      "outputs": [
+        "REVIEW.md 当前质量记录"
+      ]
+    },
+    {
+      "step_key": "quick-local-ci",
+      "step_id": "TP-01.03",
+      "outputs": [
+        "local-ci quick evidence"
+      ]
+    },
+    {
+      "step_key": "production-constraints",
+      "step_id": "TP-02",
+      "outputs": [
+        "让公共服务发布前的静态和真实环境门禁可执行、可失败、可追溯。"
+      ]
+    },
+    {
+      "step_key": "production-env-contract",
+      "step_id": "TP-02.01",
+      "outputs": [
+        "production env checklist",
+        "readiness evidence"
+      ]
+    },
+    {
+      "step_key": "public-service-local-ci",
+      "step_id": "TP-02.02",
+      "outputs": [
+        "public-service local CI evidence"
+      ]
+    },
+    {
+      "step_key": "external-live-readiness",
+      "step_id": "TP-02.03",
+      "outputs": [
+        "live API readiness evidence",
+        "live Bot evidence"
+      ]
+    },
+    {
+      "step_key": "edge-case-hardening",
+      "step_id": "TP-03",
+      "outputs": [
+        "把时区、真太阳时、节气、早晚子时、Bot 背压、多副本限流和异常输入变成测试化契约。"
+      ]
+    },
+    {
+      "step_key": "timezone-contract",
+      "step_id": "TP-03.01",
+      "outputs": [
+        "时区语义契约",
+        "时区边界测试"
+      ]
+    },
+    {
+      "step_key": "bot-backpressure",
+      "step_id": "TP-03.02",
+      "outputs": [
+        "Bot rate limiter contract",
+        "rate limiter tests"
+      ]
+    },
+    {
+      "step_key": "api-guardrail-tests",
+      "step_id": "TP-03.03",
+      "outputs": [
+        "API guardrail regression tests"
+      ]
+    },
+    {
+      "step_key": "calendar-boundary-golden",
+      "step_id": "TP-03.04",
+      "outputs": [
+        "calendar/bazi boundary golden cases"
+      ]
+    },
+    {
+      "step_key": "explainability-bazi",
+      "step_id": "TP-04",
+      "outputs": [
+        "让核心命理判断具备可追溯 evidence、ruleIds、权重和风险边界。"
+      ]
+    },
+    {
+      "step_key": "evidence-coverage",
+      "step_id": "TP-04.01",
+      "outputs": [
+        "evidence coverage report",
+        "regression tests"
+      ]
+    },
+    {
+      "step_key": "bazi-golden-expand",
+      "step_id": "TP-04.02",
+      "outputs": [
+        "100+ golden case manifest",
+        "golden regression suite"
+      ]
+    },
+    {
+      "step_key": "topic-profile-validation",
+      "step_id": "TP-04.03",
+      "outputs": [
+        "topic profile tests",
+        "risk wording checks"
+      ]
+    },
+    {
+      "step_key": "mingli-bench-gate",
+      "step_id": "TP-04.04",
+      "outputs": [
+        "MingLi-Bench local evaluation evidence"
+      ]
+    },
+    {
+      "step_key": "maintainability-architecture",
+      "step_id": "TP-05",
+      "outputs": [
+        "从大文件和 delivery legacy 中迁出领域核心，让 fate-core 成为命理能力真相源。"
+      ]
+    },
+    {
+      "step_key": "boundary-map",
+      "step_id": "TP-05.01",
+      "outputs": [
+        "module boundary map",
+        "legacy kill list"
+      ]
+    },
+    {
+      "step_key": "split-pure-analysis",
+      "step_id": "TP-05.02",
+      "outputs": [
+        "fate-core pure_analysis submodules",
+        "updated AGENTS.md"
+      ]
+    },
+    {
+      "step_key": "migrate-bazi-core",
+      "step_id": "TP-05.03",
+      "outputs": [
+        "fate-core bazi providers/evaluators",
+        "legacy adapter shrink plan"
+      ]
+    },
+    {
+      "step_key": "split-delivery-surfaces",
+      "step_id": "TP-05.04",
+      "outputs": [
+        "delivery boundary refactor slices",
+        "updated AGENTS.md"
+      ]
+    },
+    {
+      "step_key": "remove-legacy-shims",
+      "step_id": "TP-05.05",
+      "outputs": [
+        "legacy removal diff",
+        "migration ledger update"
+      ]
+    },
+    {
+      "step_key": "reuse-supply-chain",
+      "step_id": "TP-06",
+      "outputs": [
+        "确保外部库、参考仓、oracle 和规则材料都在正确边界内被复用。"
+      ]
+    },
+    {
+      "step_key": "calendar-provider-contract",
+      "step_id": "TP-06.01",
+      "outputs": [
+        "CalendarProvider contract",
+        "dependency tests"
+      ]
+    },
+    {
+      "step_key": "reference-license-manifest",
+      "step_id": "TP-06.02",
+      "outputs": [
+        "reference source manifest",
+        "license risk notes"
+      ]
+    },
+    {
+      "step_key": "oracle-harness",
+      "step_id": "TP-06.03",
+      "outputs": [
+        "oracle comparison harness"
+      ]
+    },
+    {
+      "step_key": "rule-registry-governance",
+      "step_id": "TP-06.04",
+      "outputs": [
+        "rule registry governance note",
+        "policy tests"
+      ]
+    },
+    {
+      "step_key": "observability-operations",
+      "step_id": "TP-07",
+      "outputs": [
+        "把当前应用内 metrics/logs/readiness 扩展到真实运行平台可用的 SLO、告警和排障包。"
+      ]
+    },
+    {
+      "step_key": "metrics-dashboard",
+      "step_id": "TP-07.01",
+      "outputs": [
+        "metrics dashboard spec",
+        "alert runbook"
+      ]
+    },
+    {
+      "step_key": "trace-log-correlation",
+      "step_id": "TP-07.02",
+      "outputs": [
+        "trace/log correlation tests or runbook"
+      ]
+    },
+    {
+      "step_key": "slo-runbook",
+      "step_id": "TP-07.03",
+      "outputs": [
+        "SLO/runbook update"
+      ]
+    },
+    {
+      "step_key": "run-local-ci-all",
+      "step_id": "TP-07.04",
+      "outputs": [
+        "local-ci all evidence"
+      ]
+    },
+    {
+      "step_key": "final-review-ship",
+      "step_id": "TP-08",
+      "outputs": [
+        "用 auto-review 和任务 closeout 证明六项质量标准全部达到 100% gate。"
+      ]
+    },
+    {
+      "step_key": "full-quality-review",
+      "step_id": "TP-08.01",
+      "outputs": [
+        "final REVIEW.md",
+        "quality score matrix"
+      ]
+    },
+    {
+      "step_key": "fix-review-findings",
+      "step_id": "TP-08.02",
+      "outputs": [
+        "review finding fix evidence"
+      ]
+    },
+    {
+      "step_key": "task-closeout",
+      "step_id": "TP-08.03",
+      "outputs": [
+        "Task Closeout Packet",
+        "handoff to auto-github/auto-assets/auto-governance"
+      ]
+    }
+  ],
+  "execution_snapshot": {
+    "total_nodes": 38,
+    "total_leaf_nodes": 30,
+    "ready_leaf_ids": [
+      "TP-01.01"
+    ]
+  }
+}

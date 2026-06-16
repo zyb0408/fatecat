@@ -1,0 +1,791 @@
+{
+  "schema_version": "1.0.0",
+  "overall_status": "Blocked",
+  "document_blocks": {
+    "in_scope": "- 本地开发可用性、企业结构、本地 CI/CD、八字基础、八字专业、公共生产、长期维护性七个维度推进到可审查 100% 状态\n- 只使用本地 CI/CD 工具链和本仓库任务树证据，不跑 GitHub Acceptance\n- 真实公网生产验收作为 HITL 节点独立阻塞，不伪造成本地通过",
+    "out_of_scope": "- 不新增旧路径 fallback、兼容盒、双轨旧流程\n- 不把缺少真实 URL/token 的公网验收标为通过\n- 不把命理专业能力做成无来源、无证据、不可反驳的文案扩写\n- 不引入重前端或偏离现有 FateCat Web 页面设计",
+    "requirement_alignment": "- 最终目标：FateCat 从当前本地可用状态推进到本地工程 100%、八字专业能力 100%、公共生产 HITL 100% 的可审查交付状态\n- 当前事实：0001 已完成大量本地工程任务，仍因 TP-02.03 缺真实公网 URL 和真实 Bot token 阻塞最终 closeout\n- 本任务承接剩余增量，不覆盖 0001，不伪造外部生产证据",
+    "repo_evidence": "- 当前仓库：/home/lenovo/.projects/fatecat\n- 0001 状态：governance/tasks/0001-quality-standards-100/STATUS.md 为 Blocked，阻塞点是公网 API 与 live Bot HITL\n- 已验证：0001 任务文档 decompose 校验通过；当前 INDEX 已修正为 Blocked\n- 最近本地证据：REVIEW.md 记录 local-ci all PASS、full .venv/bin/python -m pytest 158 passed、ruff/mypy PASS、Docker 容器 /web smoke OK",
+    "constraints_matrix": "- 允许：修改 governance/tasks/0002-quality-completion-to-100/、必要时维护 governance/tasks/INDEX.md，并按任务树后续叶子修改相关源码/文档/测试\n- 禁止：破坏用户已有未提交改动、执行破坏性 git 命令、跑 GitHub Acceptance、伪造外部生产验收\n- HITL：真实 HTTPS 生产 URL、TLS/反代配置、生产 CORS allowlist、真实 FATE_BOT_TOKEN 需要用户或部署环境提供",
+    "change_boundary": "- 每次只执行当前 ready 叶子节点声明的变更\n- 命理核心输出变化必须由 golden/oracle/evidence 解释，否则停止并转 debug/review\n- 架构文件移动或模块拆分必须同步更新对应 AGENTS.md\n- 生产相关任务只能固化本地等价配置和 runbook；真实公网验收必须等外部输入",
+    "risk_matrix": "- P0：错误宣称公网生产 100%，会误导发布决策\n- P0：八字规则无证据扩写，会降低专业可信度\n- P1：继续堆大文件会恶化长期维护性\n- P1：新增依赖或规则没有 license/source/owner，会破坏企业治理\n- P2：过度任务拆分会降低执行效率，需保持叶子节点可直接验收",
+    "assumptions_and_falsification": "- 假设：当前本地 CI/CD 与 0001 记录的证据大体可信，但本任务仍需在关键节点复跑验证\n- 反证：若 local-ci all、golden/oracle、policy asset 或容器 smoke 失败，则不得推进对应维度到 100%\n- 反证：若真实公网 URL/token 不可用，则公共生产只能停在 HITL Blocked，不能进入 Done\n- 反证：若高级八字规则无法给出 source/ruleId/riskBoundary，则该能力不能计入专业 100%",
+    "critical_ambiguities": "- 公共生产 URL、TLS/反代、真实 Bot token 尚未提供；这只阻塞 TP-06.04 和最终公网 100%\n- 专业八字 100% 的经典语料边界需要以本仓库 registry 和可许可参考源为准；不采纳无 license 的生产依赖扩散",
+    "debug_evidence_contract": "- 调试模式: Optional\n- 若 local-ci、golden/oracle、容器 smoke 或公网 readiness 失败，必须转 Required 并维护 DEBUG.md\n- DEBUG.md 必须记录复现、观察、假设、实验、根因、修复、回归证据",
+    "task_level_acceptance": "- 七个质量维度都有明确叶子任务、依赖、Verify、Gate 和输出物\n- 本地可执行节点全部完成后，local-ci all 和任务文档校验必须通过\n- 公共生产 HITL 节点只在真实 URL/token 验收通过后 Done\n- 任何 100% 结论必须引用命令、测试、文档或外部 live smoke 证据",
+    "validation_plan": "- 每个叶子节点完成后立即更新 STATUS.md Recent Evidence\n- 本地工程节点至少运行对应 pytest/ruff/mypy/local-ci/structure/gov 校验\n- 八字能力节点必须运行 golden/oracle/evidence/policy 测试\n- 生产节点必须运行 local public-service profile；真实公网节点必须运行 production-readiness --api-url <real-url> --require-live-bot\n- 最终节点必须运行 validate_task_docs.py --phase closeout 或记录阻塞原因",
+    "review_gate": "- auto-review lens：correctness、security、reliability、performance、architecture、operability、repo-hygiene\n- future-optimal-drift：禁止把 legacy/compat 作为目标结构\n- ponytail-complexity：禁止新增无存在理由的配置、抽象、文件、依赖和流程\n- feature-change-safety：覆盖 API、Bot、限流、外部 token、生产配置和运行副作用",
+    "ship_readiness": "- 本地工程 100%：local-ci all PASS、任务文档 decompose/closeout 校验 PASS、review 无 BLOCK\n- 八字专业 100%：高级规则、合化、用神、岁运专题均有 source/ruleId/riskBoundary 和 golden/benchmark 证据\n- 公共生产 100%：真实公网 production-readiness + live Bot PASS\n- 如果 HITL 缺输入，最终交付状态只能是本地 100% + 公网 HITL Blocked",
+    "global_acceptance_standards": "- [ ] 每个叶子节点有真实 Verify 和 Gate\n- [ ] 每个完成节点有 Recent Evidence\n- [ ] 本地验证失败时不得标 Done\n- [ ] 外部 HITL 缺输入时不得伪造通过\n- [ ] 新增规则、依赖、文档、配置均有存在性理由和维护边界\n- [ ] 最终汇报区分 Done、Blocked、Skipped、Unknown",
+    "planning_summary": "本任务按七个质量维度拆成八个顶层包：先修任务控制面，再补本地开发/仓库/CI，再补八字基础和专业规则，再处理生产 HITL 和长期维护，最后审查收口。",
+    "lifecycle_gates": "- SPEC：目标终态、真实约束、惯性约束、反证条件已记录\n- PLAN：递归任务树、依赖、执行波次已由工具渲染\n- BUILD：只做当前 ready 叶子节点，不混入无关重构\n- TEST：每个叶子节点记录真实验证结果\n- REVIEW：维度完成后执行对应 review lens\n- SHIP：所有本地节点 Done 且 HITL 状态真实可解释后才交付\n- 不得跳过 gate；未闭合当前 gate 前不得进入下一阶段或宣称 100%",
+    "simplest_path": "先完成 TP-00 控制面修复；随后并行推进本地开发、结构、CI 文档化和轻量校验；再做八字基础/专业能力的规则证据扩展；最后处理生产 HITL 和全仓 closeout。",
+    "split_strategy": "按质量维度拆顶层包，按可直接执行的验证路径拆叶子节点；生产公网验收作为单独 HITL 叶子，避免阻塞本地可完成任务；八字专业能力按格局、合化、用神、岁运四个专业能力面拆分。"
+  },
+  "nodes": [
+    {
+      "id": "TP-00",
+      "title": "任务控制面修正",
+      "priority": "P0",
+      "type": "package",
+      "objective": "修正任务索引、状态和下一阶段任务容器，确保任务真相源可继续执行",
+      "parent": "ROOT",
+      "status": "Done",
+      "evidence": "2026-06-15：0001 INDEX 状态修正完成；0002 任务容器创建、TREE_SPEC.json 写入并通过 apply_task_tree decompose 校验。"
+    },
+    {
+      "id": "TP-00.01",
+      "title": "修正 0001 索引状态",
+      "priority": "P0",
+      "type": "action",
+      "objective": "让 governance/tasks/INDEX.md 与 0001 STATUS.md 的 Blocked 状态一致",
+      "parent": "TP-00",
+      "parallelizable": false,
+      "verify": "python3 /home/lenovo/.codex/skills/auto-tasks/scripts/validate_task_docs.py --task-dir governance/tasks/0001-quality-standards-100 --phase decompose && sed -n '1,30p' governance/tasks/INDEX.md",
+      "gate": "0001 状态为 Blocked，且 0001 任务文档校验通过",
+      "outputs": [
+        "governance/tasks/INDEX.md 状态修正"
+      ],
+      "acceptance": [
+        "INDEX 不再把 0001 写成 In Progress",
+        "0001 decompose 校验 OK"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：已将 0001 INDEX 状态改为 Blocked；validate_task_docs.py --phase decompose 返回 ok=true。"
+    },
+    {
+      "id": "TP-00.02",
+      "title": "创建 0002 任务树",
+      "priority": "P0",
+      "type": "action",
+      "objective": "创建并回填 0002 任务容器，承接剩余 100% 推进工作",
+      "parent": "TP-00",
+      "depends_on": [
+        "TP-00.01"
+      ],
+      "parallelizable": false,
+      "verify": "python3 /home/lenovo/.codex/skills/auto-tasks/scripts/validate_task_docs.py --task-dir governance/tasks/0002-quality-completion-to-100 --phase decompose",
+      "gate": "0002 文档无非法占位符，任务树依赖和 ready queue 可渲染",
+      "outputs": [
+        "governance/tasks/0002-quality-completion-to-100/TREE_SPEC.json",
+        "governance/tasks/0002-quality-completion-to-100/README.md",
+        "governance/tasks/0002-quality-completion-to-100/PLAN.md",
+        "governance/tasks/0002-quality-completion-to-100/TODO.md",
+        "governance/tasks/0002-quality-completion-to-100/STATUS.md"
+      ],
+      "acceptance": [
+        "任务容器存在并可校验",
+        "下一批 ready 叶子节点清晰"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：materialize_task_docs.py 创建 0002 容器；apply_task_tree.py 使用 TREE_SPEC.json 回填 README/CONTEXT/ACCEPTANCE/PLAN/TODO/STATUS；validate_task_docs.py --phase decompose 返回 ok=true。"
+    },
+    {
+      "id": "TP-01",
+      "title": "本地开发可用性 100%",
+      "priority": "P0",
+      "type": "package",
+      "objective": "把本地开发体验从可用提升到可复制、可恢复、可验证的 100% 状态",
+      "parent": "ROOT",
+      "depends_on": [
+        "TP-00"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：TP-01.01/TP-01.02/TP-01.03 全部完成；本地开发入口、恢复路径、quick smoke 和 delivery API smoke 均有证据。"
+    },
+    {
+      "id": "TP-01.01",
+      "title": "固化一键本地开发入口",
+      "priority": "P0",
+      "type": "action",
+      "objective": "确认并文档化 API/Web/Bot dry-run、本地环境启动和常见开发命令",
+      "parent": "TP-01",
+      "parallelizable": true,
+      "verify": "rg 'local-ci|delivery-smoke|uvicorn|/web|Bot' references README.md Makefile scripts -n",
+      "gate": "README/references/Makefile/scripts 中存在可执行本地开发入口和验证路径",
+      "outputs": [
+        "本地开发入口清单",
+        "必要时更新 references/commands.md 或 README.md"
+      ],
+      "acceptance": [
+        "新人能按文档完成 venv、安装、启动、smoke",
+        "命令不依赖 GitHub Actions"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：`rg local-ci|delivery-smoke|uvicorn|/web|Bot references README.md Makefile scripts -n` 命中 README、Makefile、scripts/local-ci.sh、delivery-smoke.sh、references/commands.md、execution-playbook.md、ops-pack.md；本地开发入口存在且不依赖 GitHub Actions。"
+    },
+    {
+      "id": "TP-01.02",
+      "title": "补齐本地恢复路径",
+      "priority": "P1",
+      "type": "action",
+      "objective": "补齐 venv 重建、缓存清理、runtime 清理、失败恢复的最小 runbook",
+      "parent": "TP-01",
+      "parallelizable": true,
+      "verify": "rg 'venv|clean-runtime|pip cache|pytest_cache|build/|dist/' references README.md scripts -n",
+      "gate": "本地依赖坏掉、runtime 脏掉、测试缓存脏掉时有可执行恢复命令",
+      "outputs": [
+        "本地恢复 runbook"
+      ],
+      "acceptance": [
+        "恢复命令覆盖 .venv、pip、.venv/bin/python -m pytest cache、runtime/export/docker 残留"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：`rg venv|clean-runtime|pip cache|pytest_cache|build/|dist/ references README.md scripts -n` 命中 bootstrap、clean-runtime、troubleshooting、commands、ops-pack；覆盖 .venv 重建、缓存清理、runtime 清理和导出排除。"
+    },
+    {
+      "id": "TP-01.03",
+      "title": "本地开发 smoke 验收",
+      "priority": "P0",
+      "type": "action",
+      "objective": "用 quick profile 和 delivery smoke 证明本地开发链路可用",
+      "parent": "TP-01",
+      "depends_on": [
+        "TP-01.01",
+        "TP-01.02"
+      ],
+      "parallelizable": false,
+      "verify": "bash scripts/local-ci.sh --profile quick && bash scripts/delivery-smoke.sh",
+      "gate": "quick profile 和 delivery smoke PASS，失败则转 DEBUG.md",
+      "outputs": [
+        "本地开发 smoke evidence"
+      ],
+      "acceptance": [
+        "本地开发可用性可按命令复现"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：`bash scripts/local-ci.sh --profile quick` -> PASS，focused regression 43 passed in 7.38s，证据目录 `/tmp/fatecat-local-ci-20260615214051`；`bash scripts/delivery-smoke.sh --target api --port 8011` -> api ready http://127.0.0.1:8011/health。"
+    },
+    {
+      "id": "TP-02",
+      "title": "企业仓库结构 100%",
+      "priority": "P0",
+      "type": "package",
+      "objective": "确保 canonical roots、catalog、governance、contracts 和防回潮门禁达到企业仓库结构 100%",
+      "parent": "ROOT",
+      "depends_on": [
+        "TP-00"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：TP-02.01/TP-02.02/TP-02.03 全部完成；结构/source/export/tasks tree 均通过。"
+    },
+    {
+      "id": "TP-02.01",
+      "title": "结构与目录门禁复核",
+      "priority": "P0",
+      "type": "action",
+      "objective": "复核 canonical roots、旧路径禁用、compat ledger 和目录 AGENTS.md 状态",
+      "parent": "TP-02",
+      "parallelizable": true,
+      "verify": "bash scripts/check-structure.sh && rg 'compatibility_source_root|temporary-compatibility-box|scripts/project' . -g '!tools/reference-repos/**' -g '!governance/tasks/**'",
+      "gate": "结构门禁通过；旧路径命中只允许出现在防回潮测试、账本或历史说明中",
+      "outputs": [
+        "结构门禁 evidence",
+        "旧路径扫描结果"
+      ],
+      "acceptance": [
+        "企业 canonical roots 保持为唯一活跃结构"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：`bash scripts/check-structure.sh` -> structure gate ok；清理 active README/prompt 中旧口径，剩余 scripts/project 命中均为 CHANGELOG/REVIEW/DEBUG、catalog guard、负例测试、迁移账本、历史证据或 vendor reference archive。"
+    },
+    {
+      "id": "TP-02.02",
+      "title": "catalog 与治理索引新鲜度",
+      "priority": "P1",
+      "type": "action",
+      "objective": "确认 catalog、governance INDEX、migration ledger、tech-debt evidence 与当前结构一致",
+      "parent": "TP-02",
+      "parallelizable": true,
+      "verify": "python3 governance/tools/validate_governance_package.py --strict || true; rg 'fate-core|fatecat-delivery|compatibility-ledger|DEBT-0001' catalog governance -n",
+      "gate": "若治理校验工具存在且可运行则无 BLOCK；若当前治理 strict 有历史 WARN，必须记录 owner 和后续任务",
+      "outputs": [
+        "catalog/governance freshness evidence"
+      ],
+      "acceptance": [
+        "组件 owner、生命周期、迁移账本和技术债证据可互相回指"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：`python3 governance/tools/validate_governance_package.py --strict` -> PASS issue_count=0；`rg fate-core|fatecat-delivery|compatibility-ledger|DEBT-0001 catalog governance -n` 证明 catalog、migration ledger、tech-debt evidence 可互相回指。"
+    },
+    {
+      "id": "TP-02.03",
+      "title": "企业结构最终验收",
+      "priority": "P0",
+      "type": "action",
+      "objective": "用结构、源码卫生、导出卫生和任务文档校验证明企业仓库结构 100%",
+      "parent": "TP-02",
+      "depends_on": [
+        "TP-02.01",
+        "TP-02.02"
+      ],
+      "parallelizable": false,
+      "verify": "tmp_dir=$(mktemp -d /tmp/fatecat-export-check-XXXXXX); bash scripts/check-structure.sh && bash scripts/check-source-hygiene.sh && bash scripts/export-runtime.sh --output-parent \"${tmp_dir}\" --mode lite && bash scripts/check-export-hygiene.sh \"${tmp_dir}/fatecat\" && python3 /home/lenovo/.codex/skills/auto-tasks/scripts/validate_tasks_tree.py --tasks-dir governance/tasks --phase auto",
+      "gate": "结构/source/export/tasks 校验通过或历史外部阻塞被明确记录",
+      "outputs": [
+        "企业结构 100% evidence"
+      ],
+      "acceptance": [
+        "无未解释结构漂移",
+        "任务树校验不失败"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：首次裸 `check-export-hygiene.sh` 暴露任务命令缺导出包参数；修正为临时 lite export 后复跑通过：structure gate ok、source hygiene ok、export hygiene ok、validate_tasks_tree ok=true task_total=2 valid=2；历史 `project-history` 已迁入 `governance/archive/tasks/project-history/`。"
+    },
+    {
+      "id": "TP-03",
+      "title": "本地 CI/CD 100%",
+      "priority": "P0",
+      "type": "package",
+      "objective": "把本地 quick/full/export/docker/container/public-service 形成可重复发布门禁",
+      "parent": "ROOT",
+      "depends_on": [
+        "TP-00"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：TP-03.01/TP-03.02/TP-03.03 全部完成；本地 CI/CD all profile 最新通过。"
+    },
+    {
+      "id": "TP-03.01",
+      "title": "本地 CI profile 目录化",
+      "priority": "P0",
+      "type": "action",
+      "objective": "确认 local-ci 各 profile 的职责、输出证据和失败处理方式清晰",
+      "parent": "TP-03",
+      "parallelizable": true,
+      "verify": "bash scripts/local-ci.sh --help || sed -n '1,220p' scripts/local-ci.sh",
+      "gate": "quick/full/public-service/export/docker/container smoke 的职责和证据目录可读",
+      "outputs": [
+        "local-ci profile contract"
+      ],
+      "acceptance": [
+        "本地发布门禁不依赖远端 CI"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：`bash scripts/local-ci.sh --help` 输出 quick/full/container/public-service/all 职责，明确本地 CI/CD 不调用 GitHub Actions。"
+    },
+    {
+      "id": "TP-03.02",
+      "title": "供应链与制品证据",
+      "priority": "P1",
+      "type": "action",
+      "objective": "补齐依赖来源、vendor health、容器 image、export runtime 的本地证据路径",
+      "parent": "TP-03",
+      "parallelizable": true,
+      "verify": "bash scripts/vendor-health.sh && bash scripts/export-runtime.sh --help && docker image inspect fatecat-delivery:local >/dev/null 2>&1 || true",
+      "gate": "供应链、vendor、export、container 证据路径明确；缺 Docker 时记录环境 blocker",
+      "outputs": [
+        "supply-chain/local-artifact evidence"
+      ],
+      "acceptance": [
+        "依赖和制品不是黑箱"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：`bash scripts/vendor-health.sh` -> vendor health ok；`bash scripts/export-runtime.sh --help` 输出 full/lite export 合同；`docker image inspect fatecat-delivery:local` -> sha256:f025e727b49e97558cc3167fcd9ff8951b1a0b059c1f086c77dbab34b7fac6a3。"
+    },
+    {
+      "id": "TP-03.03",
+      "title": "本地 CI/CD 全链路验收",
+      "priority": "P0",
+      "type": "action",
+      "objective": "复跑 all profile，形成本地 CI/CD 100% 最新证据",
+      "parent": "TP-03",
+      "depends_on": [
+        "TP-03.01",
+        "TP-03.02"
+      ],
+      "parallelizable": false,
+      "verify": "bash scripts/local-ci.sh --profile all",
+      "gate": "all profile PASS；如 Docker/外部凭证缺失，必须拆分记录真实 blocker",
+      "outputs": [
+        "local-ci all evidence directory"
+      ],
+      "acceptance": [
+        "本地 CI/CD 100% 有最新可复核证据"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：第一次 `bash scripts/local-ci.sh --profile all` 因 REVIEW.md 缺 `references/ops-pack.md` 引用失败；修复后 `.venv/bin/python -m pytest tests/regression/test_operability_docs.py` -> 1 passed；复跑 `bash scripts/local-ci.sh --profile all` -> PASS，证据目录 `/tmp/fatecat-local-ci-20260615215009`，覆盖 quick、full 158 passed、ruff、mypy、API/Bot dry-run、export、Docker build/container smoke、public-service 静态 readiness。"
+    },
+    {
+      "id": "TP-04",
+      "title": "八字基础能力 100%",
+      "priority": "P0",
+      "type": "package",
+      "objective": "把四柱、节气、真太阳时、起运、证据层、golden/oracle 覆盖推进到基础 100%",
+      "parent": "ROOT",
+      "depends_on": [
+        "TP-00"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：TP-04.01/TP-04.02/TP-04.03 全部完成；八字基础 golden/oracle/evidence/policy 回归通过。"
+    },
+    {
+      "id": "TP-04.01",
+      "title": "扩展 golden matrix 到 300+",
+      "priority": "P0",
+      "type": "action",
+      "objective": "在现有 120 样本基础上扩展到 300+，覆盖节气、子时、真太阳时、起运、地域时区、边界反例",
+      "parent": "TP-04",
+      "parallelizable": false,
+      "verify": "python3 -m json.tool domains/fate-analysis/data-products/bazi/golden/coverage_matrix_cases.json >/dev/null && .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py",
+      "gate": "样本数 >=300；每个样本有 source/expected/coverageTags/failure explanation path",
+      "outputs": [
+        "coverage_matrix_cases.json 300+ 样本",
+        "golden regression evidence"
+      ],
+      "acceptance": [
+        "基础八字边界不靠单点样例证明"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：coverage_matrix_cases.json 从 120 扩展到 300 个匿名北京合成样本，minCaseCount=300；使用 lunar-python EightChar/Yun 生成四柱/起运期望值；`python3 -m json.tool` PASS；`.venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py` -> 7 passed in 28.91s。"
+    },
+    {
+      "id": "TP-04.02",
+      "title": "历法 oracle 对照增强",
+      "priority": "P1",
+      "type": "action",
+      "objective": "增强 lunar-python 主链与 sxtwl/oracle 开发门禁对照，确保 oracle 不污染生产路径",
+      "parent": "TP-04",
+      "parallelizable": true,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_calendar_oracle_contract.py tests/regression/test_solar_terms_golden.py",
+      "gate": "oracle 只用于测试/评估，生产路径仍通过 CalendarProvider",
+      "outputs": [
+        "calendar oracle evidence"
+      ],
+      "acceptance": [
+        "历法底座可复核且边界清楚"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：裸 pytest 因系统 Python 缺 lunar_python 失败，已将任务树 pytest 命令统一改为 `.venv/bin/python -m pytest`；`.venv/bin/python -m pytest tests/regression/test_calendar_oracle_contract.py tests/regression/test_solar_terms_golden.py` -> 10 passed in 70.39s。"
+    },
+    {
+      "id": "TP-04.03",
+      "title": "基础能力证据覆盖验收",
+      "priority": "P0",
+      "type": "action",
+      "objective": "确认四柱、节气、起运、五行、十神、神煞等基础判断均有 ruleId/source/riskBoundary",
+      "parent": "TP-04",
+      "depends_on": [
+        "TP-04.01",
+        "TP-04.02"
+      ],
+      "parallelizable": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_fate_policy_assets.py tests/regression/test_bazi_golden_coverage_matrix.py",
+      "gate": "无孤儿 ruleId，无核心基础判断缺 evidence",
+      "outputs": [
+        "八字基础能力 100% evidence"
+      ],
+      "acceptance": [
+        "八字基础能力可解释、可测试、可回归"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：`.venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_fate_policy_assets.py tests/regression/test_bazi_golden_coverage_matrix.py` -> 41 passed in 90.53s。"
+    },
+    {
+      "id": "TP-05",
+      "title": "八字专业完整度 100%",
+      "priority": "P0",
+      "type": "package",
+      "objective": "补齐高级格局、合化成败、用神裁决、岁运专题和专业 benchmark",
+      "parent": "ROOT",
+      "depends_on": [
+        "TP-04"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：高级格局、合化成败、用神裁决、岁运专题和 benchmark 均由 baziBenchmark/ruleDepth 证据层覆盖；`.venv/bin/python -m pytest tests/regression/test_fate_policy_assets.py tests/regression/test_bazi_ziwei_rule_depth.py` -> 34 passed；`.venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py` -> 29 passed；`bash scripts/run-mingli-bench.sh --stats --sample 5` 返回 FortuneTellingBench 样本统计。"
+    },
+    {
+      "id": "TP-05.01",
+      "title": "高级格局 registry",
+      "priority": "P0",
+      "type": "action",
+      "objective": "建立正格、变格、从格、专旺、化气、假从的规则 registry 与反例条件",
+      "parent": "TP-05",
+      "parallelizable": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_fate_policy_assets.py tests/regression/test_bazi_ziwei_rule_depth.py",
+      "gate": "每条高级格局规则有 source、appliesWhen、doesNotApplyWhen、riskBoundary",
+      "outputs": [
+        "高级格局规则 registry",
+        "高级格局测试"
+      ],
+      "acceptance": [
+        "格局判断不是文案标签，而是证据化规则"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：`contracts/fate/rule_depth_registry.json` 与 `contracts/fate/classics_rule_index.json` 已登记高级格局 source/appliesWhen/doesNotApplyWhen/riskBoundary；`test_fate_policy_assets.py` 和 `test_bazi_ziwei_rule_depth.py` 验证通过，34 passed。"
+    },
+    {
+      "id": "TP-05.02",
+      "title": "合化成败引擎",
+      "priority": "P0",
+      "type": "action",
+      "objective": "实现合化成败条件链：月令、透干、通根、得令、阻隔、帮扶、冲破",
+      "parent": "TP-05",
+      "depends_on": [
+        "TP-05.01"
+      ],
+      "parallelizable": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py",
+      "gate": "合而不化、可化、破化、争合等反例均有 golden 覆盖",
+      "outputs": [
+        "合化成败 evaluator",
+        "合化 golden cases"
+      ],
+      "acceptance": [
+        "合化结论有条件链和失败原因"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：`_build_combine_transform_matrix` 输出月令、透干、通根、阻隔等 conditionCatalog；`test_bazi_gap_closure_benchmark_fields_are_structured` 验证候选 conditions/status/riskBoundary；29 个 golden/rule-depth 回归通过。"
+    },
+    {
+      "id": "TP-05.03",
+      "title": "用神裁决引擎",
+      "priority": "P0",
+      "type": "action",
+      "objective": "把调候、扶抑、通关、病药做成并列策略评分与冲突裁决",
+      "parent": "TP-05",
+      "depends_on": [
+        "TP-05.01"
+      ],
+      "parallelizable": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_bazi_golden_coverage_matrix.py",
+      "gate": "用神结论展示策略评分、冲突原因、保守边界，不输出确定性人生建议",
+      "outputs": [
+        "yongshen strategy scoring",
+        "用神冲突测试"
+      ],
+      "acceptance": [
+        "用神不是单表查值，而是可解释裁决"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：`_build_yongshen_decision` 对调候、扶抑、通关、病药四类策略评分排序并保留 conflictPolicy/riskBoundary；`test_bazi_gap_closure_benchmark_fields_are_structured` 验证 4 个 scoredStrategies 和 evidenceFields；29 个 golden/rule-depth 回归通过。"
+    },
+    {
+      "id": "TP-05.04",
+      "title": "岁运专题 profile",
+      "priority": "P1",
+      "type": "action",
+      "objective": "补齐财、官、婚、健康、迁移、事业等岁运专题 profile 的规则证据和风险边界",
+      "parent": "TP-05",
+      "depends_on": [
+        "TP-05.01"
+      ],
+      "parallelizable": true,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py",
+      "gate": "专题 profile 只输出 evidence_seed/riskBoundary，不输出确定性预测或专业替代建议",
+      "outputs": [
+        "fortune topic profiles",
+        "专题 profile 测试"
+      ],
+      "acceptance": [
+        "岁运专题具备可审查输入和保守输出边界"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：`_build_topic_profiles` 输出事业、财运、婚姻、健康、学业、迁移 topic profile，状态均为 evidence_seed 且含 riskBoundary；测试禁止确定性预测、恐吓式断语和专业替代建议字段；29 个 golden/rule-depth 回归通过。"
+    },
+    {
+      "id": "TP-05.05",
+      "title": "专业 benchmark 与报告验收",
+      "priority": "P0",
+      "type": "action",
+      "objective": "用 MingLi-Bench、本仓 golden 和报告回归验证专业完整度",
+      "parent": "TP-05",
+      "depends_on": [
+        "TP-05.02",
+        "TP-05.03",
+        "TP-05.04"
+      ],
+      "parallelizable": false,
+      "verify": "bash scripts/run-mingli-bench.sh --stats --sample 5 && .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_bazi_golden_coverage_matrix.py",
+      "gate": "专业 benchmark 有统计结果；报告输出引用规则证据且风险话术通过测试",
+      "outputs": [
+        "八字专业完整度 100% evidence"
+      ],
+      "acceptance": [
+        "高级八字能力不是孤立代码，而有评测与报告验收"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：`bash scripts/run-mingli-bench.sh --stats --sample 5` 离线统计通过，返回 FortuneTellingBench 5 个样本分类；`.venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_bazi_golden_coverage_matrix.py` -> 29 passed in 88.98s。"
+    },
+    {
+      "id": "TP-06",
+      "title": "公共生产稳定性 100%",
+      "priority": "P0",
+      "type": "package",
+      "objective": "补齐本地生产等价配置、观测、限流和真实公网 live 验收",
+      "parent": "ROOT",
+      "depends_on": [
+        "TP-03"
+      ],
+      "status": "Blocked",
+      "evidence": "2026-06-15：TP-06.01/TP-06.02/TP-06.03 本地生产等价、防护和观测节点已完成；TP-06.04 因缺少真实公网 HTTPS URL/TLS 反代/真实 FATE_BOT_TOKEN 保持 HITL Blocked，不伪造 live 生产 100%。",
+      "blocker": "缺少真实公网生产 HTTPS URL、TLS/反向代理配置、生产 CORS allowlist 和真实 FATE_BOT_TOKEN",
+      "unblock": "提供真实生产 URL 和 Bot token 后运行 production-readiness --api-url <real-url> --require-live-bot"
+    },
+    {
+      "id": "TP-06.01",
+      "title": "生产等价配置复核",
+      "priority": "P0",
+      "type": "action",
+      "objective": "确认 CORS allowlist、trusted proxy、HSTS、edge body limit、timeouts 和生产 env 示例完整",
+      "parent": "TP-06",
+      "parallelizable": true,
+      "verify": "bash scripts/production-readiness.sh --skip-bootstrap",
+      "gate": "本地生产等价静态门禁 PASS；没有真实公网时 live 项保持 SKIP",
+      "outputs": [
+        "production static readiness evidence"
+      ],
+      "acceptance": [
+        "生产配置不是靠口头约定"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：使用生产等价 env 运行 `FATE_RECORDS_ENABLED=0 FATE_CORS_ALLOW_ORIGINS=https://fatecat.tradecatlabs.example FATE_RATE_LIMIT_BACKEND=gateway FATE_EDGE_BODY_LIMIT_ENABLED=1 FATE_TRUST_PROXY_HEADERS=1 FATE_ENABLE_HSTS=1 bash scripts/production-readiness.sh --skip-bootstrap` -> 生产配置静态门禁通过；外部 API 与 live Bot 因未提供真实输入保持 SKIP。"
+    },
+    {
+      "id": "TP-06.02",
+      "title": "多副本限流与边缘防护方案",
+      "priority": "P1",
+      "type": "action",
+      "objective": "把单进程内存限流的边界、Redis/网关/WAF 升级路径和 body limit 策略写入运行合同",
+      "parent": "TP-06",
+      "parallelizable": true,
+      "verify": "rg 'Redis|WAF|rate|body limit|trusted proxy|HSTS|CORS' references infra domains -n",
+      "gate": "单实例/多副本限流边界明确；公网入口必须有 edge body limit",
+      "outputs": [
+        "public service protection contract"
+      ],
+      "acceptance": [
+        "多副本公共服务不会误以为内存限流足够"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：`references/commands.md`、`references/ops-pack.md`、`infra/environments/production/AGENTS.md`、生产 env 示例和 `main.py` 明确 CORS、gateway/redis/waf/external 限流、edge body limit、trusted proxy、HSTS 边界；`rg 'Redis|WAF|rate|body limit|trusted proxy|HSTS|CORS|FATE_RATE_LIMIT_BACKEND|FATE_EDGE_BODY_LIMIT_ENABLED' ...` 已复核。"
+    },
+    {
+      "id": "TP-06.03",
+      "title": "观测与错误定位增强",
+      "priority": "P1",
+      "type": "action",
+      "objective": "补齐 p95/p99 histogram、错误分类、requestId 贯穿、运行 runbook 的验收证据",
+      "parent": "TP-06",
+      "parallelizable": true,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_operability_docs.py",
+      "gate": "5xx/timeout/rate-limit 可从 metrics/log/runbook 定位",
+      "outputs": [
+        "observability evidence"
+      ],
+      "acceptance": [
+        "公共服务不是只看 /health"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：`.venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_operability_docs.py` -> 26 passed；验证 latency histogram、request error counter、requestId 日志、413/429/timeout/error 分类和 runbook 查询路径。"
+    },
+    {
+      "id": "TP-06.04",
+      "title": "真实公网 API 与 Bot live 验收",
+      "priority": "P0",
+      "type": "action",
+      "objective": "在真实 HTTPS URL、TLS/反代、真实 FATE_BOT_TOKEN 可用后完成公共生产 100% 验收",
+      "parent": "TP-06",
+      "depends_on": [
+        "TP-06.01",
+        "TP-06.02",
+        "TP-06.03"
+      ],
+      "parallelizable": false,
+      "verify": "bash scripts/production-readiness.sh --api-url <real-url> --require-live-bot",
+      "gate": "真实 /health、/ready、/metrics 和 Telegram get_me 通过；无 placeholder token",
+      "outputs": [
+        "live API readiness evidence",
+        "live Bot evidence"
+      ],
+      "acceptance": [
+        "公共生产 100% 必须来自真实外部验收"
+      ],
+      "status": "Blocked",
+      "blocker": "缺少真实公网生产 HTTPS URL、TLS/反向代理配置、生产 CORS allowlist 和真实 FATE_BOT_TOKEN",
+      "unblock": "提供真实生产 URL 和 Bot token 后运行 production-readiness --api-url <real-url> --require-live-bot",
+      "evidence": "2026-06-15：production-readiness 静态门禁已通过；由于未提供 `--api-url` 和 `--require-live-bot` 所需真实 token，脚本明确 SKIP 外部 API 连通验证和真实 Bot 连通验证。"
+    },
+    {
+      "id": "TP-07",
+      "title": "长期维护性 100%",
+      "priority": "P0",
+      "type": "package",
+      "objective": "继续拆核心大文件，收缩 delivery 职责，清退无契约兼容面",
+      "parent": "ROOT",
+      "depends_on": [
+        "TP-04"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：TP-07.01/TP-07.02/TP-07.03/TP-07.04 全部完成；核心边界、delivery 边界、兼容账本和 local quick 验收均通过。"
+    },
+    {
+      "id": "TP-07.01",
+      "title": "拆分 bazi kernel 子模块",
+      "priority": "P0",
+      "type": "action",
+      "objective": "把 fate_core.kernel.bazi_calculator 按 calendar、pillars、strength、relations、spirits、patterns、yongshen、fortune 逐步拆边界",
+      "parent": "TP-07",
+      "parallelizable": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_api_contracts.py tests/regression/fate_core/test_pure_analysis_usecase.py",
+      "gate": "外部 API 输出不漂移；kernel/AGENTS.md 同步更新；旧 wrapper 不新增领域逻辑",
+      "outputs": [
+        "fate_core.kernel 子模块",
+        "kernel/AGENTS.md 更新"
+      ],
+      "acceptance": [
+        "核心算法边界变窄，行为由 golden 护住"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：新增 `bone_weight.py`、`ming_gua.py`、`solar_time.py`，`bazi_calculator.py` 从 2798 行降至 2498 行；更新 kernel/AGENTS.md 与 DEBT-0001；`.venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_api_contracts.py tests/regression/fate_core/test_pure_analysis_usecase.py` -> 33 passed。"
+    },
+    {
+      "id": "TP-07.02",
+      "title": "收敛 delivery 大文件",
+      "priority": "P1",
+      "type": "action",
+      "objective": "收敛 main.py、bot.py、report/web_ui 的职责边界，确保 delivery 只做编排、渲染、传输、观测防护",
+      "parent": "TP-07",
+      "parallelizable": false,
+      "verify": ".venv/bin/python -m pytest domains/experience-delivery/services/fatecat-delivery/tests tests/regression/test_web_html.py tests/regression/test_api_contracts.py",
+      "gate": "delivery 不新增命理规则；边界合同测试通过；AGENTS.md 同步更新",
+      "outputs": [
+        "delivery boundary cleanup",
+        "delivery AGENTS.md 更新"
+      ],
+      "acceptance": [
+        "交付层不再吸收领域算法债务"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：新增 `service_config.py`、`report_markdown.py`、`web_forms.py`、`bot_logging.py`，删除无消费方的 bot_progress 死模块；更新 delivery AGENTS.md 与 DEBT-0001；`.venv/bin/python -m pytest domains/experience-delivery/services/fatecat-delivery/tests tests/regression/test_web_html.py tests/regression/test_api_contracts.py` -> 51 passed。"
+    },
+    {
+      "id": "TP-07.03",
+      "title": "兼容面 burn-down",
+      "priority": "P1",
+      "type": "action",
+      "objective": "审计 remaining adapter/shim/wrapper，删除无真实外部契约的兼容面，保留项必须有 owner 和移除条件",
+      "parent": "TP-07",
+      "parallelizable": true,
+      "verify": "rg 'compat|legacy|shim|wrapper|fallback' domains contracts catalog governance -n",
+      "gate": "保留的兼容面均写入 compatibility-ledger；无契约项进入 kill list 或删除",
+      "outputs": [
+        "compatibility burn-down evidence"
+      ],
+      "acceptance": [
+        "不再围绕错误概念继续堆 wrapper"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：`rg 'compat|legacy|shim|wrapper|fallback' domains contracts catalog governance -n -g '!governance/archive/**' -g '!governance/tasks/**' -g '!infra/runtime/**'` 已复核；active 兼容面集中登记在 `governance/migration/compatibility-ledger.md`，包含 delivery 裸模块导出、fate-core legacy_bazi adapter、旧 `FATE_API_TOKEN` 别名；无新增未登记兼容盒。"
+    },
+    {
+      "id": "TP-07.04",
+      "title": "长期维护性最终验收",
+      "priority": "P0",
+      "type": "action",
+      "objective": "用模块边界、测试、review 和 local-ci 证明长期维护性达到 100%",
+      "parent": "TP-07",
+      "depends_on": [
+        "TP-07.01",
+        "TP-07.02",
+        "TP-07.03"
+      ],
+      "parallelizable": false,
+      "verify": "bash scripts/local-ci.sh --profile quick && .venv/bin/python -m pytest tests/regression/test_catalog_contracts.py tests/regression/test_operability_docs.py",
+      "gate": "核心边界清楚，大文件不再是新增职责入口，local quick PASS",
+      "outputs": [
+        "maintainability 100% evidence"
+      ],
+      "acceptance": [
+        "长期维护不依赖个人记忆"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：`bash scripts/local-ci.sh --profile quick` -> PASS，evidence `/tmp/fatecat-local-ci-20260615223009`；`.venv/bin/python -m pytest tests/regression/test_catalog_contracts.py tests/regression/test_operability_docs.py` -> 4 passed；ruff check/format、mypy、59 个合并回归也通过。"
+    },
+    {
+      "id": "TP-08",
+      "title": "最终审查与交付",
+      "priority": "P0",
+      "type": "package",
+      "objective": "汇总本地 100%、八字 100%、公网 HITL 状态，形成最终可交付版本",
+      "parent": "ROOT",
+      "depends_on": [
+        "TP-01",
+        "TP-02",
+        "TP-03",
+        "TP-05",
+        "TP-06",
+        "TP-07"
+      ],
+      "status": "Blocked",
+      "blocker": "TP-06.04 缺少真实公网生产 HTTPS URL、TLS/反向代理配置、生产 CORS allowlist 和真实 FATE_BOT_TOKEN；本地全链路已经完成，但最终公网 live closeout 不能伪造。",
+      "unblock": "提供真实生产 URL 和 Bot token 后运行 `bash scripts/production-readiness.sh --api-url <real-url> --require-live-bot`，再重跑 closeout 校验。",
+      "evidence": "2026-06-15：TP-08.01 本地全链路通过；TP-08.02 无 BLOCK finding；TP-08.03 因公网 live HITL 保持 Blocked。"
+    },
+    {
+      "id": "TP-08.01",
+      "title": "全仓本地质量审查",
+      "priority": "P0",
+      "type": "action",
+      "objective": "执行 correctness/security/reliability/performance/architecture/operability/repo-hygiene 审查",
+      "parent": "TP-08",
+      "parallelizable": false,
+      "verify": "bash scripts/local-ci.sh --profile all",
+      "gate": "本地全链路 PASS；review BLOCK=0；WARN 有 owner",
+      "outputs": [
+        "final local review evidence"
+      ],
+      "acceptance": [
+        "本地 100% 可交付"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：`bash scripts/local-ci.sh --profile all` -> PASS，证据目录 `/tmp/fatecat-local-ci-20260615223105`；包含 158 passed、ruff、format、mypy、API/Bot smoke、export hygiene、Docker build/container smoke、public-service 静态 readiness。"
+    },
+    {
+      "id": "TP-08.02",
+      "title": "处理最终 findings",
+      "priority": "P0",
+      "type": "action",
+      "objective": "处理 TP-08.01 中发现的 BLOCK 和影响 100% gate 的 WARN",
+      "parent": "TP-08",
+      "depends_on": [
+        "TP-08.01"
+      ],
+      "parallelizable": false,
+      "verify": "复跑触发 finding 的最小命令，并记录修复证据",
+      "gate": "BLOCK=0；剩余 WARN 不影响 100% 或有明确后续 owner",
+      "outputs": [
+        "final findings fix evidence"
+      ],
+      "acceptance": [
+        "最终缺陷不留口头豁免"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-15：本轮最终 finding 只出现 import 顺序和死模块问题，已通过删除 `bot_progress.py`、新增 `bot_logging.py`、`ruff check --fix` 修复；复跑 ruff check/format、59 个合并回归、local-ci all 全部通过。"
+    },
+    {
+      "id": "TP-08.03",
+      "title": "生成 closeout",
+      "priority": "P0",
+      "type": "action",
+      "objective": "生成任务 closeout，明确 Done、Blocked、Skipped、Unknown 和最终百分比",
+      "parent": "TP-08",
+      "depends_on": [
+        "TP-08.02"
+      ],
+      "parallelizable": false,
+      "verify": "python3 /home/lenovo/.codex/skills/auto-tasks/scripts/validate_task_docs.py --task-dir governance/tasks/0002-quality-completion-to-100 --phase closeout",
+      "gate": "TODO 全部完成或 HITL Blocked 明确；最终汇报不含伪证",
+      "outputs": [
+        "task closeout packet",
+        "final quality matrix"
+      ],
+      "acceptance": [
+        "最终交付版本可审查、可复现、可继续接手"
+      ],
+      "status": "Blocked",
+      "blocker": "真实公网 API 与 Bot live 验收缺外部 URL/token，任务 closeout 不能声明公共生产 100%。",
+      "unblock": "提供真实公网生产 HTTPS URL 和真实 FATE_BOT_TOKEN 后运行 production-readiness live gate，并将结果写入 closeout。"
+    }
+  ]
+}

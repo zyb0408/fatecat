@@ -8,7 +8,7 @@ license = { text = "MIT" }
 authors = [{ name = "TradeCat Labs" }]
 keywords = ["fatecat", "bazi", "ziwei", "chinese-calendar", "enterprise-architecture"]
 classifiers = [
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
   "Programming Language :: Python :: 3.12",
 ]
@@ -132,9 +132,4 @@ mypy_path = [
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = ["bazi_calculator"]
-follow_imports = "skip"
 ignore_missing_imports = true

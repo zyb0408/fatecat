@@ -1,8 +1,10 @@
 """八字排盘数据模型"""
 
+from datetime import datetime
 from typing import Any, Literal
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 # ========== 请求模型 ==========
 
@@ -14,6 +16,16 @@ class BirthPlace(BaseModel):
     longitude: float = Field(..., ge=-180, le=180, description="经度")
     latitude: float = Field(..., ge=-90, le=90, description="纬度")
     timezone: str = Field(default="Asia/Shanghai", description="时区")
+
+    @field_validator("timezone")
+    @classmethod
+    def validate_timezone(cls, value: str) -> str:
+        normalized = value.strip() or "Asia/Shanghai"
+        try:
+            ZoneInfo(normalized)
+        except ZoneInfoNotFoundError as exc:
+            raise ValueError("timezone 必须是有效 IANA 时区，例如 Asia/Shanghai") from exc
+        return normalized
 
 
 class BaziOptions(BaseModel):
@@ -28,9 +40,31 @@ class BaziRequest(BaseModel):
     name: str | None = Field(default=None, description="姓名")
     gender: Literal["male", "female"] = Field(..., description="性别")
     birthDate: str = Field(..., description="出生日期 YYYY-MM-DD")
-    birthTime: str = Field(..., description="出生时间 HH:MM:SS")
+    birthTime: str = Field(..., description="出生时间 HH:MM 或 HH:MM:SS")
     birthPlace: BirthPlace | None = Field(default=None, description="出生地点")
     options: BaziOptions = Field(default_factory=BaziOptions)
+
+    @field_validator("birthDate")
+    @classmethod
+    def validate_birth_date(cls, value: str) -> str:
+        normalized = value.strip()
+        try:
+            datetime.strptime(normalized, "%Y-%m-%d")
+        except ValueError as exc:
+            raise ValueError("birthDate 必须使用 YYYY-MM-DD 格式") from exc
+        return normalized
+
+    @field_validator("birthTime")
+    @classmethod
+    def validate_birth_time(cls, value: str) -> str:
+        normalized = value.strip()
+        if len(normalized) == 5:
+            normalized = f"{normalized}:00"
+        try:
+            datetime.strptime(normalized, "%H:%M:%S")
+        except ValueError as exc:
+            raise ValueError("birthTime 必须使用 HH:MM 或 HH:MM:SS 格式") from exc
+        return normalized
 
 
 # ========== 六爻因子请求模型 ==========

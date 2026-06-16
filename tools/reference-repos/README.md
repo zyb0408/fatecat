@@ -1,88 +1,59 @@
-# 外部依赖库
+# tools/reference-repos
 
-> FateCat 使用的外部成熟仓库说明
+`tools/reference-repos/` 是 FateCat 的第三方命理与历法参考仓库快照层。这里保存的是供应链证据，不是业务源码目录。
 
 ## 目录结构
 
 ```text
-assets/vendor/
-├── github/    # GitHub 开源仓库快照
-└── web/       # 网页资源与抓取结果
+tools/reference-repos/
+├── AGENTS.md
+├── README.md
+├── vendor_sources.json
+├── github/
+└── web/
 ```
 
-## 依赖库清单
+## 真相源
 
-### 必需依赖
+`vendor_sources.json` 是 vendor 来源、用途、许可、分发边界和快照 hash 的真相源。
 
-| 库名 | 目录 | 语言 | 用途 | 来源 |
-|------|------|------|------|------|
-| lunar-python | `assets/vendor/github/lunar-python-master` | Python | 核心历法计算 | https://github.com/6tail/lunar-python |
-| bazi-1 | `assets/vendor/github/bazi-1-master` | Python | 八字神煞格局 | https://github.com/nicktaobo/bazi-1 |
-| sxwnl | `assets/vendor/github/sxwnl-master` | JavaScript | 寿星万年历 | https://github.com/nicktaobo/sxwnl |
-| paipan | `assets/vendor/github/paipan-master` | JavaScript | 真太阳时与早晚子时 | GitHub |
+核心字段：
 
-### 扩展依赖
+| 字段 | 含义 |
+| --- | --- |
+| `usageRole` | 当前项目允许的用途：`production_dependency`、`oracle_only`、`evaluation_only`、`reference_only`、`future_candidate` |
+| `productionUseAllowed` | 是否允许进入生产运行链路 |
+| `licenseStatus` | 许可证状态；生产依赖必须是 `spdx` |
+| `distributionAllowed` | 当前快照是否允许随仓库或导出包分发 |
+| `auditRequired` | 是否必须人工复核后才能扩大用途 |
+| `snapshotSha256` | 快照完整性校验值 |
 
-| 库名 | 目录 | 语言 | 用途 | 来源 |
-|------|------|------|------|------|
-| MingLi-Bench | `assets/vendor/github/MingLi-Bench-main` | Python/JSON | 八字与紫微斗数 LLM 推理评测基准 | https://github.com/DestinyLinker/MingLi-Bench |
-| fortel-ziweidoushu | `assets/vendor/github/fortel-ziweidoushu-main` | TypeScript | 紫微斗数 | https://github.com/fortelzhao/fortel-ziweidoushu |
-| iztro | `assets/vendor/github/iztro-main` | TypeScript | 紫微斗数 | https://github.com/SylarLong/iztro |
-| dantalion | `assets/vendor/github/dantalion-master` | TypeScript | 现代八字分析 | https://github.com/nicktaobo/dantalion |
-| mikaboshi | `assets/vendor/github/mikaboshi-main` | Rust | 风水罗盘 | https://github.com/nicktaobo/mikaboshi |
-| Chinese-Divination | `assets/vendor/github/Chinese-Divination-master` | Python | 六爻/梅花 | GitHub |
-| Iching | `assets/vendor/github/Iching-master` | Python | 易经系统 | GitHub |
-| holiday-calendar | `assets/vendor/github/holiday-and-chinese-almanac-calendar-main` | ICS | 黄历数据 | GitHub |
-| chinese-calendar | `assets/vendor/github/chinese-calendar-master` | Python | 农历转换 | https://github.com/LKI/chinese-calendar |
-| js_astro | `assets/vendor/github/js_astro-master` | JavaScript | 天文计算 | GitHub |
+## 当前边界
 
-## 使用方式
-
-所有外部库路径统一通过 `_paths.py` 管理：
-
-```python
-from _paths import (
-    LUNAR_PYTHON_DIR,
-    BAZI_1_DIR,
-    SXWNL_DIR,
-    IZTRO_DIR,
-    DANTALION_DIR,
-    PAIPAN_DIR,
-)
-```
-
-## 分发与治理
-
-- `vendor_sources.json` 是 vendor 来源与分发边界的真相源。
-- 当前仓库保留 vendor 快照，以保证离线 smoke、导出包和 GitHub Actions 能复现。
-- Benchmark 类 vendor 只作为评测与参考资产，默认不接入生产运行链路。
-- 后续若切换到 release artifact、Git LFS、submodule 或按需下载，必须先保证 `scripts/vendor-health.sh` 通过。
+| 仓库 | 角色 | 生产链路 |
+| --- | --- | --- |
+| `lunar-python` | 主历法底座 | 允许；已在 Python 依赖文件显式声明 |
+| `bazi-1` | 八字规则与资料参考 | 不允许作为新增生产依赖扩散；缺少上游 LICENSE |
+| `sxwnl` | 节气/历法离线 oracle | 不进入主生产链；缺少上游 LICENSE |
+| `bazica` | Go 八字排盘 oracle | 不进入 Python 主链 |
+| `bazi-calculator-by-alvamind` | TypeScript 基础结构参考 | 不进入生产链；本地快照无独立 LICENSE 文件 |
+| `MingLi-Bench` | 离线评测基准 | 不进入请求链路，不默认调用模型 API runner |
+| `iztro` / `dantalion` | 未来候选能力 | 启用前必须重新完成架构、许可和验收 |
 
 ## 维护规则
 
-1. `assets/vendor/` 默认只读
-2. 不复制外部库源码到服务目录二次维护
-3. 所有集成层放在 `services/telegram/src/*_integration.py`
-4. 缺失依赖时，优先补 vendor 快照，而不是重写算法
-
-## 安装/更新
-
-统一下载脚本：
+1. 不在 `tools/reference-repos/github/*` 内魔改第三方源码。
+2. 新增快照必须登记到 `vendor_sources.json`，并补齐来源、用途、许可、hash 和风险说明。
+3. 缺少独立 LICENSE 或 `licenseStatus=missing_upstream_license` 的材料不得标为 `production_dependency`。
+4. Benchmark 类仓库只作为离线评测资产，不默认调用外部模型、云 API 或生产服务。
+5. 更新 manifest 后运行：
 
 ```bash
-./scripts/download_libs.sh
+bash scripts/vendor-health.sh
 ```
 
-Node.js 依赖示例：
+## 使用方式
 
-```bash
-cd assets/vendor/github/sxwnl-master && npm install
-cd assets/vendor/github/iztro-main && npm install
-cd assets/vendor/github/dantalion-master/packages/dantalion-core && npm install && npm run build
-```
+服务代码只能通过 adapter、manifest 或明确的路径常量读取这里的资产。新增生产依赖必须优先走包管理器声明，并用测试证明不会隐式依赖 vendor 快照。
 
-Rust 依赖示例：
-
-```bash
-cd assets/vendor/github/mikaboshi-main && cargo build --release
-```
+Ponytail evidence：existence 来自离线 smoke、oracle 对照和 license manifest；owner 是 tradecatlabs/fate-core supply-chain boundary；verification 是 `bash scripts/vendor-health.sh`；ceiling 是生产依赖优先进入包管理器，vendor 快照不作为通用代码仓。

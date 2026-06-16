@@ -12,7 +12,7 @@ domains/fate-analysis/data-products/
 ├── README.md
 ├── china_coordinates.csv
 ├── bazi/
-│   └── golden/                  # 综合八字陈述服务轻量命例 golden fixture
+│   └── golden/                  # 综合八字陈述服务、历法边界与覆盖矩阵轻量 golden fixture
 ├── calendar/
 │   └── solar_terms/
 │       ├── README.md
@@ -28,7 +28,9 @@ domains/fate-analysis/data-products/
 ## 职责边界
 
 - `china_coordinates.csv`：地点解析与经纬度静态数据源。
-- `bazi/golden/`：综合八字陈述服务命例回归 fixture，只锁定结构化盘面、边界、格局、调候、强弱、干支关系和起运字段。
+- `bazi/golden/statement_cases.json`：综合八字陈述服务命例回归 fixture，只锁定结构化盘面、边界、格局、调候、强弱、干支关系和起运字段。
+- `bazi/golden/calendar_boundary_cases.json`：历法边界回归 fixture，只锁定真太阳时、早晚子时、时区转换、经纬度偏移、节气边界和起运锚点。
+- `bazi/golden/coverage_matrix_cases.json`：100+ 匿名结构覆盖矩阵，只锁定历法四柱、起运、覆盖标签和失败解释，不替代专业命例库。
 - `classics/*.txt`：已经整理到轻量文本层的古籍语料，可作为检索、切片与规则提炼输入。
 - `classics/copyright_review.tsv`：标记典籍、外部分发包、案例和知识图谱的版权/隐私/发布可用性。
 - `calendar/solar_terms/golden/`：从 raw 表提炼的轻量回归 fixture，用于锁定节气、月令、立春年界与起运边界。

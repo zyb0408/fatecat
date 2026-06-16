@@ -8,6 +8,7 @@
 | --- | --- | --- |
 | `china_coordinates.csv` | 中国行政区经纬度数据 | 是 |
 | `classics/*.txt` | 已整理命理古籍与基础语料 | 可选 |
+| `bazi/golden/coverage_matrix_cases.json` | 100+ 匿名八字结构覆盖矩阵，用于锁定四柱、起运、覆盖标签和失败解释 | 测试依赖 |
 | `calendar/solar_terms/golden/` | 节气 golden fixture，用于测试成熟历法库输出 | 测试依赖 |
 
 ## 原始资料规则

@@ -17,6 +17,9 @@ FIXTURE = (
     / "golden"
     / "solar_terms_1900_2030.json"
 )
+BAZI_BOUNDARY_FIXTURE = (
+    ROOT / "domains" / "fate-analysis" / "data-products" / "bazi" / "golden" / "calendar_boundary_cases.json"
+)
 
 if str(VENDOR_LUNAR) not in sys.path:
     sys.path.insert(0, str(VENDOR_LUNAR))
@@ -39,6 +42,11 @@ TERM_ALIASES = {
 
 def _load_fixture() -> dict:
     with FIXTURE.open("r", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def _load_bazi_boundary_fixture() -> dict:
+    with BAZI_BOUNDARY_FIXTURE.open("r", encoding="utf-8") as fh:
         return json.load(fh)
 
 
@@ -152,6 +160,45 @@ def test_true_solar_time_feeds_lunar_python_across_lichun_fixture_boundary():
             assert true_solar_time > boundary
         assert result["fourPillars"]["year"]["fullName"] == expected_year
         assert result["fourPillars"]["month"]["fullName"] == expected_month
+
+
+def test_bazi_calendar_boundary_golden_cases_lock_time_semantics():
+    from bazi_calculator import BaziCalculator
+    from fate_core.usecases.calculate_pure_analysis import build_pure_analysis_input_from_payload
+    from report_generator import build_report_hide
+
+    payload = _load_bazi_boundary_fixture()
+    assert payload["schemaVersion"] == 1
+    assert payload["source"]["calendarProvider"] == "lunar-python"
+    assert payload["source"]["trueSolarProvider"] == "paipan-master true solar time adapter"
+
+    for case in payload["cases"]:
+        raw_input = case["input"]
+        expected = case["expected"]
+        pure_input = build_pure_analysis_input_from_payload(raw_input)
+        result = BaziCalculator(
+            pure_input.birth_dt,
+            pure_input.gender,
+            pure_input.longitude,
+            latitude=pure_input.latitude,
+            name=pure_input.name or "测试样本",
+            birth_place=pure_input.birth_place,
+            use_true_solar_time=pure_input.use_true_solar_time,
+        ).calculate(hide=build_report_hide("bazi"))
+
+        if "normalizedBirthDateTime" in expected:
+            assert pure_input.birth_dt.isoformat() == expected["normalizedBirthDateTime"]
+        if "totalOffsetMinutesRange" in expected:
+            lower, upper = expected["totalOffsetMinutesRange"]
+            assert lower <= result["completeTrueSolarTime"]["totalOffsetMinutes"] <= upper
+        assert result["trueSolarTime"] == expected["trueSolarTime"], case["id"]
+        assert {key: value["fullName"] for key, value in result["fourPillars"].items()} == expected["fourPillars"], (
+            case["id"]
+        )
+        assert result["jiaoYun"]["startDate"] == expected["fortuneStart"]["startDate"], case["id"]
+        assert result["jiaoYun"]["jiaoJieQi"] == expected["fortuneStart"]["anchorTerm"], case["id"]
+        for key, expected_value in expected["ziTimeAnalysis"].items():
+            assert result["ziTimeAnalysis"][key] == expected_value, f"{case['id']} {key}"
 
 
 def test_yun_start_time_regression_samples():

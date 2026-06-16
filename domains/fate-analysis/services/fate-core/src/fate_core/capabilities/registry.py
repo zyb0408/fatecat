@@ -7,6 +7,9 @@ from typing import Any
 from fate_core.capabilities.contracts import Capability
 from fate_core.support.paths import FATE_CAPABILITY_DIR
 
+# Ponytail existence: registry loader is the single reader for capability JSON contracts.
+# Owner: tradecatlabs/fate-core. Verification: test_capability_protocol.py.
+
 VALID_STATUSES = {"planned", "experimental", "production"}
 VALID_VISIBILITIES = {"default", "optional", "standalone", "hidden"}
 VALID_RISK_LEVELS = {"folk_reference", "entertainment", "requires_disclaimer"}
@@ -63,6 +66,7 @@ def _parse_capability(raw: dict[str, Any]) -> Capability:
         input_optional=_as_tuple(raw.get("inputOptional", []), "inputOptional", capability_id),
         provider=str(engine.get("provider", "")).strip(),
         report_profile=str(report.get("profile", "")).strip(),
+        markdown_default=bool(report.get("markdownDefault", False)),
         evidence_required=bool(evidence.get("required", True)),
         risk_level=risk_level,  # type: ignore[arg-type]
         disclaimer_required=bool(risk_policy.get("disclaimerRequired", True)),

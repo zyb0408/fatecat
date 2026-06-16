@@ -1,0 +1,958 @@
+{
+  "schema_version": "1.0.0",
+  "overall_status": "In Progress",
+  "nodes": [
+    {
+      "id": "TP-01",
+      "title": "修复当前本地质量阻塞",
+      "priority": "P0",
+      "type": "package",
+      "objective": "先把当前已知 BLOCK 清零，恢复本地 CI 可信度。",
+      "parent": null,
+      "depends_on": [],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "确认子节点范围、依赖与状态闭环",
+      "gate": "任务目标与上下文已确认",
+      "outputs": [],
+      "acceptance": [],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-01.01",
+      "title": "修复 ruff format gate",
+      "priority": "P0",
+      "type": "action",
+      "objective": "格式化当前失败文件，让 ruff format --check 全仓通过。",
+      "parent": "TP-01",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": true,
+      "verify": ".venv/bin/python -m ruff format --check .",
+      "gate": "format check 0 退出码，git diff 只包含格式化变更。",
+      "outputs": [
+        "格式化后的 calculate_pure_analysis.py",
+        "格式化后的 test_bazi_ziwei_rule_depth.py"
+      ],
+      "acceptance": [
+        "ruff check 和 format check 均 PASS。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-01.02",
+      "title": "刷新 REVIEW.md 质量真相源",
+      "priority": "P0",
+      "type": "action",
+      "objective": "把 REVIEW.md 更新到当前 HEAD、当前测试数量、当前 production-readiness 真实状态。",
+      "parent": "TP-01",
+      "depends_on": [
+        "TP-01.01"
+      ],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "人工核对 REVIEW.md 中 HEAD、测试数量、门禁状态与命令输出一致。",
+      "gate": "REVIEW.md 不再写旧 HEAD、旧 120 passed 或无 env 的 production-readiness PASS。",
+      "outputs": [
+        "REVIEW.md 当前质量记录"
+      ],
+      "acceptance": [
+        "REVIEW.md 明确区分本地 PASS、生产配置 FAIL、外部 live 未执行。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-01.03",
+      "title": "恢复 local-ci quick 绿色",
+      "priority": "P0",
+      "type": "action",
+      "objective": "用本地 CI 快速入口证明基础质量门禁闭合。",
+      "parent": "TP-01",
+      "depends_on": [
+        "TP-01.01",
+        "TP-01.02"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "bash scripts/local-ci.sh --profile quick",
+      "gate": "quick profile PASS，summary/evidence 目录存在。",
+      "outputs": [
+        "local-ci quick evidence"
+      ],
+      "acceptance": [
+        "shell、preflight、structure、source hygiene、privacy、ruff、format、mypy、focused tests、diff check 全通过。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-02",
+      "title": "关闭生产准入约束缺口",
+      "priority": "P0",
+      "type": "package",
+      "objective": "让公共服务发布前的静态和真实环境门禁可执行、可失败、可追溯。",
+      "parent": null,
+      "depends_on": [
+        "TP-01.03"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "确认子节点范围、依赖与状态闭环",
+      "gate": "前置步骤已完成: quick-local-ci",
+      "outputs": [],
+      "acceptance": [],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-02.01",
+      "title": "固化生产 env 合同",
+      "priority": "P0",
+      "type": "action",
+      "objective": "把 CORS、records、rate limit backend、edge body limit、proxy headers、HSTS 的生产配置要求写成可验证合同。",
+      "parent": "TP-02",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "bash scripts/production-readiness.sh --skip-bootstrap 在生产等价 env 下通过。",
+      "gate": "无生产等价 env 时保持 FAIL；有 env 时 PASS 且 WARN 项有明确归属。",
+      "outputs": [
+        "production env checklist",
+        "readiness evidence"
+      ],
+      "acceptance": [
+        "FATE_CORS_ALLOW_ORIGINS 非空且非 *；多副本不使用 memory 限流；edge/proxy/HSTS 口径清楚。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-02.02",
+      "title": "恢复 local-ci public-service 绿色",
+      "priority": "P0",
+      "type": "action",
+      "objective": "使用 scripts/local-ci.sh --profile public-service 验证生产静态准入路径。",
+      "parent": "TP-02",
+      "depends_on": [
+        "TP-02.01"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "bash scripts/local-ci.sh --profile public-service",
+      "gate": "public-service profile PASS，且没有伪造外部 URL/Bot live 通过。",
+      "outputs": [
+        "public-service local CI evidence"
+      ],
+      "acceptance": [
+        "本地 public-service readiness PASS；外部 live 项清晰 SKIP 或 HITL。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-02.03",
+      "title": "真实公网 API 与 Bot live 验收",
+      "priority": "P0",
+      "type": "action",
+      "objective": "在真实域名/TLS/反向代理/生产 URL/真实 Bot token 下执行 live readiness。",
+      "parent": "TP-02",
+      "depends_on": [
+        "TP-02.02"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "bash scripts/production-readiness.sh --api-url <real-url> --require-live-bot",
+      "gate": "真实 /health、/ready、/metrics 和 Telegram get_me 通过；无 placeholder token。",
+      "outputs": [
+        "live API readiness evidence",
+        "live Bot evidence"
+      ],
+      "acceptance": [
+        "真实公网验收 PASS 后，公共生产服务稳定性才可从 55% 提升到 100%。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-03",
+      "title": "补齐特殊情况与韧性",
+      "priority": "P0",
+      "type": "package",
+      "objective": "把时区、真太阳时、节气、早晚子时、Bot 背压、多副本限流和异常输入变成测试化契约。",
+      "parent": null,
+      "depends_on": [
+        "TP-01.03"
+      ],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "确认子节点范围、依赖与状态闭环",
+      "gate": "前置步骤已完成: quick-local-ci",
+      "outputs": [],
+      "acceptance": [],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-03.01",
+      "title": "定义并测试出生时间时区语义",
+      "priority": "P0",
+      "type": "action",
+      "objective": "明确 naive、Z、+08:00、出生地时区和真太阳时之间的输入语义。",
+      "parent": "TP-03",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "pytest 覆盖 parse_datetime、CLI、API、pure-analysis 的时区边界。",
+      "gate": "带时区输入不会被静默 replace 成错误本地时间，文档说明清楚。",
+      "outputs": [
+        "时区语义契约",
+        "时区边界测试"
+      ],
+      "acceptance": [
+        "Z/+08:00/无时区输入各自有明确预期。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-03.02",
+      "title": "Bot 背压与滥用保护",
+      "priority": "P0",
+      "type": "action",
+      "objective": "把 Bot 队列从近似无限等待改成有界并发、有界队列、用户级反馈和测试。",
+      "parent": "TP-03",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "pytest domains/experience-delivery/services/fatecat-delivery/tests/test_rate_limiter.py",
+      "gate": "高峰请求不会无限排队；用户冷却/每日限额是否启用有明确产品口径。",
+      "outputs": [
+        "Bot rate limiter contract",
+        "rate limiter tests"
+      ],
+      "acceptance": [
+        "QUEUE_MAX_SIZE 有生产合理默认值；拒绝原因可测试。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-03.03",
+      "title": "API guardrails 特殊输入回归",
+      "priority": "P0",
+      "type": "action",
+      "objective": "补齐请求体超限、无 Content-Length、超时、429、错误分类、安全头的回归测试。",
+      "parent": "TP-03",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": true,
+      "verify": "pytest tests/regression/test_api_contracts.py tests/regression/test_web_html.py",
+      "gate": "公共 API 护栏行为被测试锁住。",
+      "outputs": [
+        "API guardrail regression tests"
+      ],
+      "acceptance": [
+        "413/429/504/安全头/metrics error_class 均有可验证路径。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-03.04",
+      "title": "历法边界 golden 扩展",
+      "priority": "P1",
+      "type": "action",
+      "objective": "扩展节气边界、早晚子时、真太阳时、地域经纬度边界 golden case。",
+      "parent": "TP-03",
+      "depends_on": [
+        "TP-03.01"
+      ],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "pytest tests/regression/test_solar_terms_golden.py tests/regression/test_bazi_statement_golden.py",
+      "gate": "关键历法边界至少有项目 golden 和 oracle 来源。",
+      "outputs": [
+        "calendar/bazi boundary golden cases"
+      ],
+      "acceptance": [
+        "边界样本来源、预期结果、oracle 说明齐全。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-04",
+      "title": "八字解释性与证据化补齐",
+      "priority": "P1",
+      "type": "package",
+      "objective": "让核心命理判断具备可追溯 evidence、ruleIds、权重和风险边界。",
+      "parent": null,
+      "depends_on": [
+        "TP-01.03"
+      ],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "确认子节点范围、依赖与状态闭环",
+      "gate": "前置步骤已完成: quick-local-ci",
+      "outputs": [],
+      "acceptance": [],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-04.01",
+      "title": "核心字段 evidence 覆盖审计",
+      "priority": "P1",
+      "type": "action",
+      "objective": "审计 baziBenchmark、baziRuleDepth、analysisEvidence 的核心字段覆盖率。",
+      "parent": "TP-04",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "新增或运行 evidence coverage 测试，确认核心字段均有 ruleIds/source/risk。",
+      "gate": "无孤儿 ruleId，无核心判断缺 evidence。",
+      "outputs": [
+        "evidence coverage report",
+        "regression tests"
+      ],
+      "acceptance": [
+        "ruleIds 全部能回指 contracts/fate/classics_rule_index.json 或 rule_depth_registry.json。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-04.02",
+      "title": "八字 golden case 扩展到 100+",
+      "priority": "P1",
+      "type": "action",
+      "objective": "优先覆盖节气边界、早晚子时、特殊格局、合化、从格、岁运触发。",
+      "parent": "TP-04",
+      "depends_on": [
+        "TP-03.04",
+        "TP-04.01"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "pytest 运行新增 golden suite；样本 manifest 通过许可和来源审查。",
+      "gate": "100+ 样本都有来源、预期、覆盖标签和失败解释路径。",
+      "outputs": [
+        "100+ golden case manifest",
+        "golden regression suite"
+      ],
+      "acceptance": [
+        "八字证据化能力从 70% 提升到可审查 100%。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-04.03",
+      "title": "专题 profile 评分验证",
+      "priority": "P1",
+      "type": "action",
+      "objective": "验证事业、财运、婚姻、健康、学业、迁移 profile 不输出确定性断语。",
+      "parent": "TP-04",
+      "depends_on": [
+        "TP-04.01"
+      ],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "pytest tests/regression/test_bazi_ziwei_rule_depth.py",
+      "gate": "profile 只作为 evidence_seed，输出有 riskBoundary。",
+      "outputs": [
+        "topic profile tests",
+        "risk wording checks"
+      ],
+      "acceptance": [
+        "报告透明但不恐吓、不替代现实决策。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-04.04",
+      "title": "MingLi-Bench 评测门禁接入",
+      "priority": "P2",
+      "type": "action",
+      "objective": "把 MingLi-Bench 作为报告/推理质量评测层，不作为生产排盘层。",
+      "parent": "TP-04",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "bash scripts/run-mingli-bench.sh --stats 和离线 sample evaluation。",
+      "gate": "评测结果进入 REVIEW/quality report，且不调用外部模型 API。",
+      "outputs": [
+        "MingLi-Bench local evaluation evidence"
+      ],
+      "acceptance": [
+        "评测层和生产层边界清晰。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-05",
+      "title": "长期维护性与 legacy 边界治理",
+      "priority": "P1",
+      "type": "package",
+      "objective": "从大文件和 delivery legacy 中迁出领域核心，让 fate-core 成为命理能力真相源。",
+      "parent": null,
+      "depends_on": [
+        "TP-01.03"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "确认子节点范围、依赖与状态闭环",
+      "gate": "前置步骤已完成: quick-local-ci",
+      "outputs": [],
+      "acceptance": [],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-05.01",
+      "title": "绘制核心大文件职责边界图",
+      "priority": "P1",
+      "type": "action",
+      "objective": "给 bazi_calculator、report_generator、calculate_pure_analysis、bot、main、web_ui 建立职责地图和迁移 kill list。",
+      "parent": "TP-05",
+      "depends_on": [],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "生成边界文档并通过 auto-review architecture/ponytail 审查。",
+      "gate": "每个大文件都有保留职责、迁出职责、禁止新增职责。",
+      "outputs": [
+        "module boundary map",
+        "legacy kill list"
+      ],
+      "acceptance": [
+        "后续任务不再靠猜测拆大文件。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-05.02",
+      "title": "拆分 calculate_pure_analysis 证据构建模块",
+      "priority": "P1",
+      "type": "action",
+      "objective": "把输入归一化、benchmark、rule depth、topic profile 和 evidence append 拆到 fate-core 内部清晰模块。",
+      "parent": "TP-05",
+      "depends_on": [
+        "TP-05.01",
+        "TP-04.01"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "pytest tests/regression/fate_core/test_pure_analysis_usecase.py tests/regression/test_bazi_ziwei_rule_depth.py",
+      "gate": "外部 API 输出不变，模块边界变清楚。",
+      "outputs": [
+        "fate-core pure_analysis submodules",
+        "updated AGENTS.md"
+      ],
+      "acceptance": [
+        "新增八字规则不必继续堆进单一 1400+ 行文件。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-05.03",
+      "title": "迁移 BaziCalculator 领域核心到 fate-core",
+      "priority": "P1",
+      "type": "action",
+      "objective": "逐步把历法、四柱、旺衰、格局、用神、岁运从 delivery 大类迁入 fate-core。",
+      "parent": "TP-05",
+      "depends_on": [
+        "TP-05.01",
+        "TP-04.02"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "golden suite、API contracts、web html、pure-analysis smoke 全通过。",
+      "gate": "delivery 不再是八字领域算法真相源；legacy adapter 只剩迁移窗口和删除条件。",
+      "outputs": [
+        "fate-core bazi providers/evaluators",
+        "legacy adapter shrink plan"
+      ],
+      "acceptance": [
+        "长期维护性从 58% 提升到可审查 100% 的核心切片。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-05.04",
+      "title": "收敛 delivery 层 API/Web/Bot/报告边界",
+      "priority": "P1",
+      "type": "action",
+      "objective": "把 main、web_ui、bot、report_generator 的交付职责分层，避免继续混入领域算法。",
+      "parent": "TP-05",
+      "depends_on": [
+        "TP-05.01",
+        "TP-03.02",
+        "TP-03.03"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "pytest delivery tests + tests/regression/test_web_html.py + API contract tests。",
+      "gate": "交付层只负责编排、渲染和传输，不新增命理规则。",
+      "outputs": [
+        "delivery boundary refactor slices",
+        "updated AGENTS.md"
+      ],
+      "acceptance": [
+        "Web/Bot/API 改动不会迫使领域算法同文件变更。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-05.05",
+      "title": "清退无真实外部契约的 legacy/compat shim",
+      "priority": "P1",
+      "type": "action",
+      "objective": "删除或收缩无真实公共 API、持久化数据、外部集成支撑的兼容层。",
+      "parent": "TP-05",
+      "depends_on": [
+        "TP-05.03",
+        "TP-05.04"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "scan_principle_gates 过滤源码后无真实 BLOCK；structure gate 无 legacy_source_root。",
+      "gate": "保留的 compat 都有 owner、移除条件和真实 contract。",
+      "outputs": [
+        "legacy removal diff",
+        "migration ledger update"
+      ],
+      "acceptance": [
+        "future-optimal-drift 不再因 active legacy 边界触发真实 BLOCK。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-06",
+      "title": "复用与供应链理解闭环",
+      "priority": "P1",
+      "type": "package",
+      "objective": "确保外部库、参考仓、oracle 和规则材料都在正确边界内被复用。",
+      "parent": null,
+      "depends_on": [
+        "TP-01.03"
+      ],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "确认子节点范围、依赖与状态闭环",
+      "gate": "前置步骤已完成: quick-local-ci",
+      "outputs": [],
+      "acceptance": [],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-06.01",
+      "title": "CalendarProvider 生产依赖合同",
+      "priority": "P1",
+      "type": "action",
+      "objective": "明确 lunar-python 为主生产历法底座，sxtwl/bazica/其他项目只作为 oracle 或参考。",
+      "parent": "TP-06",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "依赖文件、adapter、文档和测试一致声明 lunar-python 生产角色。",
+      "gate": "没有隐式 vendor 依赖或重复自研历法算法。",
+      "outputs": [
+        "CalendarProvider contract",
+        "dependency tests"
+      ],
+      "acceptance": [
+        "复用建立在理解上：生产、oracle、参考三类边界清晰。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-06.02",
+      "title": "参考源许可和用途 manifest",
+      "priority": "P1",
+      "type": "action",
+      "objective": "为 bazi-1、MingLi-Bench、sxtwl、iztro、lunar-python 等建立许可/用途/风险清单。",
+      "parent": "TP-06",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "vendor/reference manifest 通过治理审查。",
+      "gate": "无明确 LICENSE 的材料不得作为生产依赖扩散。",
+      "outputs": [
+        "reference source manifest",
+        "license risk notes"
+      ],
+      "acceptance": [
+        "参考材料和生产代码边界可审计。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-06.03",
+      "title": "历法/四柱 oracle 对照框架",
+      "priority": "P2",
+      "type": "action",
+      "objective": "保留 sxtwl、bazica、alvamind 等作为对照 oracle，不进入主运行链。",
+      "parent": "TP-06",
+      "depends_on": [
+        "TP-06.01",
+        "TP-06.02"
+      ],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "oracle 对照测试只在评测/开发门禁运行，不污染生产路径。",
+      "gate": "生产路径仍以 CalendarProvider 为单一入口。",
+      "outputs": [
+        "oracle comparison harness"
+      ],
+      "acceptance": [
+        "复用不变成多主链或重复造轮子。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-06.04",
+      "title": "规则 registry owner 和扩展规则",
+      "priority": "P1",
+      "type": "action",
+      "objective": "明确 rule_depth_registry、classics_rule_index、future_features 的 owner、字段、升级 gate。",
+      "parent": "TP-06",
+      "depends_on": [
+        "TP-04.01"
+      ],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "policy asset tests 覆盖新增规则字段和禁止项。",
+      "gate": "新增规则必须有 source、appliesWhen、doesNotApplyWhen、risk boundary。",
+      "outputs": [
+        "rule registry governance note",
+        "policy tests"
+      ],
+      "acceptance": [
+        "规则扩展不靠散落代码或口头解释。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-07",
+      "title": "公共服务观测和运行闭环",
+      "priority": "P1",
+      "type": "package",
+      "objective": "把当前应用内 metrics/logs/readiness 扩展到真实运行平台可用的 SLO、告警和排障包。",
+      "parent": null,
+      "depends_on": [
+        "TP-02.01",
+        "TP-03.03"
+      ],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "确认子节点范围、依赖与状态闭环",
+      "gate": "前置步骤已完成: production-env-contract, api-guardrail-tests",
+      "outputs": [],
+      "acceptance": [],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-07.01",
+      "title": "Prometheus/Grafana 指标和告警计划",
+      "priority": "P1",
+      "type": "action",
+      "objective": "定义 p95/p99、错误率、429、413、504、inflight、Bot 队列等指标和告警阈值。",
+      "parent": "TP-07",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "metrics 输出包含必要 label，runbook 说明告警触发和处理。",
+      "gate": "公共服务可从指标判断健康，而不是只看 /health。",
+      "outputs": [
+        "metrics dashboard spec",
+        "alert runbook"
+      ],
+      "acceptance": [
+        "生产稳定性有可观测证据。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-07.02",
+      "title": "请求 ID 与业务日志贯穿",
+      "priority": "P1",
+      "type": "action",
+      "objective": "确保 X-Request-ID 能关联 HTTP 日志、错误分类、业务计算失败和 Bot 交付。",
+      "parent": "TP-07",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "API/Bot 错误路径日志包含 requestId 或等价 trace id。",
+      "gate": "出现 5xx/timeout 时可定位到请求和错误类型。",
+      "outputs": [
+        "trace/log correlation tests or runbook"
+      ],
+      "acceptance": [
+        "排障不依赖猜测。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-07.03",
+      "title": "SLO 与运维 runbook",
+      "priority": "P1",
+      "type": "action",
+      "objective": "定义公共服务 SLO、降级策略、恢复步骤、清理本地 runtime 的流程。",
+      "parent": "TP-07",
+      "depends_on": [],
+      "parallelizable": true,
+      "debug_required": false,
+      "verify": "runbook 被 REVIEW.md 和 references/ops-pack.md 引用。",
+      "gate": "上线、回滚、降级、清理 runtime 都有可执行命令。",
+      "outputs": [
+        "SLO/runbook update"
+      ],
+      "acceptance": [
+        "生产故障有操作路径。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-07.04",
+      "title": "本地全链路 CI/CD 汇总",
+      "priority": "P0",
+      "type": "action",
+      "objective": "运行 quick/full/container/public-service 的本地 all profile，作为最终本地质量证据。",
+      "parent": "TP-07",
+      "depends_on": [
+        "TP-02.02",
+        "TP-03.02",
+        "TP-03.03",
+        "TP-07.01",
+        "TP-07.03"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "bash scripts/local-ci.sh --profile all",
+      "gate": "all profile PASS；若 Docker 或外部凭证缺失，必须拆分记录真实 blocker。",
+      "outputs": [
+        "local-ci all evidence"
+      ],
+      "acceptance": [
+        "本地开发质量、结构治理、公共服务静态门禁达到 100%。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-08",
+      "title": "最终审查和交付收口",
+      "priority": "P0",
+      "type": "package",
+      "objective": "用 auto-review 和任务 closeout 证明六项质量标准全部达到 100% gate。",
+      "parent": null,
+      "depends_on": [
+        "TP-07.04",
+        "TP-05.05",
+        "TP-04.02",
+        "TP-06.03",
+        "TP-02.03"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "确认子节点范围、依赖与状态闭环",
+      "gate": "前置步骤已完成: run-local-ci-all, remove-legacy-shims, bazi-golden-expand, oracle-harness, external-live-readiness",
+      "outputs": [],
+      "acceptance": [],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-08.01",
+      "title": "执行全仓质量审查",
+      "priority": "P0",
+      "type": "action",
+      "objective": "按 correctness/security/reliability/performance/architecture/operability/repo-hygiene 做最终 review。",
+      "parent": "TP-08",
+      "depends_on": [],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "auto-review 输出无 BLOCK，WARN 有 owner 和后续任务。",
+      "gate": "六项质量标准都有 PASS 证据。",
+      "outputs": [
+        "final REVIEW.md",
+        "quality score matrix"
+      ],
+      "acceptance": [
+        "综合质量从 72% 提升到 100% 的证据闭环。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-08.02",
+      "title": "处理最终 review findings",
+      "priority": "P0",
+      "type": "action",
+      "objective": "修复 full-quality-review 发现的 BLOCK，记录无法关闭的外部 blocker。",
+      "parent": "TP-08",
+      "depends_on": [
+        "TP-08.01"
+      ],
+      "parallelizable": false,
+      "debug_required": true,
+      "verify": "复跑触发 finding 的最小验证命令。",
+      "gate": "所有 BLOCK=0；WARN 不影响 100% gate 或被显式排除。",
+      "outputs": [
+        "review finding fix evidence"
+      ],
+      "acceptance": [
+        "无阻塞风险进入最终 closeout。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    },
+    {
+      "id": "TP-08.03",
+      "title": "生成任务 closeout 和交付证据",
+      "priority": "P0",
+      "type": "action",
+      "objective": "把任务树、执行证据、质量矩阵、review 结论和剩余 HITL 状态收口。",
+      "parent": "TP-08",
+      "depends_on": [
+        "TP-08.02"
+      ],
+      "parallelizable": false,
+      "debug_required": false,
+      "verify": "validate_task_docs.py --phase closeout；必要时 build_task_closeout.py。",
+      "gate": "TODO 全部完成，STATUS 全部 Done 或外部 HITL 明确 Blocked，质量 100% 不含伪证。",
+      "outputs": [
+        "Task Closeout Packet",
+        "handoff to auto-github/auto-assets/auto-governance"
+      ],
+      "acceptance": [
+        "任务级 closeout 可交接，可恢复，可审计。"
+      ],
+      "status": "Not Started",
+      "evidence": "待回填",
+      "blocker": "无",
+      "unblock": "无"
+    }
+  ],
+  "document_blocks": {
+    "in_scope": "- 修复当前阻塞级质量门禁：ruff format、本地 local-ci、REVIEW.md 过期、production-readiness 配置失败。\n- 把六项质量标准分别推进到可验证 100%：满足约束、可解释、可测试、可维护、处理特殊情况、复用建立在理解上。\n- 补齐公共生产服务稳定性所需的配置、限流、边界输入、Bot 背压、观测和外部验收任务。\n- 把八字证据层、golden case、规则索引和复用边界继续推进到专业命理项目可审查状态。\n- 把长期维护债拆成可执行重构切片，逐步从 delivery legacy 大类迁移到 fate-core 的稳定边界。",
+    "out_of_scope": "- 本计划阶段不直接修改业务代码；业务实现由后续执行波次逐叶子任务完成。\n- 不运行 GitHub Acceptance，不把远端 CI 当作本地计划设计前置条件。\n- 不伪造公网生产结果；真实域名、TLS、Bot token、生产 URL 缺失时必须标记为 HITL 阻塞。\n- 不以追求行数为目标做大爆炸重写；重构必须保持行为和 golden case 可验证。",
+    "requirement_alignment": "- 目标: 把 FateCat 项目质量标准从当前 72% 推进到可审查、可验证、可维护、可生产运行的 100% 状态。\n- approved plan 顶层步骤数: 8\n- 编译后节点总数: 38\n- 编译后叶子节点数: 30\n- 对齐项: 用户要求使用 auto-tasks 设计完整计划，把当前质量标准百分比全部推进到 100%。\n- 对齐项: 当前基线综合质量约 72%；本计划把百分比拆成可验证 gate，而不是继续使用主观评分。\n- 对齐项: 本计划是任务容器和执行波次设计，不直接等同于已完成实现。\n- 计划摘要: 以 gate-first 方式推进：先修当前本地阻塞，再补生产准入，再扩测试和边界，再推进八字解释与维护性，最后用 full review 和 ship gate 收口。",
+    "repo_evidence": "- 当前仓库：/home/lenovo/.projects/fatecat。\n- 当前 HEAD：787111d592be。\n- git 状态：main 本地领先 origin/main 7 个提交，远端无新提交。\n- 最近审查证据：pytest 123 passed；ruff check PASS；mypy fate_core PASS；structure/source/privacy/governance PASS。\n- 当前阻塞证据：ruff format --check 会重格式化 calculate_pure_analysis.py 和 test_bazi_ziwei_rule_depth.py。\n- 当前阻塞证据：production-readiness.sh 在缺少 FATE_CORS_ALLOW_ORIGINS 时 FAIL。\n- 当前警告证据：REVIEW.md 记录旧 HEAD、旧测试数量和过期生产门禁结论。\n- 当前维护风险：bazi_calculator.py 2775 行、report_generator.py 1967 行、calculate_pure_analysis.py 1463 行、bot.py 1145 行、main.py 908 行、web_ui.py 830 行。\n- 当前运行态干扰：infra/runtime/local-state 下有未跟踪 vendor-build 和 bazi.db，未入 Git 但影响搜索和本地审查。",
+    "constraints_matrix": "- 禁止运行 GitHub Acceptance；只使用本地 CI/CD 技术工具方案。\n- 执行阶段不得伪造公网生产或 Bot live 结果。\n- 业务代码改动必须小步、可回滚、带测试。\n- 公共生产验收必须用真实域名、TLS、反向代理、生产 URL 和真实 Bot token。\n- 架构变更必须同步对应 AGENTS.md 或治理资产。",
+    "change_boundary": "- 本轮只写 governance/tasks/0001-quality-standards-100/ 任务包和 governance/tasks/INDEX.md。\n- 后续实现波次按叶子节点修改代码、测试、文档和治理资产。\n- 不把 unrelated refactor、无关 UI 改造、营销文案和远端推送混入计划阶段。",
+    "risk_matrix": "- high：生产发布涉及公网配置、限流、真实 token、反向代理、TLS 和观测。\n- high：legacy BaziCalculator 迁移涉及核心命理结果，必须用 golden case 和 oracle 防回归。\n- medium：时区/真太阳时语义修正可能改变输出，需要显式兼容边界。\n- medium：Bot 背压和限流会改变用户体验，需要错误态和队列行为测试。\n- medium：大文件拆分可能引入 import/path 循环，需要逐切片验证。\n- low：纯格式化，但仍需确认无业务 diff。\n- low：文档修正，但错误结论会误导后续 agent。\n- medium：会暴露更多本地门禁失败，失败时转 auto-debug。\n- high：生产配置错误会暴露公共服务。\n- medium：环境默认值可能掩盖真实部署，需要 REVIEW 标明。\n- high：需要外部凭证和真实基础设施；缺失时 Blocked/HITL。\n- medium：可能改变当前解释，需要兼容说明。\n- high：公共 Bot 滥用会影响可用性。\n- medium：测试可能暴露 middleware 行为缺陷。\n- medium：样本来源必须可追溯。\n- medium：证据覆盖不足会阻塞可解释 100%。\n- high：样本版权和专业可信度必须治理。\n- medium：解释性增强不能越界成预测承诺。\n- low：评测数据不应污染生产计算。\n- medium：错误边界会导致重构方向错误。\n- medium：拆分可能引入循环 import。\n- high：命理核心行为变化必须由 golden/oracle 解释。\n- medium：UI/报告输出必须保持契约。\n- high：删除前必须确认无外部调用方。\n- medium：错误替换历法库会影响核心结果。\n- high：许可不清会影响公共发布。\n- medium：多 oracle 冲突需要记录裁决规则。\n- medium：规则膨胀会降低可解释性。\n- medium：没有外部 Prometheus 时只能保留平台接入待办。\n- medium：日志不得泄漏用户隐私。\n- low：文档必须跟脚本一致。\n- high：container/public-service 失败会阻塞最终 100%。\n- high：review 发现 BLOCK 时不得 ship。\n- medium：不得为了通过 review 删除必要保护。\n- low：closeout 不等于 push，push 需 auto-github。",
+    "assumptions_and_falsification": "- 100% 不是代码覆盖率 100%，而是六项质量标准对应 gate 全部闭合。\n- 可维护性 100% 不要求一次性删除全部 legacy，而要求新增领域规则不再进入错误边界，且迁移路径和 kill list 被执行到可审查状态。\n- 真实公网验收需要用户提供外部 URL、域名、TLS、Bot token 或部署权限；缺失时对应叶子节点保持 Blocked/HITL。",
+    "critical_ambiguities": "- 真实生产域名、TLS 和 Bot token 是否已可用；没有这些信息不能关闭 public-service live gate。\n- 可维护性 100% 对大文件拆分的硬阈值需在执行中用 review gate 校准，避免为行数牺牲正确性。\n- 八字 golden case 扩展到 100+ 的样本来源、版权和专业可信度需要治理确认。",
+    "debug_evidence_contract": "- 调试模式: Required\n- 若任务属于 bugfix / regression / flaky / crash / CI-only failure，必须切到 `Required`\n- `Required` 时必须在当前任务目录创建并维护 `DEBUG.md`\n- `DEBUG.md` 必须覆盖复现、观察、假设、实验、根因、修复、回归证据\n- 调试关注点: format gate failure\n- 调试关注点: production-readiness env failure\n- 调试关注点: timezone semantic edge cases\n- 调试关注点: Bot queue/backpressure correctness\n- 强制调试叶子节点: TP-01.01, TP-03.03, TP-08.02",
+    "runtime_workflow_contract": "- workflow artifact 必须存入任务目录，而不是只留在聊天上下文。\n- worker 只能消费当前 packet 的最小上下文、允许工具、禁止动作、证据要求和停止条件。\n- verifier / 自审必须独立挑战关键发现，不能把 worker 自评当作验收。\n- integrator / closeout 必须报告 verified、rejected、unresolved、failed、not-covered。\n- 全局预算: 优先 P0/P1 阻塞项；P2 长期优化不得阻塞本地质量 100%。\n- 全局预算: 每个执行波次结束必须保留 git diff、测试输出、review evidence。\n- 全局停止条件: 需要真实公网 URL 或 Bot token 但未提供时，停止对应 HITL 叶子，不伪造通过。\n- 全局停止条件: 命理核心输出变化但 golden/oracle 无法解释时，停止迁移，进入 debug/review。\n- 全局停止条件: local-ci 或 full acceptance 出现未知失败时，转 auto-debug。\n- 需要审批: 真实生产部署、真实 Bot token 使用、push 远端、公开域名配置、删除 legacy 兼容入口。\n- TP-02.03: tools=default; forbidden=none; evidence=default; budget=default; stop=缺少 real-url 或 real bot token 时停止，不伪造证据。",
+    "runtime_verification_gate": "- [ ] 每个 tool/action 结果都有可回指证据或明确未执行原因。\n- [ ] 高风险动作没有由 worker/agent 自我批准；审批状态可追踪。\n- [ ] compaction / resume 后目标、计划、修改文件、审批状态和验证项未丢失。\n- [ ] verifier / 自审已检查关键发现是否有证据支持。\n- [ ] closeout 明确 coverage gaps、failed packets 和 unresolved questions。\n- [ ] TP-01.01: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-01.02: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-01.03: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-02.01: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-02.02: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-02.03: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-03.01: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-03.02: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-03.03: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-03.04: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-04.01: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-04.02: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-04.03: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-04.04: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-05.01: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-05.02: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-05.03: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-05.04: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-05.05: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-06.01: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-06.02: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-06.03: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-06.04: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-07.01: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-07.02: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-07.03: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-07.04: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-08.01: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-08.02: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据\n- [ ] TP-08.03: 输出格式 `按 outputs/acceptance 汇报`；证据要求：默认可复核证据",
+    "runtime_state": "- Active workflow state: 以 `TASK_PACKAGE_SET.json` / `TASK_EXECUTION_WAVE_PACKET.json` 为准。\n- Approval state: 未记录即视为未授权。\n- Resume rule: 继续任务前重新读取当前 packet、Recent Evidence、Blockers、Runtime State。\n- Stop condition: 需要真实公网 URL 或 Bot token 但未提供时，停止对应 HITL 叶子，不伪造通过。\n- Stop condition: 命理核心输出变化但 golden/oracle 无法解释时，停止迁移，进入 debug/review。\n- Stop condition: local-ci 或 full acceptance 出现未知失败时，转 auto-debug。\n- TP-01.01: status=Not Started; verifier_context=自审\n- TP-01.02: status=Not Started; verifier_context=自审\n- TP-01.03: status=Not Started; verifier_context=自审\n- TP-02.01: status=Not Started; verifier_context=自审\n- TP-02.02: status=Not Started; verifier_context=自审\n- TP-02.03: status=Not Started; verifier_context=自审\n- TP-03.01: status=Not Started; verifier_context=自审\n- TP-03.02: status=Not Started; verifier_context=自审\n- TP-03.03: status=Not Started; verifier_context=自审\n- TP-03.04: status=Not Started; verifier_context=自审\n- TP-04.01: status=Not Started; verifier_context=自审\n- TP-04.02: status=Not Started; verifier_context=自审\n- TP-04.03: status=Not Started; verifier_context=自审\n- TP-04.04: status=Not Started; verifier_context=自审\n- TP-05.01: status=Not Started; verifier_context=自审\n- TP-05.02: status=Not Started; verifier_context=自审\n- TP-05.03: status=Not Started; verifier_context=自审\n- TP-05.04: status=Not Started; verifier_context=自审\n- TP-05.05: status=Not Started; verifier_context=自审\n- TP-06.01: status=Not Started; verifier_context=自审\n- TP-06.02: status=Not Started; verifier_context=自审\n- TP-06.03: status=Not Started; verifier_context=自审\n- TP-06.04: status=Not Started; verifier_context=自审\n- TP-07.01: status=Not Started; verifier_context=自审\n- TP-07.02: status=Not Started; verifier_context=自审\n- TP-07.03: status=Not Started; verifier_context=自审\n- TP-07.04: status=Not Started; verifier_context=自审\n- TP-08.01: status=Not Started; verifier_context=自审\n- TP-08.02: status=Not Started; verifier_context=自审\n- TP-08.03: status=Not Started; verifier_context=自审",
+    "task_level_acceptance": "- 六项质量标准都有明确 100% gate、验证命令、剩余 blocker 和执行任务。\n- 任务树所有叶子节点都有 verify、gate、依赖和输出物。\n- 当前可执行 wave 与需要人类输入的 HITL wave 清晰分离。\n- 最终 closeout 只能在 local-ci、full acceptance、container smoke、production readiness、review gate 全部闭合后进入 Done。\n- approved plan 已成功编译为递归任务树\n- 叶子节点数量: 30\n- 当前可立即执行叶子节点: TP-01.01",
+    "validation_plan": "- 使用 auto-tasks 编译并校验任务文档。\n- 执行阶段每个叶子节点必须记录 Recent Evidence。\n- 质量完成度以本地命令、生产 readiness、review findings 和外部 live smoke 证据计算，不靠主观评分。\n- 最终运行 auto-review full/release gate 后无 BLOCK finding。\n- bugfix / regression / flaky 任务必须把 DEBUG.md 的回归证据串到 Recent Evidence\n- TP-01.01 | Verify: .venv/bin/python -m ruff format --check . | Gate: format check 0 退出码，git diff 只包含格式化变更。\n- TP-01.02 | Verify: 人工核对 REVIEW.md 中 HEAD、测试数量、门禁状态与命令输出一致。 | Gate: REVIEW.md 不再写旧 HEAD、旧 120 passed 或无 env 的 production-readiness PASS。\n- TP-01.03 | Verify: bash scripts/local-ci.sh --profile quick | Gate: quick profile PASS，summary/evidence 目录存在。\n- TP-02.01 | Verify: bash scripts/production-readiness.sh --skip-bootstrap 在生产等价 env 下通过。 | Gate: 无生产等价 env 时保持 FAIL；有 env 时 PASS 且 WARN 项有明确归属。\n- TP-02.02 | Verify: bash scripts/local-ci.sh --profile public-service | Gate: public-service profile PASS，且没有伪造外部 URL/Bot live 通过。\n- TP-02.03 | Verify: bash scripts/production-readiness.sh --api-url <real-url> --require-live-bot | Gate: 真实 /health、/ready、/metrics 和 Telegram get_me 通过；无 placeholder token。\n- TP-03.01 | Verify: pytest 覆盖 parse_datetime、CLI、API、pure-analysis 的时区边界。 | Gate: 带时区输入不会被静默 replace 成错误本地时间，文档说明清楚。\n- TP-03.02 | Verify: pytest domains/experience-delivery/services/fatecat-delivery/tests/test_rate_limiter.py | Gate: 高峰请求不会无限排队；用户冷却/每日限额是否启用有明确产品口径。\n- TP-03.03 | Verify: pytest tests/regression/test_api_contracts.py tests/regression/test_web_html.py | Gate: 公共 API 护栏行为被测试锁住。\n- TP-03.04 | Verify: pytest tests/regression/test_solar_terms_golden.py tests/regression/test_bazi_statement_golden.py | Gate: 关键历法边界至少有项目 golden 和 oracle 来源。\n- TP-04.01 | Verify: 新增或运行 evidence coverage 测试，确认核心字段均有 ruleIds/source/risk。 | Gate: 无孤儿 ruleId，无核心判断缺 evidence。\n- TP-04.02 | Verify: pytest 运行新增 golden suite；样本 manifest 通过许可和来源审查。 | Gate: 100+ 样本都有来源、预期、覆盖标签和失败解释路径。\n- TP-04.03 | Verify: pytest tests/regression/test_bazi_ziwei_rule_depth.py | Gate: profile 只作为 evidence_seed，输出有 riskBoundary。\n- TP-04.04 | Verify: bash scripts/run-mingli-bench.sh --stats 和离线 sample evaluation。 | Gate: 评测结果进入 REVIEW/quality report，且不调用外部模型 API。\n- TP-05.01 | Verify: 生成边界文档并通过 auto-review architecture/ponytail 审查。 | Gate: 每个大文件都有保留职责、迁出职责、禁止新增职责。\n- TP-05.02 | Verify: pytest tests/regression/fate_core/test_pure_analysis_usecase.py tests/regression/test_bazi_ziwei_rule_depth.py | Gate: 外部 API 输出不变，模块边界变清楚。\n- TP-05.03 | Verify: golden suite、API contracts、web html、pure-analysis smoke 全通过。 | Gate: delivery 不再是八字领域算法真相源；legacy adapter 只剩迁移窗口和删除条件。\n- TP-05.04 | Verify: pytest delivery tests + tests/regression/test_web_html.py + API contract tests。 | Gate: 交付层只负责编排、渲染和传输，不新增命理规则。\n- TP-05.05 | Verify: scan_principle_gates 过滤源码后无真实 BLOCK；structure gate 无 legacy_source_root。 | Gate: 保留的 compat 都有 owner、移除条件和真实 contract。\n- TP-06.01 | Verify: 依赖文件、adapter、文档和测试一致声明 lunar-python 生产角色。 | Gate: 没有隐式 vendor 依赖或重复自研历法算法。\n- TP-06.02 | Verify: vendor/reference manifest 通过治理审查。 | Gate: 无明确 LICENSE 的材料不得作为生产依赖扩散。\n- TP-06.03 | Verify: oracle 对照测试只在评测/开发门禁运行，不污染生产路径。 | Gate: 生产路径仍以 CalendarProvider 为单一入口。\n- TP-06.04 | Verify: policy asset tests 覆盖新增规则字段和禁止项。 | Gate: 新增规则必须有 source、appliesWhen、doesNotApplyWhen、risk boundary。\n- TP-07.01 | Verify: metrics 输出包含必要 label，runbook 说明告警触发和处理。 | Gate: 公共服务可从指标判断健康，而不是只看 /health。\n- TP-07.02 | Verify: API/Bot 错误路径日志包含 requestId 或等价 trace id。 | Gate: 出现 5xx/timeout 时可定位到请求和错误类型。\n- TP-07.03 | Verify: runbook 被 REVIEW.md 和 references/ops-pack.md 引用。 | Gate: 上线、回滚、降级、清理 runtime 都有可执行命令。\n- TP-07.04 | Verify: bash scripts/local-ci.sh --profile all | Gate: all profile PASS；若 Docker 或外部凭证缺失，必须拆分记录真实 blocker。\n- TP-08.01 | Verify: auto-review 输出无 BLOCK，WARN 有 owner 和后续任务。 | Gate: 六项质量标准都有 PASS 证据。\n- TP-08.02 | Verify: 复跑触发 finding 的最小验证命令。 | Gate: 所有 BLOCK=0；WARN 不影响 100% gate 或被显式排除。\n- TP-08.03 | Verify: validate_task_docs.py --phase closeout；必要时 build_task_closeout.py。 | Gate: TODO 全部完成，STATUS 全部 Done 或外部 HITL 明确 Blocked，质量 100% 不含伪证。",
+    "review_gate": "- auto-review correctness/security/reliability/performance/architecture/contract/operability/build-release/repo-hygiene。\n- future-optimal-drift：检查是否又把 legacy 兼容当目标结构。\n- ponytail-complexity：检查是否新增无必要所有权面。\n- feature-change-safety：覆盖 API、Bot、生产配置、限流、外部 token 和运行副作用。",
+    "ship_readiness": "- local-ci quick PASS。\n- local-ci full PASS。\n- container smoke PASS。\n- production-readiness PASS。\n- 如果要求真实公共服务：production-readiness --api-url <real-url> --require-live-bot PASS。\n- REVIEW.md 更新到当前 HEAD 和真实证据。\n- auto-review 最终结论无 BLOCK。",
+    "global_acceptance_standards": "- [ ] 满足约束 100%：format、lint、typecheck、pytest、structure、source hygiene、privacy、local-ci quick/full 均 PASS，REVIEW.md 与当前 HEAD 一致。\n- [ ] 可解释 100%：生产输出的核心判断都有 evidence、ruleIds、source、weight、risk boundary，ruleIds 全部能回指 classics/rule registry。\n- [ ] 可测试 100%：关键能力、特殊时间边界、生产 guardrails、Bot 背压、容器、public-service readiness 和外部 live smoke 都有测试或验收证据。\n- [ ] 可维护 100%：核心 legacy 边界被收敛，fate-core 与 delivery 职责清晰，大文件不再继续承担新增领域规则。\n- [ ] 处理特殊情况 100%：时区、真太阳时、节气边界、早晚子时、异常输入、超大请求、多副本限流、Bot 高峰队列都有明确行为。\n- [ ] 复用建立在理解上 100%：lunar-python、sxtwl、iztro、bazi-1、MingLi-Bench 的角色、许可、生产/评测边界和回归 oracle 均明确。",
+    "package_context_blocks": "## TP-01\n- Step Key: `baseline-gates`\n- 标题: 修复当前本地质量阻塞\n- 类型: `package`\n- 目标: 先把当前已知 BLOCK 清零，恢复本地 CI 可信度。\n- 父节点: `ROOT`\n- 子节点: TP-01.01, TP-01.02, TP-01.03\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: 无\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-01.01\n- Step Key: `format-gate`\n- 标题: 修复 ruff format gate\n- 类型: `action`\n- 目标: 格式化当前失败文件，让 ruff format --check 全仓通过。\n- 父节点: `TP-01`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: 格式化后的 calculate_pure_analysis.py；格式化后的 test_bazi_ziwei_rule_depth.py\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: low：纯格式化，但仍需确认无业务 diff。\n- 备注: Existence check: 当前 local-ci quick 会执行 format check，因此必须修。；Selected ladder rung: project-native ruff format。；Minimal runnable check: ruff format --check .\n\n### TP-01.02\n- Step Key: `review-refresh`\n- 标题: 刷新 REVIEW.md 质量真相源\n- 类型: `action`\n- 目标: 把 REVIEW.md 更新到当前 HEAD、当前测试数量、当前 production-readiness 真实状态。\n- 父节点: `TP-01`\n- 子节点: 无\n- 依赖步骤 Key: format-gate\n- 依赖节点 ID: TP-01.01\n- 输入: 无\n- 输出: REVIEW.md 当前质量记录\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: low：文档修正，但错误结论会误导后续 agent。\n- 备注: Target end state: REVIEW.md 是当前审查结果真相源，不保留过期乐观口径。；Rejected short-term patches: 不只追加新段落掩盖旧结论。\n\n### TP-01.03\n- Step Key: `quick-local-ci`\n- 标题: 恢复 local-ci quick 绿色\n- 类型: `action`\n- 目标: 用本地 CI 快速入口证明基础质量门禁闭合。\n- 父节点: `TP-01`\n- 子节点: 无\n- 依赖步骤 Key: format-gate, review-refresh\n- 依赖节点 ID: TP-01.01, TP-01.02\n- 输入: 无\n- 输出: local-ci quick evidence\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: medium：会暴露更多本地门禁失败，失败时转 auto-debug。\n- 备注: 无\n\n## TP-02\n- Step Key: `production-constraints`\n- 标题: 关闭生产准入约束缺口\n- 类型: `package`\n- 目标: 让公共服务发布前的静态和真实环境门禁可执行、可失败、可追溯。\n- 父节点: `ROOT`\n- 子节点: TP-02.01, TP-02.02, TP-02.03\n- 依赖步骤 Key: quick-local-ci\n- 依赖节点 ID: TP-01.03\n- 输入: 无\n- 输出: 无\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-02.01\n- Step Key: `production-env-contract`\n- 标题: 固化生产 env 合同\n- 类型: `action`\n- 目标: 把 CORS、records、rate limit backend、edge body limit、proxy headers、HSTS 的生产配置要求写成可验证合同。\n- 父节点: `TP-02`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: production env checklist；readiness evidence\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: high：生产配置错误会暴露公共服务。\n- 备注: risk_level: high；affected_flows: public API, web, bot delivery；rollout: env-driven no code deployment first；rollback: revert env to previous known-good values\n\n### TP-02.02\n- Step Key: `public-service-local-ci`\n- 标题: 恢复 local-ci public-service 绿色\n- 类型: `action`\n- 目标: 使用 scripts/local-ci.sh --profile public-service 验证生产静态准入路径。\n- 父节点: `TP-02`\n- 子节点: 无\n- 依赖步骤 Key: production-env-contract\n- 依赖节点 ID: TP-02.01\n- 输入: 无\n- 输出: public-service local CI evidence\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: medium：环境默认值可能掩盖真实部署，需要 REVIEW 标明。\n- 备注: 无\n\n### TP-02.03\n- Step Key: `external-live-readiness`\n- 标题: 真实公网 API 与 Bot live 验收\n- 类型: `action`\n- 目标: 在真实域名/TLS/反向代理/生产 URL/真实 Bot token 下执行 live readiness。\n- 父节点: `TP-02`\n- 子节点: 无\n- 依赖步骤 Key: public-service-local-ci\n- 依赖节点 ID: TP-02.02\n- 输入: 无\n- 输出: live API readiness evidence；live Bot evidence\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 缺少 real-url 或 real bot token 时停止，不伪造证据。\n- 风险: high：需要外部凭证和真实基础设施；缺失时 Blocked/HITL。\n- 备注: 无\n\n## TP-03\n- Step Key: `edge-case-hardening`\n- 标题: 补齐特殊情况与韧性\n- 类型: `package`\n- 目标: 把时区、真太阳时、节气、早晚子时、Bot 背压、多副本限流和异常输入变成测试化契约。\n- 父节点: `ROOT`\n- 子节点: TP-03.01, TP-03.02, TP-03.03, TP-03.04\n- 依赖步骤 Key: quick-local-ci\n- 依赖节点 ID: TP-01.03\n- 输入: 无\n- 输出: 无\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-03.01\n- Step Key: `timezone-contract`\n- 标题: 定义并测试出生时间时区语义\n- 类型: `action`\n- 目标: 明确 naive、Z、+08:00、出生地时区和真太阳时之间的输入语义。\n- 父节点: `TP-03`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: 时区语义契约；时区边界测试\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: medium：可能改变当前解释，需要兼容说明。\n- 备注: 无\n\n### TP-03.02\n- Step Key: `bot-backpressure`\n- 标题: Bot 背压与滥用保护\n- 类型: `action`\n- 目标: 把 Bot 队列从近似无限等待改成有界并发、有界队列、用户级反馈和测试。\n- 父节点: `TP-03`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: Bot rate limiter contract；rate limiter tests\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: high：公共 Bot 滥用会影响可用性。\n- 备注: 无\n\n### TP-03.03\n- Step Key: `api-guardrail-tests`\n- 标题: API guardrails 特殊输入回归\n- 类型: `action`\n- 目标: 补齐请求体超限、无 Content-Length、超时、429、错误分类、安全头的回归测试。\n- 父节点: `TP-03`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: API guardrail regression tests\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: medium：测试可能暴露 middleware 行为缺陷。\n- 备注: 无\n\n### TP-03.04\n- Step Key: `calendar-boundary-golden`\n- 标题: 历法边界 golden 扩展\n- 类型: `action`\n- 目标: 扩展节气边界、早晚子时、真太阳时、地域经纬度边界 golden case。\n- 父节点: `TP-03`\n- 子节点: 无\n- 依赖步骤 Key: timezone-contract\n- 依赖节点 ID: TP-03.01\n- 输入: 无\n- 输出: calendar/bazi boundary golden cases\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: medium：样本来源必须可追溯。\n- 备注: 无\n\n## TP-04\n- Step Key: `explainability-bazi`\n- 标题: 八字解释性与证据化补齐\n- 类型: `package`\n- 目标: 让核心命理判断具备可追溯 evidence、ruleIds、权重和风险边界。\n- 父节点: `ROOT`\n- 子节点: TP-04.01, TP-04.02, TP-04.03, TP-04.04\n- 依赖步骤 Key: quick-local-ci\n- 依赖节点 ID: TP-01.03\n- 输入: 无\n- 输出: 无\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-04.01\n- Step Key: `evidence-coverage`\n- 标题: 核心字段 evidence 覆盖审计\n- 类型: `action`\n- 目标: 审计 baziBenchmark、baziRuleDepth、analysisEvidence 的核心字段覆盖率。\n- 父节点: `TP-04`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: evidence coverage report；regression tests\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: medium：证据覆盖不足会阻塞可解释 100%。\n- 备注: 无\n\n### TP-04.02\n- Step Key: `bazi-golden-expand`\n- 标题: 八字 golden case 扩展到 100+\n- 类型: `action`\n- 目标: 优先覆盖节气边界、早晚子时、特殊格局、合化、从格、岁运触发。\n- 父节点: `TP-04`\n- 子节点: 无\n- 依赖步骤 Key: calendar-boundary-golden, evidence-coverage\n- 依赖节点 ID: TP-03.04, TP-04.01\n- 输入: 无\n- 输出: 100+ golden case manifest；golden regression suite\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: high：样本版权和专业可信度必须治理。\n- 备注: 无\n\n### TP-04.03\n- Step Key: `topic-profile-validation`\n- 标题: 专题 profile 评分验证\n- 类型: `action`\n- 目标: 验证事业、财运、婚姻、健康、学业、迁移 profile 不输出确定性断语。\n- 父节点: `TP-04`\n- 子节点: 无\n- 依赖步骤 Key: evidence-coverage\n- 依赖节点 ID: TP-04.01\n- 输入: 无\n- 输出: topic profile tests；risk wording checks\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: medium：解释性增强不能越界成预测承诺。\n- 备注: 无\n\n### TP-04.04\n- Step Key: `mingli-bench-gate`\n- 标题: MingLi-Bench 评测门禁接入\n- 类型: `action`\n- 目标: 把 MingLi-Bench 作为报告/推理质量评测层，不作为生产排盘层。\n- 父节点: `TP-04`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: MingLi-Bench local evaluation evidence\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: low：评测数据不应污染生产计算。\n- 备注: 无\n\n## TP-05\n- Step Key: `maintainability-architecture`\n- 标题: 长期维护性与 legacy 边界治理\n- 类型: `package`\n- 目标: 从大文件和 delivery legacy 中迁出领域核心，让 fate-core 成为命理能力真相源。\n- 父节点: `ROOT`\n- 子节点: TP-05.01, TP-05.02, TP-05.03, TP-05.04, TP-05.05\n- 依赖步骤 Key: quick-local-ci\n- 依赖节点 ID: TP-01.03\n- 输入: 无\n- 输出: 无\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-05.01\n- Step Key: `boundary-map`\n- 标题: 绘制核心大文件职责边界图\n- 类型: `action`\n- 目标: 给 bazi_calculator、report_generator、calculate_pure_analysis、bot、main、web_ui 建立职责地图和迁移 kill list。\n- 父节点: `TP-05`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: module boundary map；legacy kill list\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: medium：错误边界会导致重构方向错误。\n- 备注: Target end state: fate-core owns calculation/rules/evidence; delivery owns API/Web/Bot/report presentation.；Inertia constraints: existing import paths and legacy names must not define terminal architecture.；Kill list: scattered sys.path, delivery-owned domain rules, compatibility-only wrappers without public contract.\n\n### TP-05.02\n- Step Key: `split-pure-analysis`\n- 标题: 拆分 calculate_pure_analysis 证据构建模块\n- 类型: `action`\n- 目标: 把输入归一化、benchmark、rule depth、topic profile 和 evidence append 拆到 fate-core 内部清晰模块。\n- 父节点: `TP-05`\n- 子节点: 无\n- 依赖步骤 Key: boundary-map, evidence-coverage\n- 依赖节点 ID: TP-05.01, TP-04.01\n- 输入: 无\n- 输出: fate-core pure_analysis submodules；updated AGENTS.md\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: medium：拆分可能引入循环 import。\n- 备注: 无\n\n### TP-05.03\n- Step Key: `migrate-bazi-core`\n- 标题: 迁移 BaziCalculator 领域核心到 fate-core\n- 类型: `action`\n- 目标: 逐步把历法、四柱、旺衰、格局、用神、岁运从 delivery 大类迁入 fate-core。\n- 父节点: `TP-05`\n- 子节点: 无\n- 依赖步骤 Key: boundary-map, bazi-golden-expand\n- 依赖节点 ID: TP-05.01, TP-04.02\n- 输入: 无\n- 输出: fate-core bazi providers/evaluators；legacy adapter shrink plan\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: high：命理核心行为变化必须由 golden/oracle 解释。\n- 备注: 无\n\n### TP-05.04\n- Step Key: `split-delivery-surfaces`\n- 标题: 收敛 delivery 层 API/Web/Bot/报告边界\n- 类型: `action`\n- 目标: 把 main、web_ui、bot、report_generator 的交付职责分层，避免继续混入领域算法。\n- 父节点: `TP-05`\n- 子节点: 无\n- 依赖步骤 Key: boundary-map, bot-backpressure, api-guardrail-tests\n- 依赖节点 ID: TP-05.01, TP-03.02, TP-03.03\n- 输入: 无\n- 输出: delivery boundary refactor slices；updated AGENTS.md\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: medium：UI/报告输出必须保持契约。\n- 备注: 无\n\n### TP-05.05\n- Step Key: `remove-legacy-shims`\n- 标题: 清退无真实外部契约的 legacy/compat shim\n- 类型: `action`\n- 目标: 删除或收缩无真实公共 API、持久化数据、外部集成支撑的兼容层。\n- 父节点: `TP-05`\n- 子节点: 无\n- 依赖步骤 Key: migrate-bazi-core, split-delivery-surfaces\n- 依赖节点 ID: TP-05.03, TP-05.04\n- 输入: 无\n- 输出: legacy removal diff；migration ledger update\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: high：删除前必须确认无外部调用方。\n- 备注: 无\n\n## TP-06\n- Step Key: `reuse-supply-chain`\n- 标题: 复用与供应链理解闭环\n- 类型: `package`\n- 目标: 确保外部库、参考仓、oracle 和规则材料都在正确边界内被复用。\n- 父节点: `ROOT`\n- 子节点: TP-06.01, TP-06.02, TP-06.03, TP-06.04\n- 依赖步骤 Key: quick-local-ci\n- 依赖节点 ID: TP-01.03\n- 输入: 无\n- 输出: 无\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-06.01\n- Step Key: `calendar-provider-contract`\n- 标题: CalendarProvider 生产依赖合同\n- 类型: `action`\n- 目标: 明确 lunar-python 为主生产历法底座，sxtwl/bazica/其他项目只作为 oracle 或参考。\n- 父节点: `TP-06`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: CalendarProvider contract；dependency tests\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: medium：错误替换历法库会影响核心结果。\n- 备注: 无\n\n### TP-06.02\n- Step Key: `reference-license-manifest`\n- 标题: 参考源许可和用途 manifest\n- 类型: `action`\n- 目标: 为 bazi-1、MingLi-Bench、sxtwl、iztro、lunar-python 等建立许可/用途/风险清单。\n- 父节点: `TP-06`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: reference source manifest；license risk notes\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: high：许可不清会影响公共发布。\n- 备注: 无\n\n### TP-06.03\n- Step Key: `oracle-harness`\n- 标题: 历法/四柱 oracle 对照框架\n- 类型: `action`\n- 目标: 保留 sxtwl、bazica、alvamind 等作为对照 oracle，不进入主运行链。\n- 父节点: `TP-06`\n- 子节点: 无\n- 依赖步骤 Key: calendar-provider-contract, reference-license-manifest\n- 依赖节点 ID: TP-06.01, TP-06.02\n- 输入: 无\n- 输出: oracle comparison harness\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: medium：多 oracle 冲突需要记录裁决规则。\n- 备注: 无\n\n### TP-06.04\n- Step Key: `rule-registry-governance`\n- 标题: 规则 registry owner 和扩展规则\n- 类型: `action`\n- 目标: 明确 rule_depth_registry、classics_rule_index、future_features 的 owner、字段、升级 gate。\n- 父节点: `TP-06`\n- 子节点: 无\n- 依赖步骤 Key: evidence-coverage\n- 依赖节点 ID: TP-04.01\n- 输入: 无\n- 输出: rule registry governance note；policy tests\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: medium：规则膨胀会降低可解释性。\n- 备注: 无\n\n## TP-07\n- Step Key: `observability-operations`\n- 标题: 公共服务观测和运行闭环\n- 类型: `package`\n- 目标: 把当前应用内 metrics/logs/readiness 扩展到真实运行平台可用的 SLO、告警和排障包。\n- 父节点: `ROOT`\n- 子节点: TP-07.01, TP-07.02, TP-07.03, TP-07.04\n- 依赖步骤 Key: production-env-contract, api-guardrail-tests\n- 依赖节点 ID: TP-02.01, TP-03.03\n- 输入: 无\n- 输出: 无\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-07.01\n- Step Key: `metrics-dashboard`\n- 标题: Prometheus/Grafana 指标和告警计划\n- 类型: `action`\n- 目标: 定义 p95/p99、错误率、429、413、504、inflight、Bot 队列等指标和告警阈值。\n- 父节点: `TP-07`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: metrics dashboard spec；alert runbook\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: medium：没有外部 Prometheus 时只能保留平台接入待办。\n- 备注: 无\n\n### TP-07.02\n- Step Key: `trace-log-correlation`\n- 标题: 请求 ID 与业务日志贯穿\n- 类型: `action`\n- 目标: 确保 X-Request-ID 能关联 HTTP 日志、错误分类、业务计算失败和 Bot 交付。\n- 父节点: `TP-07`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: trace/log correlation tests or runbook\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: medium：日志不得泄漏用户隐私。\n- 备注: 无\n\n### TP-07.03\n- Step Key: `slo-runbook`\n- 标题: SLO 与运维 runbook\n- 类型: `action`\n- 目标: 定义公共服务 SLO、降级策略、恢复步骤、清理本地 runtime 的流程。\n- 父节点: `TP-07`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: SLO/runbook update\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: low：文档必须跟脚本一致。\n- 备注: 无\n\n### TP-07.04\n- Step Key: `run-local-ci-all`\n- 标题: 本地全链路 CI/CD 汇总\n- 类型: `action`\n- 目标: 运行 quick/full/container/public-service 的本地 all profile，作为最终本地质量证据。\n- 父节点: `TP-07`\n- 子节点: 无\n- 依赖步骤 Key: public-service-local-ci, bot-backpressure, api-guardrail-tests, metrics-dashboard, slo-runbook\n- 依赖节点 ID: TP-02.02, TP-03.02, TP-03.03, TP-07.01, TP-07.03\n- 输入: 无\n- 输出: local-ci all evidence\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: high：container/public-service 失败会阻塞最终 100%。\n- 备注: 无\n\n## TP-08\n- Step Key: `final-review-ship`\n- 标题: 最终审查和交付收口\n- 类型: `package`\n- 目标: 用 auto-review 和任务 closeout 证明六项质量标准全部达到 100% gate。\n- 父节点: `ROOT`\n- 子节点: TP-08.01, TP-08.02, TP-08.03\n- 依赖步骤 Key: run-local-ci-all, remove-legacy-shims, bazi-golden-expand, oracle-harness, external-live-readiness\n- 依赖节点 ID: TP-07.04, TP-05.05, TP-04.02, TP-06.03, TP-02.03\n- 输入: 无\n- 输出: 无\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: 无\n- 备注: 无\n\n### TP-08.01\n- Step Key: `full-quality-review`\n- 标题: 执行全仓质量审查\n- 类型: `action`\n- 目标: 按 correctness/security/reliability/performance/architecture/operability/repo-hygiene 做最终 review。\n- 父节点: `TP-08`\n- 子节点: 无\n- 依赖步骤 Key: 无\n- 依赖节点 ID: 无\n- 输入: 无\n- 输出: final REVIEW.md；quality score matrix\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: high：review 发现 BLOCK 时不得 ship。\n- 备注: 无\n\n### TP-08.02\n- Step Key: `fix-review-findings`\n- 标题: 处理最终 review findings\n- 类型: `action`\n- 目标: 修复 full-quality-review 发现的 BLOCK，记录无法关闭的外部 blocker。\n- 父节点: `TP-08`\n- 子节点: 无\n- 依赖步骤 Key: full-quality-review\n- 依赖节点 ID: TP-08.01\n- 输入: 无\n- 输出: review finding fix evidence\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: medium：不得为了通过 review 删除必要保护。\n- 备注: 无\n\n### TP-08.03\n- Step Key: `task-closeout`\n- 标题: 生成任务 closeout 和交付证据\n- 类型: `action`\n- 目标: 把任务树、执行证据、质量矩阵、review 结论和剩余 HITL 状态收口。\n- 父节点: `TP-08`\n- 子节点: 无\n- 依赖步骤 Key: fix-review-findings\n- 依赖节点 ID: TP-08.02\n- 输入: 无\n- 输出: Task Closeout Packet；handoff to auto-github/auto-assets/auto-governance\n- 允许工具: 默认遵循当前环境与任务范围\n- 禁止动作: 无未声明授权的高风险动作\n- 证据要求: 命令输出、文件 diff、日志或审查结论\n- 停止条件: 越界、缺审批、验证失败或上下文不足时暂停\n- 风险: low：closeout 不等于 push，push 需 auto-github。\n- 备注: 无",
+    "package_acceptance_blocks": "## TP-01\n- 标题: 修复当前本地质量阻塞\n- 验收标准:\n  - 达成当前节点 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 任务目标与上下文已确认\n- 输出物: 无\n\n### TP-01.01\n- 标题: 修复 ruff format gate\n- 验收标准:\n  - ruff check 和 format check 均 PASS。\n- Verify: .venv/bin/python -m ruff format --check .\n- Gate: format check 0 退出码，git diff 只包含格式化变更。\n- 输出物: 格式化后的 calculate_pure_analysis.py；格式化后的 test_bazi_ziwei_rule_depth.py\n\n### TP-01.02\n- 标题: 刷新 REVIEW.md 质量真相源\n- 验收标准:\n  - REVIEW.md 明确区分本地 PASS、生产配置 FAIL、外部 live 未执行。\n- Verify: 人工核对 REVIEW.md 中 HEAD、测试数量、门禁状态与命令输出一致。\n- Gate: REVIEW.md 不再写旧 HEAD、旧 120 passed 或无 env 的 production-readiness PASS。\n- 输出物: REVIEW.md 当前质量记录\n\n### TP-01.03\n- 标题: 恢复 local-ci quick 绿色\n- 验收标准:\n  - shell、preflight、structure、source hygiene、privacy、ruff、format、mypy、focused tests、diff check 全通过。\n- Verify: bash scripts/local-ci.sh --profile quick\n- Gate: quick profile PASS，summary/evidence 目录存在。\n- 输出物: local-ci quick evidence\n\n## TP-02\n- 标题: 关闭生产准入约束缺口\n- 验收标准:\n  - 达成当前节点 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: quick-local-ci\n- 输出物: 无\n\n### TP-02.01\n- 标题: 固化生产 env 合同\n- 验收标准:\n  - FATE_CORS_ALLOW_ORIGINS 非空且非 *；多副本不使用 memory 限流；edge/proxy/HSTS 口径清楚。\n- Verify: bash scripts/production-readiness.sh --skip-bootstrap 在生产等价 env 下通过。\n- Gate: 无生产等价 env 时保持 FAIL；有 env 时 PASS 且 WARN 项有明确归属。\n- 输出物: production env checklist；readiness evidence\n\n### TP-02.02\n- 标题: 恢复 local-ci public-service 绿色\n- 验收标准:\n  - 本地 public-service readiness PASS；外部 live 项清晰 SKIP 或 HITL。\n- Verify: bash scripts/local-ci.sh --profile public-service\n- Gate: public-service profile PASS，且没有伪造外部 URL/Bot live 通过。\n- 输出物: public-service local CI evidence\n\n### TP-02.03\n- 标题: 真实公网 API 与 Bot live 验收\n- 验收标准:\n  - 真实公网验收 PASS 后，公共生产服务稳定性才可从 55% 提升到 100%。\n- Verify: bash scripts/production-readiness.sh --api-url <real-url> --require-live-bot\n- Gate: 真实 /health、/ready、/metrics 和 Telegram get_me 通过；无 placeholder token。\n- 输出物: live API readiness evidence；live Bot evidence\n\n## TP-03\n- 标题: 补齐特殊情况与韧性\n- 验收标准:\n  - 达成当前节点 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: quick-local-ci\n- 输出物: 无\n\n### TP-03.01\n- 标题: 定义并测试出生时间时区语义\n- 验收标准:\n  - Z/+08:00/无时区输入各自有明确预期。\n- Verify: pytest 覆盖 parse_datetime、CLI、API、pure-analysis 的时区边界。\n- Gate: 带时区输入不会被静默 replace 成错误本地时间，文档说明清楚。\n- 输出物: 时区语义契约；时区边界测试\n\n### TP-03.02\n- 标题: Bot 背压与滥用保护\n- 验收标准:\n  - QUEUE_MAX_SIZE 有生产合理默认值；拒绝原因可测试。\n- Verify: pytest domains/experience-delivery/services/fatecat-delivery/tests/test_rate_limiter.py\n- Gate: 高峰请求不会无限排队；用户冷却/每日限额是否启用有明确产品口径。\n- 输出物: Bot rate limiter contract；rate limiter tests\n\n### TP-03.03\n- 标题: API guardrails 特殊输入回归\n- 验收标准:\n  - 413/429/504/安全头/metrics error_class 均有可验证路径。\n- Verify: pytest tests/regression/test_api_contracts.py tests/regression/test_web_html.py\n- Gate: 公共 API 护栏行为被测试锁住。\n- 输出物: API guardrail regression tests\n\n### TP-03.04\n- 标题: 历法边界 golden 扩展\n- 验收标准:\n  - 边界样本来源、预期结果、oracle 说明齐全。\n- Verify: pytest tests/regression/test_solar_terms_golden.py tests/regression/test_bazi_statement_golden.py\n- Gate: 关键历法边界至少有项目 golden 和 oracle 来源。\n- 输出物: calendar/bazi boundary golden cases\n\n## TP-04\n- 标题: 八字解释性与证据化补齐\n- 验收标准:\n  - 达成当前节点 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: quick-local-ci\n- 输出物: 无\n\n### TP-04.01\n- 标题: 核心字段 evidence 覆盖审计\n- 验收标准:\n  - ruleIds 全部能回指 contracts/fate/classics_rule_index.json 或 rule_depth_registry.json。\n- Verify: 新增或运行 evidence coverage 测试，确认核心字段均有 ruleIds/source/risk。\n- Gate: 无孤儿 ruleId，无核心判断缺 evidence。\n- 输出物: evidence coverage report；regression tests\n\n### TP-04.02\n- 标题: 八字 golden case 扩展到 100+\n- 验收标准:\n  - 八字证据化能力从 70% 提升到可审查 100%。\n- Verify: pytest 运行新增 golden suite；样本 manifest 通过许可和来源审查。\n- Gate: 100+ 样本都有来源、预期、覆盖标签和失败解释路径。\n- 输出物: 100+ golden case manifest；golden regression suite\n\n### TP-04.03\n- 标题: 专题 profile 评分验证\n- 验收标准:\n  - 报告透明但不恐吓、不替代现实决策。\n- Verify: pytest tests/regression/test_bazi_ziwei_rule_depth.py\n- Gate: profile 只作为 evidence_seed，输出有 riskBoundary。\n- 输出物: topic profile tests；risk wording checks\n\n### TP-04.04\n- 标题: MingLi-Bench 评测门禁接入\n- 验收标准:\n  - 评测层和生产层边界清晰。\n- Verify: bash scripts/run-mingli-bench.sh --stats 和离线 sample evaluation。\n- Gate: 评测结果进入 REVIEW/quality report，且不调用外部模型 API。\n- 输出物: MingLi-Bench local evaluation evidence\n\n## TP-05\n- 标题: 长期维护性与 legacy 边界治理\n- 验收标准:\n  - 达成当前节点 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: quick-local-ci\n- 输出物: 无\n\n### TP-05.01\n- 标题: 绘制核心大文件职责边界图\n- 验收标准:\n  - 后续任务不再靠猜测拆大文件。\n- Verify: 生成边界文档并通过 auto-review architecture/ponytail 审查。\n- Gate: 每个大文件都有保留职责、迁出职责、禁止新增职责。\n- 输出物: module boundary map；legacy kill list\n\n### TP-05.02\n- 标题: 拆分 calculate_pure_analysis 证据构建模块\n- 验收标准:\n  - 新增八字规则不必继续堆进单一 1400+ 行文件。\n- Verify: pytest tests/regression/fate_core/test_pure_analysis_usecase.py tests/regression/test_bazi_ziwei_rule_depth.py\n- Gate: 外部 API 输出不变，模块边界变清楚。\n- 输出物: fate-core pure_analysis submodules；updated AGENTS.md\n\n### TP-05.03\n- 标题: 迁移 BaziCalculator 领域核心到 fate-core\n- 验收标准:\n  - 长期维护性从 58% 提升到可审查 100% 的核心切片。\n- Verify: golden suite、API contracts、web html、pure-analysis smoke 全通过。\n- Gate: delivery 不再是八字领域算法真相源；legacy adapter 只剩迁移窗口和删除条件。\n- 输出物: fate-core bazi providers/evaluators；legacy adapter shrink plan\n\n### TP-05.04\n- 标题: 收敛 delivery 层 API/Web/Bot/报告边界\n- 验收标准:\n  - Web/Bot/API 改动不会迫使领域算法同文件变更。\n- Verify: pytest delivery tests + tests/regression/test_web_html.py + API contract tests。\n- Gate: 交付层只负责编排、渲染和传输，不新增命理规则。\n- 输出物: delivery boundary refactor slices；updated AGENTS.md\n\n### TP-05.05\n- 标题: 清退无真实外部契约的 legacy/compat shim\n- 验收标准:\n  - future-optimal-drift 不再因 active legacy 边界触发真实 BLOCK。\n- Verify: scan_principle_gates 过滤源码后无真实 BLOCK；structure gate 无 legacy_source_root。\n- Gate: 保留的 compat 都有 owner、移除条件和真实 contract。\n- 输出物: legacy removal diff；migration ledger update\n\n## TP-06\n- 标题: 复用与供应链理解闭环\n- 验收标准:\n  - 达成当前节点 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: quick-local-ci\n- 输出物: 无\n\n### TP-06.01\n- 标题: CalendarProvider 生产依赖合同\n- 验收标准:\n  - 复用建立在理解上：生产、oracle、参考三类边界清晰。\n- Verify: 依赖文件、adapter、文档和测试一致声明 lunar-python 生产角色。\n- Gate: 没有隐式 vendor 依赖或重复自研历法算法。\n- 输出物: CalendarProvider contract；dependency tests\n\n### TP-06.02\n- 标题: 参考源许可和用途 manifest\n- 验收标准:\n  - 参考材料和生产代码边界可审计。\n- Verify: vendor/reference manifest 通过治理审查。\n- Gate: 无明确 LICENSE 的材料不得作为生产依赖扩散。\n- 输出物: reference source manifest；license risk notes\n\n### TP-06.03\n- 标题: 历法/四柱 oracle 对照框架\n- 验收标准:\n  - 复用不变成多主链或重复造轮子。\n- Verify: oracle 对照测试只在评测/开发门禁运行，不污染生产路径。\n- Gate: 生产路径仍以 CalendarProvider 为单一入口。\n- 输出物: oracle comparison harness\n\n### TP-06.04\n- 标题: 规则 registry owner 和扩展规则\n- 验收标准:\n  - 规则扩展不靠散落代码或口头解释。\n- Verify: policy asset tests 覆盖新增规则字段和禁止项。\n- Gate: 新增规则必须有 source、appliesWhen、doesNotApplyWhen、risk boundary。\n- 输出物: rule registry governance note；policy tests\n\n## TP-07\n- 标题: 公共服务观测和运行闭环\n- 验收标准:\n  - 达成当前节点 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: production-env-contract, api-guardrail-tests\n- 输出物: 无\n\n### TP-07.01\n- 标题: Prometheus/Grafana 指标和告警计划\n- 验收标准:\n  - 生产稳定性有可观测证据。\n- Verify: metrics 输出包含必要 label，runbook 说明告警触发和处理。\n- Gate: 公共服务可从指标判断健康，而不是只看 /health。\n- 输出物: metrics dashboard spec；alert runbook\n\n### TP-07.02\n- 标题: 请求 ID 与业务日志贯穿\n- 验收标准:\n  - 排障不依赖猜测。\n- Verify: API/Bot 错误路径日志包含 requestId 或等价 trace id。\n- Gate: 出现 5xx/timeout 时可定位到请求和错误类型。\n- 输出物: trace/log correlation tests or runbook\n\n### TP-07.03\n- 标题: SLO 与运维 runbook\n- 验收标准:\n  - 生产故障有操作路径。\n- Verify: runbook 被 REVIEW.md 和 references/ops-pack.md 引用。\n- Gate: 上线、回滚、降级、清理 runtime 都有可执行命令。\n- 输出物: SLO/runbook update\n\n### TP-07.04\n- 标题: 本地全链路 CI/CD 汇总\n- 验收标准:\n  - 本地开发质量、结构治理、公共服务静态门禁达到 100%。\n- Verify: bash scripts/local-ci.sh --profile all\n- Gate: all profile PASS；若 Docker 或外部凭证缺失，必须拆分记录真实 blocker。\n- 输出物: local-ci all evidence\n\n## TP-08\n- 标题: 最终审查和交付收口\n- 验收标准:\n  - 达成当前节点 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: run-local-ci-all, remove-legacy-shims, bazi-golden-expand, oracle-harness, external-live-readiness\n- 输出物: 无\n\n### TP-08.01\n- 标题: 执行全仓质量审查\n- 验收标准:\n  - 综合质量从 72% 提升到 100% 的证据闭环。\n- Verify: auto-review 输出无 BLOCK，WARN 有 owner 和后续任务。\n- Gate: 六项质量标准都有 PASS 证据。\n- 输出物: final REVIEW.md；quality score matrix\n\n### TP-08.02\n- 标题: 处理最终 review findings\n- 验收标准:\n  - 无阻塞风险进入最终 closeout。\n- Verify: 复跑触发 finding 的最小验证命令。\n- Gate: 所有 BLOCK=0；WARN 不影响 100% gate 或被显式排除。\n- 输出物: review finding fix evidence\n\n### TP-08.03\n- 标题: 生成任务 closeout 和交付证据\n- 验收标准:\n  - 任务级 closeout 可交接，可恢复，可审计。\n- Verify: validate_task_docs.py --phase closeout；必要时 build_task_closeout.py。\n- Gate: TODO 全部完成，STATUS 全部 Done 或外部 HITL 明确 Blocked，质量 100% 不含伪证。\n- 输出物: Task Closeout Packet；handoff to auto-github/auto-assets/auto-governance",
+    "package_acceptance_checklists": "## TP-01\n- 标题: 修复当前本地质量阻塞\n- 验收项:\n  - [ ] 达成 `修复当前本地质量阻塞` 的 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 任务目标与上下文已确认\n- 输出物:\n  - [ ] 先把当前已知 BLOCK 清零，恢复本地 CI 可信度。\n- 标准清单:\n  - [ ] Verify: 确认子节点范围、依赖与状态闭环\n  - [ ] Gate: 任务目标与上下文已确认\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-01.01\n- 标题: 修复 ruff format gate\n- 验收项:\n  - [ ] ruff check 和 format check 均 PASS。\n- Verify: .venv/bin/python -m ruff format --check .\n- Gate: format check 0 退出码，git diff 只包含格式化变更。\n- 输出物:\n  - [ ] 格式化后的 calculate_pure_analysis.py\n  - [ ] 格式化后的 test_bazi_ziwei_rule_depth.py\n- 标准清单:\n  - [ ] Verify: .venv/bin/python -m ruff format --check .\n  - [ ] Gate: format check 0 退出码，git diff 只包含格式化变更。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n  - [ ] 维护 `DEBUG.md` 并保留回归证据\n\n### TP-01.02\n- 标题: 刷新 REVIEW.md 质量真相源\n- 验收项:\n  - [ ] REVIEW.md 明确区分本地 PASS、生产配置 FAIL、外部 live 未执行。\n- Verify: 人工核对 REVIEW.md 中 HEAD、测试数量、门禁状态与命令输出一致。\n- Gate: REVIEW.md 不再写旧 HEAD、旧 120 passed 或无 env 的 production-readiness PASS。\n- 输出物:\n  - [ ] REVIEW.md 当前质量记录\n- 标准清单:\n  - [ ] Verify: 人工核对 REVIEW.md 中 HEAD、测试数量、门禁状态与命令输出一致。\n  - [ ] Gate: REVIEW.md 不再写旧 HEAD、旧 120 passed 或无 env 的 production-readiness PASS。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-01.03\n- 标题: 恢复 local-ci quick 绿色\n- 验收项:\n  - [ ] shell、preflight、structure、source hygiene、privacy、ruff、format、mypy、focused tests、diff check 全通过。\n- Verify: bash scripts/local-ci.sh --profile quick\n- Gate: quick profile PASS，summary/evidence 目录存在。\n- 输出物:\n  - [ ] local-ci quick evidence\n- 标准清单:\n  - [ ] Verify: bash scripts/local-ci.sh --profile quick\n  - [ ] Gate: quick profile PASS，summary/evidence 目录存在。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n## TP-02\n- 标题: 关闭生产准入约束缺口\n- 验收项:\n  - [ ] 达成 `关闭生产准入约束缺口` 的 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: quick-local-ci\n- 输出物:\n  - [ ] 让公共服务发布前的静态和真实环境门禁可执行、可失败、可追溯。\n- 标准清单:\n  - [ ] Verify: 确认子节点范围、依赖与状态闭环\n  - [ ] Gate: 前置步骤已完成: quick-local-ci\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-02.01\n- 标题: 固化生产 env 合同\n- 验收项:\n  - [ ] FATE_CORS_ALLOW_ORIGINS 非空且非 *；多副本不使用 memory 限流；edge/proxy/HSTS 口径清楚。\n- Verify: bash scripts/production-readiness.sh --skip-bootstrap 在生产等价 env 下通过。\n- Gate: 无生产等价 env 时保持 FAIL；有 env 时 PASS 且 WARN 项有明确归属。\n- 输出物:\n  - [ ] production env checklist\n  - [ ] readiness evidence\n- 标准清单:\n  - [ ] Verify: bash scripts/production-readiness.sh --skip-bootstrap 在生产等价 env 下通过。\n  - [ ] Gate: 无生产等价 env 时保持 FAIL；有 env 时 PASS 且 WARN 项有明确归属。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-02.02\n- 标题: 恢复 local-ci public-service 绿色\n- 验收项:\n  - [ ] 本地 public-service readiness PASS；外部 live 项清晰 SKIP 或 HITL。\n- Verify: bash scripts/local-ci.sh --profile public-service\n- Gate: public-service profile PASS，且没有伪造外部 URL/Bot live 通过。\n- 输出物:\n  - [ ] public-service local CI evidence\n- 标准清单:\n  - [ ] Verify: bash scripts/local-ci.sh --profile public-service\n  - [ ] Gate: public-service profile PASS，且没有伪造外部 URL/Bot live 通过。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-02.03\n- 标题: 真实公网 API 与 Bot live 验收\n- 验收项:\n  - [ ] 真实公网验收 PASS 后，公共生产服务稳定性才可从 55% 提升到 100%。\n- Verify: bash scripts/production-readiness.sh --api-url <real-url> --require-live-bot\n- Gate: 真实 /health、/ready、/metrics 和 Telegram get_me 通过；无 placeholder token。\n- 输出物:\n  - [ ] live API readiness evidence\n  - [ ] live Bot evidence\n- 标准清单:\n  - [ ] Verify: bash scripts/production-readiness.sh --api-url <real-url> --require-live-bot\n  - [ ] Gate: 真实 /health、/ready、/metrics 和 Telegram get_me 通过；无 placeholder token。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n## TP-03\n- 标题: 补齐特殊情况与韧性\n- 验收项:\n  - [ ] 达成 `补齐特殊情况与韧性` 的 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: quick-local-ci\n- 输出物:\n  - [ ] 把时区、真太阳时、节气、早晚子时、Bot 背压、多副本限流和异常输入变成测试化契约。\n- 标准清单:\n  - [ ] Verify: 确认子节点范围、依赖与状态闭环\n  - [ ] Gate: 前置步骤已完成: quick-local-ci\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-03.01\n- 标题: 定义并测试出生时间时区语义\n- 验收项:\n  - [ ] Z/+08:00/无时区输入各自有明确预期。\n- Verify: pytest 覆盖 parse_datetime、CLI、API、pure-analysis 的时区边界。\n- Gate: 带时区输入不会被静默 replace 成错误本地时间，文档说明清楚。\n- 输出物:\n  - [ ] 时区语义契约\n  - [ ] 时区边界测试\n- 标准清单:\n  - [ ] Verify: pytest 覆盖 parse_datetime、CLI、API、pure-analysis 的时区边界。\n  - [ ] Gate: 带时区输入不会被静默 replace 成错误本地时间，文档说明清楚。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-03.02\n- 标题: Bot 背压与滥用保护\n- 验收项:\n  - [ ] QUEUE_MAX_SIZE 有生产合理默认值；拒绝原因可测试。\n- Verify: pytest domains/experience-delivery/services/fatecat-delivery/tests/test_rate_limiter.py\n- Gate: 高峰请求不会无限排队；用户冷却/每日限额是否启用有明确产品口径。\n- 输出物:\n  - [ ] Bot rate limiter contract\n  - [ ] rate limiter tests\n- 标准清单:\n  - [ ] Verify: pytest domains/experience-delivery/services/fatecat-delivery/tests/test_rate_limiter.py\n  - [ ] Gate: 高峰请求不会无限排队；用户冷却/每日限额是否启用有明确产品口径。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-03.03\n- 标题: API guardrails 特殊输入回归\n- 验收项:\n  - [ ] 413/429/504/安全头/metrics error_class 均有可验证路径。\n- Verify: pytest tests/regression/test_api_contracts.py tests/regression/test_web_html.py\n- Gate: 公共 API 护栏行为被测试锁住。\n- 输出物:\n  - [ ] API guardrail regression tests\n- 标准清单:\n  - [ ] Verify: pytest tests/regression/test_api_contracts.py tests/regression/test_web_html.py\n  - [ ] Gate: 公共 API 护栏行为被测试锁住。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n  - [ ] 维护 `DEBUG.md` 并保留回归证据\n\n### TP-03.04\n- 标题: 历法边界 golden 扩展\n- 验收项:\n  - [ ] 边界样本来源、预期结果、oracle 说明齐全。\n- Verify: pytest tests/regression/test_solar_terms_golden.py tests/regression/test_bazi_statement_golden.py\n- Gate: 关键历法边界至少有项目 golden 和 oracle 来源。\n- 输出物:\n  - [ ] calendar/bazi boundary golden cases\n- 标准清单:\n  - [ ] Verify: pytest tests/regression/test_solar_terms_golden.py tests/regression/test_bazi_statement_golden.py\n  - [ ] Gate: 关键历法边界至少有项目 golden 和 oracle 来源。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n## TP-04\n- 标题: 八字解释性与证据化补齐\n- 验收项:\n  - [ ] 达成 `八字解释性与证据化补齐` 的 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: quick-local-ci\n- 输出物:\n  - [ ] 让核心命理判断具备可追溯 evidence、ruleIds、权重和风险边界。\n- 标准清单:\n  - [ ] Verify: 确认子节点范围、依赖与状态闭环\n  - [ ] Gate: 前置步骤已完成: quick-local-ci\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-04.01\n- 标题: 核心字段 evidence 覆盖审计\n- 验收项:\n  - [ ] ruleIds 全部能回指 contracts/fate/classics_rule_index.json 或 rule_depth_registry.json。\n- Verify: 新增或运行 evidence coverage 测试，确认核心字段均有 ruleIds/source/risk。\n- Gate: 无孤儿 ruleId，无核心判断缺 evidence。\n- 输出物:\n  - [ ] evidence coverage report\n  - [ ] regression tests\n- 标准清单:\n  - [ ] Verify: 新增或运行 evidence coverage 测试，确认核心字段均有 ruleIds/source/risk。\n  - [ ] Gate: 无孤儿 ruleId，无核心判断缺 evidence。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-04.02\n- 标题: 八字 golden case 扩展到 100+\n- 验收项:\n  - [ ] 八字证据化能力从 70% 提升到可审查 100%。\n- Verify: pytest 运行新增 golden suite；样本 manifest 通过许可和来源审查。\n- Gate: 100+ 样本都有来源、预期、覆盖标签和失败解释路径。\n- 输出物:\n  - [ ] 100+ golden case manifest\n  - [ ] golden regression suite\n- 标准清单:\n  - [ ] Verify: pytest 运行新增 golden suite；样本 manifest 通过许可和来源审查。\n  - [ ] Gate: 100+ 样本都有来源、预期、覆盖标签和失败解释路径。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-04.03\n- 标题: 专题 profile 评分验证\n- 验收项:\n  - [ ] 报告透明但不恐吓、不替代现实决策。\n- Verify: pytest tests/regression/test_bazi_ziwei_rule_depth.py\n- Gate: profile 只作为 evidence_seed，输出有 riskBoundary。\n- 输出物:\n  - [ ] topic profile tests\n  - [ ] risk wording checks\n- 标准清单:\n  - [ ] Verify: pytest tests/regression/test_bazi_ziwei_rule_depth.py\n  - [ ] Gate: profile 只作为 evidence_seed，输出有 riskBoundary。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-04.04\n- 标题: MingLi-Bench 评测门禁接入\n- 验收项:\n  - [ ] 评测层和生产层边界清晰。\n- Verify: bash scripts/run-mingli-bench.sh --stats 和离线 sample evaluation。\n- Gate: 评测结果进入 REVIEW/quality report，且不调用外部模型 API。\n- 输出物:\n  - [ ] MingLi-Bench local evaluation evidence\n- 标准清单:\n  - [ ] Verify: bash scripts/run-mingli-bench.sh --stats 和离线 sample evaluation。\n  - [ ] Gate: 评测结果进入 REVIEW/quality report，且不调用外部模型 API。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n## TP-05\n- 标题: 长期维护性与 legacy 边界治理\n- 验收项:\n  - [ ] 达成 `长期维护性与 legacy 边界治理` 的 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: quick-local-ci\n- 输出物:\n  - [ ] 从大文件和 delivery legacy 中迁出领域核心，让 fate-core 成为命理能力真相源。\n- 标准清单:\n  - [ ] Verify: 确认子节点范围、依赖与状态闭环\n  - [ ] Gate: 前置步骤已完成: quick-local-ci\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-05.01\n- 标题: 绘制核心大文件职责边界图\n- 验收项:\n  - [ ] 后续任务不再靠猜测拆大文件。\n- Verify: 生成边界文档并通过 auto-review architecture/ponytail 审查。\n- Gate: 每个大文件都有保留职责、迁出职责、禁止新增职责。\n- 输出物:\n  - [ ] module boundary map\n  - [ ] legacy kill list\n- 标准清单:\n  - [ ] Verify: 生成边界文档并通过 auto-review architecture/ponytail 审查。\n  - [ ] Gate: 每个大文件都有保留职责、迁出职责、禁止新增职责。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-05.02\n- 标题: 拆分 calculate_pure_analysis 证据构建模块\n- 验收项:\n  - [ ] 新增八字规则不必继续堆进单一 1400+ 行文件。\n- Verify: pytest tests/regression/fate_core/test_pure_analysis_usecase.py tests/regression/test_bazi_ziwei_rule_depth.py\n- Gate: 外部 API 输出不变，模块边界变清楚。\n- 输出物:\n  - [ ] fate-core pure_analysis submodules\n  - [ ] updated AGENTS.md\n- 标准清单:\n  - [ ] Verify: pytest tests/regression/fate_core/test_pure_analysis_usecase.py tests/regression/test_bazi_ziwei_rule_depth.py\n  - [ ] Gate: 外部 API 输出不变，模块边界变清楚。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-05.03\n- 标题: 迁移 BaziCalculator 领域核心到 fate-core\n- 验收项:\n  - [ ] 长期维护性从 58% 提升到可审查 100% 的核心切片。\n- Verify: golden suite、API contracts、web html、pure-analysis smoke 全通过。\n- Gate: delivery 不再是八字领域算法真相源；legacy adapter 只剩迁移窗口和删除条件。\n- 输出物:\n  - [ ] fate-core bazi providers/evaluators\n  - [ ] legacy adapter shrink plan\n- 标准清单:\n  - [ ] Verify: golden suite、API contracts、web html、pure-analysis smoke 全通过。\n  - [ ] Gate: delivery 不再是八字领域算法真相源；legacy adapter 只剩迁移窗口和删除条件。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-05.04\n- 标题: 收敛 delivery 层 API/Web/Bot/报告边界\n- 验收项:\n  - [ ] Web/Bot/API 改动不会迫使领域算法同文件变更。\n- Verify: pytest delivery tests + tests/regression/test_web_html.py + API contract tests。\n- Gate: 交付层只负责编排、渲染和传输，不新增命理规则。\n- 输出物:\n  - [ ] delivery boundary refactor slices\n  - [ ] updated AGENTS.md\n- 标准清单:\n  - [ ] Verify: pytest delivery tests + tests/regression/test_web_html.py + API contract tests。\n  - [ ] Gate: 交付层只负责编排、渲染和传输，不新增命理规则。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-05.05\n- 标题: 清退无真实外部契约的 legacy/compat shim\n- 验收项:\n  - [ ] future-optimal-drift 不再因 active legacy 边界触发真实 BLOCK。\n- Verify: scan_principle_gates 过滤源码后无真实 BLOCK；structure gate 无 legacy_source_root。\n- Gate: 保留的 compat 都有 owner、移除条件和真实 contract。\n- 输出物:\n  - [ ] legacy removal diff\n  - [ ] migration ledger update\n- 标准清单:\n  - [ ] Verify: scan_principle_gates 过滤源码后无真实 BLOCK；structure gate 无 legacy_source_root。\n  - [ ] Gate: 保留的 compat 都有 owner、移除条件和真实 contract。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n## TP-06\n- 标题: 复用与供应链理解闭环\n- 验收项:\n  - [ ] 达成 `复用与供应链理解闭环` 的 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: quick-local-ci\n- 输出物:\n  - [ ] 确保外部库、参考仓、oracle 和规则材料都在正确边界内被复用。\n- 标准清单:\n  - [ ] Verify: 确认子节点范围、依赖与状态闭环\n  - [ ] Gate: 前置步骤已完成: quick-local-ci\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-06.01\n- 标题: CalendarProvider 生产依赖合同\n- 验收项:\n  - [ ] 复用建立在理解上：生产、oracle、参考三类边界清晰。\n- Verify: 依赖文件、adapter、文档和测试一致声明 lunar-python 生产角色。\n- Gate: 没有隐式 vendor 依赖或重复自研历法算法。\n- 输出物:\n  - [ ] CalendarProvider contract\n  - [ ] dependency tests\n- 标准清单:\n  - [ ] Verify: 依赖文件、adapter、文档和测试一致声明 lunar-python 生产角色。\n  - [ ] Gate: 没有隐式 vendor 依赖或重复自研历法算法。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-06.02\n- 标题: 参考源许可和用途 manifest\n- 验收项:\n  - [ ] 参考材料和生产代码边界可审计。\n- Verify: vendor/reference manifest 通过治理审查。\n- Gate: 无明确 LICENSE 的材料不得作为生产依赖扩散。\n- 输出物:\n  - [ ] reference source manifest\n  - [ ] license risk notes\n- 标准清单:\n  - [ ] Verify: vendor/reference manifest 通过治理审查。\n  - [ ] Gate: 无明确 LICENSE 的材料不得作为生产依赖扩散。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-06.03\n- 标题: 历法/四柱 oracle 对照框架\n- 验收项:\n  - [ ] 复用不变成多主链或重复造轮子。\n- Verify: oracle 对照测试只在评测/开发门禁运行，不污染生产路径。\n- Gate: 生产路径仍以 CalendarProvider 为单一入口。\n- 输出物:\n  - [ ] oracle comparison harness\n- 标准清单:\n  - [ ] Verify: oracle 对照测试只在评测/开发门禁运行，不污染生产路径。\n  - [ ] Gate: 生产路径仍以 CalendarProvider 为单一入口。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-06.04\n- 标题: 规则 registry owner 和扩展规则\n- 验收项:\n  - [ ] 规则扩展不靠散落代码或口头解释。\n- Verify: policy asset tests 覆盖新增规则字段和禁止项。\n- Gate: 新增规则必须有 source、appliesWhen、doesNotApplyWhen、risk boundary。\n- 输出物:\n  - [ ] rule registry governance note\n  - [ ] policy tests\n- 标准清单:\n  - [ ] Verify: policy asset tests 覆盖新增规则字段和禁止项。\n  - [ ] Gate: 新增规则必须有 source、appliesWhen、doesNotApplyWhen、risk boundary。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n## TP-07\n- 标题: 公共服务观测和运行闭环\n- 验收项:\n  - [ ] 达成 `公共服务观测和运行闭环` 的 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: production-env-contract, api-guardrail-tests\n- 输出物:\n  - [ ] 把当前应用内 metrics/logs/readiness 扩展到真实运行平台可用的 SLO、告警和排障包。\n- 标准清单:\n  - [ ] Verify: 确认子节点范围、依赖与状态闭环\n  - [ ] Gate: 前置步骤已完成: production-env-contract, api-guardrail-tests\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-07.01\n- 标题: Prometheus/Grafana 指标和告警计划\n- 验收项:\n  - [ ] 生产稳定性有可观测证据。\n- Verify: metrics 输出包含必要 label，runbook 说明告警触发和处理。\n- Gate: 公共服务可从指标判断健康，而不是只看 /health。\n- 输出物:\n  - [ ] metrics dashboard spec\n  - [ ] alert runbook\n- 标准清单:\n  - [ ] Verify: metrics 输出包含必要 label，runbook 说明告警触发和处理。\n  - [ ] Gate: 公共服务可从指标判断健康，而不是只看 /health。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-07.02\n- 标题: 请求 ID 与业务日志贯穿\n- 验收项:\n  - [ ] 排障不依赖猜测。\n- Verify: API/Bot 错误路径日志包含 requestId 或等价 trace id。\n- Gate: 出现 5xx/timeout 时可定位到请求和错误类型。\n- 输出物:\n  - [ ] trace/log correlation tests or runbook\n- 标准清单:\n  - [ ] Verify: API/Bot 错误路径日志包含 requestId 或等价 trace id。\n  - [ ] Gate: 出现 5xx/timeout 时可定位到请求和错误类型。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-07.03\n- 标题: SLO 与运维 runbook\n- 验收项:\n  - [ ] 生产故障有操作路径。\n- Verify: runbook 被 REVIEW.md 和 references/ops-pack.md 引用。\n- Gate: 上线、回滚、降级、清理 runtime 都有可执行命令。\n- 输出物:\n  - [ ] SLO/runbook update\n- 标准清单:\n  - [ ] Verify: runbook 被 REVIEW.md 和 references/ops-pack.md 引用。\n  - [ ] Gate: 上线、回滚、降级、清理 runtime 都有可执行命令。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-07.04\n- 标题: 本地全链路 CI/CD 汇总\n- 验收项:\n  - [ ] 本地开发质量、结构治理、公共服务静态门禁达到 100%。\n- Verify: bash scripts/local-ci.sh --profile all\n- Gate: all profile PASS；若 Docker 或外部凭证缺失，必须拆分记录真实 blocker。\n- 输出物:\n  - [ ] local-ci all evidence\n- 标准清单:\n  - [ ] Verify: bash scripts/local-ci.sh --profile all\n  - [ ] Gate: all profile PASS；若 Docker 或外部凭证缺失，必须拆分记录真实 blocker。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n## TP-08\n- 标题: 最终审查和交付收口\n- 验收项:\n  - [ ] 达成 `最终审查和交付收口` 的 objective，且输出物可复核\n- Verify: 确认子节点范围、依赖与状态闭环\n- Gate: 前置步骤已完成: run-local-ci-all, remove-legacy-shims, bazi-golden-expand, oracle-harness, external-live-readiness\n- 输出物:\n  - [ ] 用 auto-review 和任务 closeout 证明六项质量标准全部达到 100% gate。\n- 标准清单:\n  - [ ] Verify: 确认子节点范围、依赖与状态闭环\n  - [ ] Gate: 前置步骤已完成: run-local-ci-all, remove-legacy-shims, bazi-golden-expand, oracle-harness, external-live-readiness\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-08.01\n- 标题: 执行全仓质量审查\n- 验收项:\n  - [ ] 综合质量从 72% 提升到 100% 的证据闭环。\n- Verify: auto-review 输出无 BLOCK，WARN 有 owner 和后续任务。\n- Gate: 六项质量标准都有 PASS 证据。\n- 输出物:\n  - [ ] final REVIEW.md\n  - [ ] quality score matrix\n- 标准清单:\n  - [ ] Verify: auto-review 输出无 BLOCK，WARN 有 owner 和后续任务。\n  - [ ] Gate: 六项质量标准都有 PASS 证据。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n\n### TP-08.02\n- 标题: 处理最终 review findings\n- 验收项:\n  - [ ] 无阻塞风险进入最终 closeout。\n- Verify: 复跑触发 finding 的最小验证命令。\n- Gate: 所有 BLOCK=0；WARN 不影响 100% gate 或被显式排除。\n- 输出物:\n  - [ ] review finding fix evidence\n- 标准清单:\n  - [ ] Verify: 复跑触发 finding 的最小验证命令。\n  - [ ] Gate: 所有 BLOCK=0；WARN 不影响 100% gate 或被显式排除。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检\n  - [ ] 维护 `DEBUG.md` 并保留回归证据\n\n### TP-08.03\n- 标题: 生成任务 closeout 和交付证据\n- 验收项:\n  - [ ] 任务级 closeout 可交接，可恢复，可审计。\n- Verify: validate_task_docs.py --phase closeout；必要时 build_task_closeout.py。\n- Gate: TODO 全部完成，STATUS 全部 Done 或外部 HITL 明确 Blocked，质量 100% 不含伪证。\n- 输出物:\n  - [ ] Task Closeout Packet\n  - [ ] handoff to auto-github/auto-assets/auto-governance\n- 标准清单:\n  - [ ] Verify: validate_task_docs.py --phase closeout；必要时 build_task_closeout.py。\n  - [ ] Gate: TODO 全部完成，STATUS 全部 Done 或外部 HITL 明确 Blocked，质量 100% 不含伪证。\n  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`\n  - [ ] 交付前完成 REVIEW / SHIP 自检",
+    "planning_summary": "以 gate-first 方式推进：先修当前本地阻塞，再补生产准入，再扩测试和边界，再推进八字解释与维护性，最后用 full review 和 ship gate 收口。\n- 编译节点总数: 38\n- 叶子执行项: 30\n- 执行波次数: 11\n- 当前任务必须遵守 `SPEC -> PLAN -> BUILD -> TEST -> REVIEW -> SHIP`",
+    "lifecycle_gates": "- SPEC：当前质量缺口、目标 100% gate、真实/惯性约束已记录。\n- PLAN：任务树、依赖、执行波次和 next executable leaves 由 auto-tasks 生成。\n- BUILD：后续只按当前 wave 的叶子节点执行，不混入无关重构。\n- TEST：每个叶子节点必须记录命令输出或明确未执行原因。\n- REVIEW：每个 package 结束后运行对应 auto-review profile；最终执行 full/release gate。\n- SHIP：只有全部 BLOCK 为零、外部 HITL 关闭或明确豁免，才允许宣称 100%。\n- 不得跳过 gate；未闭合当前 gate 前不得进入后续阶段或宣称质量 100%。",
+    "simplest_path": "第一波只修格式、REVIEW 和本地 quick gate；第二波补 production readiness 配置与 Bot/API 边界；后续按可验证 vertical slice 推进核心质量。",
+    "split_strategy": "按质量标准和发布路径拆成八个 package；叶子任务优先 vertical slice，每个都绑定 verify 和 gate；外部生产验收单独隔离为 HITL。",
+    "blockers": "- 无"
+  }
+}

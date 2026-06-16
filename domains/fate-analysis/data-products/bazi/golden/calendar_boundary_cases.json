@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "description": "八字历法边界 golden；只锁定真太阳时、早晚子时、时区转换、经纬度偏移和节气边界，不锁完整断语。",
+  "source": {
+    "calendarProvider": "lunar-python",
+    "trueSolarProvider": "paipan-master true solar time adapter",
+    "generatedBy": "FateCat pure-analysis accepted regression on 2026-06-15",
+    "riskBoundary": "这些样本只作为测试 oracle，不替代生产期 CalendarProvider 计算。"
+  },
+  "cases": [
+    {
+      "id": "beijing_early_zi_2000",
+      "input": {
+        "birthDateTime": "2000-09-09 00:30:00",
+        "gender": "male",
+        "longitude": 116.4074,
+        "latitude": 39.9042,
+        "birthPlace": "北京",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "trueSolarTime": "2000-09-09 00:18:40",
+        "ziTimeAnalysis": {
+          "timeZhi": "子",
+          "dayPillarNormal": "庚午",
+          "dayPillarZwz": "庚午",
+          "zwzShift": false
+        },
+        "fourPillars": {"year": "庚辰", "month": "乙酉", "day": "庚午", "hour": "丙子"},
+        "fortuneStart": {"startDate": "2010-06-19 00:18:40", "anchorTerm": "寒露"}
+      }
+    },
+    {
+      "id": "beijing_late_zi_2000",
+      "input": {
+        "birthDateTime": "2000-09-09 23:30:00",
+        "gender": "male",
+        "longitude": 116.4074,
+        "latitude": 39.9042,
+        "birthPlace": "北京",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "trueSolarTime": "2000-09-09 23:18:40",
+        "ziTimeAnalysis": {
+          "timeZhi": "子",
+          "dayPillarNormal": "辛未",
+          "dayPillarZwz": "庚午",
+          "zwzShift": true
+        },
+        "fourPillars": {"year": "庚辰", "month": "乙酉", "day": "庚午", "hour": "戊子"},
+        "fortuneStart": {"startDate": "2010-03-01 23:18:40", "anchorTerm": "寒露"}
+      }
+    },
+    {
+      "id": "urumqi_lichun_2024",
+      "input": {
+        "birthDateTime": "2024-02-04 18:45:00",
+        "gender": "male",
+        "longitude": 87.6168,
+        "latitude": 43.8256,
+        "birthPlace": "乌鲁木齐",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "trueSolarTime": "2024-02-04 16:21:07",
+        "totalOffsetMinutesRange": [-143.89, -143.87],
+        "ziTimeAnalysis": {
+          "timeZhi": "申",
+          "dayPillarNormal": "戊戌",
+          "dayPillarZwz": "戊戌",
+          "zwzShift": false
+        },
+        "fourPillars": {"year": "癸卯", "month": "乙丑", "day": "戊戌", "hour": "庚申"},
+        "fortuneStart": {"startDate": "2033-12-04 16:21:07", "anchorTerm": "大雪"}
+      }
+    },
+    {
+      "id": "hong_kong_utc_input",
+      "input": {
+        "birthDateTime": "1990-01-01T00:00:00Z",
+        "timezone": "Asia/Hong_Kong",
+        "gender": "male",
+        "longitude": 114.1694,
+        "latitude": 22.3193,
+        "birthPlace": "香港",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "normalizedBirthDateTime": "1990-01-01T08:00:00",
+        "trueSolarTime": "1990-01-01 07:33:08",
+        "ziTimeAnalysis": {
+          "timeZhi": "辰",
+          "dayPillarNormal": "丙寅",
+          "dayPillarZwz": "丙寅",
+          "zwzShift": false
+        },
+        "fourPillars": {"year": "己巳", "month": "丙子", "day": "丙寅", "hour": "壬辰"},
+        "fortuneStart": {"startDate": "1998-04-11 07:33:08", "anchorTerm": "立冬"}
+      }
+    }
+  ]
+}

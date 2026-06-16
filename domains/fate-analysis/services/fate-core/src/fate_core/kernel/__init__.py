@@ -1,7 +1,6 @@
-"""命理胶水层 kernel。"""
+"""命理核心算法与胶水层。
 
-from .projector import project_by_profile
+本包初始化保持无副作用；上层需要显式导入具体子模块。
+"""
 
-__all__ = [
-    "project_by_profile",
-]
+__all__: list[str] = []
