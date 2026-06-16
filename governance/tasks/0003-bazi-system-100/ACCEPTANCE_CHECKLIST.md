@@ -558,15 +558,15 @@
 ### TP-10.01
 - 标题: 八字体系 100% 六维审查
 - 验收项:
-  - [ ] `八字体系 100% 六维审查` 达到其 objective，且依赖关系保持一致
+  - [x] `八字体系 100% 六维审查` 达到其 objective，且依赖关系保持一致
 - Verify: bash scripts/local-ci.sh --profile quick && python3 /home/lenovo/.codex/skills/auto-tasks/scripts/validate_task_docs.py --task-dir governance/tasks/0003-bazi-system-100 --phase decompose
 - Gate: active BLOCK=0；WARN 有 owner、证据和下一步；不得伪造 100%
 - 输出物:
-  - [ ] governance/tasks/0003-bazi-system-100/FINAL_REVIEW.md
+  - [x] governance/tasks/0003-bazi-system-100/FINAL_REVIEW.md
 - 标准清单:
-  - [ ] Verify: bash scripts/local-ci.sh --profile quick && python3 /home/lenovo/.codex/skills/auto-tasks/scripts/validate_task_docs.py --task-dir governance/tasks/0003-bazi-system-100 --phase decompose
-  - [ ] Gate: active BLOCK=0；WARN 有 owner、证据和下一步；不得伪造 100%
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: bash scripts/local-ci.sh --profile quick && python3 /home/lenovo/.codex/skills/auto-tasks/scripts/validate_task_docs.py --task-dir governance/tasks/0003-bazi-system-100 --phase decompose
+  - [x] Gate: active BLOCK=0；WARN 有 owner、证据和下一步；不得伪造 100%
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-10.02

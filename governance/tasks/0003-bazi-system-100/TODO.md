@@ -26,7 +26,7 @@
 [x] TP-08.02 | P1 | 风险话术和免责声明回归 | Verify: .venv/bin/python -m pytest tests/regression/test_fate_policy_assets.py tests/regression/test_api_contracts.py -q | Gate: 禁止医疗/金融/法律/心理替代建议；风险边界字段可追溯 | Parallelizable: Yes
 [x] TP-09.01 | P1 | 大文件职责切片路线 | Verify: test -s governance/tasks/0003-bazi-system-100/CORE_FILE_BURNDOWN.md && rg 'bazi_calculator|calculate_pure_analysis|report_generator' governance/tasks/0003-bazi-system-100/CORE_FILE_BURNDOWN.md | Gate: 每个拆分候选有行为保持测试和回滚路径；不做大爆炸重写 | Parallelizable: Yes
 [x] TP-09.02 | P1 | 规则 evaluator 模块边界 | Verify: test -s governance/tasks/0003-bazi-system-100/EVALUATOR_BOUNDARIES.md | Gate: evaluation 不进生产 kernel；oracle 不进主链；delivery 不承载领域算法 | Parallelizable: No
-[ ] TP-10.01 | P0 | 八字体系 100% 六维审查 | Verify: bash scripts/local-ci.sh --profile quick && python3 /home/lenovo/.codex/skills/auto-tasks/scripts/validate_task_docs.py --task-dir governance/tasks/0003-bazi-system-100 --phase decompose | Gate: active BLOCK=0；WARN 有 owner、证据和下一步；不得伪造 100% | Parallelizable: No
+[x] TP-10.01 | P0 | 八字体系 100% 六维审查 | Verify: bash scripts/local-ci.sh --profile quick && python3 /home/lenovo/.codex/skills/auto-tasks/scripts/validate_task_docs.py --task-dir governance/tasks/0003-bazi-system-100 --phase decompose | Gate: active BLOCK=0；WARN 有 owner、证据和下一步；不得伪造 100% | Parallelizable: No
 [ ] TP-10.02 | P0 | Closeout 和版本交付 | Verify: python3 /home/lenovo/.codex/skills/auto-tasks/scripts/validate_task_docs.py --task-dir governance/tasks/0003-bazi-system-100 --phase closeout && git status --short | Gate: closeout 可校验；提交边界清晰；最终结论不越过证据 | Parallelizable: No
 
 说明：

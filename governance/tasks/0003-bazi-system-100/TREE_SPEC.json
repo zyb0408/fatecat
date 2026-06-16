@@ -719,8 +719,8 @@
         "TP-08",
         "TP-09"
       ],
-      "status": "Not Started",
-      "evidence": "依赖已满足，下一步执行最终六维审查。"
+      "status": "In Progress",
+      "evidence": "2026-06-16：TP-10.01 FINAL_REVIEW.md 完成；local-ci quick、rule-depth regression、task docs decompose 均通过。"
     },
     {
       "id": "TP-10.01",
@@ -739,8 +739,8 @@
       "outputs": [
         "governance/tasks/0003-bazi-system-100/FINAL_REVIEW.md"
       ],
-      "status": "Not Started",
-      "evidence": "依赖已满足，下一步执行 local-ci quick 和六维审查。"
+      "status": "Done",
+      "evidence": "2026-06-16：新增 FINAL_REVIEW.md；active BLOCK=0，WARN 均有 owner/evidence/next；local-ci quick PASS，rule-depth 30 passed，task docs decompose PASS。"
     },
     {
       "id": "TP-10.02",
@@ -759,7 +759,8 @@
         "governance/tasks/0003-bazi-system-100/CLOSEOUT.md",
         "git delivery evidence"
       ],
-      "status": "Not Started"
+      "status": "Not Started",
+      "evidence": "依赖已满足，下一步生成 closeout 并完成版本交付。"
     }
   ]
 }
