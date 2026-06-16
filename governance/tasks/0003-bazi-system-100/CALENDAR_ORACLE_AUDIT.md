@@ -90,6 +90,15 @@
   - 经纬度极端偏移但仍在有效范围的样本。
   - 男/女顺逆起运差异边界。
 
+## TP-02.02 修复记录
+
+2026-06-16 已完成：
+
+- `calendar_boundary_cases.json` 从 4 条扩展到 9 条。
+- 每条样本已补 `source`、`coverageTags`、`failureExplanation`、`privacy`、`license`、`productionUse`。
+- 新增覆盖：立春秒级前后、纽约 DST/UTC 输入、加德满都非整点时区、女性起运边界。
+- Verify：`.venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_calendar_oracle_contract.py tests/regression/test_solar_terms_golden.py -q`，结果 `19 passed, 1 skipped in 167.72s`。
+
 ## Gate 判定
 
 - `oracle 只用于测试/评估`：`PASS`

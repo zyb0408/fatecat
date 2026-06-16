@@ -170,7 +170,7 @@
         "TP-01"
       ],
       "status": "In Progress",
-      "evidence": "2026-06-16：TP-02.01 CALENDAR_ORACLE_AUDIT.md 完成；oracle 隔离 PASS，现有 boundary fixture 字段缺口转交 TP-02.02。"
+      "evidence": "2026-06-16：TP-02.01/TP-02.02 完成；calendar boundary fixture 扩展到 9 条，逐条带 source/failureExplanation/privacy/license。"
     },
     {
       "id": "TP-02.01",
@@ -208,7 +208,8 @@
         "domains/fate-analysis/data-products/bazi/golden/*",
         "tests/regression/test_*calendar*.py"
       ],
-      "status": "Not Started"
+      "status": "Done",
+      "evidence": "2026-06-16：calendar_boundary_cases.json 从 4 条扩到 9 条；新增秒级立春、DST/纽约、非整点时区/加德满都、女性起运边界；三组 regression 19 passed, 1 skipped。"
     },
     {
       "id": "TP-02.03",

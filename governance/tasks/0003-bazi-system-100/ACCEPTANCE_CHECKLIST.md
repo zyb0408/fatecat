@@ -144,16 +144,16 @@
 ### TP-02.02
 - 标题: 扩展时间边界 golden
 - 验收项:
-  - [ ] `扩展时间边界 golden` 达到其 objective，且依赖关系保持一致
+  - [x] `扩展时间边界 golden` 达到其 objective，且依赖关系保持一致
 - Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_calendar_oracle_contract.py tests/regression/test_solar_terms_golden.py -q
 - Gate: 新增边界样本均有 source、expected、failureExplanation 和 privacy/license 说明
 - 输出物:
-  - [ ] domains/fate-analysis/data-products/bazi/golden/*
-  - [ ] tests/regression/test_*calendar*.py
+  - [x] domains/fate-analysis/data-products/bazi/golden/*
+  - [x] tests/regression/test_*calendar*.py
 - 标准清单:
-  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_calendar_oracle_contract.py tests/regression/test_solar_terms_golden.py -q
-  - [ ] Gate: 新增边界样本均有 source、expected、failureExplanation 和 privacy/license 说明
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_calendar_oracle_contract.py tests/regression/test_solar_terms_golden.py -q
+  - [x] Gate: 新增边界样本均有 source、expected、failureExplanation 和 privacy/license 说明
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-02.03

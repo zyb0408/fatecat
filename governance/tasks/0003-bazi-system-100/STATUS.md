@@ -2,7 +2,7 @@
 - Overall Status: `In Progress`
 
 # Next Executable Leaves
-- TP-02.02 | Wave 7 | Depends On: TP-01.01, TP-01.02, TP-02.01 | Gate: 新增边界样本均有 source、expected、failureExplanation 和 privacy/license 说明
+- TP-02.03 | Wave 8 | Depends On: TP-01.01, TP-01.02, TP-02.02 | Gate: deep gate 有 shard、case-level timing 或明确耗时预算；quick 不跑全量
 
 # Task Package Status Table
 | Node ID | Parent | Depth | Depends On | Ready | Status | Recent Evidence | Blocker | Unblock Needed |
@@ -14,10 +14,10 @@
 | TP-01 | ROOT | 1 | TP-00.01, TP-00.02, TP-00.03 | No | Done | 2026-06-16：TP-01.01 RESOURCE_MAP.md 与 TP-01.02 RULE_SOURCE_GAPS.md 均完成；资源角色和规则来源覆盖已验收。 | 无 | 无 |
 | TP-01.01 | TP-01 | 2 | TP-00.01, TP-00.02, TP-00.03 | No | Done | 2026-06-16：新增 RESOURCE_MAP.md；Verify 通过；reference manifest policy tests 3 passed。 | 无 | 无 |
 | TP-01.02 | TP-01 | 2 | TP-00.01, TP-00.02, TP-00.03, TP-01.01 | No | Done | 2026-06-16：新增 RULE_SOURCE_GAPS.md；规则 JSON 校验通过；43 个引用的 bazi sourceRuleId 均能回指现有 classics/rule-depth 资产。 | 无 | 无 |
-| TP-02 | ROOT | 1 | TP-01.01, TP-01.02 | No | In Progress | 2026-06-16：TP-02.01 CALENDAR_ORACLE_AUDIT.md 完成；oracle 隔离 PASS，现有 boundary fixture 字段缺口转交 TP-02.02。 | 无 | 无 |
+| TP-02 | ROOT | 1 | TP-01.01, TP-01.02 | No | In Progress | 2026-06-16：TP-02.01/TP-02.02 完成；calendar boundary fixture 扩展到 9 条，逐条带 source/failureExplanation/privacy/license。 | 无 | 无 |
 | TP-02.01 | TP-02 | 2 | TP-01.01, TP-01.02 | No | Done | 2026-06-16：新增 CALENDAR_ORACLE_AUDIT.md；Verify `.venv/bin/python -m pytest tests/regression/test_calendar_oracle_contract.py tests/regression/test_solar_terms_golden.py -q` 通过，10 passed in 71.82s。 | 无 | 无 |
-| TP-02.02 | TP-02 | 2 | TP-01.01, TP-01.02, TP-02.01 | Yes | Not Started | 下一步补齐 boundary case 逐条 source/failureExplanation/privacy/license，并扩展时间边界 golden。 | 无 | 无 |
-| TP-02.03 | TP-02 | 2 | TP-01.01, TP-01.02, TP-02.02 | No | Not Started | 待回填 | 无 | 无 |
+| TP-02.02 | TP-02 | 2 | TP-01.01, TP-01.02, TP-02.01 | No | Done | 2026-06-16：`calendar_boundary_cases.json` 从 4 条扩到 9 条；新增秒级立春、DST/纽约、非整点时区/加德满都、女性起运边界；三组 regression 19 passed, 1 skipped。 | 无 | 无 |
+| TP-02.03 | TP-02 | 2 | TP-01.01, TP-01.02, TP-02.02 | Yes | Not Started | 下一步治理 full golden deep gate 耗时预算、shard 和 case-level timing。 | 无 | 无 |
 | TP-03 | ROOT | 1 | TP-01.01, TP-01.02, TP-02.01, TP-02.02, TP-02.03 | No | Not Started | 待回填 | 无 | 无 |
 | TP-03.01 | TP-03 | 2 | TP-01.01, TP-01.02, TP-02.01, TP-02.02, TP-02.03 | No | Not Started | 待回填 | 无 | 无 |
 | TP-03.02 | TP-03 | 2 | TP-01.01, TP-01.02, TP-02.01, TP-02.02, TP-02.03, TP-03.01 | No | Not Started | 待回填 | 无 | 无 |

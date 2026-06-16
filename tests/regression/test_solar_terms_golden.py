@@ -169,10 +169,25 @@ def test_bazi_calendar_boundary_golden_cases_lock_time_semantics():
 
     payload = _load_bazi_boundary_fixture()
     assert payload["schemaVersion"] == 1
+    assert payload["caseCount"] == len(payload["cases"]) >= payload["coverageRequirements"]["minCaseCount"]
     assert payload["source"]["calendarProvider"] == "lunar-python"
     assert payload["source"]["trueSolarProvider"] == "paipan-master true solar time adapter"
+    required_tags = set(payload["coverageRequirements"]["requiredTags"])
+    observed_tags = {tag for case in payload["cases"] for tag in case["coverageTags"]}
+    assert required_tags <= observed_tags
 
     for case in payload["cases"]:
+        case_source = case["source"]
+        assert case_source["type"] == "synthetic_boundary_fixture"
+        assert case_source["license"]
+        assert case_source["privacy"] == "synthetic edge-case payload; no real person data"
+        assert case_source["productionUse"] == "test_only_not_runtime_oracle"
+        assert case["coverageTags"]
+        assert case["failureExplanation"]["trueSolarTime"]
+        assert case["failureExplanation"]["fourPillars"]
+        assert case["failureExplanation"]["fortuneStart"]
+        assert case["failureExplanation"]["boundaryTags"] == case["coverageTags"]
+
         raw_input = case["input"]
         expected = case["expected"]
         pure_input = build_pure_analysis_input_from_payload(raw_input)

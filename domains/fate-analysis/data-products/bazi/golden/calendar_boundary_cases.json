@@ -26,8 +26,41 @@
           "dayPillarZwz": "庚午",
           "zwzShift": false
         },
-        "fourPillars": {"year": "庚辰", "month": "乙酉", "day": "庚午", "hour": "丙子"},
-        "fortuneStart": {"startDate": "2010-06-19 00:18:40", "anchorTerm": "寒露"}
+        "fourPillars": {
+          "year": "庚辰",
+          "month": "乙酉",
+          "day": "庚午",
+          "hour": "丙子"
+        },
+        "fortuneStart": {
+          "startDate": "2010-06-19 00:18:40",
+          "anchorTerm": "寒露"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat accepted regression: lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+        "generatedBy": "FateCat TP-02.02 boundary fixture hardening on 2026-06-16",
+        "license": "MIT dependency output plus project-owned fixture",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "early_zi",
+        "beijing",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "锁定当前真太阳时管线；失败说明经度、均时差、时区归一化或 paipan adapter 行为发生变化。",
+        "fourPillars": "锁定 lunar-python 四柱结果；失败说明节气、日柱、时柱或子时边界语义发生变化。",
+        "fortuneStart": "锁定 lunar-python 起运结果；失败说明顺逆起运、节气锚点或真太阳时输入发生变化。",
+        "boundaryTags": [
+          "true_solar_time",
+          "early_zi",
+          "beijing",
+          "fortune_start"
+        ]
       }
     },
     {
@@ -48,8 +81,43 @@
           "dayPillarZwz": "庚午",
           "zwzShift": true
         },
-        "fourPillars": {"year": "庚辰", "month": "乙酉", "day": "庚午", "hour": "戊子"},
-        "fortuneStart": {"startDate": "2010-03-01 23:18:40", "anchorTerm": "寒露"}
+        "fourPillars": {
+          "year": "庚辰",
+          "month": "乙酉",
+          "day": "庚午",
+          "hour": "戊子"
+        },
+        "fortuneStart": {
+          "startDate": "2010-03-01 23:18:40",
+          "anchorTerm": "寒露"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat accepted regression: lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+        "generatedBy": "FateCat TP-02.02 boundary fixture hardening on 2026-06-16",
+        "license": "MIT dependency output plus project-owned fixture",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "late_zi",
+        "zi_day_shift",
+        "beijing",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "锁定当前真太阳时管线；失败说明经度、均时差、时区归一化或 paipan adapter 行为发生变化。",
+        "fourPillars": "锁定 lunar-python 四柱结果；失败说明节气、日柱、时柱或子时边界语义发生变化。",
+        "fortuneStart": "锁定 lunar-python 起运结果；失败说明顺逆起运、节气锚点或真太阳时输入发生变化。",
+        "boundaryTags": [
+          "true_solar_time",
+          "late_zi",
+          "zi_day_shift",
+          "beijing",
+          "fortune_start"
+        ]
       }
     },
     {
@@ -64,15 +132,53 @@
       },
       "expected": {
         "trueSolarTime": "2024-02-04 16:21:07",
-        "totalOffsetMinutesRange": [-143.89, -143.87],
+        "totalOffsetMinutesRange": [
+          -143.89,
+          -143.87
+        ],
         "ziTimeAnalysis": {
           "timeZhi": "申",
           "dayPillarNormal": "戊戌",
           "dayPillarZwz": "戊戌",
           "zwzShift": false
         },
-        "fourPillars": {"year": "癸卯", "month": "乙丑", "day": "戊戌", "hour": "庚申"},
-        "fortuneStart": {"startDate": "2033-12-04 16:21:07", "anchorTerm": "大雪"}
+        "fourPillars": {
+          "year": "癸卯",
+          "month": "乙丑",
+          "day": "戊戌",
+          "hour": "庚申"
+        },
+        "fortuneStart": {
+          "startDate": "2033-12-04 16:21:07",
+          "anchorTerm": "大雪"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat accepted regression: lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+        "generatedBy": "FateCat TP-02.02 boundary fixture hardening on 2026-06-16",
+        "license": "MIT dependency output plus project-owned fixture",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "lichun_boundary",
+        "extreme_longitude_offset",
+        "urumqi",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "锁定当前真太阳时管线；失败说明经度、均时差、时区归一化或 paipan adapter 行为发生变化。",
+        "fourPillars": "锁定 lunar-python 四柱结果；失败说明节气、日柱、时柱或子时边界语义发生变化。",
+        "fortuneStart": "锁定 lunar-python 起运结果；失败说明顺逆起运、节气锚点或真太阳时输入发生变化。",
+        "boundaryTags": [
+          "true_solar_time",
+          "lichun_boundary",
+          "extreme_longitude_offset",
+          "urumqi",
+          "fortune_start"
+        ]
       }
     },
     {
@@ -95,9 +201,388 @@
           "dayPillarZwz": "丙寅",
           "zwzShift": false
         },
-        "fourPillars": {"year": "己巳", "month": "丙子", "day": "丙寅", "hour": "壬辰"},
-        "fortuneStart": {"startDate": "1998-04-11 07:33:08", "anchorTerm": "立冬"}
+        "fourPillars": {
+          "year": "己巳",
+          "month": "丙子",
+          "day": "丙寅",
+          "hour": "壬辰"
+        },
+        "fortuneStart": {
+          "startDate": "1998-04-11 07:33:08",
+          "anchorTerm": "立冬"
+        }
+      },
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat accepted regression: lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+        "generatedBy": "FateCat TP-02.02 boundary fixture hardening on 2026-06-16",
+        "license": "MIT dependency output plus project-owned fixture",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "utc_input",
+        "timezone_normalization",
+        "hong_kong",
+        "fortune_start"
+      ],
+      "failureExplanation": {
+        "trueSolarTime": "锁定当前真太阳时管线；失败说明经度、均时差、时区归一化或 paipan adapter 行为发生变化。",
+        "fourPillars": "锁定 lunar-python 四柱结果；失败说明节气、日柱、时柱或子时边界语义发生变化。",
+        "fortuneStart": "锁定 lunar-python 起运结果；失败说明顺逆起运、节气锚点或真太阳时输入发生变化。",
+        "boundaryTags": [
+          "true_solar_time",
+          "utc_input",
+          "timezone_normalization",
+          "hong_kong",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "beijing_lichun_second_before_2024",
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat accepted regression: lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+        "generatedBy": "FateCat TP-02.02 boundary fixture hardening on 2026-06-16",
+        "license": "MIT dependency output plus project-owned fixture",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "lichun_boundary",
+        "second_level_boundary",
+        "beijing",
+        "before_boundary",
+        "fortune_start"
+      ],
+      "input": {
+        "birthDateTime": "2024-02-04T16:54:00",
+        "timezone": "Asia/Shanghai",
+        "gender": "male",
+        "longitude": 116.4074,
+        "latitude": 39.9042,
+        "birthPlace": "北京",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "normalizedBirthDateTime": "2024-02-04T16:54:00",
+        "trueSolarTime": "2024-02-04 16:25:18",
+        "totalOffsetMinutesRange": [
+          -28.7,
+          -28.66
+        ],
+        "ziTimeAnalysis": {
+          "timeZhi": "申",
+          "dayPillarNormal": "戊戌",
+          "dayPillarZwz": "戊戌",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "癸卯",
+          "month": "乙丑",
+          "day": "戊戌",
+          "hour": "庚申"
+        },
+        "fortuneStart": {
+          "startDate": "2033-12-04 16:25:18",
+          "anchorTerm": "大雪"
+        }
+      },
+      "failureExplanation": {
+        "trueSolarTime": "锁定当前真太阳时管线；失败说明经度、均时差、时区归一化或 paipan adapter 行为发生变化。",
+        "fourPillars": "锁定 lunar-python 四柱结果；失败说明节气、日柱、时柱或子时边界语义发生变化。",
+        "fortuneStart": "锁定 lunar-python 起运结果；失败说明顺逆起运、节气锚点或真太阳时输入发生变化。",
+        "boundaryTags": [
+          "true_solar_time",
+          "lichun_boundary",
+          "second_level_boundary",
+          "beijing",
+          "before_boundary",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "beijing_lichun_second_after_2024",
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat accepted regression: lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+        "generatedBy": "FateCat TP-02.02 boundary fixture hardening on 2026-06-16",
+        "license": "MIT dependency output plus project-owned fixture",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "lichun_boundary",
+        "second_level_boundary",
+        "beijing",
+        "after_boundary",
+        "fortune_start"
+      ],
+      "input": {
+        "birthDateTime": "2024-02-04T16:56:00",
+        "timezone": "Asia/Shanghai",
+        "gender": "male",
+        "longitude": 116.4074,
+        "latitude": 39.9042,
+        "birthPlace": "北京",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "normalizedBirthDateTime": "2024-02-04T16:56:00",
+        "trueSolarTime": "2024-02-04 16:27:18",
+        "totalOffsetMinutesRange": [
+          -28.7,
+          -28.66
+        ],
+        "ziTimeAnalysis": {
+          "timeZhi": "申",
+          "dayPillarNormal": "戊戌",
+          "dayPillarZwz": "戊戌",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "甲辰",
+          "month": "丙寅",
+          "day": "戊戌",
+          "hour": "庚申"
+        },
+        "fortuneStart": {
+          "startDate": "2034-01-04 16:27:18",
+          "anchorTerm": "惊蛰"
+        }
+      },
+      "failureExplanation": {
+        "trueSolarTime": "锁定当前真太阳时管线；失败说明经度、均时差、时区归一化或 paipan adapter 行为发生变化。",
+        "fourPillars": "锁定 lunar-python 四柱结果；失败说明节气、日柱、时柱或子时边界语义发生变化。",
+        "fortuneStart": "锁定 lunar-python 起运结果；失败说明顺逆起运、节气锚点或真太阳时输入发生变化。",
+        "boundaryTags": [
+          "true_solar_time",
+          "lichun_boundary",
+          "second_level_boundary",
+          "beijing",
+          "after_boundary",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "new_york_dst_utc_input_2024",
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat accepted regression: lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+        "generatedBy": "FateCat TP-02.02 boundary fixture hardening on 2026-06-16",
+        "license": "MIT dependency output plus project-owned fixture",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "utc_input",
+        "timezone_normalization",
+        "dst_boundary",
+        "non_east_8",
+        "western_longitude",
+        "fortune_start"
+      ],
+      "input": {
+        "birthDateTime": "2024-03-10T06:59:30Z",
+        "timezone": "America/New_York",
+        "gender": "female",
+        "longitude": -74.006,
+        "latitude": 40.7128,
+        "birthPlace": "纽约",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "normalizedBirthDateTime": "2024-03-10T01:59:30",
+        "trueSolarTime": "2024-03-09 12:53:31",
+        "totalOffsetMinutesRange": [
+          -785.99,
+          -785.95
+        ],
+        "ziTimeAnalysis": {
+          "timeZhi": "午",
+          "dayPillarNormal": "壬申",
+          "dayPillarZwz": "壬申",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "甲辰",
+          "month": "丁卯",
+          "day": "壬申",
+          "hour": "丙午"
+        },
+        "fortuneStart": {
+          "startDate": "2025-07-19 12:53:31",
+          "anchorTerm": "立春"
+        }
+      },
+      "failureExplanation": {
+        "trueSolarTime": "锁定当前真太阳时管线；失败说明经度、均时差、时区归一化或 paipan adapter 行为发生变化。",
+        "fourPillars": "锁定 lunar-python 四柱结果；失败说明节气、日柱、时柱或子时边界语义发生变化。",
+        "fortuneStart": "锁定 lunar-python 起运结果；失败说明顺逆起运、节气锚点或真太阳时输入发生变化。",
+        "boundaryTags": [
+          "true_solar_time",
+          "utc_input",
+          "timezone_normalization",
+          "dst_boundary",
+          "non_east_8",
+          "western_longitude",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "kathmandu_quarter_timezone_2000",
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat accepted regression: lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+        "generatedBy": "FateCat TP-02.02 boundary fixture hardening on 2026-06-16",
+        "license": "MIT dependency output plus project-owned fixture",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "timezone_normalization",
+        "non_whole_hour_timezone",
+        "non_east_8",
+        "cross_day_true_solar",
+        "fortune_start"
+      ],
+      "input": {
+        "birthDateTime": "2000-01-01T00:15:00+05:45",
+        "timezone": "Asia/Kathmandu",
+        "gender": "male",
+        "longitude": 85.324,
+        "latitude": 27.7172,
+        "birthPlace": "加德满都",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "normalizedBirthDateTime": "2000-01-01T00:15:00",
+        "trueSolarTime": "1999-12-31 21:52:50",
+        "totalOffsetMinutesRange": [
+          -142.17,
+          -142.13
+        ],
+        "ziTimeAnalysis": {
+          "timeZhi": "亥",
+          "dayPillarNormal": "丁巳",
+          "dayPillarZwz": "丁巳",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "己卯",
+          "month": "丙子",
+          "day": "丁巳",
+          "hour": "辛亥"
+        },
+        "fortuneStart": {
+          "startDate": "2007-12-31 21:52:50",
+          "anchorTerm": "立冬"
+        }
+      },
+      "failureExplanation": {
+        "trueSolarTime": "锁定当前真太阳时管线；失败说明经度、均时差、时区归一化或 paipan adapter 行为发生变化。",
+        "fourPillars": "锁定 lunar-python 四柱结果；失败说明节气、日柱、时柱或子时边界语义发生变化。",
+        "fortuneStart": "锁定 lunar-python 起运结果；失败说明顺逆起运、节气锚点或真太阳时输入发生变化。",
+        "boundaryTags": [
+          "true_solar_time",
+          "timezone_normalization",
+          "non_whole_hour_timezone",
+          "non_east_8",
+          "cross_day_true_solar",
+          "fortune_start"
+        ]
+      }
+    },
+    {
+      "id": "beijing_female_yun_start_2024",
+      "source": {
+        "type": "synthetic_boundary_fixture",
+        "oracle": "FateCat accepted regression: lunar-python 1.4.8 EightChar/Yun plus paipan-master true solar time adapter",
+        "generatedBy": "FateCat TP-02.02 boundary fixture hardening on 2026-06-16",
+        "license": "MIT dependency output plus project-owned fixture",
+        "privacy": "synthetic edge-case payload; no real person data",
+        "productionUse": "test_only_not_runtime_oracle"
+      },
+      "coverageTags": [
+        "true_solar_time",
+        "lichun_boundary",
+        "gender_female",
+        "yun_start_direction",
+        "beijing",
+        "fortune_start"
+      ],
+      "input": {
+        "birthDateTime": "2024-02-04T16:56:00",
+        "timezone": "Asia/Shanghai",
+        "gender": "female",
+        "longitude": 116.4074,
+        "latitude": 39.9042,
+        "birthPlace": "北京",
+        "useTrueSolarTime": true
+      },
+      "expected": {
+        "normalizedBirthDateTime": "2024-02-04T16:56:00",
+        "trueSolarTime": "2024-02-04 16:27:18",
+        "totalOffsetMinutesRange": [
+          -28.7,
+          -28.66
+        ],
+        "ziTimeAnalysis": {
+          "timeZhi": "申",
+          "dayPillarNormal": "戊戌",
+          "dayPillarZwz": "戊戌",
+          "zwzShift": false
+        },
+        "fourPillars": {
+          "year": "甲辰",
+          "month": "丙寅",
+          "day": "戊戌",
+          "hour": "庚申"
+        },
+        "fortuneStart": {
+          "startDate": "2024-02-04 16:27:18",
+          "anchorTerm": "小寒"
+        }
+      },
+      "failureExplanation": {
+        "trueSolarTime": "锁定当前真太阳时管线；失败说明经度、均时差、时区归一化或 paipan adapter 行为发生变化。",
+        "fourPillars": "锁定 lunar-python 四柱结果；失败说明节气、日柱、时柱或子时边界语义发生变化。",
+        "fortuneStart": "锁定 lunar-python 起运结果；失败说明顺逆起运、节气锚点或真太阳时输入发生变化。",
+        "boundaryTags": [
+          "true_solar_time",
+          "lichun_boundary",
+          "gender_female",
+          "yun_start_direction",
+          "beijing",
+          "fortune_start"
+        ]
       }
     }
-  ]
+  ],
+  "caseCount": 9,
+  "coverageRequirements": {
+    "minCaseCount": 9,
+    "requiredTags": [
+      "early_zi",
+      "late_zi",
+      "lichun_boundary",
+      "second_level_boundary",
+      "utc_input",
+      "timezone_normalization",
+      "non_whole_hour_timezone",
+      "dst_boundary",
+      "gender_female",
+      "fortune_start",
+      "true_solar_time"
+    ]
+  }
 }
