@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 
 from fate_core.capabilities import CapabilityExecutor, CapabilityInput
 from fate_core.usecases import PureAnalysisInput, calculate_pure_analysis
+from fate_core.usecases.calculate_pure_analysis import _build_combine_transform_matrix
 from main import app
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -348,6 +349,49 @@ def test_bazi_rule_depth_golden_cases(case: dict):
     assert {item["topic"] for item in depth["combinationStatements"]} >= set(expected["combinationTopics"])
     for rule_id in expected["requiredRuleIds"]:
         assert rule_id in emitted
+    benchmark = result["baziBenchmark"]
+    special = {
+        item["name"]: {
+            "status": item["status"],
+            "score": item["score"],
+            "metConditions": item["maturity"]["metConditions"],
+            "totalConditions": item["maturity"]["totalConditions"],
+        }
+        for item in benchmark["patternRegistry"]["specialPatternCandidates"]["candidates"]
+    }
+    assert special == expected["specialPatternStatuses"]
+    assert (
+        benchmark["patternRegistry"]["specialPatternCandidates"]["riskBoundary"]
+        == expected["specialPatternRiskBoundary"]
+    )
+    combine_states = [
+        {"pair": item.get("pair"), "state": item.get("state"), "status": item.get("status"), "score": item.get("score")}
+        for item in benchmark["combineTransformMatrix"]["candidates"]
+    ]
+    assert combine_states == expected["combineTransformStates"]
+    assert [item["strategy"] for item in benchmark["yongShenDecision"]["scoredStrategies"]] == expected[
+        "yongShenStrategyOrder"
+    ]
+    assert benchmark["yongShenDecision"]["riskBoundary"] == expected["yongShenRiskBoundary"]
+    assert expected["failureExplanation"]["specialPatternStatuses"]
+    assert expected["failureExplanation"]["combineTransformStates"]
+    assert expected["failureExplanation"]["yongShenStrategyOrder"]
+
+
+@pytest.mark.parametrize(
+    "case",
+    json.loads(BAZI_RULE_DEPTH_FIXTURE.read_text(encoding="utf-8"))["evaluatorStateCases"]["combineTransform"],
+    ids=lambda case: case["id"],
+)
+def test_bazi_combine_transform_state_golden_cases(case: dict):
+    result = _build_combine_transform_matrix(case["raw"])
+    expected = case["expected"]
+    assert case["source"]["privacy"] == "no_real_person_data"
+    assert case["source"]["productionUse"] == "test_only_not_runtime_oracle"
+    assert expected["failureExplanation"]
+    assert result["candidates"], case["id"]
+    assert result["candidates"][0]["state"] == expected["state"]
+    assert result["candidates"][0]["status"] == expected["status"]
 
 
 @pytest.mark.parametrize(

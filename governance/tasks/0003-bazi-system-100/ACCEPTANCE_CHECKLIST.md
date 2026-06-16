@@ -173,15 +173,15 @@
 ## TP-03
 - 标题: 高级格局规则体系
 - 验收项:
-  - [ ] `高级格局规则体系` 达到其 objective，且依赖关系保持一致
+  - [x] `高级格局规则体系` 达到其 objective，且依赖关系保持一致
 - Verify: 核对目标完成并补充执行证据
 - Gate: 任务目标与上下文已确认
 - 输出物:
-  - [ ] 把高级格局从约 58% 推到规则来源、条件链、反例和报告边界齐备
+  - [x] 把高级格局从约 58% 推到规则来源、条件链、反例和报告边界齐备
 - 标准清单:
-  - [ ] Verify: 核对目标完成并补充执行证据
-  - [ ] Gate: 任务目标与上下文已确认
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: 核对目标完成并补充执行证据
+  - [x] Gate: 任务目标与上下文已确认
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-03.01
@@ -217,29 +217,29 @@
 ### TP-03.03
 - 标题: 高级格局 golden 与反例
 - 验收项:
-  - [ ] `高级格局 golden 与反例` 达到其 objective，且依赖关系保持一致
+  - [x] `高级格局 golden 与反例` 达到其 objective，且依赖关系保持一致
 - Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q
 - Gate: 每类高级格局至少有可回归样本；无样本能力只能保持 beta/evidence_seed
 - 输出物:
-  - [ ] domains/fate-analysis/data-products/bazi/golden/rule_depth_cases.json
+  - [x] domains/fate-analysis/data-products/bazi/golden/rule_depth_cases.json
 - 标准清单:
-  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q
-  - [ ] Gate: 每类高级格局至少有可回归样本；无样本能力只能保持 beta/evidence_seed
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q
+  - [x] Gate: 每类高级格局至少有可回归样本；无样本能力只能保持 beta/evidence_seed
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ## TP-04
 - 标题: 合化成败引擎
 - 验收项:
-  - [ ] `合化成败引擎` 达到其 objective，且依赖关系保持一致
+  - [x] `合化成败引擎` 达到其 objective，且依赖关系保持一致
 - Verify: 核对目标完成并补充执行证据
 - Gate: 任务目标与上下文已确认
 - 输出物:
-  - [ ] 把合化成败从约 60% 推到月令、透干、通根、得令、阻隔、帮扶、冲破条件链完整
+  - [x] 把合化成败从约 60% 推到月令、透干、通根、得令、阻隔、帮扶、冲破条件链完整
 - 标准清单:
-  - [ ] Verify: 核对目标完成并补充执行证据
-  - [ ] Gate: 任务目标与上下文已确认
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: 核对目标完成并补充执行证据
+  - [x] Gate: 任务目标与上下文已确认
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-04.01
@@ -274,29 +274,29 @@
 ### TP-04.03
 - 标题: 合化 golden 反例集
 - 验收项:
-  - [ ] `合化 golden 反例集` 达到其 objective，且依赖关系保持一致
+  - [x] `合化 golden 反例集` 达到其 objective，且依赖关系保持一致
 - Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q
 - Gate: 每类合化状态至少有一组回归样本和 failureExplanation
 - 输出物:
-  - [ ] domains/fate-analysis/data-products/bazi/golden/*
+  - [x] domains/fate-analysis/data-products/bazi/golden/*
 - 标准清单:
-  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q
-  - [ ] Gate: 每类合化状态至少有一组回归样本和 failureExplanation
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q
+  - [x] Gate: 每类合化状态至少有一组回归样本和 failureExplanation
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ## TP-05
 - 标题: 用神裁决体系
 - 验收项:
-  - [ ] `用神裁决体系` 达到其 objective，且依赖关系保持一致
+  - [x] `用神裁决体系` 达到其 objective，且依赖关系保持一致
 - Verify: 核对目标完成并补充执行证据
 - Gate: 任务目标与上下文已确认
 - 输出物:
-  - [ ] 把用神裁决从约 64% 推到调候、扶抑、通关、病药并列策略和冲突裁决完整
+  - [x] 把用神裁决从约 64% 推到调候、扶抑、通关、病药并列策略和冲突裁决完整
 - 标准清单:
-  - [ ] Verify: 核对目标完成并补充执行证据
-  - [ ] Gate: 任务目标与上下文已确认
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: 核对目标完成并补充执行证据
+  - [x] Gate: 任务目标与上下文已确认
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-05.01
@@ -331,15 +331,15 @@
 ### TP-05.03
 - 标题: 用神裁决 golden
 - 验收项:
-  - [ ] `用神裁决 golden` 达到其 objective，且依赖关系保持一致
+  - [x] `用神裁决 golden` 达到其 objective，且依赖关系保持一致
 - Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q
 - Gate: 每类用神冲突有 expected strategy order 和 riskBoundary
 - 输出物:
-  - [ ] domains/fate-analysis/data-products/bazi/golden/rule_depth_cases.json
+  - [x] domains/fate-analysis/data-products/bazi/golden/rule_depth_cases.json
 - 标准清单:
-  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q
-  - [ ] Gate: 每类用神冲突有 expected strategy order 和 riskBoundary
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q
+  - [x] Gate: 每类用神冲突有 expected strategy order 和 riskBoundary
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ## TP-06

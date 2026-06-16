@@ -48,7 +48,69 @@
           "调候细分",
           "干支关系",
           "岁运层级"
-        ]
+        ],
+        "specialPatternStatuses": {
+          "从格": {
+            "status": "guarded",
+            "score": 67,
+            "metConditions": 2,
+            "totalConditions": 3
+          },
+          "化气": {
+            "status": "candidate",
+            "score": 100,
+            "metConditions": 2,
+            "totalConditions": 2
+          },
+          "专旺": {
+            "status": "not_supported",
+            "score": 0,
+            "metConditions": 0,
+            "totalConditions": 2
+          },
+          "假从": {
+            "status": "candidate",
+            "score": 100,
+            "metConditions": 3,
+            "totalConditions": 3
+          },
+          "从杀": {
+            "status": "guarded",
+            "score": 50,
+            "metConditions": 1,
+            "totalConditions": 2
+          },
+          "从财": {
+            "status": "candidate",
+            "score": 100,
+            "metConditions": 2,
+            "totalConditions": 2
+          }
+        },
+        "specialPatternRiskBoundary": "从格、化气、专旺、假从等高级格局必须有专门 golden case 才能提升为定格。",
+        "yongShenStrategyOrder": [
+          "通关",
+          "病药",
+          "调候",
+          "扶抑"
+        ],
+        "yongShenRiskBoundary": "用神评分只用于解释优先级，不承诺现实事件结果。",
+        "combineTransformStates": [
+          {
+            "pair": [
+              "乙",
+              "庚"
+            ],
+            "state": "transform_broken",
+            "status": "weak_candidate",
+            "score": 25
+          }
+        ],
+        "failureExplanation": {
+          "specialPatternStatuses": "锁定特殊格局候选成熟度；失败说明条件链、强弱、十神家族或合化候选输入发生变化。",
+          "combineTransformStates": "锁定合化 state/status/score；失败说明合化条件链、阻隔判断或 state 映射发生变化。",
+          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。"
+        }
       }
     },
     {
@@ -95,7 +157,78 @@
           "调候细分",
           "干支关系",
           "岁运层级"
-        ]
+        ],
+        "specialPatternStatuses": {
+          "从格": {
+            "status": "not_supported",
+            "score": 0,
+            "metConditions": 0,
+            "totalConditions": 3
+          },
+          "化气": {
+            "status": "candidate",
+            "score": 100,
+            "metConditions": 2,
+            "totalConditions": 2
+          },
+          "专旺": {
+            "status": "candidate",
+            "score": 100,
+            "metConditions": 2,
+            "totalConditions": 2
+          },
+          "假从": {
+            "status": "not_supported",
+            "score": 0,
+            "metConditions": 0,
+            "totalConditions": 3
+          },
+          "从杀": {
+            "status": "not_supported",
+            "score": 0,
+            "metConditions": 0,
+            "totalConditions": 2
+          },
+          "从财": {
+            "status": "not_supported",
+            "score": 0,
+            "metConditions": 0,
+            "totalConditions": 2
+          }
+        },
+        "specialPatternRiskBoundary": "从格、化气、专旺、假从等高级格局必须有专门 golden case 才能提升为定格。",
+        "yongShenStrategyOrder": [
+          "通关",
+          "病药",
+          "调候",
+          "扶抑"
+        ],
+        "yongShenRiskBoundary": "用神评分只用于解释优先级，不承诺现实事件结果。",
+        "combineTransformStates": [
+          {
+            "pair": [
+              "庚",
+              "乙"
+            ],
+            "state": "transform_broken",
+            "status": "guarded_candidate",
+            "score": 70
+          },
+          {
+            "pair": [
+              "乙",
+              "庚"
+            ],
+            "state": "transform_broken",
+            "status": "guarded_candidate",
+            "score": 70
+          }
+        ],
+        "failureExplanation": {
+          "specialPatternStatuses": "锁定特殊格局候选成熟度；失败说明条件链、强弱、十神家族或合化候选输入发生变化。",
+          "combineTransformStates": "锁定合化 state/status/score；失败说明合化条件链、阻隔判断或 state 映射发生变化。",
+          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。"
+        }
       }
     },
     {
@@ -142,7 +275,59 @@
           "调候细分",
           "干支关系",
           "岁运层级"
-        ]
+        ],
+        "specialPatternStatuses": {
+          "从格": {
+            "status": "not_supported",
+            "score": 0,
+            "metConditions": 0,
+            "totalConditions": 3
+          },
+          "化气": {
+            "status": "guarded",
+            "score": 50,
+            "metConditions": 1,
+            "totalConditions": 2
+          },
+          "专旺": {
+            "status": "guarded",
+            "score": 50,
+            "metConditions": 1,
+            "totalConditions": 2
+          },
+          "假从": {
+            "status": "not_supported",
+            "score": 0,
+            "metConditions": 0,
+            "totalConditions": 3
+          },
+          "从杀": {
+            "status": "not_supported",
+            "score": 0,
+            "metConditions": 0,
+            "totalConditions": 2
+          },
+          "从财": {
+            "status": "not_supported",
+            "score": 0,
+            "metConditions": 0,
+            "totalConditions": 2
+          }
+        },
+        "specialPatternRiskBoundary": "从格、化气、专旺、假从等高级格局必须有专门 golden case 才能提升为定格。",
+        "yongShenStrategyOrder": [
+          "通关",
+          "病药",
+          "调候",
+          "扶抑"
+        ],
+        "yongShenRiskBoundary": "用神评分只用于解释优先级，不承诺现实事件结果。",
+        "combineTransformStates": [],
+        "failureExplanation": {
+          "specialPatternStatuses": "锁定特殊格局候选成熟度；失败说明条件链、强弱、十神家族或合化候选输入发生变化。",
+          "combineTransformStates": "锁定合化 state/status/score；失败说明合化条件链、阻隔判断或 state 映射发生变化。",
+          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。"
+        }
       }
     },
     {
@@ -189,7 +374,59 @@
           "bazi.depth.tengod.role_family_matrix",
           "bazi.depth.relation.punishment_harm_break_matrix",
           "bazi.depth.statement.narrative_markdown"
-        ]
+        ],
+        "specialPatternStatuses": {
+          "从格": {
+            "status": "candidate",
+            "score": 100,
+            "metConditions": 3,
+            "totalConditions": 3
+          },
+          "化气": {
+            "status": "guarded",
+            "score": 50,
+            "metConditions": 1,
+            "totalConditions": 2
+          },
+          "专旺": {
+            "status": "not_supported",
+            "score": 0,
+            "metConditions": 0,
+            "totalConditions": 2
+          },
+          "假从": {
+            "status": "candidate",
+            "score": 100,
+            "metConditions": 3,
+            "totalConditions": 3
+          },
+          "从杀": {
+            "status": "candidate",
+            "score": 100,
+            "metConditions": 2,
+            "totalConditions": 2
+          },
+          "从财": {
+            "status": "guarded",
+            "score": 50,
+            "metConditions": 1,
+            "totalConditions": 2
+          }
+        },
+        "specialPatternRiskBoundary": "从格、化气、专旺、假从等高级格局必须有专门 golden case 才能提升为定格。",
+        "yongShenStrategyOrder": [
+          "病药",
+          "调候",
+          "扶抑",
+          "通关"
+        ],
+        "yongShenRiskBoundary": "用神评分只用于解释优先级，不承诺现实事件结果。",
+        "combineTransformStates": [],
+        "failureExplanation": {
+          "specialPatternStatuses": "锁定特殊格局候选成熟度；失败说明条件链、强弱、十神家族或合化候选输入发生变化。",
+          "combineTransformStates": "锁定合化 state/status/score；失败说明合化条件链、阻隔判断或 state 映射发生变化。",
+          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。"
+        }
       }
     },
     {
@@ -236,7 +473,69 @@
           "bazi.depth.tengod.role_family_matrix",
           "bazi.depth.relation.punishment_harm_break_matrix",
           "bazi.depth.statement.narrative_markdown"
-        ]
+        ],
+        "specialPatternStatuses": {
+          "从格": {
+            "status": "guarded",
+            "score": 67,
+            "metConditions": 2,
+            "totalConditions": 3
+          },
+          "化气": {
+            "status": "candidate",
+            "score": 100,
+            "metConditions": 2,
+            "totalConditions": 2
+          },
+          "专旺": {
+            "status": "guarded",
+            "score": 50,
+            "metConditions": 1,
+            "totalConditions": 2
+          },
+          "假从": {
+            "status": "candidate",
+            "score": 100,
+            "metConditions": 3,
+            "totalConditions": 3
+          },
+          "从杀": {
+            "status": "guarded",
+            "score": 50,
+            "metConditions": 1,
+            "totalConditions": 2
+          },
+          "从财": {
+            "status": "candidate",
+            "score": 100,
+            "metConditions": 2,
+            "totalConditions": 2
+          }
+        },
+        "specialPatternRiskBoundary": "从格、化气、专旺、假从等高级格局必须有专门 golden case 才能提升为定格。",
+        "yongShenStrategyOrder": [
+          "通关",
+          "调候",
+          "扶抑",
+          "病药"
+        ],
+        "yongShenRiskBoundary": "用神评分只用于解释优先级，不承诺现实事件结果。",
+        "combineTransformStates": [
+          {
+            "pair": [
+              "壬",
+              "丁"
+            ],
+            "state": "transform_broken",
+            "status": "guarded_candidate",
+            "score": 70
+          }
+        ],
+        "failureExplanation": {
+          "specialPatternStatuses": "锁定特殊格局候选成熟度；失败说明条件链、强弱、十神家族或合化候选输入发生变化。",
+          "combineTransformStates": "锁定合化 state/status/score；失败说明合化条件链、阻隔判断或 state 映射发生变化。",
+          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。"
+        }
       }
     },
     {
@@ -279,7 +578,78 @@
           "bazi.depth.tengod.role_family_matrix",
           "bazi.depth.relation.punishment_harm_break_matrix",
           "bazi.depth.statement.narrative_markdown"
-        ]
+        ],
+        "specialPatternStatuses": {
+          "从格": {
+            "status": "guarded",
+            "score": 67,
+            "metConditions": 2,
+            "totalConditions": 3
+          },
+          "化气": {
+            "status": "candidate",
+            "score": 100,
+            "metConditions": 2,
+            "totalConditions": 2
+          },
+          "专旺": {
+            "status": "not_supported",
+            "score": 0,
+            "metConditions": 0,
+            "totalConditions": 2
+          },
+          "假从": {
+            "status": "candidate",
+            "score": 100,
+            "metConditions": 3,
+            "totalConditions": 3
+          },
+          "从杀": {
+            "status": "candidate",
+            "score": 100,
+            "metConditions": 2,
+            "totalConditions": 2
+          },
+          "从财": {
+            "status": "guarded",
+            "score": 50,
+            "metConditions": 1,
+            "totalConditions": 2
+          }
+        },
+        "specialPatternRiskBoundary": "从格、化气、专旺、假从等高级格局必须有专门 golden case 才能提升为定格。",
+        "yongShenStrategyOrder": [
+          "通关",
+          "病药",
+          "调候",
+          "扶抑"
+        ],
+        "yongShenRiskBoundary": "用神评分只用于解释优先级，不承诺现实事件结果。",
+        "combineTransformStates": [
+          {
+            "pair": [
+              "丙",
+              "辛"
+            ],
+            "state": "transform_broken",
+            "status": "guarded_candidate",
+            "score": 70
+          },
+          {
+            "pair": [
+              "壬",
+              "丁"
+            ],
+            "state": "transform_broken",
+            "status": "guarded_candidate",
+            "score": 50
+          }
+        ],
+        "failureExplanation": {
+          "specialPatternStatuses": "锁定特殊格局候选成熟度；失败说明条件链、强弱、十神家族或合化候选输入发生变化。",
+          "combineTransformStates": "锁定合化 state/status/score；失败说明合化条件链、阻隔判断或 state 映射发生变化。",
+          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。"
+        }
       }
     },
     {
@@ -322,7 +692,59 @@
           "bazi.depth.tengod.role_family_matrix",
           "bazi.depth.relation.punishment_harm_break_matrix",
           "bazi.depth.statement.narrative_markdown"
-        ]
+        ],
+        "specialPatternStatuses": {
+          "从格": {
+            "status": "guarded",
+            "score": 67,
+            "metConditions": 2,
+            "totalConditions": 3
+          },
+          "化气": {
+            "status": "guarded",
+            "score": 50,
+            "metConditions": 1,
+            "totalConditions": 2
+          },
+          "专旺": {
+            "status": "guarded",
+            "score": 50,
+            "metConditions": 1,
+            "totalConditions": 2
+          },
+          "假从": {
+            "status": "candidate",
+            "score": 100,
+            "metConditions": 3,
+            "totalConditions": 3
+          },
+          "从杀": {
+            "status": "guarded",
+            "score": 50,
+            "metConditions": 1,
+            "totalConditions": 2
+          },
+          "从财": {
+            "status": "guarded",
+            "score": 50,
+            "metConditions": 1,
+            "totalConditions": 2
+          }
+        },
+        "specialPatternRiskBoundary": "从格、化气、专旺、假从等高级格局必须有专门 golden case 才能提升为定格。",
+        "yongShenStrategyOrder": [
+          "通关",
+          "调候",
+          "扶抑",
+          "病药"
+        ],
+        "yongShenRiskBoundary": "用神评分只用于解释优先级，不承诺现实事件结果。",
+        "combineTransformStates": [],
+        "failureExplanation": {
+          "specialPatternStatuses": "锁定特殊格局候选成熟度；失败说明条件链、强弱、十神家族或合化候选输入发生变化。",
+          "combineTransformStates": "锁定合化 state/status/score；失败说明合化条件链、阻隔判断或 state 映射发生变化。",
+          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。"
+        }
       }
     },
     {
@@ -365,8 +787,294 @@
           "bazi.depth.tengod.role_family_matrix",
           "bazi.depth.relation.punishment_harm_break_matrix",
           "bazi.depth.statement.narrative_markdown"
-        ]
+        ],
+        "specialPatternStatuses": {
+          "从格": {
+            "status": "not_supported",
+            "score": 0,
+            "metConditions": 0,
+            "totalConditions": 3
+          },
+          "化气": {
+            "status": "candidate",
+            "score": 100,
+            "metConditions": 2,
+            "totalConditions": 2
+          },
+          "专旺": {
+            "status": "candidate",
+            "score": 100,
+            "metConditions": 2,
+            "totalConditions": 2
+          },
+          "假从": {
+            "status": "not_supported",
+            "score": 0,
+            "metConditions": 0,
+            "totalConditions": 3
+          },
+          "从杀": {
+            "status": "not_supported",
+            "score": 0,
+            "metConditions": 0,
+            "totalConditions": 2
+          },
+          "从财": {
+            "status": "not_supported",
+            "score": 0,
+            "metConditions": 0,
+            "totalConditions": 2
+          }
+        },
+        "specialPatternRiskBoundary": "从格、化气、专旺、假从等高级格局必须有专门 golden case 才能提升为定格。",
+        "yongShenStrategyOrder": [
+          "通关",
+          "病药",
+          "调候",
+          "扶抑"
+        ],
+        "yongShenRiskBoundary": "用神评分只用于解释优先级，不承诺现实事件结果。",
+        "combineTransformStates": [
+          {
+            "pair": [
+              "癸",
+              "戊"
+            ],
+            "state": "transform_broken",
+            "status": "guarded_candidate",
+            "score": 70
+          }
+        ],
+        "failureExplanation": {
+          "specialPatternStatuses": "锁定特殊格局候选成熟度；失败说明条件链、强弱、十神家族或合化候选输入发生变化。",
+          "combineTransformStates": "锁定合化 state/status/score；失败说明合化条件链、阻隔判断或 state 映射发生变化。",
+          "yongShenStrategyOrder": "锁定用神并列策略排序；失败说明证据评分或冲突裁决发生变化。"
+        }
       }
     }
-  ]
+  ],
+  "evaluatorStateCases": {
+    "combineTransform": [
+      {
+        "id": "combine_structural_relation_contract",
+        "source": {
+          "type": "synthetic_evaluator_fixture",
+          "privacy": "no_real_person_data",
+          "license": "project-owned fixture",
+          "productionUse": "test_only_not_runtime_oracle"
+        },
+        "raw": {
+          "fourPillars": {
+            "year": {
+              "stem": "丙",
+              "branch": "午"
+            },
+            "month": {
+              "stem": "辛",
+              "branch": "巳"
+            },
+            "day": {
+              "stem": "甲",
+              "branch": "寅"
+            },
+            "hour": {
+              "stem": "戊",
+              "branch": "午"
+            }
+          },
+          "hiddenStems": {
+            "year": [
+              "丁",
+              "己"
+            ],
+            "month": [
+              "丙",
+              "戊",
+              "庚"
+            ],
+            "day": [
+              "甲",
+              "丙",
+              "戊"
+            ],
+            "hour": [
+              "丁",
+              "己"
+            ]
+          }
+        },
+        "expected": {
+          "state": "structural_relation",
+          "status": "weak_candidate",
+          "failureExplanation": "有丙辛合象，但月令不助水、化神不透且无根，只能登记结构关系。"
+        }
+      },
+      {
+        "id": "combine_transform_candidate_contract",
+        "source": {
+          "type": "synthetic_evaluator_fixture",
+          "privacy": "no_real_person_data",
+          "license": "project-owned fixture",
+          "productionUse": "test_only_not_runtime_oracle"
+        },
+        "raw": {
+          "fourPillars": {
+            "year": {
+              "stem": "丙",
+              "branch": "子"
+            },
+            "month": {
+              "stem": "辛",
+              "branch": "亥"
+            },
+            "day": {
+              "stem": "甲",
+              "branch": "寅"
+            },
+            "hour": {
+              "stem": "戊",
+              "branch": "午"
+            }
+          },
+          "hiddenStems": {
+            "year": [
+              "癸"
+            ],
+            "month": [
+              "壬",
+              "甲"
+            ],
+            "day": [
+              "甲",
+              "丙",
+              "戊"
+            ],
+            "hour": [
+              "丁",
+              "己"
+            ]
+          }
+        },
+        "expected": {
+          "state": "transform_candidate",
+          "status": "guarded_candidate",
+          "failureExplanation": "丙辛合水，月令与根气支持水，但水未透干，只能列成化候选。"
+        }
+      },
+      {
+        "id": "combine_transform_success_contract",
+        "source": {
+          "type": "synthetic_evaluator_fixture",
+          "privacy": "no_real_person_data",
+          "license": "project-owned fixture",
+          "productionUse": "test_only_not_runtime_oracle"
+        },
+        "raw": {
+          "fourPillars": {
+            "year": {
+              "stem": "甲",
+              "branch": "子"
+            },
+            "month": {
+              "stem": "己",
+              "branch": "辰"
+            },
+            "day": {
+              "stem": "丙",
+              "branch": "午"
+            },
+            "hour": {
+              "stem": "辛",
+              "branch": "酉"
+            }
+          },
+          "hiddenStems": {
+            "year": [
+              "癸"
+            ],
+            "month": [
+              "戊",
+              "乙",
+              "癸"
+            ],
+            "day": [
+              "丁",
+              "己"
+            ],
+            "hour": [
+              "辛"
+            ]
+          }
+        },
+        "expected": {
+          "state": "transform_success",
+          "status": "formed_candidate",
+          "failureExplanation": "甲己合土，月令辰土支持，己土透出且月支通根，无阻隔，满足成化成立 contract。"
+        }
+      },
+      {
+        "id": "combine_transform_broken_contract",
+        "source": {
+          "type": "synthetic_evaluator_fixture",
+          "privacy": "no_real_person_data",
+          "license": "project-owned fixture",
+          "productionUse": "test_only_not_runtime_oracle"
+        },
+        "raw": {
+          "fourPillars": {
+            "year": {
+              "stem": "甲",
+              "branch": "子"
+            },
+            "month": {
+              "stem": "己",
+              "branch": "辰"
+            },
+            "day": {
+              "stem": "丙",
+              "branch": "午"
+            },
+            "hour": {
+              "stem": "辛",
+              "branch": "酉"
+            }
+          },
+          "hiddenStems": {
+            "year": [
+              "癸"
+            ],
+            "month": [
+              "戊",
+              "乙",
+              "癸"
+            ],
+            "day": [
+              "丁",
+              "己"
+            ],
+            "hour": [
+              "辛"
+            ]
+          },
+          "branchRelations": {
+            "conflictsDetail": [
+              {
+                "rel": "冲",
+                "from": "year",
+                "to": [
+                  "month"
+                ],
+                "text": "年支冲月支，阻隔甲己合化"
+              }
+            ]
+          }
+        },
+        "expected": {
+          "state": "transform_broken",
+          "status": "guarded_candidate",
+          "failureExplanation": "甲己合土原有成化条件，但合化双方位置存在冲破阻隔，必须降为破化。"
+        }
+      }
+    ]
+  }
 }

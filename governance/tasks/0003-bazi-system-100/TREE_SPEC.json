@@ -241,8 +241,8 @@
         "TP-01",
         "TP-02"
       ],
-      "status": "In Progress",
-      "evidence": "2026-06-16：TP-03.01/TP-03.02 完成；高级格局矩阵和候选成熟度输出已接通。"
+      "status": "Done",
+      "evidence": "2026-06-16：TP-03.01/TP-03.02/TP-03.03 均完成；高级格局 contract、evaluator、golden 反例已验收。"
     },
     {
       "id": "TP-03.01",
@@ -300,7 +300,8 @@
       "outputs": [
         "domains/fate-analysis/data-products/bazi/golden/rule_depth_cases.json"
       ],
-      "status": "Not Started"
+      "status": "Done",
+      "evidence": "2026-06-16：rule_depth_cases.json 锁定 specialPatternStatuses 和 specialPatternRiskBoundary；聚合覆盖 从格/化气/专旺/假从/从杀/从财；38 passed, 1 skipped。"
     },
     {
       "id": "TP-04",
@@ -313,8 +314,8 @@
         "TP-01",
         "TP-02"
       ],
-      "status": "In Progress",
-      "evidence": "2026-06-16：TP-04.01/TP-04.02 完成；合化条件链和 evaluator state 输出已接通。"
+      "status": "Done",
+      "evidence": "2026-06-16：TP-04.01/TP-04.02/TP-04.03 均完成；合化 contract、evaluator state 和四类 state golden 已验收。"
     },
     {
       "id": "TP-04.01",
@@ -371,7 +372,8 @@
       "outputs": [
         "domains/fate-analysis/data-products/bazi/golden/*"
       ],
-      "status": "Not Started"
+      "status": "Done",
+      "evidence": "2026-06-16：rule_depth_cases.json 新增 combineTransform evaluatorStateCases，覆盖 structural_relation/transform_candidate/transform_success/transform_broken 且逐条有 failureExplanation。"
     },
     {
       "id": "TP-05",
@@ -384,8 +386,8 @@
         "TP-01",
         "TP-02"
       ],
-      "status": "In Progress",
-      "evidence": "2026-06-16：TP-05.01/TP-05.02 完成；用神并列策略、评分依据和冲突政策已进入 evaluator 输出。"
+      "status": "Done",
+      "evidence": "2026-06-16：TP-05.01/TP-05.02/TP-05.03 均完成；用神策略矩阵、evaluator 和 golden 策略顺序已验收。"
     },
     {
       "id": "TP-05.01",
@@ -442,7 +444,8 @@
       "outputs": [
         "domains/fate-analysis/data-products/bazi/golden/rule_depth_cases.json"
       ],
-      "status": "Not Started"
+      "status": "Done",
+      "evidence": "2026-06-16：rule_depth_cases.json 锁定 yongShenStrategyOrder 和 yongShenRiskBoundary；29 passed。"
     },
     {
       "id": "TP-06",
@@ -456,7 +459,8 @@
         "TP-04",
         "TP-05"
       ],
-      "status": "Not Started"
+      "status": "Not Started",
+      "evidence": "下一步可执行 TP-06.01。"
     },
     {
       "id": "TP-06.01",
