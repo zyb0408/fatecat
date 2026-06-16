@@ -109,6 +109,13 @@ def test_rule_depth_registry_declares_owner_and_extension_gate():
         assert set(rule["sourceRuleIds"]) <= classics
 
 
+def test_rule_policy_assets_use_boundary_language_without_high_risk_suggestion_terms():
+    forbidden_terms = {"医疗建议", "投资建议", "法律建议", "心理建议", "保证", "必然", "灾祸"}
+    for name in ("classics_rule_index.json", "rule_depth_registry.json"):
+        rendered = json.dumps(_load_json(name), ensure_ascii=False)
+        assert not any(term in rendered for term in forbidden_terms), name
+
+
 def test_future_features_have_owner_and_cannot_auto_return_to_standard_report():
     registry = _load_json("future_features.json")
     policy = registry["governance"]["extensionPolicy"]

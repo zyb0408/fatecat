@@ -604,8 +604,8 @@
         "TP-06",
         "TP-07"
       ],
-      "status": "In Progress",
-      "evidence": "2026-06-16：TP-08.01 报告字段契约完成；风险话术和免责声明回归继续推进。"
+      "status": "Done",
+      "evidence": "2026-06-16：TP-08.01/TP-08.02 均完成；报告字段契约、风险话术和免责声明回归已落地。"
     },
     {
       "id": "TP-08.01",
@@ -644,8 +644,8 @@
         "policy tests",
         "report risk boundary"
       ],
-      "status": "Not Started",
-      "evidence": "下一步 P1 主线。"
+      "status": "Done",
+      "evidence": "2026-06-16：classics/rule-depth 风险话术统一为边界语言；新增 policy test 防止医疗/金融/法律/心理替代建议和保证类词回潮；指定 regression 45 passed。"
     },
     {
       "id": "TP-09",
@@ -700,7 +700,7 @@
         "governance/tasks/0003-bazi-system-100/EVALUATOR_BOUNDARIES.md"
       ],
       "status": "Not Started",
-      "evidence": "依赖已满足，低于 TP-06.02 P0 主线优先级。"
+      "evidence": "下一步维护边界任务。"
     },
     {
       "id": "TP-10",

@@ -459,15 +459,15 @@
 ## TP-08
 - 标题: 报告和 API 证据化 100%
 - 验收项:
-  - [ ] `报告和 API 证据化 100%` 达到其 objective，且依赖关系保持一致
+  - [x] `报告和 API 证据化 100%` 达到其 objective，且依赖关系保持一致
 - Verify: 核对目标完成并补充执行证据
 - Gate: 任务目标与上下文已确认
 - 输出物:
-  - [ ] 确保 Web/API/Markdown 报告只展示可追溯结论，并能暴露必要证据和边界
+  - [x] 确保 Web/API/Markdown 报告只展示可追溯结论，并能暴露必要证据和边界
 - 标准清单:
-  - [ ] Verify: 核对目标完成并补充执行证据
-  - [ ] Gate: 任务目标与上下文已确认
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: 核对目标完成并补充执行证据
+  - [x] Gate: 任务目标与上下文已确认
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-08.01
@@ -487,16 +487,16 @@
 ### TP-08.02
 - 标题: 风险话术和免责声明回归
 - 验收项:
-  - [ ] `风险话术和免责声明回归` 达到其 objective，且依赖关系保持一致
+  - [x] `风险话术和免责声明回归` 达到其 objective，且依赖关系保持一致
 - Verify: .venv/bin/python -m pytest tests/regression/test_fate_policy_assets.py tests/regression/test_api_contracts.py -q
 - Gate: 禁止医疗/金融/法律/心理替代建议；风险边界字段可追溯
 - 输出物:
-  - [ ] policy tests
-  - [ ] report risk boundary
+  - [x] policy tests
+  - [x] report risk boundary
 - 标准清单:
-  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_fate_policy_assets.py tests/regression/test_api_contracts.py -q
-  - [ ] Gate: 禁止医疗/金融/法律/心理替代建议；风险边界字段可追溯
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: .venv/bin/python -m pytest tests/regression/test_fate_policy_assets.py tests/regression/test_api_contracts.py -q
+  - [x] Gate: 禁止医疗/金融/法律/心理替代建议；风险边界字段可追溯
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ## TP-09
