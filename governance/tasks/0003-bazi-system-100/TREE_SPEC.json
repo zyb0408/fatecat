@@ -604,8 +604,8 @@
         "TP-06",
         "TP-07"
       ],
-      "status": "Not Started",
-      "evidence": "下一步可执行 TP-08.01。"
+      "status": "In Progress",
+      "evidence": "2026-06-16：TP-08.01 报告字段契约完成；风险话术和免责声明回归继续推进。"
     },
     {
       "id": "TP-08.01",
@@ -624,8 +624,8 @@
       "outputs": [
         "API/Web/Markdown report contract"
       ],
-      "status": "Not Started",
-      "evidence": "下一步 P1 主线。"
+      "status": "Done",
+      "evidence": "2026-06-16：新增 REPORT_FIELD_CONTRACT.md；API 测试锁高级格局、合化、用神、岁运、专题 profile 和 ruleDepth 字段；Web/Markdown 合同回归 40 passed。"
     },
     {
       "id": "TP-08.02",
@@ -644,7 +644,8 @@
         "policy tests",
         "report risk boundary"
       ],
-      "status": "Not Started"
+      "status": "Not Started",
+      "evidence": "下一步 P1 主线。"
     },
     {
       "id": "TP-09",

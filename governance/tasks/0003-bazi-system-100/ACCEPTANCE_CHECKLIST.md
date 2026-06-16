@@ -473,15 +473,15 @@
 ### TP-08.01
 - 标题: 报告字段契约
 - 验收项:
-  - [ ] `报告字段契约` 达到其 objective，且依赖关系保持一致
+  - [x] `报告字段契约` 达到其 objective，且依赖关系保持一致
 - Verify: .venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_web_html.py -q
 - Gate: 核心结果由服务端写入页面；证据块默认可折叠；无未登记断语
 - 输出物:
-  - [ ] API/Web/Markdown report contract
+  - [x] API/Web/Markdown report contract
 - 标准清单:
-  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_web_html.py -q
-  - [ ] Gate: 核心结果由服务端写入页面；证据块默认可折叠；无未登记断语
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: .venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_web_html.py -q
+  - [x] Gate: 核心结果由服务端写入页面；证据块默认可折叠；无未登记断语
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-08.02

@@ -54,6 +54,45 @@ def test_pure_analysis_api_returns_success():
     assert "jianChu" not in body["data"]
 
 
+def test_pure_analysis_api_exposes_advanced_bazi_report_field_contract():
+    response = TestClient(app).post("/api/v1/bazi/pure-analysis", json=_payload())
+
+    assert response.status_code == 200
+    data = response.json()["data"]
+    benchmark = data["baziBenchmark"]
+    special = benchmark["patternRegistry"]["specialPatternCandidates"]
+    combine = benchmark["combineTransformMatrix"]
+    decision = benchmark["yongShenDecision"]
+    topics = benchmark["topicProfiles"]
+    rule_depth = data["baziRuleDepth"]
+
+    assert special["schemaVersion"] == 1
+    assert special["candidates"]
+    assert special["riskBoundary"]
+    assert all(candidate["status"] in {"candidate", "guarded", "not_supported"} for candidate in special["candidates"])
+
+    assert combine["schemaVersion"] == 1
+    assert combine["stateCatalog"]
+    assert combine["riskBoundary"]
+    assert all(candidate["state"] in combine["stateCatalog"] for candidate in combine["candidates"])
+
+    assert decision["primaryStrategy"]
+    assert decision["riskBoundary"]
+    assert {item["strategy"] for item in decision["scoredStrategies"]} == {"调候", "扶抑", "通关", "病药"}
+    assert all(item["evidenceFields"] and item["conflictPolicy"] for item in decision["scoredStrategies"])
+
+    assert {item["topic"] for item in topics} >= {"事业", "财运", "婚姻", "健康", "学业", "迁移", "家庭"}
+    for item in topics:
+        assert item["lifecycle"] in {"beta", "production"}
+        assert item["basis"]
+        assert item["scoreBasis"]
+        assert item["evidenceFields"]
+        assert item["riskBoundary"]
+
+    assert rule_depth["combinationStatements"]
+    assert all(item["ruleIds"] and item["riskBoundary"] for item in rule_depth["combinationStatements"])
+
+
 def test_health_adds_public_service_security_headers():
     response = TestClient(app).get("/health")
 
