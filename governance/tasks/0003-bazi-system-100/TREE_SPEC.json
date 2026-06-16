@@ -1,0 +1,727 @@
+{
+  "schema_version": "1.0.0",
+  "overall_status": "In Progress",
+  "document_blocks": {
+    "in_scope": "- FateCat 八字体系从当前综合约 76% 推进到可审查、可验证、可维护的 100% 任务完成状态\n- 覆盖基础排盘、历法时间边界、证据化、常规分析、高级格局、合化成败、用神裁决、岁运专题、golden/回归、样本外 benchmark\n- 只用本地 CI/CD、本仓 contracts/data-products/tests/governance 证据和已登记参考源；不跑 GitHub Acceptance\n- 输出任务树、材料资源图、执行波次、验收门槛和后续实现路径",
+    "out_of_scope": "- 不宣称命理预测绝对正确或 MingLi-Bench 命中率 100%\n- 不把无 license 的参考仓库扩散为生产依赖\n- 不在本计划阶段直接大规模重写 bazi_calculator.py\n- 不把公共服务公网、Bot token、交易/金融系统能力纳入本任务\n- 不引入重型规则引擎，除非 registry/evaluator 复杂度被实测证明需要",
+    "requirement_alignment": "- 用户要求：先提交控制版本，再设计八字体系推进到 100% 的落地计划\n- 已完成版本控制：commit `1865e3d chore: checkpoint fatecat quality hardening`\n- 当前基线：综合约 76%；基础排盘接近 90%，专业完整度约 65%，MingLi sample 10 accuracy 30%\n- 本任务目标：把缺口从感性描述转成 TP-XX 任务树、资源使用策略、验收命令和 Done/Blocked 判定",
+    "repo_evidence": "- 仓库根：/home/lenovo/.projects/fatecat\n- 当前任务索引：0001 Blocked，0002 In Progress，0003 本任务 Planning/In Progress\n- 已有规则资产：contracts/fate/rule_depth_registry.json 44 条，contracts/fate/classics_rule_index.json 98 条\n- 已有数据资产：coverage_matrix_cases.json 300+ synthetic golden，calendar_boundary_cases.json，rule_depth_cases.json，statement_cases.json\n- 已有评测资产：MingLi-Bench 本地 160 题；scripts/generate-mingli-predictions.sh；fate_core.evaluation.mingli_baseline\n- 已登记参考源：lunar-python production_dependency；sxtwl/sxwnl/paipan/bazica oracle_only；bazi-1 reference_only；MingLi-Bench evaluation_only",
+    "constraints_matrix": "- 允许：修改 governance/tasks/0003-bazi-system-100/ 与 governance/tasks/INDEX.md；后续执行叶子可按节点声明修改 contracts、data-products、fate-core、tests、docs\n- 禁止：破坏 checkpoint commit、执行破坏性 git 命令、伪造 benchmark 准确率、复制大段典籍原文、引入无许可生产依赖\n- 依赖：lunar-python 主链；sxtwl/sxwnl/paipan/bazica 做 oracle；MingLi-Bench 做 evaluation；本地 CI quick/full/deep 分层验证\n- HITL：若需要专家命例标注、真实命例授权或人工评审，必须标 Blocked/HITL，不得硬编数据",
+    "change_boundary": "- 计划阶段只写任务容器；实现阶段每次只执行当前 ready 叶子节点\n- 命理规则变化必须先进入 classics_rule_index 或 rule_depth_registry，再接 evaluator/report，最后补测试\n- 任何报告断语必须保留 sourceRuleId、evidenceFields、riskBoundary 和 falsifier\n- 高级格局、合化、用神、岁运专题不得直接写成不可反驳结论",
+    "risk_matrix": "- P0：把 100% 误解为预测绝对准确，会导致产品口径失真\n- P0：用无来源规则或无 license 文本扩写专业能力，会破坏治理和可信度\n- P0：benchmark 使用答案泄漏，会污染样本外评估\n- P1：继续堆核心大文件，会让规则体系不可维护\n- P1：全量 golden 过慢，会拖垮日常 CI，需要 deep/release 分片\n- P2：过早引入重型规则引擎，会增加所有权面而不提升准确率",
+    "assumptions_and_falsification": "- 假设：当前 76% 估算可作为计划基线，但必须由 SCORECARD.md 和实测命令重新固化\n- 反证：若 full MingLi 评测低于随机基线或分类报告无法解释失败，则专题推理不能计入 100%\n- 反证：若高级规则没有 appliesWhen/doesNotApplyWhen/golden 反例，则不能标 Done\n- 反证：若 golden/oracle 不一致且无法解释，则必须转 DEBUG.md，不得继续加规则\n- 反证：若本地 quick/full 失败，则最终 REVIEW/SHIP 不得通过",
+    "critical_ambiguities": "- 真实专业命例授权与专家标注暂不可用；本任务先使用匿名 synthetic golden、MingLi-Bench 和公开典籍短规则索引\n- MingLi 准确率目标需要分阶段设定：先超过弱 baseline，再按分类推进；不能承诺 100% 命中\n- 典籍材料只允许短摘要和规则索引，不允许复制长段原文或商业断语模板",
+    "debug_evidence_contract": "- 调试模式: Optional\n- 任一 golden/oracle/MingLi/full pytest/local-ci 失败即转 Required\n- DEBUG.md 必须记录失败样本、盘面输入、期望、实际、规则链、根因和回归命令",
+    "task_level_acceptance": "- 10 个能力维度都有 scorecard、规则/数据/测试/报告/benchmark 对应节点\n- 每个叶子节点有 Verify、Gate、输出物和 Done/Blocked 判定\n- 计划完成后 `validate_task_docs.py --phase decompose` 通过\n- 执行完成后基础排盘、专业规则、专题推理、样本外 benchmark 和报告证据均有本地可重复命令\n- 最终可声明的是八字体系工程验收 100%，不是预测命中率 100%",
+    "validation_plan": "- 计划阶段：apply_task_tree + validate_task_docs --phase decompose + git diff --check\n- 基础阶段：calendar/oracle/golden regression + full golden shard deep gate\n- 规则阶段：json schema、rule registry、policy assets、rule-depth tests\n- 专题阶段：MingLi full 160 predictions + by-category evaluation + failure taxonomy\n- 报告阶段：API/Web/Markdown 输出 evidence/riskBoundary 回归\n- 最终阶段：local-ci quick/full，active principle gate，auto-review 六维审查",
+    "review_gate": "- correctness：四柱、节气、起运、规则条件和 benchmark 不能答案泄漏\n- reliability：deep golden 可分片，失败样本可定位\n- maintainability：新增规则进入 registry/evaluator，不继续堆大函数\n- architecture：evaluation 不反向进入 production kernel；oracle 不进入主链\n- security/compliance：license、隐私、免责声明、非医疗/金融/法律建议边界必须保留\n- future-optimal：目标是规则证据系统，不是短期关键词 baseline\n- ponytail：新增对象必须有当前消费者、验证命令和删除/升级条件",
+    "ship_readiness": "- Planning Done：0003 任务树通过 decompose 校验，checkpoint commit 后工作树只含 0003 计划改动\n- Build Done：所有 P0/P1 叶子 Done，P2 可有明确 backlog\n- Evidence Done：SCORECARD、RESOURCE_MAP、MingLi full report、golden shard report、rule registry diff、报告证据测试齐备\n- Review Done：无 active BLOCK；WARN 有 owner 和后续任务\n- Ship Done：本地 quick/full PASS；deep gates 有可复现证据或明确耗时预算",
+    "global_acceptance_standards": "- [ ] 任何 100% 结论都有可执行命令或可检查文件\n- [ ] 任一高级规则都有 sourceRuleId、conditions、doesNotApplyWhen、riskBoundary\n- [ ] 任一专题断法都有 benchmark/golden 或明确 evidence_seed 边界\n- [ ] MingLi 评估按 total/answered/correct/accuracy/byCategory 输出\n- [ ] full golden 不进入 quick；deep/release 使用 shard 或预算说明\n- [ ] 无 license 参考源不作为 production dependency\n- [ ] 新增代码/文档同步 AGENTS.md 或任务上下文",
+    "planning_summary": "本任务按 100% scorecard -> 材料资源图 -> 基础排盘与时间边界 -> 规则来源矩阵 -> 高级格局 -> 合化成败 -> 用神裁决 -> 岁运专题 -> benchmark/golden -> 报告证据 -> 维护性 -> 最终 review 的顺序推进。",
+    "lifecycle_gates": "- SPEC：100% 定义、非目标、反证和材料边界已写入任务文档\n- PLAN：TREE_SPEC.json 渲染成可执行 TP 树，ready queue 明确\n- BUILD：按 wave 执行叶子节点，不跨包混改\n- TEST：每个叶子节点有本地命令或可审查产物\n- REVIEW：关键能力面跑 auto-review / principle gate / policy tests\n- SHIP：只在 P0/P1 完成且本地 gate 通过时关闭任务；命中率未达标则保留 WARN 不强宣 100%\n- 禁止跳过未闭合 gate 直接前进",
+    "simplest_path": "先冻结当前 checkpoint，再把 100% 拆成可执行 scorecard；优先补材料、规则和评测门禁，再做引擎实现；用失败最多的 MingLi 分类指导专题优先级，避免平均用力。",
+    "split_strategy": "按能力维度拆顶层包；每个顶层包拆成 source/implementation/golden/benchmark/report 四类叶子；执行波次先打地基，再实现规则，再接 benchmark 和报告，最后审查。",
+    "blockers": "- 无当前硬阻塞；真实专家命例和人工标注属于后续 HITL 增强，不阻塞本地任务树设计。"
+  },
+  "nodes": [
+    {
+      "id": "TP-00",
+      "title": "版本与基线控制面",
+      "priority": "P0",
+      "type": "package",
+      "objective": "在干净版本边界上建立八字 100% 的 scorecard 和当前缺口基线",
+      "parent": "ROOT",
+      "status": "In Progress"
+    },
+    {
+      "id": "TP-00.01",
+      "title": "提交当前质量 hardening checkpoint",
+      "priority": "P0",
+      "type": "action",
+      "objective": "在设计新任务前提交现有大批改动，隔离后续八字 100% 计划",
+      "parent": "TP-00",
+      "parallelizable": false,
+      "verify": "git log --oneline -1 && git status --short",
+      "gate": "最新提交为质量 hardening checkpoint，且提交后可明确区分 0003 新改动",
+      "outputs": [
+        "git commit checkpoint"
+      ],
+      "acceptance": [
+        "commit hash 可追溯",
+        "后续 0003 计划改动不混入 checkpoint"
+      ],
+      "status": "Done",
+      "evidence": "2026-06-16：已提交 `1865e3d chore: checkpoint fatecat quality hardening`。"
+    },
+    {
+      "id": "TP-00.02",
+      "title": "建立八字 100% scorecard",
+      "priority": "P0",
+      "type": "action",
+      "objective": "把当前 10 个完成度维度固化为 SCORECARD，并定义每个维度达到 100% 的证据门槛",
+      "parent": "TP-00",
+      "depends_on": [
+        "TP-00.01"
+      ],
+      "parallelizable": false,
+      "verify": "test -s governance/tasks/0003-bazi-system-100/SCORECARD.md && rg '基础排盘|高级格局|MingLi|100%' governance/tasks/0003-bazi-system-100/SCORECARD.md",
+      "gate": "每个维度有 current%、target evidence、verify command、falsifier",
+      "outputs": [
+        "governance/tasks/0003-bazi-system-100/SCORECARD.md"
+      ],
+      "acceptance": [
+        "100% 是工程验收定义，不是预测绝对准确",
+        "MingLi 准确率目标分阶段记录"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-00.03",
+      "title": "生成当前能力基线证据",
+      "priority": "P0",
+      "type": "action",
+      "objective": "用命令重新确认当前规则数、golden 数、MingLi 结果和本地 CI 状态，作为后续推进基线",
+      "parent": "TP-00",
+      "depends_on": [
+        "TP-00.02"
+      ],
+      "parallelizable": false,
+      "verify": "bash scripts/generate-mingli-predictions.sh --year 2025 --sample 10 --output-jsonl /tmp/fatecat-mingli-baseline.jsonl && bash scripts/run-mingli-bench.sh --year 2025 --sample 10 --predictions-file /tmp/fatecat-mingli-baseline.jsonl --output-json /tmp/fatecat-mingli-baseline.json",
+      "gate": "baseline report 记录 total/answered/correct/accuracy/byCategory，且不把 sample 10 当最终能力",
+      "outputs": [
+        "governance/tasks/0003-bazi-system-100/BASELINE_EVIDENCE.md"
+      ],
+      "acceptance": [
+        "当前 76% 估算有命令证据支撑",
+        "失败最多的专题分类进入后续优先级"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-01",
+      "title": "材料与资源治理",
+      "priority": "P0",
+      "type": "package",
+      "objective": "明确哪些库、典籍、benchmark 和 oracle 用于补齐 100%，以及每类资源的生产边界",
+      "parent": "ROOT",
+      "depends_on": [
+        "TP-00"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-01.01",
+      "title": "整理资源地图",
+      "priority": "P0",
+      "type": "action",
+      "objective": "把 lunar-python、sxtwl/sxwnl、paipan、bazica、bazi-1、MingLi-Bench、本地典籍映射到能力缺口",
+      "parent": "TP-01",
+      "depends_on": [
+        "TP-00.03"
+      ],
+      "parallelizable": true,
+      "verify": "test -s governance/tasks/0003-bazi-system-100/RESOURCE_MAP.md && rg 'lunar-python|MingLi-Bench|oracle_only|reference_only' governance/tasks/0003-bazi-system-100/RESOURCE_MAP.md",
+      "gate": "每个资源有 usageRole、license boundary、可补能力和禁止用途",
+      "outputs": [
+        "governance/tasks/0003-bazi-system-100/RESOURCE_MAP.md"
+      ],
+      "acceptance": [
+        "无 license 资源只标 reference_only",
+        "oracle 不进入生产主链"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-01.02",
+      "title": "建立规则来源覆盖矩阵",
+      "priority": "P0",
+      "type": "action",
+      "objective": "把 98 条 classics rule 与 44 条 rule-depth 规则按高级格局、合化、用神、岁运专题分组",
+      "parent": "TP-01",
+      "depends_on": [
+        "TP-01.01"
+      ],
+      "parallelizable": true,
+      "verify": "python3 -m json.tool contracts/fate/classics_rule_index.json >/dev/null && python3 -m json.tool contracts/fate/rule_depth_registry.json >/dev/null",
+      "gate": "每个待实现专业能力至少有候选 sourceRuleId；缺口列入 RULE_SOURCE_GAPS.md",
+      "outputs": [
+        "governance/tasks/0003-bazi-system-100/RULE_SOURCE_GAPS.md"
+      ],
+      "acceptance": [
+        "缺失来源不能进入实现",
+        "规则来源只保留短摘要和条件"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-02",
+      "title": "基础排盘与时间边界 100%",
+      "priority": "P0",
+      "type": "package",
+      "objective": "把基础排盘从约 90% 推到可审计 100%，重点补节气、真太阳时、早晚子时、起运和跨时区边界",
+      "parent": "ROOT",
+      "depends_on": [
+        "TP-01"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-02.01",
+      "title": "历法 oracle 覆盖审计",
+      "priority": "P0",
+      "type": "action",
+      "objective": "检查 lunar-python 主链与 sxtwl/sxwnl/paipan/bazica oracle 的覆盖范围和差异点",
+      "parent": "TP-02",
+      "depends_on": [
+        "TP-01.01"
+      ],
+      "parallelizable": true,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_calendar_oracle_contract.py tests/regression/test_solar_terms_golden.py -q",
+      "gate": "oracle 只用于测试/评估；差异样本有 failureExplanation",
+      "outputs": [
+        "governance/tasks/0003-bazi-system-100/CALENDAR_ORACLE_AUDIT.md"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-02.02",
+      "title": "扩展时间边界 golden",
+      "priority": "P0",
+      "type": "action",
+      "objective": "补充节气交界、立春年界、早晚子时、真太阳时、跨时区/DST、起运边界样本",
+      "parent": "TP-02",
+      "depends_on": [
+        "TP-02.01"
+      ],
+      "parallelizable": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_calendar_oracle_contract.py tests/regression/test_solar_terms_golden.py -q",
+      "gate": "新增边界样本均有 source、expected、failureExplanation 和 privacy/license 说明",
+      "outputs": [
+        "domains/fate-analysis/data-products/bazi/golden/*",
+        "tests/regression/test_*calendar*.py"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-02.03",
+      "title": "全量 golden deep gate 性能预算",
+      "priority": "P1",
+      "type": "action",
+      "objective": "把 300+ golden 从 36m 单块慢测治理成可分片、可定位、可预算的 deep gate",
+      "parent": "TP-02",
+      "depends_on": [
+        "TP-02.02"
+      ],
+      "parallelizable": false,
+      "verify": "FATECAT_RUN_FULL_GOLDEN_MATRIX=1 FATECAT_GOLDEN_SHARD_TOTAL=4 FATECAT_GOLDEN_SHARD_INDEX=0 .venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py -q",
+      "gate": "deep gate 有 shard、case-level timing 或明确耗时预算；quick 不跑全量",
+      "outputs": [
+        "governance/tasks/0003-bazi-system-100/GOLDEN_DEEP_GATE.md"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-03",
+      "title": "高级格局规则体系",
+      "priority": "P0",
+      "type": "package",
+      "objective": "把高级格局从约 58% 推到规则来源、条件链、反例和报告边界齐备",
+      "parent": "ROOT",
+      "depends_on": [
+        "TP-01",
+        "TP-02"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-03.01",
+      "title": "格局分类语法矩阵",
+      "priority": "P0",
+      "type": "action",
+      "objective": "定义正格、变格、从格、假从、专旺、化气的 appliesWhen/doesNotApplyWhen 条件和冲突优先级",
+      "parent": "TP-03",
+      "depends_on": [
+        "TP-01.02"
+      ],
+      "parallelizable": false,
+      "verify": "python3 -m json.tool contracts/fate/rule_depth_registry.json >/dev/null && rg '从格|化气|专旺|假从|格局正变' contracts/fate -n",
+      "gate": "每类格局有 sourceRuleId、成立条件、破格条件、riskBoundary",
+      "outputs": [
+        "contracts/fate/rule_depth_registry.json",
+        "contracts/fate/classics_rule_index.json"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-03.02",
+      "title": "格局 evaluator 与候选成熟度",
+      "priority": "P0",
+      "type": "action",
+      "objective": "把特殊格局候选从保护层推进为可解释 evaluator，保持未满足条件时不强断",
+      "parent": "TP-03",
+      "depends_on": [
+        "TP-03.01"
+      ],
+      "parallelizable": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_fate_policy_assets.py -q",
+      "gate": "candidate/guarded/not_supported 状态由条件链决定，不由文案硬写",
+      "outputs": [
+        "fate_core usecase/kernel evaluator",
+        "rule-depth regression"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-03.03",
+      "title": "高级格局 golden 与反例",
+      "priority": "P0",
+      "type": "action",
+      "objective": "为每类高级格局补正例、反例、破格例、缺条件例 golden",
+      "parent": "TP-03",
+      "depends_on": [
+        "TP-03.02"
+      ],
+      "parallelizable": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q",
+      "gate": "每类高级格局至少有可回归样本；无样本能力只能保持 beta/evidence_seed",
+      "outputs": [
+        "domains/fate-analysis/data-products/bazi/golden/rule_depth_cases.json"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-04",
+      "title": "合化成败引擎",
+      "priority": "P0",
+      "type": "package",
+      "objective": "把合化成败从约 60% 推到月令、透干、通根、得令、阻隔、帮扶、冲破条件链完整",
+      "parent": "ROOT",
+      "depends_on": [
+        "TP-01",
+        "TP-02"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-04.01",
+      "title": "合化条件链 registry",
+      "priority": "P0",
+      "type": "action",
+      "objective": "把合象、可化、成化、破化、争合、阻隔、被冲破写成规则条件和证据字段",
+      "parent": "TP-04",
+      "depends_on": [
+        "TP-01.02"
+      ],
+      "parallelizable": false,
+      "verify": "rg '合化|成化|破化|阻隔|争合' contracts/fate -n && python3 -m json.tool contracts/fate/rule_depth_registry.json >/dev/null",
+      "gate": "合化规则不再只有保护文案；每个状态有证据字段和反例条件",
+      "outputs": [
+        "contracts/fate/rule_depth_registry.json"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-04.02",
+      "title": "合化 evaluator 与优先级",
+      "priority": "P0",
+      "type": "action",
+      "objective": "实现合化状态评估，和三会三合六合冲刑害破优先级共存",
+      "parent": "TP-04",
+      "depends_on": [
+        "TP-04.01"
+      ],
+      "parallelizable": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q",
+      "gate": "输出区分 structural_relation、transform_candidate、transform_success、transform_broken",
+      "outputs": [
+        "fate_core combine transform evaluator",
+        "API/rule-depth regression"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-04.03",
+      "title": "合化 golden 反例集",
+      "priority": "P0",
+      "type": "action",
+      "objective": "补合而不化、得令成化、阻隔不化、冲破破化、争合降级等 golden",
+      "parent": "TP-04",
+      "depends_on": [
+        "TP-04.02"
+      ],
+      "parallelizable": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q",
+      "gate": "每类合化状态至少有一组回归样本和 failureExplanation",
+      "outputs": [
+        "domains/fate-analysis/data-products/bazi/golden/*"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-05",
+      "title": "用神裁决体系",
+      "priority": "P0",
+      "type": "package",
+      "objective": "把用神裁决从约 64% 推到调候、扶抑、通关、病药并列策略和冲突裁决完整",
+      "parent": "ROOT",
+      "depends_on": [
+        "TP-01",
+        "TP-02"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-05.01",
+      "title": "用神策略评分矩阵",
+      "priority": "P0",
+      "type": "action",
+      "objective": "固化调候、扶抑、通关、病药的证据字段、权重、冲突策略和不适用条件",
+      "parent": "TP-05",
+      "depends_on": [
+        "TP-01.02"
+      ],
+      "parallelizable": false,
+      "verify": "rg '调候|扶抑|通关|病药|用神' contracts/fate -n && python3 -m json.tool contracts/fate/rule_depth_registry.json >/dev/null",
+      "gate": "每种策略有 appliesWhen、doesNotApplyWhen、score basis、conflictPolicy",
+      "outputs": [
+        "contracts/fate/rule_depth_registry.json"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-05.02",
+      "title": "用神冲突裁决 evaluator",
+      "priority": "P0",
+      "type": "action",
+      "objective": "把调候优先、扶抑校正、通关桥接、病药定位做成可解释排序和冲突原因输出",
+      "parent": "TP-05",
+      "depends_on": [
+        "TP-05.01"
+      ],
+      "parallelizable": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_fate_policy_assets.py -q",
+      "gate": "报告/API 保留并列策略，不用单一用神覆盖全部",
+      "outputs": [
+        "fate_core yongshen decision evaluator",
+        "rule-depth tests"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-05.03",
+      "title": "用神裁决 golden",
+      "priority": "P0",
+      "type": "action",
+      "objective": "补寒暖优先、身强身弱、五行偏枯、通关冲突、病药明显等用神 case",
+      "parent": "TP-05",
+      "depends_on": [
+        "TP-05.02"
+      ],
+      "parallelizable": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_golden_coverage_matrix.py tests/regression/test_bazi_ziwei_rule_depth.py -q",
+      "gate": "每类用神冲突有 expected strategy order 和 riskBoundary",
+      "outputs": [
+        "domains/fate-analysis/data-products/bazi/golden/rule_depth_cases.json"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-06",
+      "title": "岁运与专题推理",
+      "priority": "P0",
+      "type": "package",
+      "objective": "把岁运专题从约 55% 推到事业、财运、婚姻、健康、学业、迁移、家庭均有规则证据和 benchmark 反馈",
+      "parent": "ROOT",
+      "depends_on": [
+        "TP-03",
+        "TP-04",
+        "TP-05"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-06.01",
+      "title": "岁运触发规则矩阵",
+      "priority": "P0",
+      "type": "action",
+      "objective": "补大运、流年、流月、伏吟反吟、天克地冲、刑冲合害的动态触发规则",
+      "parent": "TP-06",
+      "depends_on": [
+        "TP-03.03",
+        "TP-04.03",
+        "TP-05.03"
+      ],
+      "parallelizable": false,
+      "verify": "rg '大运|流年|流月|伏吟|反吟|岁运' contracts/fate domains/fate-analysis/services/fate-core/src -n",
+      "gate": "动态触发只作趋势证据，不输出确定未来",
+      "outputs": [
+        "contracts/fate/rule_depth_registry.json",
+        "fate_core fortune trigger evaluator"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-06.02",
+      "title": "专题 profile 推理器",
+      "priority": "P0",
+      "type": "action",
+      "objective": "为事业、财运、婚姻、健康、学业、迁移、家庭建立 topic profile evaluator 和风险边界",
+      "parent": "TP-06",
+      "depends_on": [
+        "TP-06.01"
+      ],
+      "parallelizable": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_mingli_bench_gate.py -q",
+      "gate": "每个专题 profile 有 score、basis、evidenceFields、riskBoundary 和 beta/production lifecycle",
+      "outputs": [
+        "topic profile evaluator",
+        "MingLi category mapping"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-06.03",
+      "title": "专题报告边界",
+      "priority": "P1",
+      "type": "action",
+      "objective": "把健康、财富、婚恋等高风险专题的免责声明、非建议边界和证据可见性接入报告",
+      "parent": "TP-06",
+      "depends_on": [
+        "TP-06.02"
+      ],
+      "parallelizable": true,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_web_html.py tests/regression/test_fate_policy_assets.py -q",
+      "gate": "报告不输出医疗、金融、法律或心理确定建议",
+      "outputs": [
+        "report/API/Web evidence boundary"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-07",
+      "title": "Benchmark 与样本外闭环",
+      "priority": "P0",
+      "type": "package",
+      "objective": "把样本外 benchmark 从约 42% 推到全量可评测、可归因、可回炉的工程闭环",
+      "parent": "ROOT",
+      "depends_on": [
+        "TP-06"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-07.01",
+      "title": "MingLi 全量 160 评测",
+      "priority": "P0",
+      "type": "action",
+      "objective": "生成全量 MingLi predictions，输出年度、分类、失败样本和准确率报告",
+      "parent": "TP-07",
+      "depends_on": [
+        "TP-06.02"
+      ],
+      "parallelizable": false,
+      "verify": "bash scripts/generate-mingli-predictions.sh --output-jsonl /tmp/fatecat-mingli-full.jsonl && bash scripts/run-mingli-bench.sh --predictions-file /tmp/fatecat-mingli-full.jsonl --output-json /tmp/fatecat-mingli-full.json",
+      "gate": "全量报告包含 total/answered/correct/accuracy/byCategory/results，且无答案泄漏",
+      "outputs": [
+        "governance/tasks/0003-bazi-system-100/MINGLI_FULL_EVALUATION.md"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-07.02",
+      "title": "失败样本归因和回炉队列",
+      "priority": "P0",
+      "type": "action",
+      "objective": "把 MingLi 错题按专题、缺规则、缺时间触发、缺格局、缺用神、问题歧义分类",
+      "parent": "TP-07",
+      "depends_on": [
+        "TP-07.01"
+      ],
+      "parallelizable": false,
+      "verify": "test -s governance/tasks/0003-bazi-system-100/MINGLI_FAILURE_TAXONOMY.md && rg '缺规则|缺时间触发|缺格局|缺用神' governance/tasks/0003-bazi-system-100/MINGLI_FAILURE_TAXONOMY.md",
+      "gate": "失败样本有 owner 能力面；不得用人工答案修预测脚本",
+      "outputs": [
+        "governance/tasks/0003-bazi-system-100/MINGLI_FAILURE_TAXONOMY.md"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-07.03",
+      "title": "Benchmark 门槛和回归策略",
+      "priority": "P1",
+      "type": "action",
+      "objective": "定义全量、sample、category smoke 的准确率门槛和提升节奏",
+      "parent": "TP-07",
+      "depends_on": [
+        "TP-07.02"
+      ],
+      "parallelizable": true,
+      "verify": "test -s governance/tasks/0003-bazi-system-100/BENCHMARK_GATE_POLICY.md",
+      "gate": "明确当前 baseline、下一门槛、回退条件和不达标处理",
+      "outputs": [
+        "governance/tasks/0003-bazi-system-100/BENCHMARK_GATE_POLICY.md"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-08",
+      "title": "报告和 API 证据化 100%",
+      "priority": "P1",
+      "type": "package",
+      "objective": "确保 Web/API/Markdown 报告只展示可追溯结论，并能暴露必要证据和边界",
+      "parent": "ROOT",
+      "depends_on": [
+        "TP-06",
+        "TP-07"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-08.01",
+      "title": "报告字段契约",
+      "priority": "P1",
+      "type": "action",
+      "objective": "把高级格局、合化、用神、专题 profile 的输出字段纳入 API/Markdown/Web 合同",
+      "parent": "TP-08",
+      "depends_on": [
+        "TP-06.03",
+        "TP-07.01"
+      ],
+      "parallelizable": false,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_api_contracts.py tests/regression/test_web_html.py -q",
+      "gate": "核心结果由服务端写入页面；证据块默认可折叠；无未登记断语",
+      "outputs": [
+        "API/Web/Markdown report contract"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-08.02",
+      "title": "风险话术和免责声明回归",
+      "priority": "P1",
+      "type": "action",
+      "objective": "确保健康、财富、婚恋、灾劫等专题不越界为现实建议",
+      "parent": "TP-08",
+      "depends_on": [
+        "TP-08.01"
+      ],
+      "parallelizable": true,
+      "verify": ".venv/bin/python -m pytest tests/regression/test_fate_policy_assets.py tests/regression/test_api_contracts.py -q",
+      "gate": "禁止医疗/金融/法律/心理替代建议；风险边界字段可追溯",
+      "outputs": [
+        "policy tests",
+        "report risk boundary"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-09",
+      "title": "长期维护性和模块边界",
+      "priority": "P1",
+      "type": "package",
+      "objective": "把八字规则体系从大文件堆叠推进到 registry/evaluator/golden/report 分层维护",
+      "parent": "ROOT",
+      "depends_on": [
+        "TP-00",
+        "TP-01"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-09.01",
+      "title": "大文件职责切片路线",
+      "priority": "P1",
+      "type": "action",
+      "objective": "为 bazi_calculator、calculate_pure_analysis、report_generator、bot、main 定义后续安全拆分顺序",
+      "parent": "TP-09",
+      "depends_on": [
+        "TP-00.03"
+      ],
+      "parallelizable": true,
+      "verify": "test -s governance/tasks/0003-bazi-system-100/CORE_FILE_BURNDOWN.md && rg 'bazi_calculator|calculate_pure_analysis|report_generator' governance/tasks/0003-bazi-system-100/CORE_FILE_BURNDOWN.md",
+      "gate": "每个拆分候选有行为保持测试和回滚路径；不做大爆炸重写",
+      "outputs": [
+        "governance/tasks/0003-bazi-system-100/CORE_FILE_BURNDOWN.md"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-09.02",
+      "title": "规则 evaluator 模块边界",
+      "priority": "P1",
+      "type": "action",
+      "objective": "定义 pattern/hehua/yongshen/fortune/topic evaluator 的模块边界和依赖方向",
+      "parent": "TP-09",
+      "depends_on": [
+        "TP-03.01",
+        "TP-04.01",
+        "TP-05.01",
+        "TP-06.01"
+      ],
+      "parallelizable": false,
+      "verify": "test -s governance/tasks/0003-bazi-system-100/EVALUATOR_BOUNDARIES.md",
+      "gate": "evaluation 不进生产 kernel；oracle 不进主链；delivery 不承载领域算法",
+      "outputs": [
+        "governance/tasks/0003-bazi-system-100/EVALUATOR_BOUNDARIES.md"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-10",
+      "title": "最终审查和交付",
+      "priority": "P0",
+      "type": "package",
+      "objective": "汇总八字 100% 推进结果，区分 Done、WARN、Blocked，并生成最终交付证据",
+      "parent": "ROOT",
+      "depends_on": [
+        "TP-02",
+        "TP-03",
+        "TP-04",
+        "TP-05",
+        "TP-06",
+        "TP-07",
+        "TP-08",
+        "TP-09"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-10.01",
+      "title": "八字体系 100% 六维审查",
+      "priority": "P0",
+      "type": "action",
+      "objective": "按满足约束、可解释、可测试、可维护、处理特殊情况、复用建立在理解上审查八字体系",
+      "parent": "TP-10",
+      "depends_on": [
+        "TP-08.02",
+        "TP-09.02"
+      ],
+      "parallelizable": false,
+      "verify": "bash scripts/local-ci.sh --profile quick && python3 /home/lenovo/.codex/skills/auto-tasks/scripts/validate_task_docs.py --task-dir governance/tasks/0003-bazi-system-100 --phase decompose",
+      "gate": "active BLOCK=0；WARN 有 owner、证据和下一步；不得伪造 100%",
+      "outputs": [
+        "governance/tasks/0003-bazi-system-100/FINAL_REVIEW.md"
+      ],
+      "status": "Not Started"
+    },
+    {
+      "id": "TP-10.02",
+      "title": "Closeout 和版本交付",
+      "priority": "P0",
+      "type": "action",
+      "objective": "生成 closeout，提交最终八字 100% 任务结果，并明确剩余 HITL/WARN",
+      "parent": "TP-10",
+      "depends_on": [
+        "TP-10.01"
+      ],
+      "parallelizable": false,
+      "verify": "python3 /home/lenovo/.codex/skills/auto-tasks/scripts/validate_task_docs.py --task-dir governance/tasks/0003-bazi-system-100 --phase closeout && git status --short",
+      "gate": "closeout 可校验；提交边界清晰；最终结论不越过证据",
+      "outputs": [
+        "governance/tasks/0003-bazi-system-100/CLOSEOUT.md",
+        "git delivery evidence"
+      ],
+      "status": "Not Started"
+    }
+  ]
+}
