@@ -2,7 +2,7 @@
 - Overall Status: `In Progress`
 
 # Next Executable Leaves
-- TP-07.02 | Wave 16 | Depends On: TP-06.01, TP-06.02, TP-06.03, TP-07.01 | Gate: 失败样本有 owner 能力面；不得用人工答案修预测脚本
+- TP-07.03 | Wave 17 | Depends On: TP-06.01, TP-06.02, TP-06.03, TP-07.01, TP-07.02 | Gate: 明确当前 baseline、下一门槛、回退条件和不达标处理
 - TP-09.02 | Wave 13 | Depends On: TP-00.01, TP-00.02, TP-00.03, TP-01.01, TP-01.02, TP-03.01, TP-04.01, TP-05.01, TP-06.01 | Gate: evaluation 不进生产 kernel；oracle 不进主链；delivery 不承载领域算法
 
 # Task Package Status Table
@@ -35,10 +35,10 @@
 | TP-06.01 | TP-06 | 2 | TP-03.01, TP-03.02, TP-03.03, TP-04.01, TP-04.02, TP-04.03, TP-05.01, TP-05.02, TP-05.03 | No | Done | 2026-06-16：`bazi.depth.fortune.trigger_chain.triggerMatrix` 覆盖大运、流年、流月、伏吟、反吟、岁运并临、天克地冲；fortuneTriggers 输出 triggerTypes、reasons、riskBoundary；相关 rg 检索通过，regression 32 passed。 | 无 | 无 |
 | TP-06.02 | TP-06 | 2 | TP-03.01, TP-03.02, TP-03.03, TP-04.01, TP-04.02, TP-04.03, TP-05.01, TP-05.02, TP-05.03, TP-06.01 | No | Done | 2026-06-16：topicProfiles 覆盖事业、财运、婚姻、健康、学业、迁移、家庭；每项有 score、basis、scoreBasis、evidenceFields、riskBoundary、lifecycle=beta；指定 regression 32 passed，ruff check/format PASS。 | 无 | 无 |
 | TP-06.03 | TP-06 | 2 | TP-03.01, TP-03.02, TP-03.03, TP-04.01, TP-04.02, TP-04.03, TP-05.01, TP-05.02, TP-05.03, TP-06.02 | No | Done | 2026-06-16：Web 工作台新增专题 profile/风险边界折叠块；Markdown API 不输出 topicProfiles 或高风险禁词；指定 regression 52 passed，ruff check/format PASS。 | 无 | 无 |
-| TP-07 | ROOT | 1 | TP-06.01, TP-06.02, TP-06.03 | No | In Progress | 2026-06-16：TP-07.01 全量 MingLi 160 评测完成；失败样本归因与 benchmark policy 继续推进。 | 无 | 无 |
+| TP-07 | ROOT | 1 | TP-06.01, TP-06.02, TP-06.03 | No | In Progress | 2026-06-16：TP-07.01 全量 MingLi 160 评测、TP-07.02 失败样本归因完成；benchmark policy 继续推进。 | 无 | 无 |
 | TP-07.01 | TP-07 | 2 | TP-06.01, TP-06.02, TP-06.03 | No | Done | 2026-06-16：全量 MingLi predictions 160/160；answered 160、correct 45、accuracy 28.12%；report 含 byCategory/results；predictions 无 expected/answer/correct 泄漏字段；证据写入 MINGLI_FULL_EVALUATION.md。 | 无 | 无 |
-| TP-07.02 | TP-07 | 2 | TP-06.01, TP-06.02, TP-06.03, TP-07.01 | Yes | Not Started | 下一步 P0 主线。 | 无 | 无 |
-| TP-07.03 | TP-07 | 2 | TP-06.01, TP-06.02, TP-06.03, TP-07.02 | No | Not Started | 待回填 | 无 | 无 |
+| TP-07.02 | TP-07 | 2 | TP-06.01, TP-06.02, TP-06.03, TP-07.01 | No | Done | 2026-06-16：新增 MINGLI_FAILURE_TAXONOMY.md；115 个失败样本按分类、owner 能力面、缺规则/缺时间触发/缺格局/缺用神归因；明确禁止答案硬编码。 | 无 | 无 |
+| TP-07.03 | TP-07 | 2 | TP-06.01, TP-06.02, TP-06.03, TP-07.02 | Yes | Not Started | 下一步 P0 主线。 | 无 | 无 |
 | TP-08 | ROOT | 1 | TP-06.01, TP-06.02, TP-06.03, TP-07.01, TP-07.02, TP-07.03 | No | Not Started | 待回填 | 无 | 无 |
 | TP-08.01 | TP-08 | 2 | TP-06.01, TP-06.02, TP-06.03, TP-07.01, TP-07.02, TP-07.03 | No | Not Started | 待回填 | 无 | 无 |
 | TP-08.02 | TP-08 | 2 | TP-06.01, TP-06.02, TP-06.03, TP-07.01, TP-07.02, TP-07.03, TP-08.01 | No | Not Started | 待回填 | 无 | 无 |

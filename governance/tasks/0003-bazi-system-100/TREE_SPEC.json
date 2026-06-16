@@ -534,7 +534,7 @@
         "TP-06"
       ],
       "status": "In Progress",
-      "evidence": "2026-06-16：TP-07.01 全量 MingLi 160 评测完成；失败样本归因与 benchmark policy 继续推进。"
+      "evidence": "2026-06-16：TP-07.01 全量 MingLi 160 评测、TP-07.02 失败样本归因完成；benchmark policy 继续推进。"
     },
     {
       "id": "TP-07.01",
@@ -571,8 +571,8 @@
       "outputs": [
         "governance/tasks/0003-bazi-system-100/MINGLI_FAILURE_TAXONOMY.md"
       ],
-      "status": "Not Started",
-      "evidence": "下一步 P0 主线。"
+      "status": "Done",
+      "evidence": "2026-06-16：新增 MINGLI_FAILURE_TAXONOMY.md；115 个失败样本按分类、owner 能力面、缺规则/缺时间触发/缺格局/缺用神归因；明确禁止答案硬编码。"
     },
     {
       "id": "TP-07.03",
@@ -590,7 +590,8 @@
       "outputs": [
         "governance/tasks/0003-bazi-system-100/BENCHMARK_GATE_POLICY.md"
       ],
-      "status": "Not Started"
+      "status": "Not Started",
+      "evidence": "下一步 P0 主线。"
     },
     {
       "id": "TP-08",

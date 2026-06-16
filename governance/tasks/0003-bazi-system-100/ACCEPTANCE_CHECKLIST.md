@@ -431,15 +431,15 @@
 ### TP-07.02
 - 标题: 失败样本归因和回炉队列
 - 验收项:
-  - [ ] `失败样本归因和回炉队列` 达到其 objective，且依赖关系保持一致
+  - [x] `失败样本归因和回炉队列` 达到其 objective，且依赖关系保持一致
 - Verify: test -s governance/tasks/0003-bazi-system-100/MINGLI_FAILURE_TAXONOMY.md && rg '缺规则|缺时间触发|缺格局|缺用神' governance/tasks/0003-bazi-system-100/MINGLI_FAILURE_TAXONOMY.md
 - Gate: 失败样本有 owner 能力面；不得用人工答案修预测脚本
 - 输出物:
-  - [ ] governance/tasks/0003-bazi-system-100/MINGLI_FAILURE_TAXONOMY.md
+  - [x] governance/tasks/0003-bazi-system-100/MINGLI_FAILURE_TAXONOMY.md
 - 标准清单:
-  - [ ] Verify: test -s governance/tasks/0003-bazi-system-100/MINGLI_FAILURE_TAXONOMY.md && rg '缺规则|缺时间触发|缺格局|缺用神' governance/tasks/0003-bazi-system-100/MINGLI_FAILURE_TAXONOMY.md
-  - [ ] Gate: 失败样本有 owner 能力面；不得用人工答案修预测脚本
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: test -s governance/tasks/0003-bazi-system-100/MINGLI_FAILURE_TAXONOMY.md && rg '缺规则|缺时间触发|缺格局|缺用神' governance/tasks/0003-bazi-system-100/MINGLI_FAILURE_TAXONOMY.md
+  - [x] Gate: 失败样本有 owner 能力面；不得用人工答案修预测脚本
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-07.03
