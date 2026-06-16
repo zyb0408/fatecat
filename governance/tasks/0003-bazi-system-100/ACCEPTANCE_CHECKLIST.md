@@ -403,15 +403,15 @@
 ## TP-07
 - 标题: Benchmark 与样本外闭环
 - 验收项:
-  - [ ] `Benchmark 与样本外闭环` 达到其 objective，且依赖关系保持一致
+  - [x] `Benchmark 与样本外闭环` 达到其 objective，且依赖关系保持一致
 - Verify: 核对目标完成并补充执行证据
 - Gate: 任务目标与上下文已确认
 - 输出物:
-  - [ ] 把样本外 benchmark 从约 42% 推到全量可评测、可归因、可回炉的工程闭环
+  - [x] 把样本外 benchmark 从约 42% 推到全量可评测、可归因、可回炉的工程闭环
 - 标准清单:
-  - [ ] Verify: 核对目标完成并补充执行证据
-  - [ ] Gate: 任务目标与上下文已确认
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: 核对目标完成并补充执行证据
+  - [x] Gate: 任务目标与上下文已确认
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-07.01
@@ -445,15 +445,15 @@
 ### TP-07.03
 - 标题: Benchmark 门槛和回归策略
 - 验收项:
-  - [ ] `Benchmark 门槛和回归策略` 达到其 objective，且依赖关系保持一致
+  - [x] `Benchmark 门槛和回归策略` 达到其 objective，且依赖关系保持一致
 - Verify: test -s governance/tasks/0003-bazi-system-100/BENCHMARK_GATE_POLICY.md
 - Gate: 明确当前 baseline、下一门槛、回退条件和不达标处理
 - 输出物:
-  - [ ] governance/tasks/0003-bazi-system-100/BENCHMARK_GATE_POLICY.md
+  - [x] governance/tasks/0003-bazi-system-100/BENCHMARK_GATE_POLICY.md
 - 标准清单:
-  - [ ] Verify: test -s governance/tasks/0003-bazi-system-100/BENCHMARK_GATE_POLICY.md
-  - [ ] Gate: 明确当前 baseline、下一门槛、回退条件和不达标处理
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: test -s governance/tasks/0003-bazi-system-100/BENCHMARK_GATE_POLICY.md
+  - [x] Gate: 明确当前 baseline、下一门槛、回退条件和不达标处理
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ## TP-08

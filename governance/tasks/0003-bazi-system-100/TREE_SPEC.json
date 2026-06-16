@@ -533,8 +533,8 @@
       "depends_on": [
         "TP-06"
       ],
-      "status": "In Progress",
-      "evidence": "2026-06-16：TP-07.01 全量 MingLi 160 评测、TP-07.02 失败样本归因完成；benchmark policy 继续推进。"
+      "status": "Done",
+      "evidence": "2026-06-16：TP-07.01/TP-07.02/TP-07.03 均完成；MingLi full baseline、失败归因和 benchmark gate policy 已落地。"
     },
     {
       "id": "TP-07.01",
@@ -590,8 +590,8 @@
       "outputs": [
         "governance/tasks/0003-bazi-system-100/BENCHMARK_GATE_POLICY.md"
       ],
-      "status": "Not Started",
-      "evidence": "下一步 P0 主线。"
+      "status": "Done",
+      "evidence": "2026-06-16：新增 BENCHMARK_GATE_POLICY.md；明确 28.12% 当前 baseline、next gate、回退条件、不达标处理和禁止刷分规则。"
     },
     {
       "id": "TP-08",
@@ -604,7 +604,8 @@
         "TP-06",
         "TP-07"
       ],
-      "status": "Not Started"
+      "status": "Not Started",
+      "evidence": "下一步可执行 TP-08.01。"
     },
     {
       "id": "TP-08.01",
@@ -623,7 +624,8 @@
       "outputs": [
         "API/Web/Markdown report contract"
       ],
-      "status": "Not Started"
+      "status": "Not Started",
+      "evidence": "下一步 P1 主线。"
     },
     {
       "id": "TP-08.02",
