@@ -761,7 +761,7 @@ def _build_topic_profiles(
     relation_families = _relation_families(relation_order)
     spread = _five_element_spread(raw)
     fortune_type_count = len({item for trigger in fortune_triggers for item in trigger.get("triggerTypes", [])})
-    topic_specs = [
+    topic_specs: list[dict[str, Any]] = [
         {
             "topic": "事业",
             "basis": ["格局", "官杀", "印星", "大运流年"],
@@ -881,9 +881,13 @@ def _build_topic_profiles(
             "riskBoundary": "家庭 profile 只作亲属结构证据，不替代家庭、法律或心理决策。",
         },
     ]
-    profiles = []
+    profiles: list[dict[str, Any]] = []
     for spec in topic_specs:
-        score = sum(int(item["value"]) for item in spec["scoreBasis"] if isinstance(item.get("value"), int | float))
+        score = 0
+        for score_item in spec["scoreBasis"]:
+            value = score_item.get("value") if isinstance(score_item, dict) else None
+            if isinstance(value, int | float):
+                score += int(value)
         profiles.append(
             {
                 "topic": spec["topic"],

@@ -556,3 +556,58 @@ Result:
 - Full acceptance pytest: `168 passed, 1 skipped in 232.48s`.
 - Docker container smoke: `ok image=fatecat-delivery:local url=http://127.0.0.1:8002/web`.
 - Production-readiness static gate passed; live API URL and live Telegram Bot verification intentionally skipped because no real `--api-url` / `--require-live-bot` input was provided.
+
+## 2026-06-16 local-ci follow-up: topic profile mypy narrowing failure
+
+### Bug
+
+`bash scripts/local-ci.sh --profile quick` 在 `mypy fate_core` 阶段失败。
+
+Observed failure excerpt:
+
+```text
+domains/fate-analysis/services/fate-core/src/fate_core/usecases/calculate_pure_analysis.py:886: error: Generator has incompatible item type "int"; expected "bool"  [misc]
+domains/fate-analysis/services/fate-core/src/fate_core/usecases/calculate_pure_analysis.py:886: error: Value of type "Collection[str]" is not indexable  [index]
+domains/fate-analysis/services/fate-core/src/fate_core/usecases/calculate_pure_analysis.py:886: error: "Collection[str]" has no attribute "get"  [attr-defined]
+```
+
+### Observations
+
+- 失败行在 `_build_topic_profiles()` 的 `topic_specs` 遍历里。
+- `topic_specs` 是混合 dict 列表，字段包含 `topic`、`basis`、`scoreBasis`、`evidenceFields`、`riskBoundary`。
+- 未显式标注时，mypy 把 `spec["scoreBasis"]` 推断成过窄的集合类型，导致 generator 中的 `item.get()` 被判为非 dict。
+
+### Hypotheses
+
+1. 根因是 `topic_specs` 缺少显式类型，mypy 对异构 dict list 推断失真。
+   - Supports: 错误集中在 `spec["scoreBasis"]` 的 item 类型。
+   - Test: 给 `topic_specs` / `profiles` 加 `list[dict[str, Any]]`，并显式收窄 score item。
+2. 根因是运行时 `scoreBasis` 结构不一致。
+   - Conflicts: API/Web/topic profile 回归此前通过，运行时输出结构稳定。
+3. 根因是 mypy 版本或配置变化。
+   - Conflicts: 代码本身依赖 mypy 对异构 literal 的推断，不应让门禁靠版本偶然通过。
+
+### Root Cause
+
+`_build_topic_profiles()` 在异构 dict list 上依赖隐式类型推断，mypy 将 `scoreBasis` 迭代项推断成非 dict 类型，导致 quick gate 静态检查失败。
+
+### Fix
+
+- 显式标注 `topic_specs: list[dict[str, Any]]` 和 `profiles: list[dict[str, Any]]`。
+- 将 score generator 改成显式循环，并在读取 `value` 前确认 score item 是 dict。
+
+### Regression Evidence
+
+Completed:
+
+```bash
+bash scripts/local-ci.sh --profile quick
+.venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py -q
+```
+
+Result:
+
+- `local-ci quick` passed with evidence at `/tmp/fatecat-local-ci-20260616173830`.
+- Focused regression tests passed: `49 passed in 9.74s`.
+- `mypy fate_core` passed: `Success: no issues found in 39 source files`.
+- 八字 rule-depth regression passed: `30 passed in 62.50s`.
