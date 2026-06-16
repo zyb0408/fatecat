@@ -242,7 +242,7 @@
         "TP-02"
       ],
       "status": "In Progress",
-      "evidence": "2026-06-16：TP-03.01 完成；patternMatrix 已定义正格、变格、从格、假从、专旺、化气条件矩阵。"
+      "evidence": "2026-06-16：TP-03.01/TP-03.02 完成；高级格局矩阵和候选成熟度输出已接通。"
     },
     {
       "id": "TP-03.01",
@@ -281,7 +281,8 @@
         "fate_core usecase/kernel evaluator",
         "rule-depth regression"
       ],
-      "status": "Not Started"
+      "status": "Done",
+      "evidence": "2026-06-16：specialPatternCandidates 输出 maturity.basis=condition_chain；candidate/guarded/not_supported 由条件计数和 score 决定；38 passed。"
     },
     {
       "id": "TP-03.03",
@@ -313,7 +314,7 @@
         "TP-02"
       ],
       "status": "In Progress",
-      "evidence": "2026-06-16：TP-04.01 完成；transformStateMatrix 已定义合象、成化候选、成化成立、破化/阻隔、争合。"
+      "evidence": "2026-06-16：TP-04.01/TP-04.02 完成；合化条件链和 evaluator state 输出已接通。"
     },
     {
       "id": "TP-04.01",
@@ -351,7 +352,8 @@
         "fate_core combine transform evaluator",
         "API/rule-depth regression"
       ],
-      "status": "Not Started"
+      "status": "Done",
+      "evidence": "2026-06-16：combineTransformMatrix 输出 stateCatalog 和 candidate.state；API contract 回归 54 passed。"
     },
     {
       "id": "TP-04.03",
@@ -383,7 +385,7 @@
         "TP-02"
       ],
       "status": "In Progress",
-      "evidence": "2026-06-16：TP-05.01 完成；strategyScoringMatrix 已定义调候、扶抑、通关、病药评分依据与冲突政策。"
+      "evidence": "2026-06-16：TP-05.01/TP-05.02 完成；用神并列策略、评分依据和冲突政策已进入 evaluator 输出。"
     },
     {
       "id": "TP-05.01",
@@ -421,7 +423,8 @@
         "fate_core yongshen decision evaluator",
         "rule-depth tests"
       ],
-      "status": "Not Started"
+      "status": "Done",
+      "evidence": "2026-06-16：yongShenDecision.scoredStrategies 保留 4 种策略，逐项输出 appliesWhen/doesNotApplyWhen/conflictPolicy；38 passed。"
     },
     {
       "id": "TP-05.03",

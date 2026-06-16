@@ -202,16 +202,16 @@
 ### TP-03.02
 - 标题: 格局 evaluator 与候选成熟度
 - 验收项:
-  - [ ] `格局 evaluator 与候选成熟度` 达到其 objective，且依赖关系保持一致
+  - [x] `格局 evaluator 与候选成熟度` 达到其 objective，且依赖关系保持一致
 - Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_fate_policy_assets.py -q
 - Gate: candidate/guarded/not_supported 状态由条件链决定，不由文案硬写
 - 输出物:
-  - [ ] fate_core usecase/kernel evaluator
-  - [ ] rule-depth regression
+  - [x] fate_core usecase/kernel evaluator
+  - [x] rule-depth regression
 - 标准清单:
-  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_fate_policy_assets.py -q
-  - [ ] Gate: candidate/guarded/not_supported 状态由条件链决定，不由文案硬写
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_fate_policy_assets.py -q
+  - [x] Gate: candidate/guarded/not_supported 状态由条件链决定，不由文案硬写
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-03.03
@@ -259,16 +259,16 @@
 ### TP-04.02
 - 标题: 合化 evaluator 与优先级
 - 验收项:
-  - [ ] `合化 evaluator 与优先级` 达到其 objective，且依赖关系保持一致
+  - [x] `合化 evaluator 与优先级` 达到其 objective，且依赖关系保持一致
 - Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q
 - Gate: 输出区分 structural_relation、transform_candidate、transform_success、transform_broken
 - 输出物:
-  - [ ] fate_core combine transform evaluator
-  - [ ] API/rule-depth regression
+  - [x] fate_core combine transform evaluator
+  - [x] API/rule-depth regression
 - 标准清单:
-  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q
-  - [ ] Gate: 输出区分 structural_relation、transform_candidate、transform_success、transform_broken
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_api_contracts.py -q
+  - [x] Gate: 输出区分 structural_relation、transform_candidate、transform_success、transform_broken
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-04.03
@@ -316,16 +316,16 @@
 ### TP-05.02
 - 标题: 用神冲突裁决 evaluator
 - 验收项:
-  - [ ] `用神冲突裁决 evaluator` 达到其 objective，且依赖关系保持一致
+  - [x] `用神冲突裁决 evaluator` 达到其 objective，且依赖关系保持一致
 - Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_fate_policy_assets.py -q
 - Gate: 报告/API 保留并列策略，不用单一用神覆盖全部
 - 输出物:
-  - [ ] fate_core yongshen decision evaluator
-  - [ ] rule-depth tests
+  - [x] fate_core yongshen decision evaluator
+  - [x] rule-depth tests
 - 标准清单:
-  - [ ] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_fate_policy_assets.py -q
-  - [ ] Gate: 报告/API 保留并列策略，不用单一用神覆盖全部
-  - [ ] 完成后更新 `STATUS.md` 的 `Recent Evidence`
+  - [x] Verify: .venv/bin/python -m pytest tests/regression/test_bazi_ziwei_rule_depth.py tests/regression/test_fate_policy_assets.py -q
+  - [x] Gate: 报告/API 保留并列策略，不用单一用神覆盖全部
+  - [x] 完成后更新 `STATUS.md` 的 `Recent Evidence`
   - [ ] 交付前完成 REVIEW / SHIP 自检
 
 ### TP-05.03

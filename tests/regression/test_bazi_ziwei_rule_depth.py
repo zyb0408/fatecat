@@ -185,6 +185,11 @@ def test_bazi_gap_closure_benchmark_fields_are_structured():
     }
     assert all(candidate["conditions"] and candidate["boundary"] for candidate in special["candidates"])
     assert all(candidate["status"] in {"candidate", "guarded", "not_supported"} for candidate in special["candidates"])
+    assert all(candidate["maturity"]["basis"] == "condition_chain" for candidate in special["candidates"])
+    assert all(
+        candidate["maturity"]["metConditions"] <= candidate["maturity"]["totalConditions"]
+        for candidate in special["candidates"]
+    )
 
     decision = benchmark["yongShenDecision"]
     assert decision["primaryStrategy"]
@@ -194,6 +199,9 @@ def test_bazi_gap_closure_benchmark_fields_are_structured():
         reverse=True,
     )
     assert all(item["evidenceFields"] for item in decision["scoredStrategies"])
+    assert {item["strategy"] for item in decision["scoredStrategies"]} == {"调候", "扶抑", "通关", "病药"}
+    assert all(item["appliesWhen"] and item["doesNotApplyWhen"] for item in decision["scoredStrategies"])
+    assert all(item["conflictPolicy"] for item in decision["scoredStrategies"])
 
     topics = benchmark["topicProfiles"]
     assert {item["topic"] for item in topics} >= {"事业", "财运", "婚姻", "健康", "学业", "迁移"}
@@ -239,6 +247,17 @@ def test_bazi_combine_transform_matrix_declares_states_and_counter_conditions():
         assert item["appliesWhen"]
         assert item["counterConditions"]
         assert item["riskBoundary"]
+
+    result = _bazi_result()
+    emitted = result["baziBenchmark"]["combineTransformMatrix"]
+    assert set(emitted["stateCatalog"]) == {
+        "structural_relation",
+        "transform_candidate",
+        "transform_success",
+        "transform_broken",
+    }
+    for candidate in emitted["candidates"]:
+        assert candidate["state"] in emitted["stateCatalog"]
 
 
 def test_bazi_yongshen_strategy_scoring_matrix_has_conflict_policy():

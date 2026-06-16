@@ -505,6 +505,15 @@ def _build_combine_transform_matrix(raw: dict[str, Any]) -> dict[str, Any]:
                 if score >= 45
                 else "weak_candidate"
             )
+            state = (
+                "transform_broken"
+                if blockers
+                else "transform_success"
+                if score >= 75
+                else "transform_candidate"
+                if score >= 45
+                else "structural_relation"
+            )
             candidates.append(
                 {
                     "pair": [left["stem"], right["stem"]],
@@ -512,6 +521,7 @@ def _build_combine_transform_matrix(raw: dict[str, Any]) -> dict[str, Any]:
                     "transformElement": transform_element,
                     "score": max(0, min(100, score)),
                     "status": status,
+                    "state": state,
                     "conditions": conditions,
                     "boundary": "合化成败必须同时看月令、透干、通根和阻隔；这里不把合象直接写成成化。",
                 }
@@ -519,6 +529,7 @@ def _build_combine_transform_matrix(raw: dict[str, Any]) -> dict[str, Any]:
     return {
         "schemaVersion": 1,
         "status": "has_candidates" if candidates else "no_direct_stem_pair",
+        "stateCatalog": ["structural_relation", "transform_candidate", "transform_success", "transform_broken"],
         "conditionCatalog": [
             "paired_stems_present",
             "month_command_supports_transform_element",
@@ -617,6 +628,11 @@ def _build_special_pattern_candidates(raw: dict[str, Any], combine_matrix: dict[
                 "name": name,
                 "score": score,
                 "status": _score_status(score),
+                "maturity": {
+                    "basis": "condition_chain",
+                    "metConditions": met_count,
+                    "totalConditions": len(conditions),
+                },
                 "conditions": conditions,
                 "boundary": "特殊格局只登记候选成熟度；未达到完整成败条件时不得定格。",
             }
@@ -645,6 +661,28 @@ def _build_yongshen_decision(raw: dict[str, Any], strategies: list[dict[str, Any
     climate_band = _temperature_band(raw.get("climateScores", {}))
     strength = raw.get("wuxingScores", {}) if isinstance(raw.get("wuxingScores"), dict) else {}
     yong_shen = raw.get("yongShen", {}) if isinstance(raw.get("yongShen"), dict) else {}
+    strategy_contracts = {
+        "调候": {
+            "appliesWhen": ["月令、节气、寒暖燥湿、调候原始依据存在"],
+            "doesNotApplyWhen": ["缺少季节气候依据", "把调候当作医疗/养生处方"],
+            "conflictPolicy": "调候优先解释气候偏性，但不得覆盖扶抑、通关、病药。",
+        },
+        "扶抑": {
+            "appliesWhen": ["日主强弱、月令、通根、透干、五行分数齐备"],
+            "doesNotApplyWhen": ["只存在单一强弱标签", "五行分数或藏干缺失"],
+            "conflictPolicy": "扶抑与调候冲突时并列呈现，不能单独覆盖用神。",
+        },
+        "通关": {
+            "appliesWhen": ["干支冲合刑害破或五行克战关系显著", "存在可缓冲的中介五行"],
+            "doesNotApplyWhen": ["关系链不可追溯", "只有单点五行偏枯而无冲突链"],
+            "conflictPolicy": "通关只解释冲突缓冲，不替代调候或扶抑主策略。",
+        },
+        "病药": {
+            "appliesWhen": ["五行偏枯、寒暖燥湿或格局病处可定位", "存在对应药处证据"],
+            "doesNotApplyWhen": ["偏枯不明显", "病处无法回指证据字段", "输出生活处方"],
+            "conflictPolicy": "病药作为解释优先级，不输出现实诊疗、金融或法律建议。",
+        },
+    }
     scored = [
         {
             "strategy": "调候",
@@ -676,6 +714,8 @@ def _build_yongshen_decision(raw: dict[str, Any], strategies: list[dict[str, Any
             "source": strategy_names.get("病药", {}).get("source", ""),
         },
     ]
+    for item in scored:
+        item.update(strategy_contracts[item["strategy"]])
     scored.sort(key=lambda item: item["score"], reverse=True)
     return {
         "schemaVersion": 1,
