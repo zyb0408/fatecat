@@ -181,6 +181,14 @@ bash scripts/local-ci.sh --profile public-service
 
 `local-ci.sh` 只调用本仓脚本，不调用 GitHub Actions；`full` 复用本地 `scripts/acceptance.sh --with-dev`，`container` 执行真实 Docker 容器 smoke，`public-service` 执行公网服务静态准入门禁。
 
+公开 Web 工作台发布前使用：
+
+```bash
+bash scripts/public-release-gate.sh --api-url https://tradecatlabs-fatecat.hf.space
+```
+
+该门禁仍只调用本地脚本：quick CI、公开发布策略检查、delivery smoke、生产静态准入和可选线上 `/health` / `/ready` / `/metrics`。GitHub Acceptance 和容器工作流只保留手动触发，避免 push 自动跑远端验收。
+
 ### 4. 执行一次命理排盘并输出文件
 
 ```bash
@@ -254,7 +262,7 @@ FateCat 提供 Hugging Face Docker Space 分发模板，目标是让用户直接
 用户自助部署有两条无需本机服务器的路径：
 
 - HF 网页复制：打开 `https://huggingface.co/spaces/tradecatlabs/fatecat`，右上角三个点选择 `Duplicate this Space`，按页面提示选择 owner、Space name、visibility 和 CPU Basic。
-- GitHub 网页部署：fork `https://github.com/tradecatlabs/fatecat`，在 fork 仓库添加 `HF_TOKEN` secret，然后到 `Actions -> Deploy Hugging Face Space -> Run workflow`，填写 `<你的HF用户名>/fatecat`。
+- GitHub 网页部署：fork `https://github.com/tradecatlabs/fatecat`，在 fork 仓库添加 `HF_TOKEN` secret，然后到 `Actions -> Deploy Hugging Face Space -> Run workflow`，填写 `<你的HF用户名>/fatecat`。该部署 workflow 是手动触发，不会因为 push 自动发布。
 
 完整说明见 `docs/deployment/huggingface-space.md`。
 

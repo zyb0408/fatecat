@@ -25,6 +25,16 @@
 
 这个方式不需要 GitHub、不需要本机命令，也不会把用户输入写回 FateCat 仓库。
 
+用户侧使用流程：
+
+1. 打开自己的 `/web`。
+2. 填写出生日期、出生时间、出生地区、性别和输出体系。
+3. 点击 `生成 Markdown 报告`。
+4. 复制页面里的 Markdown 输出。
+5. 打开项目归属块中的 `免费 AI 分析入口（Gemini Gem）`，自行粘贴 Markdown 分析。
+
+FateCat 不会自动把输入或报告发送给 Gemini；Gemini 分析只发生在用户主动打开外部页面并粘贴内容之后。
+
 限制：
 
 - 后续项目更新不会自动同步到你的副本。
@@ -88,6 +98,8 @@ https://<你的HF用户名>-fatecat.hf.space/web
 
 如果 Space 名字不是 `fatecat`，URL 中最后一段改成你的 Space 名字。
 
+该 workflow 只通过 `workflow_dispatch` 手动触发。Fork 用户需要发布时自己点 `Run workflow`；push 不会自动部署，也不会自动跑 FateCat Acceptance。
+
 ## 路径 C：本地 hf CLI 部署
 
 开发者可以直接在本机部署：
@@ -133,6 +145,8 @@ FATE_REPORT_JOB_TTL_SECONDS=1800
 - 免费 Space 运行在 Hugging Face 托管环境。
 - 用户输入会在当前请求、内存任务队列和生成页面中短暂存在。
 - 默认不写 FateCat 数据库，也不提交进 Git 仓库。
+- 报告任务结果只在进程内保留到 TTL 到期；Space 重启后会消失。
+- FateCat 不会自动把排盘输入或报告发送给 Gemini。
 - Hugging Face 平台仍可能保留构建日志、运行日志和访问元数据。
 
 建议：
@@ -168,6 +182,23 @@ FATE_REPORT_JOB_TTL_SECONDS=1800
 | 任务提交后结果消失 | 结果 TTL 到期或 Space 重启；重新提交即可 |
 | GitHub Action 报 HF_TOKEN 缺失 | 检查 fork 仓库 `Settings -> Secrets and variables -> Actions` 是否设置 `HF_TOKEN` |
 | Space 创建到错误账号 | 检查 workflow 的 `space_id` 是否为 `你的HF用户名/space名` |
+
+## 维护者发布前检查
+
+维护者更新官方 Space 前，先在本地执行：
+
+```bash
+bash scripts/public-release-gate.sh --api-url https://tradecatlabs-fatecat.hf.space
+```
+
+这个命令会检查：
+
+- 本地 quick CI。
+- GitHub Acceptance / Container workflow 仍为手动触发。
+- HF 免费 Space 默认 `FATE_RECORDS_ENABLED=0`。
+- README、HF README 和部署文档的免费部署与隐私口径保持同步。
+- 本地 delivery smoke。
+- 线上 `/health`、`/ready`、`/metrics`。
 
 ## 官方资料
 

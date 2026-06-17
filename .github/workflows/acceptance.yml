@@ -1,10 +1,12 @@
 name: FateCat Acceptance
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Manual acceptance reason"
+        required: false
+        default: "manual local-gate confirmation"
 
 jobs:
   acceptance:

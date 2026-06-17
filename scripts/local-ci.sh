@@ -140,6 +140,7 @@ run_quick() {
   run_step "structure gate" bash "${script_dir}/check-structure.sh"
   run_step "source hygiene" bash "${script_dir}/check-source-hygiene.sh"
   run_step "privacy fixtures" bash "${script_dir}/check-privacy-fixtures.sh"
+  run_step "public release policy" bash "${script_dir}/check-public-release-policy.sh"
   run_step "ruff check" env RUFF_CACHE_DIR="${RUFF_CACHE_DIR:-/tmp/fatecat-ruff-cache}" \
     "${python_bin}" -m ruff check "${runtime_root}"
   run_step "ruff format check" env RUFF_CACHE_DIR="${RUFF_CACHE_DIR:-/tmp/fatecat-ruff-cache}" \

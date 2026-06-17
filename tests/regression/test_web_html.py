@@ -103,6 +103,8 @@ def test_web_page_renders_semantic_form():
     assert 'fetch("/api/v1/report/jobs/web"' in text
     assert "pollJob(jobId)" in text
     assert "正在生成 Markdown 报告..." in text
+    assert "const setIdle = () =>" in text
+    assert 'submitButton.textContent = "生成 Markdown 报告";' in text
     assert '<input type="hidden" name="submitted" value="1">' in text
     assert " required>" not in text
     assert '<details id="page-info">\n<summary>页面说明与元信息</summary>' in text
@@ -112,6 +114,8 @@ def test_web_page_renders_semantic_form():
     ) < text.index("<summary>页面说明与元信息</summary>")
     assert "页面元信息" in text
     assert "POST /api/v1/report/jobs/web；GET /api/v1/report/jobs/{job_id}" in text
+    assert "免费公开入口默认不写数据库" in text
+    assert "FateCat 不会自动发送报告到 Gemini" in text
     assert "相关入口" in text
     assert "参数控件" in text
     assert "出生日期（必填）" in text

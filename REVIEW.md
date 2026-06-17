@@ -1,92 +1,69 @@
 # FateCat 自审记录
 
-审查时间：2026-06-16 00:06:00 HKT +0800
+审查时间：2026-06-17 HKT +0800
 
 ## 结论
 
-当前仓库保持企业级 canonical roots 结构，公开口径为 TradeCat Labs 实验室项目。按“用户可独立部署单实例”的当前目标，本地代码质量、结构卫生、源码卫生、隐私 fixture、类型检查、格式检查、全量 pytest、导出包、Docker 镜像和容器 `/web` smoke 在当前工作树下为 `PASS`。
+当前仓库按“TradeCat Labs 实验室项目 / 免费公开 Web Markdown 工作台 / 用户可独立部署单实例”的口径为 `PASS`。
 
-外部托管公网发布仍为 `HITL`：当前没有真实公网生产 URL 和真实 Telegram Bot token，因此外部 `/health`、`/ready`、`/metrics` 与 Bot live `get_me` 未执行。不得把真实公网生产验收描述为已通过。
+本轮不再把 GitHub Acceptance 当作默认验收来源；公开发布门禁已经收敛到本地脚本 `scripts/public-release-gate.sh`。GitHub Acceptance 与 Container workflow 仅保留手动触发，避免 push 自动跑远端验收。
+
+外部托管口径：Hugging Face 官方免费 Space 的 `/health`、`/ready`、`/metrics` 已通过 live smoke；Telegram live Bot 不是免费 Web 工作台必需项，本轮保持 `SKIP`，不得描述为已验收。
 
 ## 当前证据
 
 | 项目 | 证据 |
 |---|---|
 | 当前分支 | `main` |
-| 当前 HEAD | `787111d` |
-| 本地/远端差异 | `main...origin/main [ahead 7]` |
-| 本地 CI/CD | `bash scripts/local-ci.sh --profile all` -> `PASS`，证据目录 `/tmp/fatecat-local-ci-20260615235920` |
-| focused regression | `47 passed in 7.43s` |
-| 全量 pytest | `168 passed, 1 skipped in 232.48s` |
-| ruff format | `129 files already formatted` |
-| ruff lint | `All checks passed!` |
-| mypy | `Success: no issues found in 37 source files` |
-| delivery smoke | API ready；Bot dry-run 初始化通过 |
-| export gate | export lite、export hygiene、strict skill validate、exported pure preflight、clean-runtime 后 hygiene 均通过 |
-| container gate | Docker image `fatecat-delivery:local` build 成功；容器 `/web` smoke OK |
-| operability runbook | `references/ops-pack.md` |
-| production readiness | 静态生产门禁 OK；外部 API URL 与 live Bot 因缺真实输入保持 SKIP |
+| 当前发布目标 | 免费公开 Web 工作台 + HF Space 自助部署 |
+| 本地公开发布门禁 | `bash scripts/public-release-gate.sh --api-url https://tradecatlabs-fatecat.hf.space --skip-delivery-smoke --output /tmp/fatecat-public-release-20260617-final` -> `PASS` |
+| quick CI | 门禁内执行 `scripts/local-ci.sh --profile quick` -> `PASS` |
+| focused regression | `54 passed in 10.79s` |
+| ruff lint / format | `All checks passed!`；`144 files already formatted` |
+| mypy | `Success: no issues found in 50 source files` |
+| source / privacy hygiene | `source hygiene ok`；`privacy fixtures ok` |
+| public release policy | `public release policy ok` |
+| delivery smoke | `bash scripts/public-release-gate.sh --api-url https://tradecatlabs-fatecat.hf.space --output /tmp/fatecat-public-release-20260617-rerun` 内本地 API `/health` smoke 通过 |
+| HF live smoke | `https://tradecatlabs-fatecat.hf.space/health`、`/ready`、`/metrics` 通过 |
+| Web/Gemini 隐私边界 | Web 页面说明 FateCat 不会自动发送报告到 Gemini；用户复制 Markdown 后自行打开 Gem |
+| 默认存储口径 | HF Docker Space `FATE_RECORDS_ENABLED=0`；报告任务使用进程内有界队列，TTL 到期或 Space 重启后消失 |
 
 ## 本轮处理
 
-- 八字 legacy 核心迁入 `fate_core.kernel.bazi_calculator`；delivery `src/bazi_calculator.py` 只保留兼容导出。
-- `legacy_bazi.py` 不再从 delivery `src` 导入领域算法。
-- active catalog 清退 `compatibility_source_root` / `temporary-compatibility-box`，组件状态改为 `canonical-active`。
-- 新增 `governance/migration/compatibility-ledger.md`，登记保留兼容入口的 owner、真实契约、保留原因和移除条件。
-- 形式工程声明已清退：未实现的 `/graphql`、`/ws`、`/api/v1/batch` 不再被声明为 enabled，`system_optimization.py` 只报告真实能力。
-- 假绿测试已修复：核心 smoke 测试捕获异常后改为 `pytest.fail()`，临时输出进入 `tmp_path`。
-- API 错误语义已收紧：非法日期/时间返回 422，计算资源耗尽返回 503，内部异常返回 500，不再用 HTTP 200 表达协议失败。
-- 单实例独立部署护栏已补齐：请求 body 流式限制、进程内限流、同步计算槽位、Bot 本地 outbox 幂等/原子写入、Prometheus histogram/error/queue/calculation 指标和 runbook 均有回归。
-- 规则 registry、future features、oracle、golden matrix、MingLi-Bench gate、SLO/runbook、request id、Bot 队列指标等任务树证据已同步。
-- 不运行 GitHub Acceptance；本轮只使用本地 CI/CD 技术工具方案。
-
-## Principle Gate Evidence
-
-- target end state: fate-core owns calculation/rules/evidence; delivery owns API/Web/Bot/report.
-- real constraints: existing CLI/API/Bot/report contracts still import stable public symbols.
-- inertia constraints: legacy names describe migration history, not the target architecture.
-- kill list: delivery-owned domain rules, unowned shims, and undocumented compatibility paths.
-- proof point: service contract tests and golden/API/Web regressions pass after kernel migration.
-- falsifier: new domain logic appears in delivery or a retained entry lacks owner/removal condition.
-- migration slice: keep only registered adapters, then retire them as kernel/provider modules mature.
+- GitHub `FateCat Acceptance` workflow 改为 `workflow_dispatch` 手动触发，不再由 push / pull_request 自动运行。
+- GitHub `FateCat Container` workflow 改为 `workflow_dispatch` 手动触发，只有显式选择 `push_image` 才推送 GHCR。
+- 新增 `scripts/check-public-release-policy.sh`，检查公开发布策略是否回潮。
+- `scripts/local-ci.sh --profile quick` 接入公开发布策略检查。
+- 新增 `scripts/public-release-gate.sh`，串联 quick CI、发布策略、delivery smoke、生产 readiness 和可选 live API 验证。
+- 修复 `scripts/production-readiness.sh` 在 `pipefail` 下 `curl | grep -q` 检查 `/metrics` 可能误报 `curl: (23)` 的问题。
+- Web 页面元信息补充默认不写数据库、任务只在进程内短暂保留、不会自动发送报告到 Gemini 的说明。
+- Web 异步提交脚本补充失败/过期/查询异常后的按钮状态恢复，避免用户看到按钮长期停在“生成中...”。
+- API 回归补充“Markdown 报告任务不写记录存储”的测试。
+- README、HF Space README 和 `docs/deployment/huggingface-space.md` 同步免费自部署、隐私和发布门禁口径。
 
 ## 当前门禁状态
 
 | 门禁 | 状态 | 说明 |
 |---|---|---|
-| 本地 all profile | PASS | `bash scripts/local-ci.sh --profile all` 通过 |
-| 结构 / 源码 / 隐私卫生 | PASS | `check-structure`、`check-source-hygiene`、`check-privacy-fixtures` 通过 |
-| 格式 / lint / 类型 | PASS | ruff format、ruff check、mypy 均通过 |
-| 全量行为回归 | PASS | `168 passed, 1 skipped` |
-| Docker / 容器 smoke | PASS | 镜像构建与容器 `/web` smoke 通过 |
-| catalog compatibility guard | PASS | active catalog 无 `compatibility_source_root`、`temporary-compatibility-box`、`scripts/project/modules` |
-| 真实公网 API / Bot live | HITL | 仅外部托管发布需要；需真实生产 URL、TLS/反向代理、生产 CORS allowlist、真实 `FATE_BOT_TOKEN` |
+| 免费 Web 工作台可用性 | PASS | `/web` 使用服务端 HTML + 异步任务生成 Markdown |
+| HF 官方免费 Space live health | PASS | `/health`、`/ready`、`/metrics` live 验证通过 |
+| 用户自助部署文档 | PASS | 覆盖 HF Duplicate Space、GitHub + HF 手动 workflow、hf CLI |
+| 默认隐私 / 存储口径 | PASS | 免费 Space 默认 `FATE_RECORDS_ENABLED=0`；报告任务不写记录库 |
+| GitHub 自动验收回潮 | PASS | acceptance/container workflow 均为手动触发；quick CI 有脚本检查 |
+| 本地质量门禁 | PASS | quick CI、ruff、format、mypy、focused regression 通过 |
+| live Telegram Bot | SKIP | 免费 Web 工作台不依赖 Bot token；真实 Bot 验收需另传生产 token |
+| 高并发公共服务 | 非目标 | 当前目标是用户可独立部署单实例；多副本高并发需外部队列/网关/WAF |
 
-## 剩余 HITL 验收
+## 仍需保持的边界
 
-独立部署单实例仓库内门禁已通过。若要声明真实公网托管发布，必须在真实公网环境执行：
+- 不把免费 HF Space 描述成高并发公共服务。
+- 不默认保存用户出生信息或 Markdown 报告。
+- 不自动把报告发送到 Gemini、Telegram 或其他第三方。
+- 不在 `/web` 引入未经批准的前端样式或复杂前端框架。
+- 不把高级八字推理描述成 100% 专业断法；基础排盘可用，高级格局、合化成败、用神冲突和岁运专题仍按规则证据层继续治理。
 
-```bash
-bash scripts/production-readiness.sh --api-url <real-url> --require-live-bot
-```
+## 下一步
 
-缺少真实域名、TLS、反向代理、生产 URL、生产 CORS allowlist 和 Bot token 前，外部 live 验收保持 `HITL`，质量结论不做伪证。
-
-## 维护风险
-
-| 文件 | 行数 | 当前边界 |
-|---|---:|---|
-| `domains/fate-analysis/services/fate-core/src/fate_core/kernel/bazi_calculator.py` | 2798 | 八字 legacy 核心归属位置，后续继续按历法、四柱、强弱、格局、用神、岁运拆分 |
-| `domains/experience-delivery/services/fatecat-delivery/src/bazi_calculator.py` | 30 | 历史裸模块导入兼容导出，删除前需完成兼容账本移除条件 |
-| `domains/experience-delivery/services/fatecat-delivery/src/report_generator.py` | 1967 | 报告模板、章节渲染、品牌页脚拆分 |
-| `domains/experience-delivery/services/fatecat-delivery/src/bot.py` | 1153+ | Bot 交互、命令解析、交付编排拆分 |
-| `domains/experience-delivery/services/fatecat-delivery/src/main.py` | 980+ | API 路由、公共服务护栏、观测指标拆分 |
-| `domains/experience-delivery/services/fatecat-delivery/src/web_ui.py` | 830 | 表单、工作台、Markdown 输出、页面元信息拆分 |
-| `domains/fate-analysis/services/fate-core/src/fate_core/usecases/calculate_pure_analysis.py` | 1365 | pure-analysis 编排继续瘦身 |
-
-## 发布判断
-
-- 本地开发质量：PASS
-- 企业仓库结构与本地发布链路：PASS
-- 用户独立部署单实例候选：PASS
-- 外部托管公网 live 发布：HITL，等待真实生产输入
+- 将本轮变更提交并推送到 `main`。
+- 推送后用本地脚本重新部署 HF Space，并验证线上 `/web` 包含新的隐私说明与按钮状态脚本。
+- 若后续要声明 Bot 或高并发服务生产可用，必须另行提供真实 Bot token、真实域名/网关策略、外部队列或多副本限流证据。

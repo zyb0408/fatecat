@@ -590,6 +590,37 @@ def test_markdown_report_job_api_returns_status_then_result():
     assert "# 命理排盘报告：测试样本" in final_body["data"]["result"]["markdown"]
 
 
+def test_markdown_report_jobs_do_not_write_records(monkeypatch):
+    def fail_save_record(**_kwargs):
+        raise AssertionError("report job must not write record storage")
+
+    monkeypatch.setattr("main.db.save_record", fail_save_record)
+    client = TestClient(app)
+
+    standard_response = client.post("/api/v1/report/jobs", json=_payload())
+    assert standard_response.status_code == 202
+    standard_final = _wait_for_report_job(client, standard_response.json()["data"]["jobId"])
+
+    web_response = client.post(
+        "/api/v1/report/jobs/web",
+        json={
+            "birthDate": "1990-01-01",
+            "birthTime": "08:00",
+            "birthPlace": "北京",
+            "gender": "male",
+            "name": "测试样本",
+            "reportSystem": "bazi",
+        },
+    )
+    assert web_response.status_code == 202
+    web_final = _wait_for_report_job(client, web_response.json()["data"]["jobId"])
+
+    assert standard_final["data"]["status"] == "succeeded"
+    assert web_final["data"]["status"] == "succeeded"
+    assert "# 命理排盘报告：测试样本" in standard_final["data"]["result"]["markdown"]
+    assert "# 命理排盘报告：测试样本" in web_final["data"]["result"]["markdown"]
+
+
 def test_web_report_job_api_renders_completed_job_in_web_page():
     client = TestClient(app)
     response = client.post(

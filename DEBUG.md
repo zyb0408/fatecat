@@ -722,3 +722,60 @@ Result:
   - submit button click returned `HTTP 200`.
   - final page contains `Markdown 输出` and `命理排盘报告：浏览器验收`.
   - final page does not contain `请求处理超时`.
+
+## 2026-06-17 HF Space connection refused report
+
+### Bug
+
+用户浏览器提示 `tradecatlabs-fatecat.hf.space 拒绝了我们的连接请求`。
+
+### Observations
+
+- `hf spaces info tradecatlabs/fatecat --expand runtime` 返回 `stage=RUNNING`、`domain=READY`、`hardware=cpu-basic`、`replicas.current=1`。
+- `curl -I https://tradecatlabs-fatecat.hf.space/web` 已连到服务端，返回 `HTTP/2 405` 且 `allow: GET`，说明域名和容器可达，但 `/web` 不支持 HEAD。
+- `curl -L https://tradecatlabs-fatecat.hf.space/web` 返回 `HTTP 200`，页面包含 `FateCat Web Markdown 报告`、`web-report-form`、`生成 Markdown 报告`。
+- `curl -L https://tradecatlabs-fatecat.hf.space/health` 返回 `HTTP 200` 和 `status=ok`。
+- 本地 Playwright 浏览器工具未能复核，因为当前环境缺少 Playwright Chromium 二进制。
+
+### Current Conclusion
+
+当前远端不是持续性崩溃或端口未监听。用户看到的拒绝连接更可能发生在 HF Space 刚部署、重启、冷启动、平台路由切换或浏览器/网络缓存旧失败状态的短窗口内。
+
+### User-Facing Recovery
+
+- 使用完整 HTTPS 地址：`https://tradecatlabs-fatecat.hf.space/web`。
+- 强制刷新或换无痕窗口。
+- 如果复现，先打开 `https://tradecatlabs-fatecat.hf.space/health` 判断是整站不可达还是仅页面路径问题。
+
+## 2026-06-17 production-readiness metrics pipefail false negative
+
+### Bug
+
+`scripts/public-release-gate.sh --api-url https://tradecatlabs-fatecat.hf.space` 在 live `/metrics` 阶段失败：
+
+```text
+curl: (23) Failure writing output to destination
+```
+
+### Root Cause
+
+`scripts/production-readiness.sh` 使用 `curl -fsS "$url/metrics" | grep -q 'fatecat_requests_total'`。在 `set -o pipefail` 下，`grep -q` 命中后提前关闭管道，`curl` 可能收到写入失败并返回 23，导致已可用的 `/metrics` 被误判失败。
+
+### Fix
+
+- 先用 `curl -fsS "$url/metrics" -o "$metrics_file"` 写入临时文件。
+- 再用 `grep -q 'fatecat_requests_total' "$metrics_file"` 检查指标内容。
+
+### Regression Evidence
+
+```bash
+bash scripts/public-release-gate.sh --api-url https://tradecatlabs-fatecat.hf.space --output /tmp/fatecat-public-release-20260617-rerun
+bash scripts/public-release-gate.sh --api-url https://tradecatlabs-fatecat.hf.space --skip-delivery-smoke --output /tmp/fatecat-public-release-20260617-final
+```
+
+Result:
+
+- 本地 quick CI 通过。
+- public release policy 通过。
+- 本地 delivery smoke 通过。
+- HF `/health`、`/ready`、`/metrics` live 验证通过。

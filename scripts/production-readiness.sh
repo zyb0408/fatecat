@@ -196,7 +196,10 @@ if [[ -n "${api_url}" ]]; then
   curl -fsS "${api_url}/ready" >/dev/null
   echo "[production-readiness] OK: live API readiness 通过"
   echo "[production-readiness] live API metrics: ${api_url}/metrics"
-  curl -fsS "${api_url}/metrics" | grep -q 'fatecat_requests_total'
+  metrics_file="$(mktemp)"
+  trap 'rm -f "${metrics_file}"' EXIT
+  curl -fsS "${api_url}/metrics" -o "${metrics_file}"
+  grep -q 'fatecat_requests_total' "${metrics_file}"
   echo "[production-readiness] OK: live API metrics 通过"
 else
   echo "[production-readiness] SKIP: 未提供 --api-url，外部 API 连通验证待执行"
