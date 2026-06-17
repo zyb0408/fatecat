@@ -21,6 +21,7 @@ def test_get_branding_payload_contains_required_fields():
     assert branding["xUrl"] == "https://x.com/tradecatlabs"
     assert branding["githubUrl"] == "https://github.com/tradecatlabs"
     assert branding["huggingFaceUrl"] == "https://huggingface.co/tradecatlabs"
+    assert branding["geminiGemUrl"] == ("https://gemini.google.com/gem/1d9XompAC8xk0xV6655X9IxZYQUNkDJoG?usp=sharing")
     assert branding["ca"] == "0x8a99b8d53eff6bc331af529af74ad267f3167777"
 
 

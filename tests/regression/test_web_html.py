@@ -75,6 +75,8 @@ def test_web_page_renders_semantic_form():
     assert "https://x.com/tradecatlabs" in text
     assert "https://github.com/tradecatlabs" in text
     assert "https://huggingface.co/tradecatlabs" in text
+    assert "免费 AI 分析入口（Gemini Gem）" in text
+    assert "https://gemini.google.com/gem/1d9XompAC8xk0xV6655X9IxZYQUNkDJoG?usp=sharing" in text
     assert '<nav aria-label="页面导航">' in text
     assert '<a href="#project-brand">项目</a>' in text
     assert '<a href="#production-report">报告</a>' in text

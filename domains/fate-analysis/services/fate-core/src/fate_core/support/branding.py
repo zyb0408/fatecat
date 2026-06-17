@@ -18,6 +18,7 @@ REQUIRED_BRANDING_KEYS = (
     "xUrl",
     "githubUrl",
     "huggingFaceUrl",
+    "geminiGemUrl",
     "ca",
     "disclaimerTitle",
     "disclaimerText",
@@ -58,6 +59,7 @@ def get_branding_payload() -> dict[str, str]:
         "xUrl": branding["xUrl"],
         "githubUrl": branding["githubUrl"],
         "huggingFaceUrl": branding["huggingFaceUrl"],
+        "geminiGemUrl": branding["geminiGemUrl"],
         "ca": branding["ca"],
     }
 

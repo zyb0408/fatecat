@@ -216,6 +216,7 @@ class BrandingInfo(BaseModel):
     xUrl: str
     githubUrl: str
     huggingFaceUrl: str
+    geminiGemUrl: str
     ca: str
 
 

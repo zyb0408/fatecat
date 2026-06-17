@@ -326,6 +326,7 @@ def _render_branding_panel() -> str:
         ("X", branding["xUrl"]),
         ("GitHub", branding["githubUrl"]),
         ("Hugging Face", branding["huggingFaceUrl"]),
+        ("免费 AI 分析入口（Gemini Gem）", branding["geminiGemUrl"]),
     ]
     link_items = "\n".join(f'<li><a href="{_attr(url)}">{_h(label)}</a></li>' for label, url in links)
     return "\n".join(
