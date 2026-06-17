@@ -57,4 +57,18 @@ class WebReportResult:
     workbench: dict[str, Any]
 
 
-__all__ = ["WebReportForm", "WebReportResult"]
+@dataclass
+class WebReportJobView:
+    job_id: str
+    status: str
+    report_system: str
+    created_at: str
+    expires_at: str
+    started_at: str | None = None
+    finished_at: str | None = None
+    queue_position: int | None = None
+    error: str | None = None
+    result: WebReportResult | None = None
+
+
+__all__ = ["WebReportForm", "WebReportJobView", "WebReportResult"]

@@ -4,6 +4,7 @@ import asyncio
 import json
 import logging
 import sys
+import time
 from pathlib import Path
 from threading import BoundedSemaphore
 
@@ -20,6 +21,7 @@ if str(FATE_CORE_SRC) not in sys.path:
 
 import main  # noqa: E402
 from main import app  # noqa: E402
+from report_jobs import ReportJobQueueFull  # noqa: E402
 
 
 def _payload() -> dict:
@@ -41,6 +43,20 @@ def _payload() -> dict:
             "calendarType": "solar",
         },
     }
+
+
+def _wait_for_report_job(client: TestClient, job_id: str, *, timeout_seconds: float = 8.0) -> dict:
+    deadline = time.monotonic() + timeout_seconds
+    last_body = {}
+    while time.monotonic() < deadline:
+        response = client.get(f"/api/v1/report/jobs/{job_id}")
+        assert response.status_code == 200
+        last_body = response.json()
+        status = last_body["data"]["status"]
+        if status in {"succeeded", "failed", "expired"}:
+            return last_body
+        time.sleep(0.05)
+    raise AssertionError(f"report job did not finish: {last_body}")
 
 
 def test_pure_analysis_api_returns_success():
@@ -178,6 +194,9 @@ def test_ready_and_metrics_endpoints_are_available():
     assert "fatecat_inflight_requests" in metrics_response.text
     assert "fatecat_calculation_slots_in_use" in metrics_response.text
     assert "fatecat_calculation_slots_max" in metrics_response.text
+    assert "fatecat_report_job_queue_size" in metrics_response.text
+    assert "fatecat_report_job_queue_max" in metrics_response.text
+    assert "fatecat_report_jobs" in metrics_response.text
     assert "fatecat_bot_queue_size" in metrics_response.text
     assert 'fatecat_bot_queue_scope_info{backend="memory",scope="single_process"} 1' in metrics_response.text
     assert "fatecat_bot_queue_max_size" in metrics_response.text
@@ -554,6 +573,61 @@ def test_markdown_report_api_selects_ziwei_without_bazi_blocks():
     assert "## 八字排盘详情" not in markdown
 
 
+def test_markdown_report_job_api_returns_status_then_result():
+    client = TestClient(app)
+    response = client.post("/api/v1/report/jobs", json=_payload())
+
+    assert response.status_code == 202
+    body = response.json()
+    assert body["success"] is True
+    assert body["data"]["status"] in {"queued", "running"}
+    assert body["data"]["jobId"]
+    assert body["data"]["statusUrl"] == f"/api/v1/report/jobs/{body['data']['jobId']}"
+
+    final_body = _wait_for_report_job(client, body["data"]["jobId"])
+    assert final_body["data"]["status"] == "succeeded"
+    assert final_body["data"]["result"]["reportSystem"] == "bazi"
+    assert "# 命理排盘报告：测试样本" in final_body["data"]["result"]["markdown"]
+
+
+def test_web_report_job_api_renders_completed_job_in_web_page():
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/report/jobs/web",
+        json={
+            "birthDate": "1990-01-01",
+            "birthTime": "08:00",
+            "birthPlace": "北京",
+            "gender": "male",
+            "reportSystem": "bazi",
+            "name": "异步样本",
+        },
+    )
+
+    assert response.status_code == 202
+    job_id = response.json()["data"]["jobId"]
+    final_body = _wait_for_report_job(client, job_id)
+    assert final_body["data"]["status"] == "succeeded"
+
+    page = client.get("/web", params={"jobId": job_id})
+    assert page.status_code == 200
+    assert "任务状态：已完成" in page.text
+    assert '<h2 id="markdown-output">Markdown 输出</h2>' in page.text
+    assert "# 命理排盘报告：异步样本" in page.text
+
+
+def test_report_job_api_rejects_when_queue_is_full(monkeypatch):
+    def full_queue(**_kwargs):
+        raise ReportJobQueueFull("报告队列已满，请稍后再试")
+
+    monkeypatch.setattr(main.report_job_manager, "submit", full_queue)
+
+    response = TestClient(app).post("/api/v1/report/jobs", json=_payload())
+
+    assert response.status_code == 429
+    assert response.json()["error"] == "报告队列已满，请稍后再试"
+
+
 def test_bazi_markdown_report_keeps_high_risk_topic_profiles_out_of_default_report():
     response = TestClient(app).post("/api/v1/report/markdown", json=_payload())
 
@@ -682,5 +756,5 @@ def test_markdown_report_displays_submitted_birth_place():
     assert response.status_code == 200
     markdown = response.json()["data"]["markdown"]
     assert "出生地区" in markdown
-    assert "上海市" in markdown
-    assert "已填写（非北京地区已隐藏）" not in markdown
+    assert "已填写（非北京地区已隐藏）" in markdown
+    assert "上海市" not in markdown

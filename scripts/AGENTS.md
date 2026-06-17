@@ -13,6 +13,7 @@ scripts/
 ├── container-build.sh
 ├── container-release.sh
 ├── container-smoke.sh
+├── hf-space-deploy.sh
 ├── local-ci.sh
 ├── preflight.sh
 ├── export-runtime.sh
@@ -27,6 +28,7 @@ scripts/
 - `container-build.sh`：构建 FateCat delivery 镜像。
 - `container-smoke.sh`：启动临时容器并验证 `/health` 与真实排盘 API。
 - `container-release.sh`：构建、smoke，并在显式 `--push` 时推送 registry。
+- `hf-space-deploy.sh`：生成 Hugging Face Docker Space 分发包，并通过 `hf` CLI 上传到指定 Space；默认目标 `tradecatlabs/fatecat`，默认拒绝非 `tradecatlabs` 认证。
 - `local-ci.sh`：本地 CI/CD 调度入口；只编排本仓脚本，不调用 GitHub Actions。
 - `common.sh` 负责解析 runtime root；只允许已就绪的企业根作为运行根。
 - `generate-mingli-predictions.sh` 是 `fate_core.evaluation.mingli_baseline` 的薄封装，不承载领域评测规则。
@@ -47,4 +49,5 @@ scripts/
 
 - `scripts -> domains + contracts + infra + governance`
 - `scripts/generate-mingli-predictions.sh -> fate_core.evaluation.mingli_baseline`
+- `scripts/hf-space-deploy.sh -> infra/huggingface-space + hf CLI`
 - 禁止脚本直接隐藏 secret、运行态或旧路径 fallback。

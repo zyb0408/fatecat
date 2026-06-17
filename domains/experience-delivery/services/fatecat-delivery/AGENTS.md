@@ -15,8 +15,10 @@ fatecat-delivery/
 ├── scripts/
 ├── src/
 │   ├── bot_progress.py
+│   ├── report_jobs.py
 │   ├── report_markdown.py
 │   ├── service_config.py
+│   ├── web_report_service.py
 │   └── web_forms.py
 └── tests/
 ```
@@ -29,6 +31,8 @@ fatecat-delivery/
 - 不读取真实 secret 入仓；delivery smoke 可临时生成本地 `.env` 并清理。
 - `src/web_ui.py` 只负责零美化语义 HTML：服务端直出、原生表单、真实链接、psql ASCII 表格、Markdown 原文和机器可读片段。
 - `src/web_forms.py` 只定义 Web 原生表单输入和服务端报告结果模型，不渲染 HTML、不调用命理计算。
+- `src/web_report_service.py` 只连接 Web 表单、地区解析、capability 执行和 Markdown 生成；不得渲染 HTML 或管理任务生命周期。
+- `src/report_jobs.py` 只承载公开服务报告任务的进程内队列、状态机、TTL 和指标；不得写入数据库或实现命理规则。多副本生产扩容应替换为 Redis/RQ/Celery 后端。
 - `src/report_markdown.py` 只承载 Markdown 表格、转义和行内文本压缩工具；报告层可复用，但不得写入命理规则。
 - `src/bot_progress.py` 只承载 Telegram Bot 进度项和提示文案；Bot 主流程仍在 `src/bot.py`。
 - `src/service_config.py` 只读取交付服务环境配置；运行期常量仍由 `src/main.py` 初始化，便于测试 monkeypatch 和 FastAPI 启动时固定配置。

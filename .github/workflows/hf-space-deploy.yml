@@ -1,0 +1,72 @@
+name: Deploy Hugging Face Space
+
+on:
+  workflow_dispatch:
+    inputs:
+      space_id:
+        description: "Hugging Face Space id, e.g. username/fatecat"
+        required: true
+        type: string
+      visibility:
+        description: "Target Space visibility"
+        required: true
+        default: public
+        type: choice
+        options:
+          - public
+          - private
+      prune_remote:
+        description: "Delete remote files that are not in the generated Space bundle"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install system tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rsync
+
+      - name: Install Hugging Face CLI
+        run: python -m pip install --upgrade "huggingface_hub[cli]"
+
+      - name: Deploy Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          FATECAT_HF_SPACE_ID: ${{ inputs.space_id }}
+          FATECAT_HF_COMMIT_MESSAGE: deploy FateCat from GitHub ${{ github.sha }}
+          SPACE_VISIBILITY: ${{ inputs.visibility }}
+          PRUNE_REMOTE: ${{ inputs.prune_remote }}
+        run: |
+          if [[ -z "${HF_TOKEN}" ]]; then
+            echo "::error::Missing repository secret HF_TOKEN."
+            exit 1
+          fi
+
+          args=(
+            --space "${FATECAT_HF_SPACE_ID}"
+            --token "${HF_TOKEN}"
+            --commit-message "${FATECAT_HF_COMMIT_MESSAGE}"
+            --allow-auth-mismatch
+          )
+
+          if [[ "${SPACE_VISIBILITY}" == "private" ]]; then
+            args+=(--private)
+          fi
+
+          if [[ "${PRUNE_REMOTE}" == "true" ]]; then
+            args+=(--prune-remote)
+          fi
+
+          bash scripts/hf-space-deploy.sh "${args[@]}"

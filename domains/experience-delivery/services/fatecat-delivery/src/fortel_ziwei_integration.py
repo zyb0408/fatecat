@@ -138,7 +138,7 @@ def _ensure_iztro_ready(repo_dir: Path) -> Path:
     entry_path = _resolve_node_package_entry(working_dir)
 
     if not node_modules_dir.exists():
-        _run_npm_command(working_dir, ["install", "--no-fund", "--no-audit"], timeout=300)
+        _run_npm_command(working_dir, ["install", "--ignore-scripts", "--no-fund", "--no-audit"], timeout=300)
 
     entry_path = _resolve_node_package_entry(working_dir)
     if not entry_path.exists() and _has_npm_script(working_dir, "build"):

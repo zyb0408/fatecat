@@ -671,3 +671,54 @@ Result:
 - Direct TestClient smoke:
   - `/web` with `birthPlace=上海`: `web_has_shanghai=True`, `web_has_hidden=False`
   - `/api/v1/report/markdown` with `birthPlace.name=上海市`: `birth_place_line | 出生地区 | 上海市 |`
+
+## 2026-06-17 HF Space Web submit timeout and no-feedback state
+
+### Bug
+
+用户在 HF Space Web 工作台点击“生成 Markdown 报告”后，页面看起来没有反应。
+
+### Observations
+
+- 远端空表单 `/web` 能正常返回，页面存在 1 个原生 form 和 1 个 submit button。
+- 远端提交态 `/web?...submitted=1` 一度稳定返回应用层 `504 请求处理超时`，每次约 31 秒。
+- 远端 `/metrics` 记录 `GET /web` 多次 `504 timeout`，而 `POST /api/v1/report/markdown` 曾在约 1.27 秒内返回 200。
+- 本地同一路径 `TestClient GET /web?...submitted=1` 约 0.58 秒返回完整 HTML。
+- HF 免费 CPU 新实例复测后，中文北京输入约 8 秒、经纬度输入约 4.8 秒生成 Markdown，说明按钮提交链路存在，但免费环境冷启动/排队会触发默认 30 秒保护超时。
+
+### Root Cause
+
+Web 表单使用原生 GET 提交，服务端在 HF 免费 CPU/单实例构建或冷启动窗口内可能超过默认 `FATE_REQUEST_TIMEOUT_SECONDS=30`。页面提交后没有即时状态反馈，用户看到的是“点击后无响应”；一旦超过后端保护超时，返回 JSON 504 而不是 Web 报告页。
+
+### Fix
+
+- Web form 增加稳定 `id="web-report-form"`，提交按钮显式绑定 `form="web-report-form"`。
+- 页面提交事件只做状态提示：按钮文案切换为“生成中...”，报告区显示“正在生成 Markdown 报告...”；不拦截原生 GET，不改布局。
+- HF Space Docker 模板设置 `FATE_REQUEST_TIMEOUT_SECONDS=120`，只放宽免费托管环境的请求保护窗口。
+
+### Regression Evidence
+
+Completed:
+
+```bash
+PYTHONPATH=... .venv/bin/python -m pytest tests/regression/test_web_html.py -q
+bash scripts/local-ci.sh --profile quick --output /tmp/fatecat-local-ci-web-submit-fix
+FATECAT_HF_COMMIT_MESSAGE='fix web submit feedback and HF timeout' bash scripts/hf-space-deploy.sh --space tradecatlabs/fatecat --prune-remote
+```
+
+Result:
+
+- Focused Web regression passed: `10 passed in 1.96s`.
+- Local quick CI passed: `50 passed in 8.61s`, evidence `/tmp/fatecat-local-ci-web-submit-fix`.
+- HF upload CLI ended with `httpx.ReadTimeout` during commit response, but remote files were pulled back and confirmed updated:
+  - `Dockerfile` includes `FATE_REQUEST_TIMEOUT_SECONDS=120`.
+  - `web_ui.py` includes `web-report-form`, `form="web-report-form"` and `正在生成 Markdown 报告...`.
+- HF runtime rebuilt to SHA `8e45ab3fb9177ce00d1421fdec796c0718194ea8`.
+- Remote direct submit passed:
+  - URL: `https://tradecatlabs-fatecat.hf.space/web?...submitted=1`
+  - `HTTP 200`, about `6.96s`, contains `Markdown 输出`, `报告已生成。`, and `# 命理排盘报告：远端验收`.
+  - Does not contain `请求处理超时` or `<h2 id="errors">错误</h2>`.
+- Remote Playwright click passed:
+  - submit button click returned `HTTP 200`.
+  - final page contains `Markdown 输出` and `命理排盘报告：浏览器验收`.
+  - final page does not contain `请求处理超时`.

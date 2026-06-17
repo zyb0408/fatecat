@@ -41,6 +41,9 @@ MAX_REQUEST_BYTES = env_int("FATE_MAX_REQUEST_BYTES", 1_048_576, minimum=1024)
 REQUEST_TIMEOUT_SECONDS = env_int("FATE_REQUEST_TIMEOUT_SECONDS", 30, minimum=1)
 RATE_LIMIT_PER_MINUTE = env_int("FATE_RATE_LIMIT_PER_MINUTE", 120, minimum=0)
 MAX_INFLIGHT_CALCULATIONS = env_int("FATE_MAX_INFLIGHT_CALCULATIONS", 2, minimum=1)
+REPORT_JOB_QUEUE_SIZE = env_int("FATE_REPORT_JOB_QUEUE_SIZE", 20, minimum=1)
+REPORT_JOB_WORKERS = env_int("FATE_REPORT_JOB_WORKERS", 1, minimum=1)
+REPORT_JOB_TTL_SECONDS = env_int("FATE_REPORT_JOB_TTL_SECONDS", 1800, minimum=60)
 TRUST_PROXY_HEADERS = env_flag("FATE_TRUST_PROXY_HEADERS")
 ENABLE_HSTS = env_flag("FATE_ENABLE_HSTS")
 
@@ -68,6 +71,9 @@ from report_generator import (  # noqa: E402
     normalize_report_system,
     public_birth_place,
 )
+from report_jobs import ReportJobManager, ReportJobNotFound, ReportJobQueueFull, ReportJobSnapshot  # noqa: E402
+from web_forms import WebReportForm, WebReportJobView, WebReportResult  # noqa: E402
+from web_report_service import build_web_report_result, validate_web_report_form  # noqa: E402
 from web_ui import render_web_report_page  # noqa: E402
 
 logger = logging.getLogger(__name__)
@@ -86,6 +92,11 @@ _rate_limit_windows: dict[str, deque[float]] = defaultdict(deque)
 _RATE_LIMIT_EXEMPT_PATHS = {"/health", "/live", "/ready", "/metrics"}
 _REQUEST_LATENCY_BUCKETS = (0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0)
 _BODY_LIMIT_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
+report_job_manager = ReportJobManager(
+    max_workers=REPORT_JOB_WORKERS,
+    queue_size=REPORT_JOB_QUEUE_SIZE,
+    ttl_seconds=REPORT_JOB_TTL_SECONDS,
+)
 
 
 def _records_enabled() -> bool:
@@ -106,8 +117,83 @@ class ApiPrincipal:
         return self.role == "admin"
 
 
-class RequestBodyTooLarge(Exception):
-    """请求体超过公网服务允许的最大字节数。"""
+class RequestBodyLimitMiddleware:
+    """在 Starlette BaseHTTPMiddleware 外层限制请求体大小。"""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http" or scope.get("method") not in _BODY_LIMIT_METHODS:
+            await self.app(scope, receive, send)
+            return
+
+        request_id = self._request_id(scope)
+        content_length = self._header(scope, b"content-length")
+        if content_length:
+            try:
+                if int(content_length.decode("latin-1")) > MAX_REQUEST_BYTES:
+                    await self._send_json_error(scope, receive, send, request_id, 413, "请求体过大")
+                    return
+            except ValueError:
+                await self._send_json_error(scope, receive, send, request_id, 400, "Content-Length 无效")
+                return
+
+        received = 0
+        chunks: list[bytes] = []
+        while True:
+            message = await receive()
+            if message["type"] == "http.disconnect":
+                await self.app(scope, self._disconnect_receive, send)
+                return
+            if message["type"] != "http.request":
+                continue
+            chunk = message.get("body", b"")
+            received += len(chunk)
+            if received > MAX_REQUEST_BYTES:
+                await self._send_json_error(scope, receive, send, request_id, 413, "请求体过大")
+                return
+            if chunk:
+                chunks.append(chunk)
+            if not message.get("more_body", False):
+                break
+
+        body = b"".join(chunks)
+        consumed = False
+        disconnect_wait = asyncio.Event()
+
+        async def replay_receive():
+            nonlocal consumed
+            if consumed:
+                await disconnect_wait.wait()
+                return {"type": "http.disconnect"}
+            consumed = True
+            return {"type": "http.request", "body": body, "more_body": False}
+
+        await self.app(scope, replay_receive, send)
+
+    @staticmethod
+    async def _disconnect_receive():
+        return {"type": "http.disconnect"}
+
+    @staticmethod
+    def _header(scope, name: bytes) -> bytes | None:
+        for header_name, value in scope.get("headers", []):
+            if header_name.lower() == name:
+                return value
+        return None
+
+    @classmethod
+    def _request_id(cls, scope) -> str:
+        raw = cls._header(scope, b"x-request-id")
+        if raw:
+            return raw.decode("latin-1", errors="ignore")
+        return uuid.uuid4().hex
+
+    @staticmethod
+    async def _send_json_error(scope, receive, send, request_id: str, status_code: int, error: str) -> None:
+        response = _apply_public_response_headers(_json_error(status_code, error), request_id)
+        await response(scope, receive, send)
 
 
 def _extract_auth_token(x_api_key: str | None, authorization: str | None) -> str:
@@ -310,31 +396,83 @@ def _run_with_calculation_slot(fn):
         return fn()
 
 
-async def _buffer_limited_body(request: Request) -> None:
-    if request.method not in _BODY_LIMIT_METHODS:
-        return
+def _web_form_from_payload(payload: dict[str, Any]) -> WebReportForm:
+    return WebReportForm.from_query(
+        birth_date=str(payload.get("birthDate") or ""),
+        birth_time=str(payload.get("birthTime") or ""),
+        birth_place=str(payload.get("birthPlace") or ""),
+        gender=str(payload.get("gender") or ""),
+        name=str(payload.get("name") or ""),
+        report_system=str(payload.get("reportSystem") or "bazi"),
+        submitted="1",
+    )
 
-    received = 0
-    chunks: list[bytes] = []
-    async for chunk in request.stream():
-        received += len(chunk)
-        if received > MAX_REQUEST_BYTES:
-            raise RequestBodyTooLarge
-        if chunk:
-            chunks.append(chunk)
 
-    body = b"".join(chunks)
-    request._body = body
-    consumed = False
+def _web_job_view(snapshot: ReportJobSnapshot) -> WebReportJobView:
+    result = snapshot.result if isinstance(snapshot.result, WebReportResult) else None
+    return WebReportJobView(
+        job_id=snapshot.job_id,
+        status=snapshot.status,
+        report_system=snapshot.report_system,
+        created_at=snapshot.created_at,
+        expires_at=snapshot.expires_at,
+        started_at=snapshot.started_at,
+        finished_at=snapshot.finished_at,
+        queue_position=snapshot.queue_position,
+        error=snapshot.error,
+        result=result,
+    )
 
-    async def replay_body():
-        nonlocal consumed
-        if consumed:
-            return {"type": "http.request", "body": b"", "more_body": False}
-        consumed = True
-        return {"type": "http.request", "body": body, "more_body": False}
 
-    request._receive = replay_body
+def _report_job_payload(snapshot: ReportJobSnapshot, *, include_result: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "jobId": snapshot.job_id,
+        "kind": snapshot.kind,
+        "status": snapshot.status,
+        "reportSystem": snapshot.report_system,
+        "queuePosition": snapshot.queue_position,
+        "createdAt": snapshot.created_at,
+        "startedAt": snapshot.started_at,
+        "finishedAt": snapshot.finished_at,
+        "expiresAt": snapshot.expires_at,
+        "error": snapshot.error,
+        "statusUrl": f"/api/v1/report/jobs/{snapshot.job_id}",
+        "input": snapshot.input_summary,
+    }
+    if include_result and snapshot.status == "succeeded":
+        payload["result"] = _serialize_report_job_result(snapshot.result)
+    return payload
+
+
+def _serialize_report_job_result(result: Any) -> dict[str, Any] | None:
+    if isinstance(result, WebReportResult):
+        return {
+            "reportSystem": result.report_system,
+            "reportSystemLabel": result.report_system_label,
+            "markdown": result.markdown,
+            "input": result.input_payload,
+        }
+    if isinstance(result, dict):
+        return result
+    return None
+
+
+def _submit_report_job(
+    *,
+    kind: str,
+    report_system: str,
+    task,
+    input_summary: dict[str, Any],
+) -> ReportJobSnapshot:
+    try:
+        return report_job_manager.submit(
+            kind=kind,
+            report_system=report_system,
+            task=task,
+            input_summary=input_summary,
+        )
+    except ReportJobQueueFull as exc:
+        raise HTTPException(status_code=429, detail=str(exc)) from exc
 
 
 def _apply_public_response_headers(response: Response, request_id: str) -> Response:
@@ -403,27 +541,11 @@ async def production_guardrails(request: Request, call_next):
     request_id_token = _request_id_context.set(request_id)
     started = time.perf_counter()
     try:
-        content_length = request.headers.get("content-length")
-        if content_length:
-            try:
-                if int(content_length) > MAX_REQUEST_BYTES:
-                    response = _json_error(413, "请求体过大")
-                    return _finalize_early_response(request, response, request_id, 413, started, "body_too_large")
-            except ValueError:
-                response = _json_error(400, "Content-Length 无效")
-                return _finalize_early_response(request, response, request_id, 400, started, "bad_request")
-
         allowed, retry_after = _check_rate_limit(request)
         if not allowed:
             response = _json_error(429, "请求过于频繁")
             response.headers["Retry-After"] = str(retry_after)
             return _finalize_early_response(request, response, request_id, 429, started, "rate_limited")
-
-        try:
-            await _buffer_limited_body(request)
-        except RequestBodyTooLarge:
-            response = _json_error(413, "请求体过大")
-            return _finalize_early_response(request, response, request_id, 413, started, "body_too_large")
 
         global _inflight_requests
         with _metrics_lock:
@@ -450,6 +572,9 @@ async def production_guardrails(request: Request, call_next):
         return _apply_public_response_headers(response, request_id)
     finally:
         _request_id_context.reset(request_id_token)
+
+
+app.add_middleware(RequestBodyLimitMiddleware)
 
 
 def _branding_model() -> BrandingInfo:
@@ -559,6 +684,7 @@ def metrics():
     with _calculation_slots_lock:
         calculation_slots_in_use = _calculation_slots_in_use
     bot_queue_status = get_queue_status()
+    report_job_status = report_job_manager.stats()
 
     for (method, route, status_code), count in sorted(counts.items()):
         labels = f'method="{_escape_metric_label(method)}",route="{_escape_metric_label(route)}",status="{status_code}"'
@@ -607,6 +733,22 @@ def metrics():
             "# HELP fatecat_calculation_slots_max Configured synchronous calculation slot ceiling.",
             "# TYPE fatecat_calculation_slots_max gauge",
             f"fatecat_calculation_slots_max {MAX_INFLIGHT_CALCULATIONS}",
+            "# HELP fatecat_report_job_queue_size Current Web/API report jobs waiting in memory queue.",
+            "# TYPE fatecat_report_job_queue_size gauge",
+            f"fatecat_report_job_queue_size {report_job_status['queue_size']}",
+            "# HELP fatecat_report_job_queue_max Configured Web/API report job queue capacity.",
+            "# TYPE fatecat_report_job_queue_max gauge",
+            f"fatecat_report_job_queue_max {report_job_status['queue_max']}",
+            "# HELP fatecat_report_job_workers Configured in-process report job workers.",
+            "# TYPE fatecat_report_job_workers gauge",
+            f"fatecat_report_job_workers {report_job_status['worker_max']}",
+            "# HELP fatecat_report_jobs Current report jobs by status.",
+            "# TYPE fatecat_report_jobs gauge",
+            f'fatecat_report_jobs{{status="queued"}} {report_job_status["queued"]}',
+            f'fatecat_report_jobs{{status="running"}} {report_job_status["running"]}',
+            f'fatecat_report_jobs{{status="succeeded"}} {report_job_status["succeeded"]}',
+            f'fatecat_report_jobs{{status="failed"}} {report_job_status["failed"]}',
+            f'fatecat_report_jobs{{status="expired"}} {report_job_status["expired"]}',
         ]
     )
     lines.extend(
@@ -649,8 +791,22 @@ def web_report(
     name: str | None = None,
     reportSystem: str | None = None,
     submitted: str | None = None,
+    jobId: str | None = None,
 ):
     """原生 HTML Web 版标准 Markdown 报告。"""
+    job = None
+    if jobId:
+        try:
+            job = _web_job_view(report_job_manager.get(jobId))
+        except ReportJobNotFound:
+            job = WebReportJobView(
+                job_id=jobId,
+                status="expired",
+                report_system=reportSystem or "bazi",
+                created_at="",
+                expires_at="",
+                error="报告任务不存在或已过期；请重新提交。",
+            )
     return render_web_report_page(
         birth_date=birthDate,
         birth_time=birthTime,
@@ -659,6 +815,39 @@ def web_report(
         name=name,
         report_system=reportSystem,
         submitted=submitted,
+        job=job,
+    )
+
+
+@app.post("/api/v1/report/jobs/web")
+def create_web_report_job(payload: dict[str, Any]):
+    """提交 Web 表单报告任务；公开工作台默认使用该异步入口。"""
+    form = _web_form_from_payload(payload)
+    try:
+        validated = validate_web_report_form(form)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    snapshot = _submit_report_job(
+        kind="web",
+        report_system=validated.report_system,
+        input_summary={
+            "birthDate": form.birth_date,
+            "birthTime": validated.normalized_time,
+            "birthPlace": validated.display_birth_place,
+            "gender": validated.gender,
+            "name": form.name,
+        },
+        task=lambda: _run_with_calculation_slot(lambda: build_web_report_result(form)),
+    )
+    return JSONResponse(
+        status_code=202,
+        content=attach_branding(
+            {
+                "success": True,
+                "data": _report_job_payload(snapshot, include_result=False),
+                "meta": {"acceptedAt": now_cn().isoformat()},
+            }
+        ),
     )
 
 
@@ -784,6 +973,7 @@ def _calculate_bazi_raw(req: BaziRequest, *, report_system: str = "bazi") -> tup
 def _calculate_ziwei_capability(req: BaziRequest) -> dict[str, Any]:
     """使用统一 capability 执行紫微，不再从八字扩展链拼装 Markdown 数据。"""
     birth_dt, longitude, latitude = _parse_bazi_request(req)
+    display_birth_place = public_birth_place(req.birthPlace.name)
     result = CapabilityExecutor().execute(
         CapabilityInput(
             capability_id="ziwei",
@@ -792,7 +982,7 @@ def _calculate_ziwei_capability(req: BaziRequest) -> dict[str, Any]:
                 "gender": req.gender,
                 "longitude": longitude,
                 "latitude": latitude,
-                "birthPlace": req.birthPlace.name,
+                "birthPlace": display_birth_place,
                 "name": req.name,
                 "useTrueSolarTime": req.options.useTrueSolarTime,
             },
@@ -907,26 +1097,76 @@ def calculate_bazi(
         raise HTTPException(status_code=500, detail="服务器内部错误") from e
 
 
+def _build_markdown_report_payload(req: BaziRequest) -> dict[str, Any]:
+    report_system = normalize_report_system(req.options.reportSystem)
+    if report_system == "ziwei":
+        result = _run_with_calculation_slot(lambda: _calculate_ziwei_capability(req))
+    else:
+        result, _calculator, _birth_dt = _run_with_calculation_slot(
+            lambda: _calculate_bazi_raw(req, report_system=report_system)
+        )
+    report_hide = build_report_hide(report_system)
+    markdown = generate_full_report(result, hide=report_hide, report_system=report_system)
+    return {
+        "reportSystem": report_system,
+        "markdown": markdown,
+    }
+
+
+@app.post("/api/v1/report/jobs")
+def create_markdown_report_job(req: BaziRequest):
+    """提交标准 Markdown 报告生成任务。"""
+    report_system = normalize_report_system(req.options.reportSystem)
+    birth_place = public_birth_place(req.birthPlace.name) if req.birthPlace else ""
+    snapshot = _submit_report_job(
+        kind="markdown",
+        report_system=report_system,
+        input_summary={
+            "birthDate": req.birthDate,
+            "birthTime": req.birthTime,
+            "birthPlace": birth_place,
+            "gender": req.gender,
+            "name": req.name,
+        },
+        task=lambda: _build_markdown_report_payload(req),
+    )
+    return JSONResponse(
+        status_code=202,
+        content=attach_branding(
+            {
+                "success": True,
+                "data": _report_job_payload(snapshot, include_result=False),
+                "meta": {"acceptedAt": now_cn().isoformat()},
+            }
+        ),
+    )
+
+
+@app.get("/api/v1/report/jobs/{job_id}")
+def get_report_job(job_id: str):
+    """查询 Markdown 报告任务状态；成功后返回 Markdown 结果。"""
+    try:
+        snapshot = report_job_manager.get(job_id)
+    except ReportJobNotFound as exc:
+        raise HTTPException(status_code=404, detail="报告任务不存在或已过期") from exc
+    return attach_branding(
+        {
+            "success": True,
+            "data": _report_job_payload(snapshot, include_result=True),
+            "meta": {"checkedAt": now_cn().isoformat()},
+        }
+    )
+
+
 @app.post("/api/v1/report/markdown")
 def generate_markdown_report(req: BaziRequest):
     """生成指定体系的 Markdown 报告。"""
     try:
-        report_system = normalize_report_system(req.options.reportSystem)
-        if report_system == "ziwei":
-            result = _run_with_calculation_slot(lambda: _calculate_ziwei_capability(req))
-        else:
-            result, _calculator, _birth_dt = _run_with_calculation_slot(
-                lambda: _calculate_bazi_raw(req, report_system=report_system)
-            )
-        report_hide = build_report_hide(report_system)
-        markdown = generate_full_report(result, hide=report_hide, report_system=report_system)
+        data = _build_markdown_report_payload(req)
         return attach_branding(
             {
                 "success": True,
-                "data": {
-                    "reportSystem": report_system,
-                    "markdown": markdown,
-                },
+                "data": data,
                 "meta": {"calculatedAt": now_cn().isoformat()},
             }
         )

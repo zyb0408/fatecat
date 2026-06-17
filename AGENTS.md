@@ -39,12 +39,15 @@ fatecat/
 ├── shared/
 ├── tools/
 ├── docs/
+│   └── deployment/
+│       └── huggingface-space.md
 ├── tests/
 ├── .github/
 │   ├── AGENTS.md
 │   └── workflows/
 │       ├── acceptance.yml
-│       └── container.yml
+│       ├── container.yml
+│       └── hf-space-deploy.yml
 ├── references/
 │   ├── commands.md
 │   ├── execution-playbook.md
@@ -82,7 +85,7 @@ fatecat/
 - `governance/`：标准、流程、ADR、风险、门禁、baseline evidence、任务和迁移账本。
 - `shared/`：真实复用后的薄共享库，不作为 common 垃圾桶。
 - `tools/`：迁移工具、参考仓和供应链快照。
-- `docs/`：人类文档入口，不替代机器契约和治理证据。
+- `docs/`：人类文档入口，不替代机器契约和治理证据；`docs/deployment/` 说明用户和维护者的云端部署路径。
 - `tests/`：仓库级结构、契约、导出和跨服务测试入口。
 - `.github/`：GitHub Actions 远端验收配置；只调用仓库脚本，不保存业务代码或 secret。
 - `references/`：长文档、阶段门禁、输入输出契约、迁移与排障材料；其中 `execution-playbook.md` 是统一执行顺序真相源。
@@ -105,5 +108,6 @@ fatecat/
 - `catalog -> domains + contracts + governance`
 - `.github/workflows/acceptance.yml -> scripts/acceptance.sh`
 - `.github/workflows/container.yml -> scripts/container-build.sh + scripts/container-smoke.sh`
+- `.github/workflows/hf-space-deploy.yml -> scripts/hf-space-deploy.sh + infra/huggingface-space`
 - `scripts/* -> domains + contracts + infra + governance`
 - 禁止新增旧路径 fallback；退役路径只允许出现在迁移账本、历史证据、负例测试和防回潮规则中。

@@ -57,4 +57,4 @@ def test_ensure_iztro_ready_installs_and_builds_when_entry_missing(tmp_path, mon
     assert "infra/runtime/local-state/vendor-build" in entry_path.as_posix()
     assert entry_path.exists()
     assert not (repo_dir / "node_modules").exists()
-    assert calls == [["install", "--no-fund", "--no-audit"], ["run", "build"]]
+    assert calls == [["install", "--ignore-scripts", "--no-fund", "--no-audit"], ["run", "build"]]

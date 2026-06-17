@@ -9,6 +9,8 @@
 ```text
 docs/
 ├── AGENTS.md
+├── deployment/
+│   └── huggingface-space.md
 └── reference-materials/
     ├── AGENTS.md
     ├── architecture/
@@ -24,6 +26,7 @@ docs/
 ## 职责边界
 
 - `reference-materials/`：原项目文档资产的企业根归位入口，按 architecture、operations、reference、roadmap、vendor、incident 和 lessons 分类。
+- `deployment/`：面向用户和维护者的云端部署说明；当前承载 Hugging Face Space 自助部署路径。
 - 事故、任务、门禁和 baseline 证据迁入 `governance/`。
 
 ## 依赖方向

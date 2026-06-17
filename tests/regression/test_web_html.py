@@ -21,7 +21,7 @@ from main import app  # noqa: E402
 def assert_web_production_layout_html(text: str) -> None:
     assert "style=" not in text
     assert "<main>" not in text
-    assert '<body>\n<form class="web-production-grid"' in text
+    assert '<body>\n<form id="web-report-form" class="web-production-grid"' in text
     assert "<h1>FateCat Web Markdown 报告</h1>" not in text
     assert "--phi-major: 61.8034%;" in text
     assert "--phi-minor: 38.1966%;" in text
@@ -80,7 +80,7 @@ def test_web_page_renders_semantic_form():
     assert '<a href="#production-report">报告</a>' in text
     assert '<a href="#input-form">参数</a>' in text
     assert_web_production_layout_html(text)
-    assert '<form class="web-production-grid" method="get" action="/web">' in text
+    assert '<form id="web-report-form" class="web-production-grid" method="get" action="/web">' in text
     assert '<section class="web-production-panel web-production-brand" aria-labelledby="project-brand">' in text
     assert '<section class="web-production-panel web-production-report" aria-labelledby="production-report">' in text
     assert '<section class="web-production-panel web-production-input" aria-labelledby="input-form">' in text
@@ -92,16 +92,24 @@ def test_web_page_renders_semantic_form():
     )
     assert '<h2 id="production-report">生成报告</h2>' in text
     assert '<div class="web-production-report-header">' in text
-    assert '<button class="web-production-submit-button" type="submit">生成 Markdown 报告</button>' in text
+    assert (
+        '<button class="web-production-submit-button" type="submit" form="web-report-form">生成 Markdown 报告</button>'
+    ) in text
     assert "尚未生成报告。提交底部参数后，服务端会在这里写入 Markdown 输出。" in text
+    assert 'id="production-report-state"' in text
+    assert 'form.addEventListener("submit"' in text
+    assert 'fetch("/api/v1/report/jobs/web"' in text
+    assert "pollJob(jobId)" in text
+    assert "正在生成 Markdown 报告..." in text
     assert '<input type="hidden" name="submitted" value="1">' in text
     assert " required>" not in text
     assert '<details id="page-info">\n<summary>页面说明与元信息</summary>' in text
     assert "<details open>\n<summary>页面说明与元信息</summary>" not in text
-    assert text.index('<form class="web-production-grid" method="get" action="/web">') < text.index(
-        "<summary>页面说明与元信息</summary>"
-    )
+    assert text.index(
+        '<form id="web-report-form" class="web-production-grid" method="get" action="/web">'
+    ) < text.index("<summary>页面说明与元信息</summary>")
     assert "页面元信息" in text
+    assert "POST /api/v1/report/jobs/web；GET /api/v1/report/jobs/{job_id}" in text
     assert "相关入口" in text
     assert "参数控件" in text
     assert "出生日期（必填）" in text
@@ -219,10 +227,12 @@ def test_web_page_generates_copyable_markdown_report():
 def test_web_page_workbench_does_not_recalculate_domain_rules():
     source = (TELEGRAM_SRC / "web_ui.py").read_text(encoding="utf-8")
 
-    assert "from fate_core.capabilities import CapabilityExecutor" in source
+    assert "from web_report_service import build_web_report_result" in source
     for forbidden in [
+        "from fate_core.capabilities import",
         "from fate_core.usecases import",
         "from fate_core.usecases.evaluators",
+        "CapabilityExecutor(",
         "calculate_pure_analysis",
         "rules_for_system(",
         "build_fortune_trigger_matrix",
@@ -316,5 +326,5 @@ def test_web_page_displays_submitted_birth_place_in_frontend():
     assert response.status_code == 200
     text = response.text
     assert "出生地区" in text
-    assert "上海" in text
-    assert "已填写（非北京地区已隐藏）" not in text
+    assert "已填写（非北京地区已隐藏）" in text
+    assert "上海" not in text

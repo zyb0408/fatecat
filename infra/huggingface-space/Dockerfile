@@ -7,7 +7,19 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     FATECAT_RUNTIME_ROOT=/app \
     FATE_SERVICE_HOST=0.0.0.0 \
-    FATE_SERVICE_PORT=8001 \
+    FATE_SERVICE_PORT=7860 \
+    FATE_RECORDS_ENABLED=0 \
+    FATE_REQUEST_TIMEOUT_SECONDS=120 \
+    FATE_RATE_LIMIT_PER_MINUTE=30 \
+    FATE_MAX_INFLIGHT_CALCULATIONS=1 \
+    FATE_REPORT_JOB_QUEUE_SIZE=20 \
+    FATE_REPORT_JOB_WORKERS=1 \
+    FATE_REPORT_JOB_TTL_SECONDS=1800 \
+    FATE_DEPLOYMENT_REPLICAS=1 \
+    FATE_RATE_LIMIT_BACKEND=memory \
+    FATE_EDGE_BODY_LIMIT_ENABLED=1 \
+    FATE_TRUST_PROXY_HEADERS=1 \
+    FATE_ENABLE_HSTS=1 \
     HOME=/tmp \
     NPM_CONFIG_CACHE=/tmp/fatecat-npm-cache \
     PYTHONPATH=/app/domains/fate-analysis/services/fate-core/src:/app/domains/experience-delivery/services/fatecat-delivery/src
@@ -39,9 +51,9 @@ RUN chmod +x /usr/local/bin/fatecat-delivery \
 
 USER fatecat
 
-EXPOSE 8001
+EXPOSE 7860
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD python -c "import os, urllib.request; urllib.request.urlopen(f'http://127.0.0.1:{os.getenv(\"FATE_SERVICE_PORT\", \"8001\")}/ready', timeout=3).read()"
+  CMD python -c "import os, urllib.request; urllib.request.urlopen(f'http://127.0.0.1:{os.getenv(\"FATE_SERVICE_PORT\", \"7860\")}/ready', timeout=3).read()"
 
 CMD ["fatecat-delivery"]

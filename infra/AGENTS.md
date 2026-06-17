@@ -13,6 +13,11 @@ infra/
 │   ├── AGENTS.md
 │   ├── Dockerfile.delivery
 │   └── entrypoint.delivery.sh
+├── huggingface-space/
+│   ├── AGENTS.md
+│   ├── Dockerfile
+│   ├── README.md
+│   └── .hfignore
 ├── databases/
 │   └── bazi/
 │       └── schema_v2.sql
@@ -34,6 +39,7 @@ infra/
 
 - `environments/`：配置模板与非 secret 环境配置。
 - `docker/`：容器镜像、entrypoint 和容器运行期健康检查定义。
+- `huggingface-space/`：免费 HF Docker Space 分发模板，默认关闭记录存储并暴露 `/web`。
 - `databases/`：schema/migration，不保存数据库实库。
 - `runtime/`：本地运行态目录骨架，不提交日志、缓存、数据库和用户输出。
 - GitOps、systemd、观测、安全和灾备后续继续归入这里。

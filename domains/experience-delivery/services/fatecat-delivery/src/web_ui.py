@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime
 from html import escape
 from typing import Any
 
@@ -17,12 +16,11 @@ from fastapi.responses import HTMLResponse
 from tabulate import tabulate
 
 from branding import get_branding_payload
-from fate_core.capabilities import CapabilityExecutor, CapabilityInput
-from location import get as get_location
 from prediction_systems import PREDICTION_SYSTEMS, report_system_allowed_text
-from report_generator import REPORT_SYSTEM_LABELS, build_report_hide, generate_full_report, public_birth_place
+from report_generator import public_birth_place
 from utils.timezone import now_cn
-from web_forms import WebReportForm, WebReportResult
+from web_forms import WebReportForm, WebReportJobView, WebReportResult
+from web_report_service import build_web_report_result
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +34,7 @@ def render_web_report_page(
     name: str | None = None,
     report_system: str | None = None,
     submitted: str | None = None,
+    job: WebReportJobView | None = None,
 ) -> HTMLResponse:
     """渲染 Web 版标准 Markdown 报告页面。"""
     form = WebReportForm.from_query(
@@ -49,117 +48,25 @@ def render_web_report_page(
     )
 
     errors: list[str] = []
-    result: WebReportResult | None = None
-    if form.submitted or form.has_input():
+    result: WebReportResult | None = job.result if job and job.result else None
+    if job and job.status in {"failed", "expired"} and job.error:
+        errors.append(job.error)
+    if job is None and (form.submitted or form.has_input()):
         try:
-            result = _build_report(form)
+            result = build_web_report_result(form)
         except ValueError as exc:
             errors.append(str(exc))
         except Exception:
             logger.exception("Web 报告生成失败")
             errors.append("生成报告失败")
 
-    html = _render_document(form=form, result=result, errors=errors)
+    html = _render_document(form=form, result=result, errors=errors, job=job)
     return HTMLResponse(content=html)
 
 
-def _build_report(form: WebReportForm) -> WebReportResult:
-    missing = []
-    if not form.birth_date:
-        missing.append("出生日期")
-    if not form.birth_time:
-        missing.append("出生时间")
-    if not form.birth_place:
-        missing.append("出生地区")
-    if not form.gender:
-        missing.append("性别")
-    if missing:
-        raise ValueError(f"缺少必填字段: {'、'.join(missing)}")
-
-    birth_dt, normalized_time = _parse_birth_datetime(form.birth_date, form.birth_time)
-    gender = _normalize_gender(form.gender)
-    report_system = _normalize_report_system(form.report_system)
-    try:
-        longitude, latitude = get_location(form.birth_place)
-    except ValueError as exc:
-        if str(exc).startswith("地点无法识别"):
-            raise ValueError("地点无法识别") from exc
-        raise
-    display_birth_place = public_birth_place(form.birth_place)
-
-    report_hide = build_report_hide(report_system)
-    capability_id = report_system
-    calc_result = (
-        CapabilityExecutor()
-        .execute(
-            CapabilityInput(
-                capability_id=capability_id,
-                payload={
-                    "birthDateTime": birth_dt.strftime("%Y-%m-%d %H:%M:%S"),
-                    "gender": gender,
-                    "longitude": longitude,
-                    "latitude": latitude,
-                    "birthPlace": display_birth_place if capability_id == "bazi" else form.birth_place,
-                    "name": form.name,
-                    "useTrueSolarTime": True,
-                },
-            )
-        )
-        .data
-    )
-    markdown = generate_full_report(calc_result, hide=report_hide, report_system=report_system)
-    payload = {
-        "birthDate": form.birth_date,
-        "birthTime": normalized_time,
-        "birthPlace": display_birth_place,
-        "gender": gender,
-        "name": form.name,
-        "reportSystem": report_system,
-        "reportSystemLabel": REPORT_SYSTEM_LABELS[report_system],
-        "longitude": longitude,
-        "latitude": latitude,
-        "useTrueSolarTime": True,
-    }
-    return WebReportResult(
-        markdown=markdown,
-        resolved_longitude=longitude,
-        resolved_latitude=latitude,
-        normalized_time=normalized_time,
-        input_payload=payload,
-        report_system=report_system,
-        report_system_label=REPORT_SYSTEM_LABELS[report_system],
-        workbench=_build_workbench_payload(calc_result, report_system),
-    )
-
-
-def _parse_birth_datetime(birth_date: str, birth_time: str) -> tuple[datetime, str]:
-    normalized_time = birth_time.strip()
-    if len(normalized_time) == 5:
-        normalized_time = f"{normalized_time}:00"
-    try:
-        birth_dt = datetime.strptime(f"{birth_date.strip()} {normalized_time}", "%Y-%m-%d %H:%M:%S")
-    except ValueError as exc:
-        raise ValueError("出生日期或出生时间格式无效；日期使用 YYYY-MM-DD，时间使用 HH:MM 或 HH:MM:SS。") from exc
-    return birth_dt, normalized_time
-
-
-def _normalize_gender(value: str) -> str:
-    normalized = value.strip().lower()
-    if normalized in {"male", "m", "男"}:
-        return "male"
-    if normalized in {"female", "f", "女"}:
-        return "female"
-    raise ValueError("性别必须为 male/female，或中文 男/女。")
-
-
-def _normalize_report_system(value: str) -> str:
-    normalized = value.strip().lower()
-    if normalized in REPORT_SYSTEM_LABELS:
-        return normalized
-    raise ValueError(f"报告体系必须为: {report_system_allowed_text()}。未来体系需等独立功能实现后启用。")
-
-
-def _render_document(*, form: WebReportForm, result: WebReportResult | None, errors: list[str]) -> str:
+def _render_document(
+    *, form: WebReportForm, result: WebReportResult | None, errors: list[str], job: WebReportJobView | None
+) -> str:
     generated_at = now_cn().isoformat()
     body_parts = [
         "<!doctype html>",
@@ -171,7 +78,7 @@ def _render_document(*, form: WebReportForm, result: WebReportResult | None, err
         _render_workspace_style(),
         "</head>",
         "<body>",
-        _render_production_workspace(form=form, result=result, errors=errors, generated_at=generated_at),
+        _render_production_workspace(form=form, result=result, errors=errors, job=job, generated_at=generated_at),
     ]
 
     body_parts.extend(
@@ -334,16 +241,21 @@ def _render_workspace_style() -> str:
 
 
 def _render_production_workspace(
-    *, form: WebReportForm, result: WebReportResult | None, errors: list[str], generated_at: str
+    *,
+    form: WebReportForm,
+    result: WebReportResult | None,
+    errors: list[str],
+    job: WebReportJobView | None,
+    generated_at: str,
 ) -> str:
     return "\n".join(
         [
-            '<form class="web-production-grid" method="get" action="/web">',
+            '<form id="web-report-form" class="web-production-grid" method="get" action="/web">',
             '<section class="web-production-panel web-production-brand" aria-labelledby="project-brand">',
             _render_branding_panel(),
             "</section>",
             '<section class="web-production-panel web-production-report" aria-labelledby="production-report">',
-            _render_report_panel(result=result, errors=errors),
+            _render_report_panel(result=result, errors=errors, job=job),
             "</section>",
             '<section class="web-production-panel web-production-input" aria-labelledby="input-form">',
             _render_input_panel(form=form, result=result, errors=errors, generated_at=generated_at),
@@ -353,20 +265,58 @@ def _render_production_workspace(
     )
 
 
-def _render_report_panel(*, result: WebReportResult | None, errors: list[str]) -> str:
+def _render_report_panel(*, result: WebReportResult | None, errors: list[str], job: WebReportJobView | None) -> str:
     parts = [
         '<div class="web-production-report-header">',
         '<h2 id="production-report">生成报告</h2>',
-        '<button class="web-production-submit-button" type="submit">生成 Markdown 报告</button>',
+        '<button class="web-production-submit-button" type="submit" form="web-report-form">生成 Markdown 报告</button>',
         "</div>",
     ]
+    if job:
+        parts.append(_render_job_status(job))
     if errors:
+        parts.append('<p id="production-report-state">生成失败；请检查错误信息。</p>')
         parts.append(_render_errors(errors))
     if result:
+        parts.append('<p id="production-report-state">报告已生成。</p>')
         parts.append(_render_report(result))
     if not errors and result is None:
-        parts.append("<p>尚未生成报告。提交底部参数后，服务端会在这里写入 Markdown 输出。</p>")
+        parts.append(
+            '<p id="production-report-state">尚未生成报告。提交底部参数后，服务端会在这里写入 Markdown 输出。</p>'
+        )
     return "\n".join(parts)
+
+
+def _render_job_status(job: WebReportJobView) -> str:
+    status_label = {
+        "queued": "排队中",
+        "running": "生成中",
+        "succeeded": "已完成",
+        "failed": "失败",
+        "expired": "已过期",
+    }.get(job.status, job.status)
+    rows = [
+        ["jobId", job.job_id],
+        ["状态", status_label],
+        ["输出体系", job.report_system],
+        ["队列位置", job.queue_position if job.queue_position is not None else ""],
+        ["创建时间", job.created_at],
+        ["开始时间", job.started_at or ""],
+        ["结束时间", job.finished_at or ""],
+        ["过期时间", job.expires_at],
+    ]
+    if job.error:
+        rows.append(["错误", job.error])
+    table = tabulate(rows, headers=["字段", "值"], tablefmt="psql", missingval="")
+    return "\n".join(
+        [
+            (
+                f'<p id="report-job-status" data-job-id="{_attr(job.job_id)}" '
+                f'data-job-status="{_attr(job.status)}">任务状态：{_h(status_label)}</p>'
+            ),
+            "<pre><code>" + _h(table) + "</code></pre>",
+        ]
+    )
 
 
 def _render_branding_panel() -> str:
@@ -415,7 +365,7 @@ def _render_page_info(generated_at: str) -> str:
         [
             '<details id="page-info">',
             "<summary>页面说明与元信息</summary>",
-            "<p>该页面使用原生 HTML 表单生成标准命理排盘 Markdown 报告。核心结果由服务端直接写入页面。</p>",
+            "<p>该页面使用原生 HTML 表单生成标准命理排盘 Markdown 报告。公开入口优先走异步任务，核心结果由服务端直接写入页面。</p>",
             _render_meta(generated_at),
             _render_navigation(),
             "</details>",
@@ -426,6 +376,7 @@ def _render_page_info(generated_at: str) -> str:
 def _render_meta(generated_at: str) -> str:
     rows = [
         ("入口", "GET /web"),
+        ("异步任务", "POST /api/v1/report/jobs/web；GET /api/v1/report/jobs/{job_id}"),
         ("输出", "Markdown 文本"),
         ("报告模板", "report_generator.generate_full_report(report_system)"),
         ("地区解析", "location.get"),
@@ -445,6 +396,7 @@ def _render_navigation() -> str:
             '<li><a href="/health">GET /health</a></li>',
             '<li><a href="/docs">FastAPI /docs</a></li>',
             '<li><a href="/web">GET /web 空表单</a></li>',
+            '<li><a href="/api/v1/report/systems">GET /api/v1/report/systems</a></li>',
             "</ul>",
             "</nav>",
         ]
@@ -467,6 +419,7 @@ def _render_field_contract() -> str:
 def _render_input_panel(
     form: WebReportForm, result: WebReportResult | None, errors: list[str], generated_at: str
 ) -> str:
+    birth_place_value = form.birth_place if errors else public_birth_place(form.birth_place)
     parts = [
         '<h2 id="input-form">参数控件</h2>',
         '<input type="hidden" name="submitted" value="1">',
@@ -483,7 +436,7 @@ def _render_input_panel(
         '<label for="birthPlace">出生地区（必填）</label><br>',
         (
             '<input id="birthPlace" name="birthPlace" type="text" '
-            f'value="{_attr(public_birth_place(form.birth_place))}" '
+            f'value="{_attr(birth_place_value)}" '
             'placeholder="北京 或 116.4074,39.9042">'
         ),
         "</p>",
@@ -558,33 +511,6 @@ def _render_report(result: WebReportResult) -> str:
             "</details>",
         ]
     )
-
-
-def _build_workbench_payload(calc_result: dict[str, Any], report_system: str) -> dict[str, Any]:
-    """构建 Web 工作台数据；只消费后端结构化结果，不定义命理规则。"""
-    if report_system == "ziwei":
-        return {
-            "system": "ziwei",
-            "palaces": calc_result.get("palaceAnalysis", []),
-            "starTaxonomy": calc_result.get("ziweiStarTaxonomy", {}),
-            "mutagenFlow": calc_result.get("ziweiMutagenFlow", {}),
-            "palaceTopics": calc_result.get("ziweiPalaceTopics", []),
-            "goldenGuards": calc_result.get("ziweiGoldenGuards", {}),
-            "ruleDepth": calc_result.get("ziweiRuleDepth", {}),
-        }
-    return {
-        "system": "bazi",
-        "fourPillars": calc_result.get("fourPillars", {}),
-        "tenGods": calc_result.get("tenGods", {}),
-        "hiddenStems": calc_result.get("hiddenStems", {}),
-        "wuxingScores": calc_result.get("wuxingScores", {}),
-        "geju": calc_result.get("geju", {}),
-        "yongShen": calc_result.get("yongShen", {}),
-        "majorFortune": calc_result.get("majorFortune", {}),
-        "annualFortune": calc_result.get("annualFortune", []),
-        "baziBenchmark": calc_result.get("baziBenchmark", {}),
-        "ruleDepth": calc_result.get("baziRuleDepth", {}),
-    }
 
 
 def _render_workbench(result: WebReportResult) -> str:
@@ -779,6 +705,66 @@ def _render_copy_script() -> str:
         [
             "<script>",
             "(() => {",
+            '  const form = document.getElementById("web-report-form");',
+            '  const reportState = document.getElementById("production-report-state");',
+            "  if (!form) { return; }",
+            "  const setSubmitting = () => {",
+            '    const buttons = document.querySelectorAll(\'#web-report-form button[type="submit"], button[type="submit"][form="web-report-form"]\');',
+            "    buttons.forEach((submitButton) => {",
+            '      submitButton.setAttribute("aria-busy", "true");',
+            '      submitButton.textContent = "生成中...";',
+            "    });",
+            '    if (reportState) { reportState.textContent = "正在生成 Markdown 报告..."; }',
+            "  };",
+            "  const setStatus = (message) => { if (reportState) { reportState.textContent = message; } };",
+            "  const pollJob = async (jobId) => {",
+            "    try {",
+            '      const response = await fetch(`/api/v1/report/jobs/${encodeURIComponent(jobId)}`, { headers: { accept: "application/json" } });',
+            "      const body = await response.json();",
+            '      if (!response.ok || !body.success) { throw new Error(body.error || "报告任务查询失败"); }',
+            "      const data = body.data || {};",
+            '      if (data.status === "succeeded") {',
+            "        window.location.href = `/web?jobId=${encodeURIComponent(jobId)}`;",
+            "        return;",
+            "      }",
+            '      if (data.status === "failed" || data.status === "expired") {',
+            '        setStatus(data.error || "报告任务失败；请重新提交。");',
+            "        return;",
+            "      }",
+            '      const position = data.queuePosition ? `，队列位置 ${data.queuePosition}` : "";',
+            "      setStatus(`正在生成 Markdown 报告... 当前状态 ${data.status}${position}`);",
+            "      window.setTimeout(() => pollJob(jobId), 1500);",
+            "    } catch (error) {",
+            '      setStatus(error instanceof Error ? error.message : "报告任务查询失败");',
+            "    }",
+            "  };",
+            '  const currentJob = document.getElementById("report-job-status");',
+            '  if (currentJob && ["queued", "running"].includes(currentJob.dataset.jobStatus || "")) {',
+            '    pollJob(currentJob.dataset.jobId || "");',
+            "  }",
+            '  form.addEventListener("submit", async (event) => {',
+            "    if (!window.fetch || !window.FormData) { setSubmitting(); return; }",
+            "    event.preventDefault();",
+            "    setSubmitting();",
+            "    try {",
+            "      const payload = Object.fromEntries(new FormData(form).entries());",
+            '      const response = await fetch("/api/v1/report/jobs/web", {',
+            '        method: "POST",',
+            '        headers: { "content-type": "application/json", accept: "application/json" },',
+            "        body: JSON.stringify(payload),",
+            "      });",
+            "      const body = await response.json();",
+            '      if (!response.ok || !body.success) { throw new Error(body.error || "报告任务提交失败"); }',
+            "      const jobId = body.data && body.data.jobId;",
+            '      if (!jobId) { throw new Error("报告任务提交失败"); }',
+            '      setStatus("报告任务已进入队列...");',
+            "      pollJob(jobId);",
+            "    } catch (error) {",
+            '      setStatus(error instanceof Error ? error.message : "报告任务提交失败");',
+            "    }",
+            "  });",
+            "})();",
+            "(() => {",
             '  const button = document.getElementById("copy-report");',
             '  const source = document.getElementById("report-markdown");',
             '  const status = document.getElementById("copy-status");',
@@ -803,7 +789,8 @@ def _selected(current: str, expected: str) -> str:
 
 
 def _render_report_system_options(current: str) -> list[str]:
-    normalized = current if current in REPORT_SYSTEM_LABELS else "bazi"
+    enabled_ids = {item.id for item in PREDICTION_SYSTEMS if item.enabled}
+    normalized = current if current in enabled_ids else "bazi"
     lines: list[str] = []
     current_group = ""
     for system in PREDICTION_SYSTEMS:
